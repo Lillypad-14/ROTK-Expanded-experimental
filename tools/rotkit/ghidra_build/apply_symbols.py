@@ -15,6 +15,7 @@ Exits nonzero on any error.
 import os
 import re
 import sys
+from typing import Any
 
 from rotkit.analysis import decode_text
 from rotkit.decomp import matched_docs
@@ -33,6 +34,46 @@ def _strip_type_qualifiers(type_name: str) -> str:
     return " ".join(re.sub(r"\b(?:const|volatile)\b", "", type_name).split())
 
 
+def _resolve_type(
+    type_name: str,
+    typemap: dict[str, Any],
+    enum_values: dict[str, int],
+    errors: list[str],
+) -> Any | None:
+    """Resolve a data-store type name into a Ghidra datatype."""
+    from ghidra.program.model.data import ArrayDataType, PointerDataType
+
+    s = _strip_type_qualifiers(type_name)
+    if not s:
+        return None
+    if s.endswith("*"):
+        base = _resolve_type(s[:-1].strip(), typemap, enum_values, errors)
+        return PointerDataType(base if base is not None else typemap.get("undefined"))
+    if s.endswith("]"):
+        # The first C array dimension is outermost.
+        i = s.index("[")
+        j = s.index("]", i)
+        base = _resolve_type(s[:i] + s[j + 1 :], typemap, enum_values, errors)
+        if base is None:
+            return None
+        inner = s[i + 1 : j].strip()
+        if not inner:
+            # Unsized arrays have no fixed length to apply.
+            return None
+        try:
+            n = int(inner, 0)
+        except ValueError:
+            n = enum_values.get(inner)
+            if n is None:
+                errors.append(f"array length {inner!r} is not an integer or enum value")
+                return None
+        return ArrayDataType(base, n, base.getLength())
+    dt = typemap.get(s)
+    if dt is None:
+        errors.append(f"data type {s!r} not found in DTM")
+    return dt
+
+
 def run(analyze: bool = False) -> None:
     import pyghidra
 
@@ -41,7 +82,7 @@ def run(analyze: bool = False) -> None:
     from ghidra.base.project import GhidraProject
     from ghidra.program.flatapi import FlatProgramAPI
     from ghidra.program.model.symbol import SourceType
-    from ghidra.program.model.data import ArrayDataType, PointerDataType
+    from ghidra.program.model.data import ArrayDataType
     from ghidra.app.cmd.disassemble import ArmDisassembleCommand
     from ghidra.app.cmd.function import CreateFunctionCmd, ApplyFunctionSignatureCmd
     from ghidra.util.task import ConsoleTaskMonitor
@@ -66,39 +107,6 @@ def run(analyze: bool = False) -> None:
 
     typemap = {}
     enum_values = {}
-
-    def resolve_type(s: str):
-        s = _strip_type_qualifiers(s)
-        if not s:
-            return None
-        if s.endswith("*"):
-            base = resolve_type(s[:-1].strip())
-            return PointerDataType(
-                base if base is not None else typemap.get("undefined")
-            )
-        if s.endswith("]"):
-            i = s.rindex("[")
-            base = resolve_type(s[:i].strip())
-            if base is None:
-                return None
-            inner = s[i + 1 : -1].strip()
-            if not inner:
-                # unsized arrays (e.g. `u8[]`) have no fixed length to apply
-                return None
-            try:
-                n = int(inner, 0)
-            except ValueError:
-                n = enum_values.get(inner)
-                if n is None:
-                    errors.append(
-                        f"array length {inner!r} is not an integer or enum value"
-                    )
-                    return None
-            return ArrayDataType(base, n, base.getLength())
-        dt = typemap.get(s)
-        if dt is None:
-            errors.append(f"data type {s!r} not found in DTM")
-        return dt
 
     tx = program.startTransaction("apply_symbols")
     try:
@@ -169,7 +177,7 @@ def run(analyze: bool = False) -> None:
             except Exception as e:
                 errors.append(f"data {name}@{off}: label: {e}")
                 continue
-            dt = resolve_type(tn) if tn else None
+            dt = _resolve_type(tn, typemap, enum_values, errors) if tn else None
             if dt is not None:
                 try:
                     flat.clearListing(a, a.add(dt.getLength() - 1))
