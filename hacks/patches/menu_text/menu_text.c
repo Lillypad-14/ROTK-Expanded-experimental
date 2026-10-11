@@ -42,5 +42,5 @@ void menuText_run(void)
     text_objSetPos(g_TextObjSlots[MENU_TEXT_OBJ_SLOT], MENU_TEXT_X + width / 2, MENU_TEXT_Y);
     // Rasterizing the object points the font at two scratch buffers and leaves it there;
     // the menu entries still draw on BG0 through the same context, so point it back.
-    font_setRenderCtxBg(MainMenuBgCnt0);
+    font_setBgTarget(MainMenuBgCnt0);
 }

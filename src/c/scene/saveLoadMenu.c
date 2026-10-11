@@ -46,7 +46,7 @@ void scene_saveLoadMenu_enter(void)
     save_refreshSlots();
     sfx_enableAudio();
     SCENE_ARG_SAVE_LOAD_STATE = SAVE_LOAD_STATE_SLOT_SELECT;
-    font_setRenderCtxBg(bg1cnt);
+    font_setBgTarget(bg1cnt);
     font_setStyle(FONT_STYLE_11PX_A, 3, 0);
     if (SCENE_ARG_SAVE_LOAD_MODE == SAVE_LOAD_MODE_SAVE ||
         SCENE_ARG_SAVE_LOAD_MODE == SAVE_LOAD_MODE_SAVE_VICTORY)
@@ -622,7 +622,7 @@ void scene_saveLoadMenu_drawSlot(u8 slot, u8 selectedSlot)
         tile = font_drawString(tile, x, y, str, 1);
         y += 8;
         str = text_formatInt(save->d.level + 1, levelText);
-        font_copyStringToSlot0(str);
+        font_setTemplateArg0(str);
         str = text_getString(TEXT_ID_LEVEL_1);
         font_drawString(tile, x, y, str, 1);
     }

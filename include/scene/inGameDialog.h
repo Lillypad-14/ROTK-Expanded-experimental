@@ -11,7 +11,6 @@ void scene_inGameDialog_tick(void);
 typedef struct DialogLineInfo
 {
     const void *speakerPicture; // 7x8-tile BG asset; NULL: the active hero's own
-    /** formatted into font slot 0 before the text; a credits line points at its
-     * CreditsLineKinds entry instead */
-    const s16 *slot0Value;
+    // Value for font template argument 0, or a CreditsLineKinds entry for credits.
+    const s16 *templateArg0Value;
 } DialogLineInfo;

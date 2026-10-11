@@ -860,7 +860,7 @@ void chapterSelect_enter(void)
     SCENE_ARG_BONUS_MAP_SUB_ENTRY = 0;
     SCENE_ARG_BONUS_MAP_DIFFICULTY = 0;
     setupCursor();
-    font_setRenderCtxBg(BonusMapMenuBgCnt2);
+    font_setBgTarget(BonusMapMenuBgCnt2);
     drawTitle();
     redrawPanel((u8)SCENE_ARG_BONUS_MAP_SUB_ENTRY);
     for (rowIndex = 0; rowIndex < 3; rowIndex++)

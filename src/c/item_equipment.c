@@ -11,11 +11,11 @@
 /**
  * Equip a backpack item, replacing equipment and clearing conflicting hand slots.
  *
- * @return Nonzero on success, zero when the item cannot be equipped.
+ * @return TRUE on success, FALSE when the item cannot be equipped.
  *
  * @romaddress 0x0802bdb4
  */
-u32 item_equipFromBackpack(u8 backpackSlot, u8 playerIndex)
+bool item_equipFromBackpack(u8 backpackSlot, u8 playerIndex)
 {
     Item item = PLAYER(playerIndex).inventory.array[backpackSlot];
     u8 inventorySlot = item_getEquipSlot(item.word, playerIndex);
@@ -40,7 +40,7 @@ u32 item_equipFromBackpack(u8 backpackSlot, u8 playerIndex)
                 }
                 else if (PLAYER(playerIndex).inventory.slots.offhand.d.itemType !=
                              ITEM_TYPE_EMPTY &&
-                         (u8)item_unequipToBackpack(INVENTORY_SLOT_OFFHAND, playerIndex) == 0)
+                         !item_unequipToBackpack(INVENTORY_SLOT_OFFHAND, playerIndex))
                 {
                     if (playerIndex == ACTIVE_PLAYER_INDEX)
                     {
@@ -100,11 +100,11 @@ u32 item_equipFromBackpack(u8 backpackSlot, u8 playerIndex)
 /**
  * Move equipment to the first free backpack slot and promote a dual-wieldable offhand.
  *
- * @return Nonzero on success, zero when the backpack is full.
+ * @return TRUE on success, FALSE when the backpack is full.
  *
  * @romaddress 0x0802bf94
  */
-u32 item_unequipToBackpack(u8 slot, u8 playerIndex)
+bool item_unequipToBackpack(u8 slot, u8 playerIndex)
 {
     Item offhand = PLAYER(playerIndex).inventory.slots.offhand;
     u8 backpackSlot;

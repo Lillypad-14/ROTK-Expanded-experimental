@@ -221,10 +221,9 @@ static inline void setHudTextGemsOrFood(Actor *drop, Item item, u32 playerIndex)
     if (drop->variant == LOOT_TYPE_GEM_STACK)
     {
         char numberBuffer[16];
-        // the "@1" of "A Pile of @1 Gems" reads font slot 0
         g_PlayerHuds[playerIndex].text =
             text_formatInt(item.gem.value0 + item.gem.value1 + item.gem.value2, numberBuffer);
-        font_copyStringToSlot0(g_PlayerHuds[playerIndex].text);
+        font_setTemplateArg0(g_PlayerHuds[playerIndex].text);
     }
     setHudText(drop->variant + TEXT_ID_LOOT_NAME_BASE, playerIndex);
 }

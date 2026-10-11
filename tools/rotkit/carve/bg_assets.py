@@ -515,7 +515,7 @@ def _emit_lines(
 ) -> tuple[int, str]:
     fields = extract_struct_fields("include/scene/inGameDialog.h", "DialogLineInfo")
     check(
-        fields == ["speakerPicture", "slot0Value"],
+        fields == ["speakerPicture", "templateArg0Value"],
         f"bg assets: DialogLineInfo fields {fields}",
     )
     kinds_sym = _symbol(CREDITS_KINDS)
@@ -533,8 +533,8 @@ def _emit_lines(
             table.addr,
             [
                 "Per text id, the speaker picture the in-game dialog draws with the line and",
-                "the value it formats into slot 0; the credits lines use the latter to tag",
-                "their kind. Lines without either are left out.",
+                "the value it formats into template argument 0. Credits lines use the latter",
+                "to tag their kind. Lines without either are left out.",
             ],
         ),
         f"const DialogLineInfo {table.name}[{table.count}] = {{",
@@ -549,9 +549,9 @@ def _emit_lines(
             kind = (value - kinds_sym.addr) // 2
             check(
                 kinds_sym.addr <= value < kinds_sym.addr + 6 and value % 2 == 0,
-                f"bg assets: text {text_id} slot value {value:#x} is not a CreditsLineKinds entry",
+                f"bg assets: text {text_id} template argument value {value:#x} is not a CreditsLineKinds entry",
             )
-            init.append(f".slot0Value = &{kinds_sym.name}[{kinds[kind]}]")
+            init.append(f".templateArg0Value = &{kinds_sym.name}[{kinds[kind]}]")
         entry = f"    [{text_names[text_id]}] = {{{', '.join(init)}}},"
         if len(entry) > 100:
             entry = entry.replace(" = ", " =\n        ", 1)

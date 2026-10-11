@@ -77,7 +77,7 @@ void scene_mainMenu_enter(void)
     gfx_setupBg(0, bg0Cnt);
     gfx_setBgOffset(0, 0);
     gfx_loadPalette(UiPalette, 0);
-    font_setRenderCtxBg(bg0Cnt);
+    font_setBgTarget(bg0Cnt);
 
     if (g_ScenePrevious.id <= 4)
     {

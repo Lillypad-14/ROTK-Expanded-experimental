@@ -11,7 +11,7 @@
  *
  * @romaddress 0x0802e940
  */
-u32 item_swapSlots(u8 slotA, u8 slotB, u8 playerIndex)
+bool item_swapSlots(u8 slotA, u8 slotB, u8 playerIndex)
 {
     Item temp;
 

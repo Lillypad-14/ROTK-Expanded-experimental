@@ -145,6 +145,8 @@ A ROM keeping them separate means the shifted operand carries its own narrowing;
 
 ## Loops
 
+- `fold()` rewrites postdecrement/zero comparisons into predecrement/minus-one comparisons for both signed and unsigned integers.
+  For nonnegative word counts, `u32 remaining; while (remaining--)` can match a predecrement/`0xffffffff` register test without spelling a sentinel in C.
 - Count-only induction variables reverse into down-counters (`check_dbra_loop`): `for (i = 0; i < n; i++)` becomes decrement-n with a bottom `cmp #0; bne` plus one top guard.
   Keep the source loop; trace-loop names a failed precondition.
 - A count-up loop whose body update is spelled through a single-use `static inline` helper can stay unreversed where the direct statement (or a macro with the same body) is dbra-reversed: the argument boundary decides, the helper body's spelling does not (both body spellings match). Reach for it when a ROM count-up loop resists counter and structure variation.

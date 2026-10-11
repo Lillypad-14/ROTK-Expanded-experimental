@@ -131,7 +131,7 @@ typedef struct SongEntry
 } SongEntry;
 
 /** Validate a sfx handle against the driver slot table (stamp + active flag). */
-u32 sfx_isHandleActive(u32 handle);
+bool sfx_isHandleActive(u32 handle);
 /** IWRAM-thunk wrapper: stop the driver instance behind handle. */
 void sfx_driverStopHandle(u32 handle);
 void sfx_driverSetVolume(u8 volume);
@@ -142,7 +142,7 @@ void sfx_driverSetMusicVolume(u8 volume, u32 arg2);
 // Music pause/resume driver state (word 0x02001648): 1 = playing, 2 = paused.
 void sfx_driverResumeMusic(u32 arg1);
 void sfx_driverPauseMusic(void);
-u32 sfx_driverIsMusicPlaying(void);
+bool32 sfx_driverIsMusicPlaying(void);
 
 void sfx_init(void);
 void sfx_initDriver(void);

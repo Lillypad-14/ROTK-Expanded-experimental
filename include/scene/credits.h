@@ -8,7 +8,7 @@ void scene_credits_tick(void);
 void scene_credits_exit(void);
 
 /**
- * Index into CreditsLineKinds, whose entry a credits line's DialogLineInfo.slot0Value
+ * Index into CreditsLineKinds, whose entry a credits line's DialogLineInfo.templateArg0Value
  * points at: the pointer identity picks the line's font and ends the roll.
  */
 enum CreditsLineKind

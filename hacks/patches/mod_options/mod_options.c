@@ -143,8 +143,8 @@ static void drawModTitle(void)
     {
         // the "Page x/y" counter (pages wrap on L/R); save-slot-pages style
         font_setStyle(FONT_STYLE_11PX_B, 3, 0);
-        font_formatIntSlot0((s32)getPage() + 1);
-        font_formatIntSlot1(MOD_OPTIONS_PAGE_COUNT);
+        font_setIntTemplateArg0((s32)getPage() + 1);
+        font_setIntTemplateArg1(MOD_OPTIONS_PAGE_COUNT);
         font_rasterizeString(MOD_OPTIONS_COUNTER_TILE, MOD_OPTIONS_COUNTER_X, MOD_OPTIONS_COUNTER_Y,
                              "Page @1/@2");
     }

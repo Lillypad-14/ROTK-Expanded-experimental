@@ -152,7 +152,9 @@ For Python code, use type hints for function arguments and return types.
 ### Types
 
 - **Integers**: use `u8` / `u16` / `u32` / `u64` (unsigned) and `s8` / `s16` / `s32` / `s64` (signed) instead of `int`, `short`, and so on.
-- Use `bool` for boolean values. `TRUE` and `FALSE` macros are available.
+- Prefer `bool` for boolean values.
+  Use `bool32` when the ROM uses a 32 bit variable for what is semantically a boolean.
+  `TRUE` and `FALSE` macros are available.
 - Use `u8` as a generic type for bytes and yet-undecoded fields in structs.
 
 ### Enums

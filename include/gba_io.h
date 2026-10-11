@@ -420,8 +420,11 @@
 #define BGCNT_PRIORITY(n) (n)          // 0-3; lower draws on top
 #define BGCNT_CHARBASE(n) ((n) << 2)   // 0-3, 16 KiB blocks
 #define BGCNT_SCREENBASE(n) ((n) << 8) // 0-31, 2 KiB blocks
-#define BGCNT_GET_CHARBASE(cnt) (((cnt) >> 2) & 3u)
-#define BGCNT_GET_SCREENBASE(cnt) (((cnt) >> 8) & 0x1fu)
+#define BGCNT_GET_CHARBASE(cnt) (((u32)(cnt) << 28) >> 30)
+#define BGCNT_GET_SCREENBASE(cnt) (((u32)(cnt) << 19) >> 27)
+#define BGCNT_IS_8BPP(cnt) ((u8)(cnt) >> 7)
+// Bit 7 selects 64-byte tiles instead of 32-byte tiles.
+#define BGCNT_TILE_STRIDE(cnt) (32 * (1 + (((s8)(cnt) >> 7) & 1)))
 
 // Screen geometry.
 #define TILE_WIDTH 8

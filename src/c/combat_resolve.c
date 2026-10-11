@@ -48,7 +48,7 @@ static inline void applyFlinch(Actor *victim, u32 playerIndex, u32 unitType)
  *
  * @romaddress 0x0800f168
  */
-s32 combat_resolvePveAttack(Actor *attacker, Actor *victim)
+bool combat_resolvePveAttack(Actor *attacker, Actor *victim)
 {
     FxEmitter *emitter = NULL;
     u32 playerIndex = attacker->as.combat.playerIndex;

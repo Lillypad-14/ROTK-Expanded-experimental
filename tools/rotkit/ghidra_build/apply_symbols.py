@@ -13,6 +13,7 @@ Exits nonzero on any error.
 """
 
 import os
+import re
 import sys
 
 from rotkit.analysis import decode_text
@@ -25,6 +26,11 @@ from rotkit.ghidra_build import parse_headers
 
 
 PROJ_NAME = "rotk"
+
+
+def _strip_type_qualifiers(type_name: str) -> str:
+    """Remove C qualifiers that Ghidra datatypes cannot represent."""
+    return " ".join(re.sub(r"\b(?:const|volatile)\b", "", type_name).split())
 
 
 def run(analyze: bool = False) -> None:
@@ -62,13 +68,7 @@ def run(analyze: bool = False) -> None:
     enum_values = {}
 
     def resolve_type(s: str):
-        s = s.strip()
-        # Ghidra can't express C qualifiers on data types: strip `const` suffixes
-        # (e.g. `LootRegionProgression *const [8]`) and `volatile` prefixes (e.g. `volatile u16`).
-        if s.endswith("const"):
-            s = s[:-5].strip()
-        if s.startswith("volatile "):
-            s = s[len("volatile ") :].strip()
+        s = _strip_type_qualifiers(s)
         if not s:
             return None
         if s.endswith("*"):

@@ -142,7 +142,7 @@ static s32 bodyTop(s32 rows)
 
 /**
  * Draw a paragraph from `top`, one line per '\n' at BODY_PITCH, each centered. '@1'..'@3'
- * pull the font scratch slots the caller filled. The screen width as the wrap limit keeps
+ * use the font template arguments the caller set. The screen width as the wrap limit keeps
  * the literal's own line breaks.
  */
 static void drawParagraph(s32 top, const char *str)
@@ -175,9 +175,9 @@ static bool isFreshStart(void)
 /**
  * "52 4F 54 4B 47 42 41 36  ROTKGBA6": the raw header block, hex + printable ASCII
  * ('.' elsewhere), so a screenshot alone identifies what sits on the chip. Filled into
- * font scratch slot '@1'.
+ * font template argument 0 ('@1').
  */
-static void formatHeaderDumpSlot0(const u8 *bytes)
+static void setHeaderDumpTemplateArg0(const u8 *bytes)
 {
     char buf[LINE_MAX + 1];
     char *p = buf;
@@ -193,7 +193,7 @@ static void formatHeaderDumpSlot0(const u8 *bytes)
         *p++ = hackLib_byteToFontChar(bytes[i]);
     }
     *p = '\0';
-    font_copyStringToSlot0(buf);
+    font_setTemplateArg0(buf);
 }
 
 /**
@@ -234,7 +234,7 @@ static void drawBody(void)
 
     if (info->type == SAVE_MIGRATE_TYPE_NEWER)
     {
-        font_formatIntSlot0(info->version);
+        font_setIntTemplateArg0(info->version);
         drawCenteredParagraph("Found: NEWER save, version @1\n"
                               "\n"
                               "It was written by a later build of\n"
@@ -245,7 +245,7 @@ static void drawBody(void)
 
     if (info->type == SAVE_MIGRATE_TYPE_EMPTY)
     {
-        font_copyStringToSlot0(info->detail == 0x00u ? "0x00" : "0xFF");
+        font_setTemplateArg0(info->detail == 0x00u ? "0x00" : "0xFF");
         drawParagraph(BODY_TOP_WITH_CHOICES, "No save data found on the chip.\n"
                                              "It reads blank (all @1 bytes).\n"
                                              "\n"
@@ -256,7 +256,7 @@ static void drawBody(void)
 
     if (info->type == SAVE_MIGRATE_TYPE_UNRECOGNIZED)
     {
-        formatHeaderDumpSlot0(info->header);
+        setHeaderDumpTemplateArg0(info->header);
         drawParagraph(BODY_TOP_WITH_CHOICES, info->detail == SAVE_MIGRATE_UNRECOGNIZED_CHECKSUM
                                                  ? "Found: damaged save header (bad checksum)\n"
                                                    "@1\n"
@@ -272,8 +272,8 @@ static void drawBody(void)
     }
 
     // migratable
-    font_copyStringToSlot0((char *)detectedString());
-    font_formatIntSlot1(SAVE_HEADER_VERSION);
+    font_setTemplateArg0((char *)detectedString());
+    font_setIntTemplateArg1(SAVE_HEADER_VERSION);
     drawParagraph(BODY_TOP_WITH_CHOICES, "@1\n"
                                          "Will convert to: ROTKRCM version @2\n"
                                          "\n"
@@ -391,7 +391,7 @@ void modSave_migrateSceneEnter(void)
     gfx_setupBg(BG_TEXT, TEXT_BGCNT);
     gfx_loadPalette(UiPalette, 0);
     gfx_setBgOffset(BG_TEXT, 0);
-    font_setRenderCtxBg(TEXT_BGCNT);
+    font_setBgTarget(TEXT_BGCNT);
     clearTextBg();
 
     ARG_PHASE = modSave_canMigrate(SCENE_INFO) ? PHASE_CONFIRM_1 : PHASE_BLOCKED;

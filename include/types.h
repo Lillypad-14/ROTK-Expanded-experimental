@@ -37,6 +37,10 @@ typedef u16 Angle16;
 #ifndef __cplusplus
 typedef unsigned char bool;
 #endif
+
+/** Boolean stored in a 32-bit word. Nonzero values are true. */
+typedef u32 bool32;
+
 #ifndef TRUE
 #define TRUE 1
 #endif

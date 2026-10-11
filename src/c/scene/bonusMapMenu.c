@@ -43,7 +43,7 @@ void scene_bonusMapMenu_enter(void)
     SCENE_ARG_BONUS_MAP_SUB_ENTRY = 0;
     SCENE_ARG_BONUS_MAP_DIFFICULTY = 0;
     scene_bonusMapMenu_setupCursor();
-    font_setRenderCtxBg(BonusMapMenuBgCnt2);
+    font_setBgTarget(BonusMapMenuBgCnt2);
     font_setStyle(FONT_STYLE_11PX_A, 3, 0);
     str = text_getString(TEXT_ID_CHOOSE_YOUR_PATH);
     font_drawString(1, 0x78, 4, str, 1);

@@ -116,7 +116,7 @@ bool combat_applyHazardHitOnPlayer(Actor *attacker, Actor *victim, u16 maxDamage
 bool combat_applyHazardHitOnEnemy(Actor *victim, u16 maxDamage);
 bool combat_applyPveRangedHit(Actor *attacker, Actor *victim, u16 baseDamage);
 
-s32 combat_resolvePveAttack(Actor *attacker, Actor *victim);
+bool combat_resolvePveAttack(Actor *attacker, Actor *victim);
 bool combat_resolvePvpAttack(Actor *attacker, Actor *victim);
 void combat_resolvePlayerAttackOnActor(Actor *attacker, Actor *victim);
 s32 combat_computePveDamage(Actor *attacker, Actor *victim, bool crit);

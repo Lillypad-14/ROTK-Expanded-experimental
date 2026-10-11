@@ -98,7 +98,7 @@ void rangerHollowPages_migrateStash(void)
  */
 static void clearIndicatorTiles(void)
 {
-    volatile u32 *tile = (volatile u32 *)(g_FontRenderCtx.charbaseAddr +
+    volatile u32 *tile = (volatile u32 *)(g_FontRenderCtx.charbase +
                                           g_FontRenderCtx.tileStride * HOLLOW_INDICATOR_TILE);
     u32 totalWords = HOLLOW_INDICATOR_TILES * (g_FontRenderCtx.tileStride / 4);
     for (u32 i = 0; i < totalWords; i++)
@@ -116,8 +116,8 @@ static void clearIndicatorTiles(void)
 static void drawIndicator(void)
 {
     font_setStyle(FONT_STYLE_11PX_B, 3, 0);
-    font_formatIntSlot0(currentPage() + 1);
-    font_formatIntSlot1((s32)HOLLOW_PAGE_COUNT);
+    font_setIntTemplateArg0(currentPage() + 1);
+    font_setIntTemplateArg1((s32)HOLLOW_PAGE_COUNT);
     font_drawString(HOLLOW_INDICATOR_TILE, HOLLOW_PAGE_LABEL_X, HOLLOW_INDICATOR_Y, "Page", 0);
     font_drawString(HOLLOW_INDICATOR_TILE + HOLLOW_INDICATOR_LABEL_TILES, HOLLOW_INDICATOR_X,
                     HOLLOW_INDICATOR_Y, "@1/@2", 0);

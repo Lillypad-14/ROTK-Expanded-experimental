@@ -135,7 +135,7 @@ void scene_shop_enter(void)
     gfx_setupBg(1, ShopBgCnt1);
     gfx_loadPalette(ShopPalette, 0);
     gfx_setBgOffset(1, 0);
-    font_setRenderCtxBg(ShopBgCnt1);
+    font_setBgTarget(ShopBgCnt1);
     font_setStyle(FONT_STYLE_11PX_A, 3, 0);
     str = text_getString(TEXT_ID_SHOP_TITLE_BASE + g_ShopType);
     font_drawString(1, 0x78, 4, str, 1);

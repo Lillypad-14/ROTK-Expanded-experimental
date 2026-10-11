@@ -7,8 +7,8 @@
 
 /**
  * Per text id, the speaker picture the in-game dialog draws with the line and
- * the value it formats into slot 0; the credits lines use the latter to tag
- * their kind. Lines without either are left out.
+ * the value it formats into template argument 0. Credits lines use the latter
+ * to tag their kind. Lines without either are left out.
  *
  * @romaddress 0x082833d8
  */
@@ -662,101 +662,105 @@ const DialogLineInfo DialogLineInfos[2022] = {
     [TEXT_ID_AND_GANDALF_MET_THE_HOBBITS_WITH_GREAT_H] =
         {.speakerPicture = DialogPortraitGandalfBgAsset},
     // [1810] "GRIPTONITE GAMES"
-    [TEXT_ID_GRIPTONITE_GAMES] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_HEADER]},
+    [TEXT_ID_GRIPTONITE_GAMES] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_HEADER]},
     // [1812] "-Executive Producer-"
-    [TEXT_ID_EXECUTIVE_PRODUCER] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_EXECUTIVE_PRODUCER] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1815] "-Producer / Lead Designer-"
-    [TEXT_ID_PRODUCER_LEAD_DESIGNER] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_PRODUCER_LEAD_DESIGNER] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1818] "-Lead Programmers-"
-    [TEXT_ID_LEAD_PROGRAMMERS] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_LEAD_PROGRAMMERS] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1822] "-Art Lead-"
-    [TEXT_ID_ART_LEAD] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_ART_LEAD] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1825] "-Programmers-"
-    [TEXT_ID_PROGRAMMERS] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_PROGRAMMERS] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1834] "-Art and Animation-"
-    [TEXT_ID_ART_AND_ANIMATION] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_ART_AND_ANIMATION] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1840] "-Background Art-"
-    [TEXT_ID_BACKGROUND_ART] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_BACKGROUND_ART] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1843] "-Composer and Sound Design-"
-    [TEXT_ID_COMPOSER_AND_SOUND_DESIGN] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_COMPOSER_AND_SOUND_DESIGN] =
+        {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1846] "-Level Design-"
-    [TEXT_ID_LEVEL_DESIGN] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_LEVEL_DESIGN] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1852] "-Additional Art-"
-    [TEXT_ID_ADDITIONAL_ART] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_ADDITIONAL_ART] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1862] "-Lead Tester-"
-    [TEXT_ID_LEAD_TESTER] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_LEAD_TESTER] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1865] "-Software Testers-"
-    [TEXT_ID_SOFTWARE_TESTERS] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_SOFTWARE_TESTERS] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1874] "-Special Thanks-"
-    [TEXT_ID_SPECIAL_THANKS] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_SPECIAL_THANKS] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1897] "ELECTRONIC ARTS"
-    [TEXT_ID_ELECTRONIC_ARTS] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_HEADER]},
+    [TEXT_ID_ELECTRONIC_ARTS] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_HEADER]},
     // [1899] "-Producer-"
-    [TEXT_ID_PRODUCER] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_PRODUCER] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1902] "-Design-"
-    [TEXT_ID_DESIGN] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_DESIGN] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1905] "-Lead Tester-"
-    [TEXT_ID_LEAD_TESTER_1905] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_LEAD_TESTER_1905] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1908] "-Assistant Lead Tester-"
-    [TEXT_ID_ASSISTANT_LEAD_TESTER] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_ASSISTANT_LEAD_TESTER] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1911] "-Core Testers-"
-    [TEXT_ID_CORE_TESTERS] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_CORE_TESTERS] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1919] "-Product Manager-"
-    [TEXT_ID_PRODUCT_MANAGER] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_PRODUCT_MANAGER] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1922] "-Package Design-"
-    [TEXT_ID_PACKAGE_DESIGN] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_PACKAGE_DESIGN] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1926] "-Package Project Management-"
-    [TEXT_ID_PACKAGE_PROJECT_MANAGEMENT] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_PACKAGE_PROJECT_MANAGEMENT] =
+        {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1929] "-Documentation-"
-    [TEXT_ID_DOCUMENTATION] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_DOCUMENTATION] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1932] "-Documentation Layout-"
-    [TEXT_ID_DOCUMENTATION_LAYOUT] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_DOCUMENTATION_LAYOUT] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1935] "-Customer Quality Control-"
-    [TEXT_ID_CUSTOMER_QUALITY_CONTROL] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_CUSTOMER_QUALITY_CONTROL] =
+        {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1945] "-International Project Coordinator-"
     [TEXT_ID_INTERNATIONAL_PROJECT_COORDINATOR] =
-        {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+        {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1948] "-Sr. Manager Localization-"
-    [TEXT_ID_SR_MANAGER_LOCALIZATION] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_SR_MANAGER_LOCALIZATION] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1951] "-Localization-"
-    [TEXT_ID_LOCALIZATION] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_LOCALIZATION] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1961] "-LIT Supervisor-"
-    [TEXT_ID_LIT_SUPERVISOR] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_LIT_SUPERVISOR] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1964] "-LIT Test Lead-"
-    [TEXT_ID_LIT_TEST_LEAD] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_LIT_TEST_LEAD] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1967] "-LIT Core Testers-"
-    [TEXT_ID_LIT_CORE_TESTERS] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_LIT_CORE_TESTERS] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1973] "-Electronic Arts Special Thanks-"
-    [TEXT_ID_ELECTRONIC_ARTS_SPECIAL_THANKS] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_ELECTRONIC_ARTS_SPECIAL_THANKS] =
+        {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1990] "AMAZE ENTERTAINMENT"
-    [TEXT_ID_AMAZE_ENTERTAINMENT] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_HEADER]},
+    [TEXT_ID_AMAZE_ENTERTAINMENT] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_HEADER]},
     // [1992] "-Executive Management-"
-    [TEXT_ID_EXECUTIVE_MANAGEMENT] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_EXECUTIVE_MANAGEMENT] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1996] "-Director of Development Services-"
     [TEXT_ID_DIRECTOR_OF_DEVELOPMENT_SERVICES] =
-        {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+        {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [1999] "-Creative Director-"
-    [TEXT_ID_CREATIVE_DIRECTOR] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_CREATIVE_DIRECTOR] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [2002] "-Director of Design-"
-    [TEXT_ID_DIRECTOR_OF_DESIGN] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_DIRECTOR_OF_DESIGN] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [2005] "-Director of Operations and Finance-"
     [TEXT_ID_DIRECTOR_OF_OPERATIONS_AND_FINANCE] =
-        {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+        {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [2008] "-Director of Marketing-"
-    [TEXT_ID_DIRECTOR_OF_MARKETING] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+    [TEXT_ID_DIRECTOR_OF_MARKETING] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [2011] "-Executive Studio Director, KnowWonder-"
     [TEXT_ID_EXECUTIVE_STUDIO_DIRECTOR_KNOWWONDER] =
-        {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+        {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [2014] "-Executive Studio Director, Adrenium Games-"
     [TEXT_ID_EXECUTIVE_STUDIO_DIRECTOR_ADRENIUM_GAMES] =
-        {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+        {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [2017] "-Studio Director, The Fizz Factor-"
     [TEXT_ID_STUDIO_DIRECTOR_THE_FIZZ_FACTOR] =
-        {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+        {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [2020] "-Executive Studio Director, BlackShip Games-"
     [TEXT_ID_EXECUTIVE_STUDIO_DIRECTOR_BLACKSHIP_GAME] =
-        {.slot0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
+        {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_NAME]},
     // [2021] "Scott K. Tsumura"
-    [TEXT_ID_SCOTT_K_TSUMURA] = {.slot0Value = &CreditsLineKinds[CREDITS_LINE_LAST]},
+    [TEXT_ID_SCOTT_K_TSUMURA] = {.templateArg0Value = &CreditsLineKinds[CREDITS_LINE_LAST]},
 };
 // clang-format on

@@ -490,7 +490,7 @@ void skill_active_handleQuickCastModeInput(u8 playerIndex)
  *
  * @romaddress 0x08043484
  */
-u32 skill_active_canCast(u8 playerIndex, u8 activeSkillIndex)
+bool32 skill_active_canCast(u8 playerIndex, u8 activeSkillIndex)
 {
     Actor *actor = PLAYER(playerIndex).ownerActor;
     u8 actionState = actor->actionState;

@@ -34,6 +34,31 @@ typedef struct HuffmanNode
     u16 left;
     u16 right;
 } HuffmanNode;
+
+/** Variable-length language package with offsets relative to its start. */
+typedef union TextPackage {
+    u8 bytes[0];
+    struct
+    {
+        // Byte offset to the string offset table.
+        s32 stringOffsetsOffset;
+#ifdef AGBCC
+        HuffmanNode tree[0];
+#else
+        HuffmanNode tree[];
+#endif
+    } d;
+} TextPackage;
+
+#define HUFFMAN_ROOT_NODE 0x100
+
+typedef enum TextDecodeResult
+{
+    TEXT_DECODE_OK = 0,
+    TEXT_DECODE_NO_PACKAGE = 1,
+    TEXT_DECODE_BUFFER_FULL = 2,
+} TextDecodeResult;
+
 /** Used to index into LanguageTextPackages (order of the HuffmanTree* tables). */
 typedef enum Language
 {
@@ -55,8 +80,8 @@ typedef enum Language
 #define TEXT_STRING_BUFFER_SIZE 0x400
 
 void text_init(void);
-void text_setLanguagePackage(const s32 *pkg);
-s32 text_decodeHuffmanString(s32 id, u8 *dst, s32 maxLen);
+TextDecodeResult text_setLanguagePackage(const TextPackage *package);
+TextDecodeResult text_decodeHuffmanString(s32 id, u8 *dst, s32 maxLen);
 void text_setLanguage(s32 langId);
 u8 text_getLanguage(void);
 char *text_getString(s32 id);
@@ -68,7 +93,7 @@ void *text_objFromString(char **pstr);
 /**
  * Rasterize one line of *pstr (advanced past it) into obj's OBJ tiles through two scratch
  * buffers. font_setRenderTarget stays pointed at those freed buffers afterwards, so a
- * scene that also draws BG text calls font_setRenderCtxBg again.
+ * scene that also draws BG text calls font_setBgTarget again.
  */
 void text_objRasterizeString(void *obj, char **pstr);
 void text_objSetPos(void *obj, s32 xCenter, s32 y);

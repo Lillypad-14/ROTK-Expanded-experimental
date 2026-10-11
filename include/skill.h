@@ -285,9 +285,9 @@ typedef enum QuickCastSlot
 
 s16 skill_active_getLeveledValue(u8 playerIndex, u8 activeSkillIndex, u8 valueIndex, u8 levelCount);
 
-u32 skill_active_canCast(u8 playerIndex, u8 activeSkillIndex);
+bool32 skill_active_canCast(u8 playerIndex, u8 activeSkillIndex);
 
-u32 skill_active_hasLevels(u8 playerIndex, u8 activeSkillIndex);
+bool32 skill_active_hasLevels(u8 playerIndex, u8 activeSkillIndex);
 
 void skill_active_cast(u8 playerIndex, u8 activeSkillIndex);
 

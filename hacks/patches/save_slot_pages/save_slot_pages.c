@@ -31,8 +31,8 @@
 static void drawPageIndicator(void)
 {
     font_setStyle(FONT_STYLE_11PX_B, 3, 0);
-    font_formatIntSlot0((s32)g_SaveSlotPage + 1);
-    font_formatIntSlot1((s32)SAVE_SLOT_PAGE_COUNT);
+    font_setIntTemplateArg0((s32)g_SaveSlotPage + 1);
+    font_setIntTemplateArg1((s32)SAVE_SLOT_PAGE_COUNT);
     font_rasterizeString(PAGE_INDICATOR_TILE, PAGE_INDICATOR_X, PAGE_INDICATOR_Y, "@1/@2");
 }
 
@@ -79,7 +79,7 @@ void saveSlotPages_enter(void)
     save_refreshSlots();
     sfx_enableAudio();
     SCENE_ARG_SAVE_LOAD_STATE = SAVE_LOAD_STATE_SLOT_SELECT;
-    font_setRenderCtxBg(bg1cnt);
+    font_setBgTarget(bg1cnt);
     font_setStyle(FONT_STYLE_11PX_A, 3, 0);
     if (SCENE_ARG_SAVE_LOAD_MODE == SAVE_LOAD_MODE_SAVE ||
         SCENE_ARG_SAVE_LOAD_MODE == SAVE_LOAD_MODE_SAVE_VICTORY)

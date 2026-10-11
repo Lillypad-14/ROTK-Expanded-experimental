@@ -48,7 +48,7 @@ void scene_optionsMenu_enter(void)
     gfx_loadPalette(UiPalette, 0);
     gfx_setBgOffset(3, 0);
     gfx_setBgScrollSpeedX(1, 0x8000);
-    font_setRenderCtxBg(bg3cnt);
+    font_setBgTarget(bg3cnt);
 
     font_setStyle(FONT_STYLE_11PX_A, 3, -1);
     font_drawString(0xe2, 0x70, 0xc, text_getString(TEXT_ID_OPTIONS_TITLE), 1);

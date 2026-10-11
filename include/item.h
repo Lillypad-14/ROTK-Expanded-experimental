@@ -522,7 +522,7 @@ bool item_deleteFromInventory(u8 slot, u8 playerIndex);
 void item_clearSlot(u32 *slot);
 
 /** Nonzero if the player meets the item's class-restriction bits and minimum level. */
-u32 item_isUsableByPlayer(u32 itemHandle, u8 playerIndex);
+bool32 item_isUsableByPlayer(u32 itemHandle, u8 playerIndex);
 
 /** The item's minimum equip level (low byte of the return). */
 u32 item_getMinLevel(u32 itemHandle);
@@ -561,11 +561,11 @@ void item_carveRune(u8 slot, u8 runeIndex, u8 playerIndex);
  */
 u32 item_getEquipSlot(u32 itemHandle, u8 playerIndex);
 
-u32 item_equipFromBackpack(u8 backpackSlot, u8 playerIndex);
+bool item_equipFromBackpack(u8 backpackSlot, u8 playerIndex);
 
-u32 item_unequipToBackpack(u8 slot, u8 playerIndex);
+bool item_unequipToBackpack(u8 slot, u8 playerIndex);
 
-u32 item_swapSlots(u8 slotA, u8 slotB, u8 playerIndex);
+bool item_swapSlots(u8 slotA, u8 slotB, u8 playerIndex);
 
 char *item_affix_formatName(char *dst, Item item, u16 maxWidth);
 char *item_affix_accumulateStats(char *dst, Item item);
