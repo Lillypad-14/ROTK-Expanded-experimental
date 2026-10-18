@@ -1,0 +1,1 @@
+hookReplace text_decodeHuffmanString, textOverrides_decodeHuffmanString

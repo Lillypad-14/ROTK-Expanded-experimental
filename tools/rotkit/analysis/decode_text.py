@@ -23,14 +23,16 @@ import os
 import re
 import struct
 import unicodedata
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
 from typing import Annotated
 
 import typer
 
 from rotkit import textdb
+from rotkit.cheaders import extract_enum
 from rotkit.rom import load_rom
+from rotkit.text_encoding import game_to_unicode
 
 # Package-table order (textdb.TEXT_LANG_PTR_TABLE), matching the Language Select list
 # (string ids 6-10):
@@ -39,59 +41,9 @@ LANGS = ["English", "French", "German", "Italian", "Spanish"]
 LANG_TAGS = ["en", "fr", "de", "it", "es"]
 
 
-# Font codepage -> Unicode: ASCII for 0x20-0x7A, accented Latin glyphs in the high slots
-# and a few punctuation slots, mapped by context from the localized text.
-CODEMAP = {
-    0x7B: "©",  # (c)
-    0x7D: "¡",  # inverted !
-    0x7E: "¿",  # inverted ?
-    0x80: "Á",  # A acute
-    0x83: "Ä",  # A umlaut
-    0x87: "è",  # e grave
-    0x88: "É",  # E acute
-    0x91: "Ó",  # O acute
-    0x97: "Ú",  # U acute
-    0x98: "Ü",  # U umlaut
-    0x99: "ß",  # eszett
-    0x9A: "à",  # a grave
-    0x9B: "á",  # a acute
-    0x9C: "â",  # a circumflex
-    0x9E: "ä",  # a umlaut
-    0xA1: "ç",  # c cedilla
-    0xA2: "è",  # e grave
-    0xA3: "é",  # e acute
-    0xA4: "ê",  # e circumflex
-    0xA5: "ë",  # e diaeresis
-    0xA6: "ì",  # i grave
-    0xA7: "í",  # i acute
-    0xA8: "î",  # i circumflex
-    0xA9: "ï",  # i diaeresis
-    0xAA: "ñ",  # n tilde
-    0xAB: "ò",  # o grave
-    0xAC: "ó",  # o acute
-    0xAD: "ô",  # o circumflex
-    0xAF: "ö",  # o umlaut
-    0xB1: "ù",  # u grave
-    0xB2: "ú",  # u acute
-    0xB3: "û",  # u circumflex
-    0xB4: "ü",  # u umlaut
-    # Unmapped (rare/uncertain): 0xB7 (x2). Rendered as \\xNN.
-}
-
-
 def render(raw: bytes) -> str:
     """Render decoded ROM bytes to Unicode using the game's font codepage."""
-    chars = []
-    for b in raw:
-        if b in CODEMAP:
-            chars.append(CODEMAP[b])
-        elif b == 0x0A:
-            chars.append("\n")
-        elif 0x20 <= b < 0x7F:
-            chars.append(chr(b))
-        else:
-            chars.append("\\x%02x" % b)  # unmapped: keep visible for follow-up
-    return "".join(chars)
+    return game_to_unicode(raw)
 
 
 def esc(s: str) -> str:
@@ -163,28 +115,52 @@ def cmd_dump(out_path: str, lang_ids: list[int]) -> None:
 def cmd_show(ids: list[int]) -> None:
     rom = load_rom()
     pkgs = [textdb.pkg_for(rom, lang) for lang in range(len(LANGS))]
+    names = {
+        value: name
+        for name, value in extract_enum("carved/include/text_ids.h", "TextId").items()
+    }
     for sid in ids:
-        print(f"id {sid}:")
+        label = f" - {names[sid]}" if sid in names else ""
+        print(f"id {sid}{label}:")
         for lang, pkg in enumerate(pkgs):
             try:
                 raw, nbytes = textdb.decode(rom, pkg, sid)
-                s = f"{len(raw)}B ({nbytes}B comp): {render(raw)!r}"
+                s = f"{render(raw)!r} (size {len(raw)}B, {nbytes}B compressed)"
             except (IndexError, struct.error) as e:
                 # an id past the package's string count reads out of bounds
                 s = f"<err {e}>"
             print(f"  {LANG_TAGS[lang]}: {s}")
 
 
+def resolve_ids(values: Sequence[str]) -> list[int]:
+    """Resolve decimal, hexadecimal, and TextId enum names without reading the ROM."""
+    symbols = None
+    result = []
+    for value in values:
+        try:
+            text_id = int(value, 0)
+        except ValueError:
+            if symbols is None:
+                symbols = extract_enum("carved/include/text_ids.h", "TextId")
+            if value not in symbols:
+                raise typer.BadParameter(f"unknown text ID {value!r}") from None
+            text_id = symbols[value]
+        if text_id < 0:
+            raise typer.BadParameter(f"text ID must be nonnegative: {value!r}")
+        result.append(text_id)
+    return result
+
+
 def run_show(
     ids: Annotated[
         list[str] | None,
-        typer.Argument(help="string ids, decimal or 0x hex"),
+        typer.Argument(help="text IDs: TEXT_ID_... names, decimal, or 0x hex"),
     ] = None,
 ) -> None:
     """Decode and print string ids for every language, with decoded and compressed lengths."""
     if not ids:
         raise typer.BadParameter("at least one string id is required")
-    cmd_show([int(i, 0) for i in ids])
+    cmd_show(resolve_ids(ids))
 
 
 def run_dump(

@@ -1,0 +1,224 @@
+[TEXT_ID_DWARF_RUNE_IV_MOUNTAIN_HEART]
+# Mistranslated as rune VI in Spanish
+es = "Runa Enano IV - Corazón de Montaña"
+
+[TEXT_ID_ELF_RUNE_IV_MEDITATIVE]
+# Mistranslated as rune VI in Spanish
+es = "Runa Élfica IV - Meditativo"
+
+[TEXT_ID_MAN_RUNE_IV_RUNE_OF_FIRE]
+# Mistranslated as rune VI in Spanish
+es = "Runa Humana IV - Runa de fuego"
+
+[TEXT_ID_SKILL_FEARLESS]
+# Fear resistance grows by 6% per level, not 5%.
+en = "Fearless (Level @1) - You are especially resilient to damage (+1 Armor Toughness / level) and (+6% Resist Fear / level)"
+fr = "Intrépidité (Niv. @1) : vous êtes très résistant aux dégâts (+ 1 Protection/niv. et + 6 rés. à la Peur/niv.)."
+de = "Furchtlosigkeit (Level @1) - Du bist überaus gut gepanzert (+1 Rüstungsstärke/Level) und furchtlos (+6% Furchtresistenz/Level)."
+it = "Senza paura (livello @1) - Hai una grande resistenza al danno (+1 resist. corazza per livello e +6% resist. paura per livello)."
+es = "Intrépido (Nivel @1) - Eres especialmente resistente al daño (+1 Dureza armadura/nivel) y (+6% Resistencia al miedo/nivel)"
+
+[TEXT_ID_SKILL_NIMBLE]
+# French describes parrying, but the skill grants dodge chance.
+fr = "Habileté (Niv. @1) : votre agilité vous permet d'esquiver aisément les attaques ennemies (+ 4 % chances/niv. d'esquiver les cps)."
+
+[TEXT_ID_SKILL_WHY_DOES_IT_HURT_SMEAGOL]
+# Melee and missile armor gain +4/+2 per level, not +3/+3.
+fr = "Peau de Gollum (Niv. @1) : des années de torture vous ont endurci (+4 armure de mêlée, +2 contre les tirs/niv.)."
+de = "Warum schmerzt es, Smeagol? (Level @1) - Die jahrelange Folter hat dich gestählt. (+4 Nahkampf-, +2 Fernkampfrüstung/Level)"
+it = "Perché feriscono Sméagol? (livello @1) - Anni di torture ti hanno reso robusto (+4 armatura in mischia, +2 a distanza/livello)."
+es = "¿Por qué hace daño a Smeagol? (Nivel @1) - Años de tortura te han endurecido. (+4 armadura cuerpo a cuerpo, +2 a distancia/nivel)"
+
+[TEXT_ID_SKILL_DWARF_SENSE]
+# The item-quality bonus is nonlinear rather than +10% per level.
+en = "Dwarf Sense (Level @1) - You are are more likely to find better items.  (+10/25/35/50/60% chance of finding better items)"
+fr = "Nez de Nain (Niv. @1) : vous découvrez de meilleurs objets (+ 10/25/35/50/60 % de chances de trouver de meilleurs objets)."
+de = "Zwergeninstinkt (Level @1) - Nichts entgeht deinen wachen Augen. +10/25/35/50/60% Chance, bessere Gegenstände zu finden."
+it = "Senso nanesco (livello @1) - Trovi più spesso oggetti di valore (+10/25/35/50/60% poss. di trovare oggetti migliori)."
+es = "Percepción enana (Nivel @1) - Es más probable que encuentres objetos valiosos. (+10/25/35/50/60% oport. encon. buenos objetos)"
+
+[TEXT_ID_SKILL_IRON_WILL]
+# The 10%/level describes the low-HP threshold, not the regeneration rate.
+en = "Iron Will (Level @1) - When severely injured, you regenerate health. (Below 10% HP/level: +1/1/2/2/3 HP per 3s)"
+fr = "Volonté de fer (Niv. @1) : vous vous régénérez lorsque vos blessures sont sévères (Sous 10% PV/niv.: +1/1/2/2/3 PV par 3s)."
+de = "Eiserner Wille (Level @1) - Deine tiefen Wunden schließen sich. Unter 10% Gesundheit max./Level: +1/1/2/2/3 Gesundheit je 3s."
+it = "Volontà di ferro (livello @1) - Quando sei ferito gravemente, recuperi salute (Sotto 10% PF/livello: +1/1/2/2/3 PF ogni 3s)."
+es = "Voluntad de hierro (Nivel @1) - Regeneras tu salud con heridas graves. (Bajo 10% salud máx./niv.: +1/1/2/2/3 salud cada 3s)"
+
+[TEXT_ID_SKILL_WISDOM_OF_THE_AGES]
+# French understates spell damage as +1/level instead of +2/level.
+fr = "Savoir des Anciens (Niv. @1) : vous êtes un maître des magies anciennes (tous les sorts infligent + 2 de dégâts/niv.)."
+
+[TEXT_ID_SKILL_BATTLE_SCARRED]
+# Melee and missile armor bonuses differ and do not grow by a flat +1/level.
+en = "Battle Scarred (Level @1) - You are nearly impervious to damage. (Armor: melee +1/3/4/6/7, missile +2/3/5/6/8)"
+fr = "Bête de guerre (Niv. @1) : vous êtes presque indifférent aux dégâts (Armure: mêlée +1/3/4/6/7, tirs +2/3/5/6/8)."
+de = "Kampferprobt (Level @1) - Du bist nahezu unverwundbar. Rüstung: Nahkampf +1/3/4/6/7, Fernkampf +2/3/5/6/8."
+it = "Duro a morire (livello @1) - È praticamente impossibile ferirti (Armatura: mischia +1/3/4/6/7, distanza +2/3/5/6/8)."
+es = "Curtido en la guerra (Nivel @1) - Eres prácticamente inmune al daño. (Armadura: cuerpo a cuerpo +1/3/4/6/7, distancia +2/3/5/6/8)"
+
+[TEXT_ID_SKILL_ARROW_PARRY]
+# Spanish describes dodging rather than deflecting arrows.
+es = "Elude flechas (Nivel @1) - Eludes flechas en el aire. (6%/nivel opotunidad de desviar flechas en el aire)"
+
+[TEXT_ID_SKILL_THE_PRECIOUS]
+# Two passive records each add 10 to the proc stat, totaling 20 rather than 10.
+en = "The Precious (Level @1) - When wounded, there is a 20% chance of entering a rage and doing triple damage for 10 seconds."
+fr = "Le Précieux (Niv. @1) : 20 % de chances de connaître la Rage et de tripler les dégâts infligés pendant 10 sec. lorsque vous êtes blessé."
+de = "Mein Schatz (Level @1) - Wirst du verletzt, verursachst du 10 Sekunden lang dreifachen Schaden (20%-Chance)."
+it = "Il Tesoro (livello @1) - Quando vieni ferito, hai il 20% di possibilità di infuriarti e provocare il triplo dei danni per 10 secondi."
+es = "Influencia del Anillo (Nivel @1) - Si te hieren, tienes 20% oportunidades de sufrir un ataque de rabia y hacer daño triple durante 10 segundos."
+
+[TEXT_ID_SKILL_DEFENDERS_FURY]
+# German overstates invulnerability duration as 10 seconds instead of 3.
+de = "Verbissenheit (Level @1) - Du hast nach einem erlittenen Treffer eine 10%-Chance, für 3 Sekunden unverwundbar zu sein."
+
+[TEXT_ID_SKILL_KNIFE_TOSS]
+# French gives +8 damage/level instead of 8 +1/level.
+fr = "Lancer de couteau (Niv. @1) : Frodon lance un couteau infligeant 8 pts de dégâts +1/niv. -  @2 PC."
+
+[TEXT_ID_SKILL_RINGS_PERSUASION]
+# Conversion chance is 10% +5%/level.
+en = "Ring's Persuasion (Level @1) - 10% +5%/level chance of turning nearby foes into allies. Lasts 10 seconds + 5 seconds / level. @2 Spirit."
+fr = "Persuasion de L'Anneau (Niv. @1) : 10 % +5 %/niv. de chances de changer les proches ennemis en alliés. Dure 10 sec. + 5 sec./niv. - @2 PC."
+# German omits the +5%/level chance scaling.
+de = "Verführung des Rings (Level @1) - Mach nahe Feinde zu Verbündeten. (10% +5% Chance/Level). 10 Sekunden (+5 Sekunden/Level). @2 SP."
+# Italian also understates the duration increment as 0.5s instead of 5s.
+it = "Potere dell'Anello (livello @1) - 10% +5%/livello di possibilità di convertire nemici in alleati. 10 secondi +5 per livello. @2 punti spirito."
+es = "Persuasión del Anillo (Nivel @1) - 10% +5% oport/nivel de convertir en aliados. Dura 10 segundos + 5 segundos/nivel. @2 Espíritu."
+
+[TEXT_ID_SKILL_WHITE_KNIVES]
+# The damage bonus includes a flat +7 as well as +1/level.
+en = "White Knives (Level @1) - Legolas attacks with any small blade in his first inventory slot for +7 damage +1 / level. @2 Spirit."
+fr = "Lames blanches (Niv. @1) : Legolas attaque avec les lames placées en tête de son inventaire pour + 7 de dégâts +1/niv. - @2 PC."
+de = "Weiße Klingen (Level @1) - Legolas greift mit einem Messer in seinem ersten Inventarslot an. +7 Schaden +1/Level. @2 SP."
+it = "Coltelli bianchi (livello @1) - Legolas attacca con qualsiasi lama piccola nel primo spazio inventario, con 7 punti danno +1 per livello. @2 p.ti spirito."
+# Spanish also misidentifies the weapon and omits the first-slot requirement.
+es = "Cuchillos Blancos (Nivel @1) - Legolas ataca con cualquier cuchillo en la primera casilla de su inventario por +7 daño +1/nivel. @2 Espíritu."
+
+[TEXT_ID_SKILL_FRIEND_OF_MIRKWOOD]
+# Each hawk deals 3 +3/level damage rather than 3/level.
+en = "Friend of Mirkwood (Level @1) - Summons a hawk to distract foes.  Each hawk (1 / level) stuns a foe and does 3 damage +3 / level. @2 Spirit."
+fr = "Allié de la Forêt noire (Niv. @1) : invoque des faucons (1/niv.) qui assomment un ennemi chacun et infligent 3 pts de dégâts +3/niv. - @2 PC."
+de = "Freund des Waldes (Level @1) - Hetze pro Level einen Falken auf deine Gegner. Jeder Falke verursacht 3 Punkte Schaden +3/Level. @2 SP."
+it = "Amico di Bosco Atro (livello @1) - Evoca un falco che stordisce i nemici. Ogni falco (1 per livello)  provoca 3 danni +3 per livello. @2 punti spirito."
+es = "Amigo del Bosque Negro (Nivel @1) - Invoca halcón para distraer. Un halcón (1/nivel) aturde a un enemigo y hace 3 daño +3/nivel. @2  Espíritu."
+
+[TEXT_ID_SKILL_FORAGING]
+# Herb pickups restore up to 25 HP per skill level, not 15.
+en = "Foraging (Level @1) - Use this skill by fallen enemies to find Elven herbs. Herbs heal up to 25 health and 10 Spirit / level. @2 Spirit."
+fr = "Fouille (Niv. @1) : permet de trouver près de vos ennemis des herbes elfiques qui peuvent rapporter 25 pts de vie et 10 de Courage/niv. - @2 PC."
+de = "Plündern (Level @1) - Suche in den Taschen gefallener Feinde nach Elbenkräutern. Diese stellen pro Level 25 Gesundheit und 10 SP wieder her. @2 SP."
+it = "Foraggiare (livello @1) - Usa su nemici morti per trovare erbe curative da 25 punti salute e 10 punti spirito per livello. @2 punti spirito."
+es = "Pillaje (Nivel @1) - Para encontrar hierbas elfas curativas en enemigos caídos. Proporcionan 25 salud y 10 Espíritu/nivel. @2 Espíritu."
+
+[TEXT_ID_SKILL_SILENT_STRIDE]
+# Duration increases by 0.7s per level, not 0.5s.
+en = "Silent Stride (Level @1) - Legolas is unnoticed by foes for 2.5 seconds +0.7 seconds / level. @2 Spirit."
+fr = "Pas de loup (Niv. @1) : Legolas passe inaperçu pendant 2,5 sec. + 0,7 sec /niv. - @2 PC."
+de = "Lautloser Gang (Level @1) - Legolas wird von seinen Feinden 2,5 Sekunden (+0,7 Sekunden/Level) nicht bemerkt. @2 SP."
+it = "Passo silente (livello @1) - Legolas rimane invisibile ai nemici per 2,5 secondi +0,7 secondi per livello. @2 punti spirito."
+es = "Zancada Silenciosa (Nivel @1) - Legolas pasa desapercibido a sus enemigos durante 2,5 segundos +0,7 segundos/nivel. @2 Espíritu."
+
+[TEXT_ID_SKILL_SWORD_THROW]
+# Damage is 10 +2/level, not 2 +8/level.
+fr = "Lancer d'épée (Niv. @1) : Aragorn lance son épée qui inflige 10 de dégâts + 2/niv. Le lancer devient précis à partir du niv. 3. - @2 PC."
+# German omits the base 10 damage and mistranslates "tracks" as "hits".
+de = "Schwertwurf (Level @1) - Aragorn wirft sein Schwert. 10 Schaden +2/Level. Ab Level 3 zielsuchend. @2 SP."
+
+[TEXT_ID_SKILL_NUMENOREAN_WILL]
+# Spanish overstates toughness (+8 vs +1/level) and damage (+10 vs +3/level).
+es = "Voluntad Numenoreana (Nivel @1) - Aragorn gana +1 Dureza/nivel y causa +3 daño/nivel. Dura 5 segundos/nivel. @2 Espíritu."
+
+[TEXT_ID_SKILL_SWORD_OF_POWER]
+# Duration is 1s +9s/level, not 8s/level.
+en = "Sword of Power (Level @1) - Gandalf's sword is struck by lightning. +3 damage/level for 1 second +9 seconds / level. @2 Spirit."
+fr = "Epée du Pouvoir (Niv. @1) : l'épée de Gandalf est frappée par la foudre. + 3 de dégâts/niv. pendant 1 sec. +9 sec./niv. - @2 PC."
+de = "Schwert der Macht (Level @1) - Aus Gandalfs Schwert schießen Blitze. Diese verursachen 1 Sekunde +9 Sekunden/Level lang +3 Schaden/Level. @2 SP."
+it = "Spada del Potere (livello @1) - La spada di Gandalf è colpita da un fulmine. +3 danno per livello per 1 secondo +9 secondi per livello. @2 p.ti spirito."
+es = "Espada de Poder (Nivel @1) - La espada de Gandalf es golpeada por un rayo. +3 daño/nivel por 1 seg. +9 seg./niv. @2 Espíritu."
+
+[TEXT_ID_SKILL_LIGHTSTRIKE]
+# Damage is 12/level, not 10/level.
+en = "Lightstrike (Level @1) - Gandalf creates a beam that does 12 damage / level. Does splash damage at level 5. @2 Spirit."
+# Damage is 12/level, not 10/level.
+fr = "Eclair (Niv. @1) : Gandalf génère un rayon qui inflige 12 pts de dégâts/niv. Inflige également des dommages collatéraux dès le niv. 5 - @2 PC."
+# Damage is 12/level, not 10 +10/level.
+de = "Lichtinferno (Level @1) - Gandalf entfesselt einen Lichtstrahl. Dieser verursacht 12 Punkte Schaden/Level. Streuschaden ab Level 5. @2 SP."
+# Damage is 12/level, not 10 +10/level.
+it = "Folgore (livello @1) - Gandalf crea una saetta che provoca 12 danni per livello. Al livello 5 provoca danno diffuso. @2 punti spirito."
+# Damage is 12/level, not 40 +10/level.
+es = "Rayo Luminoso (Nivel @1) - Gandalf crea un rayo de luz que hace 12 daño/nivel. Dispersa el daño a partir de nivel 5. @2 Espíritu."
+
+[TEXT_ID_SKILL_SHIELD]
+# Shield HP follows a nonuniform curve, not 30 +20/level.
+en = "Shield (Level @1) - Gandalf is surrounded by a protective shield. 55/75/100/120/145 hit points. @2 Spirit."
+fr = "Bouclier (Niv. @1) : un écran protecteur enveloppe Gandalf et absorbe 55/75/100/120/145 pts de dégâts. - @2 PC."
+de = "Schild (Level @1) - Gandalf ist von einem Schutzschild umgeben. 55/75/100/120/145 Gesundheit. @2 SP."
+it = "Scudo (livello @1) - Gandalf viene circondato da uno scudo protettivo, con 55/75/100/120/145 punti ferita. @2 punti spirito."
+es = "Escudo (Nivel @1) - Gandalf se rodea de un escudo protector. 55/75/100/120/145 salud. @2 Espíritu."
+
+[TEXT_ID_SKILL_STOICISM]
+# Base damage reduction is 20%, not 15%.
+en = "Stoicism (Level @1) - Gimli takes 20% less damage for 3 seconds.  +2 seconds / level  +10% less damage / level. @2 Spirit."
+fr = "Stoïcisme (Niv. @1) : Gimli reçoit 20 % de moins de dégâts pendant 3 sec. + 2 sec./niv. + 10 % de moins/niv. - @2 PC."
+de = "Gelassenheit (Level @1) - Gimli ist 3 Sekunden lang 20% weniger verwundbar (+2 Sekunden/+10% weinger Schaden/Level). @2 SP."
+it = "Impassibilità (livello @1) - Gimli subisce 20% in meno di danno per 3 secondi, +2 secondi e 10% in meno di danno per livello. @2 punti spirito."
+es = "Estoicismo (Nivel @1) - Gimli recibe 20% menos de daño por 3 segundos. +2 segundos/niv. 10% daño/niv. @2 Espíritu."
+
+[TEXT_ID_SKILL_DOUBLE_STRIKE]
+# The damage bonus includes a flat +2 as well as +2/level.
+en = "Double Strike (Level @1) - Two strikes, each with +2 damage +2 / level. 30 Spirit."
+fr = "Double coup (Niv. @1) : deux coups, chacun augmente les dégâts infligés de 2 pts +2/niv. - 30 PC."
+de = "Doppelschlag (Level @1) - Verursacht +2 Schaden +2/Level. @2 SP."
+it = "Doppio colpo (livello @1) - Due colpi, ciascuno con +2 danno +2 per livello. 30 punti spirito."
+es = "Doble Impacto (Nivel @1) - Dos golpes, cada uno con +2 daño +2/nivel. 30 Espíritu."
+
+[TEXT_ID_SKILL_SHIELDMAIDEN_OF_ROHAN]
+# Block chance is 15% +3%/level, not 20% +5%/level.
+de = "Schildmaid von Rohan (Level @1) - 10 Sekunden 15% höhere Chance, Angriffe abzuwehren. +3% Chance/Level +2 Sekunden/Level @2 SP."
+it = "Scudiera di Rohan (livello @1) - +15% possibilità di parare i colpi per 10 secondi, +3% possibilità e +2 secondi per livello. @2 punti spirito."
+es = "Escudera de Rohan (Nivel @1) - +15% oportunidades de bloquear ataques por 10 segundos. +3% oportunidades/nivel y +2 segundos/nivel. @2 Espíritu."
+
+[TEXT_ID_SKILL_SHIELD_BASH]
+# Stun timers are 30/70/120/180/250 ticks, rounded to whole seconds.
+en = "Shield Bash (Level @1) - Eowyn bashes enemies with her shield.  Does 12 + 1 damage / level. Stuns for 1/2/4/6/8 seconds. @2 Spirit."
+# Base damage is 12, not 10.
+fr = "Coup de bouclier (Niv. @1) : Eowyn frappe ses ennemis avec son bouclier. Inflige 12 pts de dégâts + 1/niv. Assomme 1/2/4/6/8 sec. - @2 PC."
+# Base damage is 12, not 40.
+de = "Schildattacke (Level @1) - Eowyn fügt ihren Gegnern mit Schild 12 Punkte Schaden zu (+1 Punkte/Level) und betäubt sie für 1/2/4/6/8 s. @2 SP."
+it = "Colpo di scudo (livello @1) - Éowyn causa 12 punti danno, +1 per livello. Stordisce per 1/2/4/6/8 secondi. @2 punti spirito."
+# Base damage is 12, not 10.
+es = "Golpe de Escudo (Nivel @1) - Éowyn asesta un golpe con su escudo. Causa 12 daño. +1 daño/niv. Aturde durante 1/2/4/6/8 seg. @2 Espíritu."
+
+[TEXT_ID_SKILL_SNARE_555]
+# Trap damage follows a nonuniform curve, not 15 +3/level.
+en = "Snare (Level @1) - Sam sets a trap. Each trap does 8/11/14/17/22 damage.  Sam gains an extra trap per level. @2 Spirit."
+fr = "Braconnier (Niv. @1) : chaque piège de Sam inflige 8/11/14/17/22 pts de dégâts. Sam gagne un piège par niv. - @2 PC."
+de = "Falle (Level @1) - Verursacht 8/11/14/17/22 Punkte Schaden. Sam bekommt nach jedem Level eine zusätzliche Falle. @2 SP."
+it = "Trappola (livello @1) - Ogni trappola piazzata da Sam provoca 8/11/14/17/22 punti danno. 1 trappola extra a livello. @2 punti spirito."
+es = "Trampa (Nivel @1) - Sam pone una trampa. Cada trampa hace 8/11/14/17/22 de daño. Sam gana 1 trampa extra por nivel. @2 Espíritu."
+
+[TEXT_ID_SKILL_COOKPOT_SMASH]
+# Damage is 3 +5/level, not 5/level.
+en = "Cookpot Smash (Level @1) - Sam bashes with his cookpot for 3 damage +5 / level, and stuns foe for 1 second / level. @2 Spirit."
+fr = "Coup de marmite (Niv. @1) : Sam donne un coup de marmite de 3 pts de dégâts +5/niv. et assomme sa victime 1 sec/niv. - @2 PC."
+de = "Kochtopfwirbel (Level @1) - Sam verursacht mit seinem Kochtopf +3 Schaden +5/Level und betäubt den Gegner für 1 Sekunde/Level. @2 SP."
+it = "Colpo di pentola (livello @1) - Sam colpisce con la sua pentola, causando 3 punti danno +5 per livello. Stordisce per 1 secondo per livello. @2 punti spirito."
+es = "Ruido de Cacerolas (Nivel @1) - Sam ataca con su cacerola por 3 daño +5/nivel, y aturde enemigos durante 1 segundo/nivel. @2 Espíritu."
+
+[TEXT_ID_SKILL_COWER]
+# French gives a 5s duration increment instead of 0.5s.
+fr = "Tremblote (Niv. @1) : les ennemis ont pitié de Sméagol et l'ignorent tandis qu'il se recroqueville. Dure 1,5 sec. + 0,5 sec./niv. - @2 PC."
+
+[TEXT_ID_SKILL_PITIFUL_WAIL]
+# Damage scales as 8 +2/level rather than staying fixed at 10.
+en = "Pitiful Wail (Level @1) - Enemies around Smeagol take 8 damage +2 / level and are stunned for 2 seconds, +2 seconds / level. @2 Spirit."
+fr = "Plainte pathétique (Niv. @1) : les ennemis proches de Sméagol reçoivent 8 pts de dégâts +2/niv. et sont assommés pour 2 sec. + 2 sec./ niv. - @2 PC."
+de = "Wehklagen (Level @1) - Feinde in Smeagols Nähe erleiden 8 Punkte Schaden +2/Level und sind 2 Sekunden (+2 Sekunden/Level) betäubt. @2 SP"
+it = "Lamento doloroso (livello @1) - I nemici intorno a Sméagol subiscono 8 danni +2/livello e sono storditi per 2 secondi, +2 secondi per livello. @2 punti spirito."
+es = "Gemido Lastimero (Nivel @1) - Los enemigos alrededor de Smeagol reciben 8 daño +2/nivel y quedan aturdidos 2 seg, +2 segundos/nivel. @2 Espíritu"
+
+[TEXT_ID_STAT_CORRUPTION_RESISTANCE]
+# German mislabels corruption resistance as resistance to seduction.
+de = "% Verderbnisresistenz"

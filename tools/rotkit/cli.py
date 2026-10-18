@@ -16,7 +16,13 @@ from collections.abc import Callable, Sequence
 import typer
 
 from rotkit import coverage, eeprom, match
-from rotkit.analysis import decode_text, dump_affixes, hit_chance, mission_scripts
+from rotkit.analysis import (
+    decode_text,
+    dump_affixes,
+    hit_chance,
+    mission_scripts,
+    text_override_diff,
+)
 from rotkit.build import (
     cc,
     clangd,
@@ -53,7 +59,12 @@ from rotkit.carve import (
     text_ids,
 )
 from rotkit.ghidra_build import apply_symbols, gen_project, parse_headers
-from rotkit.hack import bps, modcode_syms, tablepatch
+from rotkit.hack import (
+    bps,
+    modcode_syms,
+    tablepatch,
+    text_overrides,
+)
 
 app = typer.Typer(
     no_args_is_help=True, help="RotKit - Reverse engineering and ROM hacking toolkit"
@@ -203,6 +214,11 @@ group(
     "patch build",
     [
         ("bps", bps.run, "emit a verified BPS from a built hack ROM"),
+        (
+            "text-overrides",
+            text_overrides.run,
+            "UTF-8 TOML overrides -> encoded C include",
+        ),
         ("modcode-syms", modcode_syms.run, "ELF -> armips modcode symbol equates"),
         (
             "tablepatch",
@@ -244,6 +260,7 @@ group(
 decode_text_app = typer.Typer(no_args_is_help=True, help="decode the Huffman text")
 decode_text_app.command("show")(decode_text.run_show)
 decode_text_app.command("dump")(decode_text.run_dump)
+decode_text_app.command("diff")(text_override_diff.run)
 analysis.add_typer(decode_text_app, name="decode-text")
 
 

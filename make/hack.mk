@@ -1,6 +1,6 @@
 # hack / build: compose the selected patches (hacks/patches.cfg) into one patched ROM / BPS.
 # Make owns the build graph; build_patch.py only does the SHA + BPS round-trip.
-.PHONY: hack dist check-hacks
+.PHONY: hack dist check-hacks hack-text-overrides
 
 # Memory map (single source hacks/layout.cfg) -> per-consumer fragments (.inc/.h/.ld). No hardcoded
 # addresses in the hack files: hack.asm includes .inc, hack.ld INCLUDEs .ld, rom.c includes .h. The C
@@ -55,11 +55,15 @@ MODCODE_CFLAGS := -c -g3 -std=gnu11 -Wall -Wextra -mthumb -mthumb-interwork -mlo
            -Iinclude -Icarved/include -Ibuild/include \
            -Ibuild/hack_include -Ihacks $(DEF)
 
+# Refresh for the selected patches so file and selection changes cannot leave stale entries.
+hack-text-overrides:
+	uv run rotkit hack text-overrides --patches "$(SEL)"
+
 # Selection is a runtime choice, so the modcode is rebuilt each `make hack` (it's small): guard
 # hook-site collisions, compile the enabled C bodies into one blob, then armips.
 hack: $(if $(SKIP_ROM_CHECK),,check-base-rom) build/game_symbols.inc build/game_symbols.ld \
                      build/memmap.inc build/hack_include/memmap.h build/memmap.ld \
-                     build/include/variables.h clangd
+                     build/include/variables.h clangd hack-text-overrides
 	@# hook-site guard: the site arg of every hookTrampoline/hookReplace/hookTrap/hookStub
 	@# call (hack.asm + all patch asm) must be unique - armips would let a later write silently
 	@# overwrite an earlier one at the same site. Repo-wide on purpose: a shared site must

@@ -159,6 +159,14 @@ Their check lives in `patches/mod_save/save_layout.h`, which also derives the ch
 
 Disabling a patch takes its dependents with it: the build errors naming the missing patch instead of producing a broken ROM.
 
+### Text Overrides
+
+A patch can provide localized replacements in `*.text-override.toml` files in its directory.
+Select `text_overrides` alongside patches contributing text.
+The build merges only selected patches' files into one lookup.
+Duplicate text ID/language pairs fail with both source filenames rather than choosing a winner.
+See [localized text overrides](patches/text_overrides/README.md) for the format and review commands.
+
 ### Startup Tasks
 
 Once-per-boot work goes in `runTasks` (`mod_startup.c`), one `#if HACK_<patch>` call per patch, with the function declared in that patch's own `<p>.h`.
