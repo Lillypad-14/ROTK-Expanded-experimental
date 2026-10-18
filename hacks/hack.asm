@@ -80,6 +80,9 @@
 .if HACK_chapter_select
     .include "hacks/patches/chapter_select/chapter_select.asm"
 .endif
+.if HACK_item_descriptions
+    .include "hacks/patches/item_descriptions/item_descriptions.asm"
+.endif
 .if HACK_text_overrides
     .include "hacks/patches/text_overrides/text_overrides.asm"
 .endif
