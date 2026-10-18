@@ -552,16 +552,14 @@ typedef struct PlayerHud
     // Skill panel animation step, 0 hidden through 4 revealed.
     u8 skillPanelFrame;
 
-    /** HUD text color (HUD_TEXT_COLOR_*, also set by item_affix_formatName) */
+    // Font color bias for HUD and item-info text (HUD_TEXT_COLOR_*).
     u8 textColor;
 
     u8 field_0x79[3];
 } PlayerHud;
 
-/**
- * PlayerHud.textColor values: the gameplay and menu font palettes map the same colors
- * to different indices; menu values inferred from the setItemNameColor pairs.
- */
+// Font palette-index biases. Nonzero glyph samples add 1..3 to the bias.
+// Gameplay names describe the normal HUD palette. Poison and fear recolor its red/blue groups.
 enum HudTextColorGameplay
 {
     HUD_TEXT_COLOR_GAMEPLAY_WHITE = 0,
@@ -571,9 +569,10 @@ enum HudTextColorGameplay
     HUD_TEXT_COLOR_GAMEPLAY_GREEN = 12,
 };
 
+// Item-info text colors in ShopPalette.
 enum HudTextColorMenu
 {
-    HUD_TEXT_COLOR_MENU_WHITE = 3,
+    HUD_TEXT_COLOR_MENU_YELLOW = 3,
     HUD_TEXT_COLOR_MENU_RED = 6,
     HUD_TEXT_COLOR_MENU_GREEN = 9,
     HUD_TEXT_COLOR_MENU_BLUE = 12,

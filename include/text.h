@@ -70,9 +70,7 @@ typedef enum Language
 } __attribute__((packed)) Language;
 #define LANGUAGE_COUNT 5
 /**
- * TRUE for languages that render affixes suffix-first ("<base>: <suffix>, <prefix>").
- * It and Es are the last two ids, so the ROM range-checks the id against
- * LANGUAGE_IT..LANGUAGE_ES.
+ * TRUE for Italian and Spanish, which render names as "<base> <suffix>, <prefix>".
  */
 #define LANGUAGE_SUFFIX_FIRST(langId) ((u8)((langId) - LANGUAGE_IT) <= 1)
 

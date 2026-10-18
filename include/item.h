@@ -103,8 +103,9 @@ typedef struct GemStack
 } GemStack;
 /**
  * An item instance / item handle: the packed 4-byte item word (itemType nibble | runeIndex<<4 |
- * baseIndex<<8 | prefixIndex<<16 | suffixIndex<<24; 0xff bytes = absent affix). Stored in a
- * Player's Inventory slots and passed around in a register as a u32 handle. The runeIndex nibble
+ * baseIndex<<8 | prefixIndex<<16 | suffixIndex<<24). Affix indices use 0xff when absent.
+ * Arrow stacks store their count in prefixIndex instead of a prefix. Items occupy a
+ * Player's Inventory slots and are passed around as a u32 handle. The runeIndex nibble
  * is the carved rune (enum RuneId; RUNE_NONE when never carved, e.g. fresh loot).
  *
  * Views: `word` = the packed u32; `halfwords` = the low/affixes u16 pair; `d` = unpacked
@@ -120,7 +121,7 @@ typedef union Item {
     struct
     {
         u16 low;
-        u16 affixes; // prefixIndex | suffixIndex<<8; 0xffff = neither affix
+        u16 affixes; // prefixIndex | suffixIndex<<8. Arrow stacks include their count here.
     } halfwords;
 
     struct
@@ -128,7 +129,9 @@ typedef union Item {
         u8 itemType : 4;
         u8 runeIndex : 4; // carved rune (enum RuneId); RUNE_NONE = uncarved
         u8 baseIndex;     // index into the item type's base-item table
+        // Prefix table index or ITEM_AFFIX_NONE. Arrow stacks use this byte as their count.
         u8 prefixIndex;
+        // Suffix table index or ITEM_AFFIX_NONE.
         u8 suffixIndex;
     } d;
 
@@ -150,7 +153,7 @@ typedef union Item {
 
 /** Sentinel value stored in Item.d.prefixIndex / suffixIndex when that affix is absent. */
 #define ITEM_AFFIX_NONE 0xff
-/** Item.halfwords.affixes value when neither prefix nor suffix is present (both bytes 0xff). */
+/** Item.halfwords.affixes value when both index bytes are ITEM_AFFIX_NONE. */
 #define ITEM_AFFIXES_NONE 0xffff
 
 /** The item's type nibble; equivalent to item.d.itemType (mask form). */
@@ -162,8 +165,9 @@ typedef union Item {
  */
 #define ITEM_TYPE_VIA_SHIFT(item) ((u8)((item).bytes[0] << 4) >> 4)
 
-// Whether the item carries the given affix (index != ITEM_AFFIX_NONE).
+// Test the prefix byte against ITEM_AFFIX_NONE. Arrow counts also satisfy this test.
 #define ITEM_HAS_PREFIX(item) ((item).d.prefixIndex != ITEM_AFFIX_NONE)
+// Whether a suffix index is present.
 #define ITEM_HAS_SUFFIX(item) ((item).d.suffixIndex != ITEM_AFFIX_NONE)
 
 /** Whether the item has a rune carved into it (runeIndex != RUNE_NONE). */
@@ -527,14 +531,7 @@ bool32 item_isUsableByPlayer(u32 itemHandle, u8 playerIndex);
 /** The item's minimum equip level (low byte of the return). */
 u32 item_getMinLevel(u32 itemHandle);
 
-/**
- * Draw an item's name, min level, and stat/flavor lines into an info panel at x/y.
- * ITEM_TYPE_UNIQUE items with baseIndex < 26 show flavor text
- * (TEXT_ID_UNIQUE_DESC_BASE + baseIndex) instead of the accumulated stat string.
- *
- * @return the description line (unique flavor text or the accumulated stat string)
- */
-char *item_drawInfo(char *buffer, u8 playerIndex, u32 itemHandle, u16 *x, u16 *y, u16 *pen);
+char *item_drawInfo(char *buffer, u32 playerIndex, Item item, const u16 *x, u16 *y, u16 *tileIndex);
 
 void item_applyAffixStats(Item item, u8 inventorySlot, u8 playerIndex, bool remove);
 
