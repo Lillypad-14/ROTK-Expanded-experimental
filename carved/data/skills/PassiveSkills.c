@@ -12,9 +12,9 @@
 const PassiveSkill PassiveSkills[35] = {
     // [0] FEARLESS
     { .records = {
-             { .statIndex = STAT_MELEE_ARMOR, .valuePerLevel = { 1, 1, 1, 1, 1 } },
-             { .statIndex = STAT_FEAR_RESIST_PERCENT, .valuePerLevel = { 6, 6, 6, 6, 6 } },
-             { .statIndex = STAT_MISSILE_ARMOR, .valuePerLevel = { 1, 1, 1, 1, 1 } },
+             { .statIndex = STAT_MELEE_ARMOR, .perLevel = { 1, 1, 1, 1, 1 } },
+             { .statIndex = STAT_FEAR_RESIST_PERCENT, .perLevel = { 6, 6, 6, 6, 6 } },
+             { .statIndex = STAT_MISSILE_ARMOR, .perLevel = { 1, 1, 1, 1, 1 } },
          },
       .tier = PASSIVE_SKILL_TIER_1,
       .initialRequiredLevel = 2,
@@ -22,8 +22,8 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [1] ACCURACY
     { .records = {
-             { .statIndex = STAT_ACCURACY, .valuePerLevel = { 1, 1, 1, 1, 1 } },
-             { .statIndex = STAT_CRIT_DAMAGE, .valuePerLevel = { 3, 3, 3, 3, 3 } },
+             { .statIndex = STAT_ACCURACY, .perLevel = { 1, 1, 1, 1, 1 } },
+             { .statIndex = STAT_CRIT_DAMAGE, .perLevel = { 3, 3, 3, 3, 3 } },
              { .statIndex = STAT_NONE },
          },
       .tier = PASSIVE_SKILL_TIER_1,
@@ -32,7 +32,7 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [2] NIMBLE
     { .records = {
-             { .statIndex = STAT_DODGE_PERCENT, .valuePerLevel = { 4, 4, 4, 4, 4 } },
+             { .statIndex = STAT_DODGE_PERCENT, .perLevel = { 4, 4, 4, 4, 4 } },
              { .statIndex = STAT_NONE },
              { .statIndex = STAT_NONE },
          },
@@ -42,7 +42,7 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [3] DEATH_STRIKE
     { .records = {
-             { .statIndex = STAT_CRIT_CHANCE_PERCENT, .valuePerLevel = { 3, 3, 3, 3, 3 } },
+             { .statIndex = STAT_CRIT_CHANCE_PERCENT, .perLevel = { 3, 3, 3, 3, 3 } },
              { .statIndex = STAT_NONE },
              { .statIndex = STAT_NONE },
          },
@@ -52,7 +52,7 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [4] BLADEMASTER
     { .records = {
-             { .statIndex = STAT_DAMAGE_WITH_BLADE, .valuePerLevel = { 1, 1, 1, 1, 1 } },
+             { .statIndex = STAT_DAMAGE_WITH_BLADE, .perLevel = { 1, 1, 1, 1, 1 } },
              { .statIndex = STAT_NONE },
              { .statIndex = STAT_NONE },
          },
@@ -62,7 +62,7 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [5] AXEMASTER
     { .records = {
-             { .statIndex = STAT_DAMAGE_WITH_AXE, .valuePerLevel = { 1, 1, 1, 1, 1 } },
+             { .statIndex = STAT_DAMAGE_WITH_AXE, .perLevel = { 1, 1, 1, 1, 1 } },
              { .statIndex = STAT_NONE },
              { .statIndex = STAT_NONE },
          },
@@ -72,7 +72,7 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [6] HERB_LORE
     { .records = {
-             { .statIndex = STAT_HP_FROM_HERBS, .valuePerLevel = { 10, 10, 10, 10, 10 } },
+             { .statIndex = STAT_HP_FROM_HERBS, .perLevel = { 10, 10, 10, 10, 10 } },
              { .statIndex = STAT_NONE },
              { .statIndex = STAT_NONE },
          },
@@ -82,8 +82,8 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [7] KEEN_EYES
     { .records = {
-             { .statIndex = STAT_EXTRA_GEMS_PERCENT, .valuePerLevel = { 5, 5, 5, 5, 5 } },
-             { .statIndex = STAT_EXTRA_TREASURE_PERCENT, .valuePerLevel = { 5, 5, 5, 5, 5 } },
+             { .statIndex = STAT_EXTRA_GEMS_PERCENT, .perLevel = { 5, 5, 5, 5, 5 } },
+             { .statIndex = STAT_EXTRA_TREASURE_PERCENT, .perLevel = { 5, 5, 5, 5, 5 } },
              { .statIndex = STAT_NONE },
          },
       .tier = PASSIVE_SKILL_TIER_1,
@@ -92,7 +92,7 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [8] RANGEMASTER
     { .records = {
-             { .statIndex = STAT_DAMAGE_WITH_BOW, .valuePerLevel = { 1, 1, 1, 1, 1 } },
+             { .statIndex = STAT_DAMAGE_WITH_BOW, .perLevel = { 1, 1, 1, 1, 1 } },
              { .statIndex = STAT_NONE },
              { .statIndex = STAT_NONE },
          },
@@ -102,7 +102,7 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [9] LUCK
     { .records = {
-             { .statIndex = STAT_ALL_PRIMARY_STATS, .valuePerLevel = { 1, 1, 1, 1, 1 } },
+             { .statIndex = STAT_ALL_PRIMARY_STATS, .perLevel = { 1, 1, 1, 1, 1 } },
              { .statIndex = STAT_NONE },
              { .statIndex = STAT_NONE },
          },
@@ -112,7 +112,7 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [10] DIRTY_CLAWS
     { .records = {
-             { .statIndex = STAT_DAMAGE_SLASH, .valuePerLevel = { 4, 4, 4, 4, 4 } },
+             { .statIndex = STAT_DAMAGE_SLASH, .perLevel = { 4, 4, 4, 4, 4 } },
              { .statIndex = STAT_NONE },
              { .statIndex = STAT_NONE },
          },
@@ -122,8 +122,8 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [11] WHY_DOES_IT_HURT_SMEAGOL
     { .records = {
-             { .statIndex = STAT_MELEE_ARMOR, .valuePerLevel = { 4, 4, 4, 4, 4 } },
-             { .statIndex = STAT_MISSILE_ARMOR, .valuePerLevel = { 2, 2, 2, 2, 2 } },
+             { .statIndex = STAT_MELEE_ARMOR, .perLevel = { 4, 4, 4, 4, 4 } },
+             { .statIndex = STAT_MISSILE_ARMOR, .perLevel = { 2, 2, 2, 2, 2 } },
              { .statIndex = STAT_NONE },
          },
       .tier = PASSIVE_SKILL_TIER_1,
@@ -132,7 +132,7 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [12] ORCSLAYER
     { .records = {
-             { .statIndex = STAT_DAMAGE_TO_ORCS, .valuePerLevel = { 1, 1, 1, 1, 1 } },
+             { .statIndex = STAT_DAMAGE_TO_ORCS, .perLevel = { 1, 1, 1, 1, 1 } },
              { .statIndex = STAT_NONE },
              { .statIndex = STAT_NONE },
          },
@@ -142,7 +142,7 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [13] WOODSMAN
     { .records = {
-             { .statIndex = STAT_WOODSMAN_DAMAGE, .valuePerLevel = { 2, 3, 2, 3, 2 } },
+             { .statIndex = STAT_WOODSMAN_DAMAGE, .perLevel = { 2, 3, 2, 3, 2 } },
              { .statIndex = STAT_NONE },
              { .statIndex = STAT_NONE },
          },
@@ -152,7 +152,7 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [14] DWARF_SENSE
     { .records = {
-             { .statIndex = STAT_EXTRA_TREASURE_PERCENT, .valuePerLevel = { 10, 15, 10, 15, 10 } },
+             { .statIndex = STAT_EXTRA_TREASURE_PERCENT, .perLevel = { 10, 15, 10, 15, 10 } },
              { .statIndex = STAT_NONE },
              { .statIndex = STAT_NONE },
          },
@@ -162,8 +162,8 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [15] IRON_WILL
     { .records = {
-             { .statIndex = STAT_LOW_HP_REGEN_THRESHOLD_PERCENT, .valuePerLevel = { 10, 10, 10, 10, 10 } },
-             { .statIndex = STAT_LOW_HP_REGEN, .valuePerLevel = { 1, 0, 1, 0, 1 } },
+             { .statIndex = STAT_LOW_HP_REGEN_THRESHOLD_PERCENT, .perLevel = { 10, 10, 10, 10, 10 } },
+             { .statIndex = STAT_LOW_HP_REGEN, .perLevel = { 1, 0, 1, 0, 1 } },
              { .statIndex = STAT_NONE },
          },
       .tier = PASSIVE_SKILL_TIER_2,
@@ -172,7 +172,7 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [16] SPIRIT_OF_MIDDLE_EARTH
     { .records = {
-             { .statIndex = STAT_SPIRIT_REGEN_PERCENT, .valuePerLevel = { 20, 20, 20, 20, 20 } },
+             { .statIndex = STAT_SPIRIT_REGEN_PERCENT, .perLevel = { 20, 20, 20, 20, 20 } },
              { .statIndex = STAT_NONE },
              { .statIndex = STAT_NONE },
          },
@@ -182,7 +182,7 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [17] FIGHTERS_RESOLVE
     { .records = {
-             { .statIndex = STAT_LOW_HP_DAMAGE, .valuePerLevel = { 3, 3, 3, 3, 3 } },
+             { .statIndex = STAT_LOW_HP_DAMAGE, .perLevel = { 3, 3, 3, 3, 3 } },
              { .statIndex = STAT_NONE },
              { .statIndex = STAT_NONE },
          },
@@ -192,8 +192,8 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [18] SHIELD_OFFENSE
     { .records = {
-             { .statIndex = STAT_DAMAGE_WITH_SHIELD, .valuePerLevel = { 1, 1, 1, 1, 1 } },
-             { .statIndex = STAT_BLOCK_PERCENT, .valuePerLevel = { 3, 3, 3, 3, 3 } },
+             { .statIndex = STAT_DAMAGE_WITH_SHIELD, .perLevel = { 1, 1, 1, 1, 1 } },
+             { .statIndex = STAT_BLOCK_PERCENT, .perLevel = { 3, 3, 3, 3, 3 } },
              { .statIndex = STAT_NONE },
          },
       .tier = PASSIVE_SKILL_TIER_2,
@@ -202,7 +202,7 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [19] FLEET_OF_FOOT
     { .records = {
-             { .statIndex = STAT_SPEED_PERCENT, .valuePerLevel = { 5, 5, 5, 5, 5 } },
+             { .statIndex = STAT_SPEED_PERCENT, .perLevel = { 5, 5, 5, 5, 5 } },
              { .statIndex = STAT_NONE },
              { .statIndex = STAT_NONE },
          },
@@ -212,7 +212,7 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [20] HARDY
     { .records = {
-             { .statIndex = STAT_MAX_HP, .valuePerLevel = { 15, 15, 15, 15, 15 } },
+             { .statIndex = STAT_MAX_HP, .perLevel = { 15, 15, 15, 15, 15 } },
              { .statIndex = STAT_NONE },
              { .statIndex = STAT_NONE },
          },
@@ -222,7 +222,7 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [21] WISE
     { .records = {
-             { .statIndex = STAT_EXTRA_EXP_PERCENT, .valuePerLevel = { 3, 3, 3, 3, 3 } },
+             { .statIndex = STAT_EXTRA_EXP_PERCENT, .perLevel = { 3, 3, 3, 3, 3 } },
              { .statIndex = STAT_NONE },
              { .statIndex = STAT_NONE },
          },
@@ -232,7 +232,7 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [22] WISDOM_OF_THE_AGES
     { .records = {
-             { .statIndex = STAT_RANGED_DAMAGE, .valuePerLevel = { 2, 2, 2, 2, 2 } },
+             { .statIndex = STAT_RANGED_DAMAGE, .perLevel = { 2, 2, 2, 2, 2 } },
              { .statIndex = STAT_NONE },
              { .statIndex = STAT_NONE },
          },
@@ -242,8 +242,8 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [23] BATTLE_SCARRED
     { .records = {
-             { .statIndex = STAT_MELEE_ARMOR, .valuePerLevel = { 1, 2, 1, 2, 1 } },
-             { .statIndex = STAT_MISSILE_ARMOR, .valuePerLevel = { 2, 1, 2, 1, 2 } },
+             { .statIndex = STAT_MELEE_ARMOR, .perLevel = { 1, 2, 1, 2, 1 } },
+             { .statIndex = STAT_MISSILE_ARMOR, .perLevel = { 2, 1, 2, 1, 2 } },
              { .statIndex = STAT_NONE },
          },
       .tier = PASSIVE_SKILL_TIER_3,
@@ -252,7 +252,7 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [24] LAST_STAND
     { .records = {
-             { .statIndex = STAT_REVIVE_CHANCE_PERCENT, .valuePerLevel = { 8, 8, 8, 8, 8 } },
+             { .statIndex = STAT_REVIVE_CHANCE_PERCENT, .perLevel = { 8, 8, 8, 8, 8 } },
              { .statIndex = STAT_NONE },
              { .statIndex = STAT_NONE },
          },
@@ -262,7 +262,7 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [25] ARROW_PARRY
     { .records = {
-             { .statIndex = STAT_ARROW_PARRY_PERCENT, .valuePerLevel = { 6, 6, 6, 6, 6 } },
+             { .statIndex = STAT_ARROW_PARRY_PERCENT, .perLevel = { 6, 6, 6, 6, 6 } },
              { .statIndex = STAT_NONE },
              { .statIndex = STAT_NONE },
          },
@@ -272,8 +272,8 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [26] WRAITHSLAYER
     { .records = {
-             { .statIndex = STAT_DAMAGE_TO_NAZGUL, .valuePerLevel = { 4, 3, 4, 3, 4 } },
-             { .statIndex = STAT_FEAR_RESIST_PERCENT, .valuePerLevel = { 6, 6, 6, 6, 6 } },
+             { .statIndex = STAT_DAMAGE_TO_NAZGUL, .perLevel = { 4, 3, 4, 3, 4 } },
+             { .statIndex = STAT_FEAR_RESIST_PERCENT, .perLevel = { 6, 6, 6, 6, 6 } },
              { .statIndex = STAT_NONE },
          },
       .tier = PASSIVE_SKILL_TIER_3,
@@ -282,8 +282,8 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [27] GALADRIELS_BLESSING
     { .records = {
-             { .statIndex = STAT_ARROW_SPEED_PERCENT, .valuePerLevel = { 10, 10, 10, 10, 10 } },
-             { .statIndex = STAT_CRIT_CHANCE_PERCENT, .valuePerLevel = { 3, 3, 3, 3, 3 } },
+             { .statIndex = STAT_ARROW_SPEED_PERCENT, .perLevel = { 10, 10, 10, 10, 10 } },
+             { .statIndex = STAT_CRIT_CHANCE_PERCENT, .perLevel = { 3, 3, 3, 3, 3 } },
              { .statIndex = STAT_NONE },
          },
       .tier = PASSIVE_SKILL_TIER_3,
@@ -292,8 +292,8 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [28] BERSERKER
     { .records = {
-             { .statIndex = STAT_HP_PER_KILL, .valuePerLevel = { 4, 4, 4, 4, 4 } },
-             { .statIndex = STAT_SPIRIT_PER_KILL, .valuePerLevel = { 4, 4, 4, 4, 4 } },
+             { .statIndex = STAT_HP_PER_KILL, .perLevel = { 4, 4, 4, 4, 4 } },
+             { .statIndex = STAT_SPIRIT_PER_KILL, .perLevel = { 4, 4, 4, 4, 4 } },
              { .statIndex = STAT_NONE },
          },
       .tier = PASSIVE_SKILL_TIER_3,
@@ -302,7 +302,7 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [29] SERVANT_OF_THE_SECRET_FIRE
     { .records = {
-             { .statIndex = STAT_ACTIVE_SKILL_LEVEL_BONUS, .valuePerLevel = { 1, 0, 0, 0, 0 } },
+             { .statIndex = STAT_ACTIVE_SKILL_LEVEL_BONUS, .perLevel = { 1, 0, 0, 0, 0 } },
              { .statIndex = STAT_NONE },
              { .statIndex = STAT_NONE },
          },
@@ -312,7 +312,7 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [30] RAGE_OF_THE_NORTH
     { .records = {
-             { .statIndex = STAT_INSTAKILL_CHANCE_PERCENT, .valuePerLevel = { 10, 0, 0, 0, 0 } },
+             { .statIndex = STAT_INSTAKILL_CHANCE_PERCENT, .perLevel = { 10, 0, 0, 0, 0 } },
              { .statIndex = STAT_NONE },
              { .statIndex = STAT_NONE },
          },
@@ -322,7 +322,7 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [31] ARCHER_OF_MIRKWOOD
     { .records = {
-             { .statIndex = STAT_EXTRA_PROJECTILES, .valuePerLevel = { 1, 0, 0, 0, 0 } },
+             { .statIndex = STAT_EXTRA_PROJECTILES, .perLevel = { 1, 0, 0, 0, 0 } },
              { .statIndex = STAT_NONE },
              { .statIndex = STAT_NONE },
          },
@@ -332,7 +332,7 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [32] GLOINS_DOUBLE_AXES
     { .records = {
-             { .statIndex = STAT_DOUBLE_AXE_THROW, .valuePerLevel = { 1, 0, 0, 0, 0 } },
+             { .statIndex = STAT_DOUBLE_AXE_THROW, .perLevel = { 1, 0, 0, 0, 0 } },
              { .statIndex = STAT_NONE },
              { .statIndex = STAT_NONE },
          },
@@ -342,8 +342,8 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [33] DEFENDERS_FURY
     { .records = {
-             { .statIndex = STAT_INVULNERABILITY_PROC_PERCENT, .valuePerLevel = { 10, 0, 0, 0, 0 } },
-             { .statIndex = STAT_UNKNOWN_81, .valuePerLevel = { 8, 0, 0, 0, 0 } },
+             { .statIndex = STAT_INVULNERABILITY_PROC_PERCENT, .perLevel = { 10, 0, 0, 0, 0 } },
+             { .statIndex = STAT_UNKNOWN_81, .perLevel = { 8, 0, 0, 0, 0 } },
              { .statIndex = STAT_NONE },
          },
       .tier = PASSIVE_SKILL_TIER_4,
@@ -352,8 +352,8 @@ const PassiveSkill PassiveSkills[35] = {
 
     // [34] THE_PRECIOUS
     { .records = {
-             { .statIndex = STAT_TRIPLE_DAMAGE_PROC_PERCENT, .valuePerLevel = { 10, 0, 0, 0, 0 } },
-             { .statIndex = STAT_TRIPLE_DAMAGE_PROC_PERCENT, .valuePerLevel = { 10, 0, 0, 0, 0 } },
+             { .statIndex = STAT_TRIPLE_DAMAGE_PROC_PERCENT, .perLevel = { 10, 0, 0, 0, 0 } },
+             { .statIndex = STAT_TRIPLE_DAMAGE_PROC_PERCENT, .perLevel = { 10, 0, 0, 0, 0 } },
              { .statIndex = STAT_NONE },
          },
       .tier = PASSIVE_SKILL_TIER_4,

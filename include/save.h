@@ -82,8 +82,8 @@ typedef union SaveSlot {
         u32 experience;
 
         /**
-         * 3-bit-packed Player.passiveSkillLevels[9] and activeSkillLevelsPurchased[0..4], then
-         *  Player.quickSelectActiveSkills[3] and a 6-bit roll-up of activeSkillCycleEnabled[];
+         * 3-bit-packed Player.passiveSkillLevelsPurchased[9] and activeSkillLevelsPurchased[0..4],
+         *  then Player.quickSelectActiveSkills[3] and a 6-bit roll-up of activeSkillCycleEnabled[];
          *  byte 3 bits 3-6 = Player.skillPointsPurchased.
          *  Packed mid-byte so kept as a blob. Levels are 0-5 (capped; 0x08042bc4 for skills,
          *  0x08045138 for active skills).
@@ -246,9 +246,9 @@ typedef enum ArtifactFlag
     ARTIFACT_FLAG_SIMBELMYNE = 1 << 7,
     // all 8 artifacts collected
     ARTIFACT_MASK_ALL = ARTIFACT_FLAG_DEAGOLS_SKULL | ARTIFACT_FLAG_FEATHER_OF_GWAIHIR |
-                        ARTIFACT_FLAG_SARUMANS_PALANTIR | ARTIFACT_FLAG_SHELOBS_STINGER |
-                        ARTIFACT_FLAG_GALADRIELS_LOCK | ARTIFACT_FLAG_WITCH_KINGS_CROWN |
-                        ARTIFACT_FLAG_THERE_AND_BACK_AGAIN | ARTIFACT_FLAG_SIMBELMYNE,
+        ARTIFACT_FLAG_SARUMANS_PALANTIR | ARTIFACT_FLAG_SHELOBS_STINGER |
+        ARTIFACT_FLAG_GALADRIELS_LOCK | ARTIFACT_FLAG_WITCH_KINGS_CROWN |
+        ARTIFACT_FLAG_THERE_AND_BACK_AGAIN | ARTIFACT_FLAG_SIMBELMYNE,
 } ArtifactFlag;
 
 /**

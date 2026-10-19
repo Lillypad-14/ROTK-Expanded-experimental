@@ -61,7 +61,7 @@ typedef struct PassiveSkillStatRecord
     u8 statIndex;
 
     // Stat increments for levels 1 through 5.
-    u16 valuePerLevel[PASSIVE_SKILL_MAX_LEVEL];
+    u16 perLevel[PASSIVE_SKILL_MAX_LEVEL];
 } PassiveSkillStatRecord;
 
 // Values stored in PassiveSkill.tier. This mechanism seems unused.
@@ -193,7 +193,7 @@ typedef struct HeroSkillBlock
 } HeroSkillBlock;
 
 // Indices into each hero's active skill rows. Herbal Healing uses the shared index below.
-enum FrodoActiveSkillIndex
+enum ActiveSkillIndexFrodo
 {
     ACTIVE_SKILL_FRODO_KNIFE_TOSS = 0,
     ACTIVE_SKILL_FRODO_SNARE = 1,
@@ -202,7 +202,7 @@ enum FrodoActiveSkillIndex
     ACTIVE_SKILL_FRODO_RINGS_PERSUASION = 4,
 };
 
-enum SamActiveSkillIndex
+enum ActiveSkillIndexSam
 {
     ACTIVE_SKILL_SAM_KNIFE_TOSS = 0,
     ACTIVE_SKILL_SAM_SNARE = 1,
@@ -211,7 +211,7 @@ enum SamActiveSkillIndex
     ACTIVE_SKILL_SAM_SAMWISE_THE_STRONG = 4,
 };
 
-enum SmeagolActiveSkillIndex
+enum ActiveSkillIndexSmeagol
 {
     ACTIVE_SKILL_SMEAGOL_BERSERK_ATTACK = 0,
     ACTIVE_SKILL_SMEAGOL_ROCK_THROW = 1,
@@ -220,7 +220,7 @@ enum SmeagolActiveSkillIndex
     ACTIVE_SKILL_SMEAGOL_PITIFUL_WAIL = 4,
 };
 
-enum LegolasActiveSkillIndex
+enum ActiveSkillIndexLegolas
 {
     ACTIVE_SKILL_LEGOLAS_WHITE_KNIVES = 0,
     ACTIVE_SKILL_LEGOLAS_SPREAD_FIRE = 1,
@@ -229,7 +229,7 @@ enum LegolasActiveSkillIndex
     ACTIVE_SKILL_LEGOLAS_SILENT_STRIDE = 4,
 };
 
-enum AragornActiveSkillIndex
+enum ActiveSkillIndexAragorn
 {
     ACTIVE_SKILL_ARAGORN_SWEEP = 0,
     ACTIVE_SKILL_ARAGORN_KINGS_COMMAND = 1,
@@ -238,7 +238,7 @@ enum AragornActiveSkillIndex
     ACTIVE_SKILL_ARAGORN_CALL_OF_THE_DEAD = 4,
 };
 
-enum GandalfActiveSkillIndex
+enum ActiveSkillIndexGandalf
 {
     ACTIVE_SKILL_GANDALF_SWORD_OF_POWER = 0,
     ACTIVE_SKILL_GANDALF_LIGHTSTRIKE = 1,
@@ -247,7 +247,7 @@ enum GandalfActiveSkillIndex
     ACTIVE_SKILL_GANDALF_SUMMON_GWAIHIR = 4,
 };
 
-enum EowynActiveSkillIndex
+enum ActiveSkillIndexEowyn
 {
     ACTIVE_SKILL_EOWYN_DOUBLE_STRIKE = 0,
     ACTIVE_SKILL_EOWYN_SHIELDMAIDEN_OF_ROHAN = 1,
@@ -256,7 +256,7 @@ enum EowynActiveSkillIndex
     ACTIVE_SKILL_EOWYN_FORTH_EORLINGAS = 4,
 };
 
-enum GimliActiveSkillIndex
+enum ActiveSkillIndexGimli
 {
     ACTIVE_SKILL_GIMLI_AXE_THROW = 0,
     ACTIVE_SKILL_GIMLI_WHIRLING_ATTACK = 1,

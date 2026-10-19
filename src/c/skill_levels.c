@@ -83,7 +83,7 @@ void skill_passive_applyStatsUpToLevel(u8 playerIndex, u8 slot, s8 level)
 
         for (i = 0; i < level; i++)
         {
-            u8 value = PassiveSkills[skillId].records[record].valuePerLevel[i];
+            u8 value = PassiveSkills[skillId].records[record].perLevel[i];
             skill_passive_addStat(playerIndex, statIndex, value);
         }
     }
@@ -164,7 +164,7 @@ void skill_passive_addTemporaryLevels(u8 playerIndex, u8 count)
  * Add count levels to every active skill row that has a callback.
  *
  * BUG: walks 7 rows instead of HERO_ACTIVE_SKILL_COUNT, so row 6 reads the hero's
- * HeroSkillIds[0..3] as a callback pointer and writes Player.activeSkillLevels[6].
+ * passiveSkillIds[0..3] as a callback pointer and writes Player.activeSkillLevels[6].
  *
  * @romaddress 0x0804527c
  */
@@ -266,7 +266,7 @@ void skill_passive_applyLevelStats(u8 playerIndex, u8 slot, s8 sign)
 
         value = PassiveSkills[skillId]
                     .records[record]
-                    .valuePerLevel[(u8)PLAYER(playerIndex).passiveSkillLevelsApplied[slot] - 1];
+                    .perLevel[(u8)PLAYER(playerIndex).passiveSkillLevelsApplied[slot] - 1];
         if (sign == -1)
         {
             skill_passive_subtractStat(playerIndex, statIndex, value);

@@ -25,13 +25,13 @@ DATA_DIR = "skills"
 HERO_COUNT = 8
 HERO_ROWS_ADDR = 0x0806E94C
 ROW_SIZE = 0x28
-ROW_COUNT = 6
-ROWS_SIZE = ROW_COUNT * ROW_SIZE  # 0xf0
+HERO_ACTIVE_SKILL_COUNT = 6
+ROWS_SIZE = HERO_ACTIVE_SKILL_COUNT * ROW_SIZE  # 0xf0
 VALUE_COUNT = 2
 VALUE_SIZE = 0xC
-PASSIVE_SKILL_COUNT = 9
+HERO_PASSIVE_SKILL_COUNT = 9
 OBJECT_SIZE = (
-    ROWS_SIZE + PASSIVE_SKILL_COUNT
+    ROWS_SIZE + HERO_PASSIVE_SKILL_COUNT
 )  # 0xf9, the bytes each hero actually emits
 OBJECT_STRIDE = 0xFC  # 0xf9 rounded up to the row array's 4-byte alignment
 HERO_DATA_END = HERO_ROWS_ADDR + 7 * OBJECT_STRIDE + OBJECT_SIZE  # 0x0806f129
@@ -215,7 +215,8 @@ def skill_labels(rom: bytes) -> dict[str, list[str]]:
             "<H", rom, DESCRIPTION_BASE_TEXT_IDS_ADDR - ROMBASE + hero_ids[hero] * 2
         )[0]
         labels[hero] = [
-            strings[text_id + row].split(" (Level", 1)[0] for row in range(ROW_COUNT)
+            strings[text_id + row].split(" (Level", 1)[0]
+            for row in range(HERO_ACTIVE_SKILL_COUNT)
         ]
     return labels
 
@@ -254,7 +255,7 @@ def print_layout_arithmetic() -> None:
     )
     print(f"    rows      6 x 0x{ROW_SIZE:02x} = 0x{ROWS_SIZE:03x} (0x28 x 6 = 0xf0)")
     print(
-        f"    object    0x{ROWS_SIZE:03x} rows + {PASSIVE_SKILL_COUNT} passiveSkillIds"
+        f"    object    0x{ROWS_SIZE:03x} rows + {HERO_PASSIVE_SKILL_COUNT} passiveSkillIds"
         f" = 0x{OBJECT_SIZE:03x} per hero"
     )
     print(
@@ -282,7 +283,7 @@ def check_arithmetic() -> None:
         "ActiveSkillRequiredLevels follows PassiveSkillRequiredLevels"
     )
     assert HERO_DATA_END == 0x0806F129, (
-        "the hero stream ends right after HeroSkillIdsGimli, with no trailing padding"
+        "the hero stream ends right after PassiveSkillIdsGimli, with no trailing padding"
     )
     assert HERO_COUNT == len(_hero_ids()) == len(HEROES_MEMORY_ORDER)
 
@@ -308,7 +309,7 @@ def emit_hero_skills(
             *doc_comment(base),
             f"const ActiveSkill ActiveSkills{hero}[HERO_ACTIVE_SKILL_COUNT] = {{",
         ]
-        for row in range(ROW_COUNT):
+        for row in range(HERO_ACTIVE_SKILL_COUNT):
             lines += emit_row(
                 rom,
                 base + row * ROW_SIZE,
@@ -322,11 +323,11 @@ def emit_hero_skills(
         lines.append("};")
         lines.append("")
         ids_addr = base + ROWS_SIZE
-        ids = rom[ids_addr - ROMBASE : ids_addr - ROMBASE + PASSIVE_SKILL_COUNT]
+        ids = rom[ids_addr - ROMBASE : ids_addr - ROMBASE + HERO_PASSIVE_SKILL_COUNT]
         names = [passive_ids.get(value, f"PASSIVE_SKILL_{value}") for value in ids]
         lines += [
             *doc_comment(ids_addr),
-            f"const u8 HeroSkillIds{hero}[HERO_PASSIVE_SKILL_COUNT] = {{",
+            f"const u8 PassiveSkillIds{hero}[HERO_PASSIVE_SKILL_COUNT] = {{",
         ]
         for names_chunk in [names[:5], names[5:]]:
             lines.append("    " + ", ".join(names_chunk) + ",")
@@ -461,10 +462,10 @@ def print_callback_table(rom: bytes, names_by_addr: dict[int, str]) -> None:
     callbacks = {
         value: _callback_init(value, names_by_addr)
         for hero in HEROES_MEMORY_ORDER
-        for row in range(ROW_COUNT)
+        for row in range(HERO_ACTIVE_SKILL_COUNT)
         if (value := _callback_value(rom, hero, row)) != 0
     }
-    slots = HERO_COUNT * ROW_COUNT
+    slots = HERO_COUNT * HERO_ACTIVE_SKILL_COUNT
     print(f"    {slots} slots, {len(callbacks)} distinct callbacks")
     print("  callback address table")
     for addr, name in sorted(callbacks.items()):

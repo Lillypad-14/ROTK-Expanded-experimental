@@ -148,7 +148,7 @@ typedef union {
 enum ActiveSkillStateFlag
 {
     // An active skill cast is in progress. Active skill input is blocked until the actor idles.
-    ACTIVE_SKILL_STATE_CASTING = 1 << 0,
+    ACTIVE_SKILL_STATE_FLAG_CASTING = 1 << 0,
 };
 
 /**
@@ -253,7 +253,7 @@ typedef struct Player
     FxEmitter *handFxEmitters[2];
 
     /** the hero's skill tree: HERO_PASSIVE_SKILL_COUNT PassiveSkillId entries
-     * (HeroPassiveSkillIds*), indexes passiveSkillLevels
+     * (PassiveSkillIds*), indexes passiveSkillLevelsPurchased
      */
     const u8 *passiveSkillIds;
 
@@ -287,8 +287,8 @@ typedef struct Player
 
     /**
      * use StatIndex enum to index stats. Note: stats are NOT saved directly; baseStats, level,
-     * passiveSkillLevels, and the equipment affixes are saved, and stats[] is rebuilt from them on
-     * load.
+     * passiveSkillLevelsPurchased, and the equipment affixes are saved, and stats[] is rebuilt from
+     * them on load.
      */
     s16 stats[90];
 
@@ -296,7 +296,7 @@ typedef struct Player
      * bought level (0-5) of each passiveSkillIds slot; saved 3-bit-packed into
      * SaveSlot.skillLevelData
      */
-    s8 passiveSkillLevels[HERO_PASSIVE_SKILL_COUNT];
+    s8 passiveSkillLevelsPurchased[HERO_PASSIVE_SKILL_COUNT];
 
     // Skill levels whose passive stat bonuses are included in stats[].
     // BUG: the load-time loop includes slot 9, aliasing activeSkillLevelsPurchased[0].

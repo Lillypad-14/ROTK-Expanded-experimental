@@ -35,8 +35,8 @@ static inline u8 findSlot(u8 playerIndex, u8 passiveSkillId)
 }
 
 /**
- * Buy count levels of passiveSkillId for the player: raises Player.passiveSkillLevels and applies
- * the stat records of each new level.
+ * Buy count levels of passiveSkillId for the player: raises Player.passiveSkillLevelsPurchased and
+ * applies the stat records of each new level.
  *
  * BUG: count can raise a one-level skill past its maxLevel, up to PASSIVE_SKILL_MAX_LEVEL.
  *
@@ -48,16 +48,16 @@ bool skill_passive_addLevels(u8 playerIndex, u8 passiveSkillId, u8 count)
 {
     u8 slot = findSlot(playerIndex, passiveSkillId);
 
-    if (slot == PASSIVE_SKILL_SLOT_NONE ||
-        PLAYER(playerIndex).passiveSkillLevels[slot] >= PassiveSkills[passiveSkillId].maxLevel)
+    if (slot == PASSIVE_SKILL_SLOT_NONE || PLAYER(playerIndex).passiveSkillLevelsPurchased[slot] >=
+                                               PassiveSkills[passiveSkillId].maxLevel)
     {
         return FALSE;
     }
 
-    PLAYER(playerIndex).passiveSkillLevels[slot] += count;
-    if (PLAYER(playerIndex).passiveSkillLevels[slot] > PASSIVE_SKILL_MAX_LEVEL)
+    PLAYER(playerIndex).passiveSkillLevelsPurchased[slot] += count;
+    if (PLAYER(playerIndex).passiveSkillLevelsPurchased[slot] > PASSIVE_SKILL_MAX_LEVEL)
     {
-        PLAYER(playerIndex).passiveSkillLevels[slot] = PASSIVE_SKILL_MAX_LEVEL;
+        PLAYER(playerIndex).passiveSkillLevelsPurchased[slot] = PASSIVE_SKILL_MAX_LEVEL;
     }
 
     skill_passive_applyLevels(playerIndex, passiveSkillId, count);
@@ -100,8 +100,9 @@ bool skill_passive_applyLevels(u8 playerIndex, u8 passiveSkillId, u8 count)
 }
 
 /**
- * Take count levels back off passiveSkillId: subtract count from Player.passiveSkillLevels,
- * clamping at 0, and drop count applied levels too unless the subtraction underflowed.
+ * Take count levels back off passiveSkillId: subtract count from
+ * Player.passiveSkillLevelsPurchased, clamping at 0, and drop count applied levels too unless the
+ * subtraction underflowed.
  *
  * @return FALSE when the hero's tree lacks the skill
  *
@@ -116,11 +117,11 @@ bool skill_passive_removeLevels(u8 playerIndex, u8 passiveSkillId, u8 count)
         return FALSE;
     }
 
-    PLAYER(playerIndex).passiveSkillLevels[slot] -= count;
-    if (PLAYER(playerIndex).passiveSkillLevels[slot] < 0)
+    PLAYER(playerIndex).passiveSkillLevelsPurchased[slot] -= count;
+    if (PLAYER(playerIndex).passiveSkillLevelsPurchased[slot] < 0)
     {
         // BUG: purchased levels become zero, but applied levels and their stat bonuses remain.
-        PLAYER(playerIndex).passiveSkillLevels[slot] = 0;
+        PLAYER(playerIndex).passiveSkillLevelsPurchased[slot] = 0;
     }
     else
     {
@@ -151,7 +152,7 @@ bool skill_passive_removeAppliedLevels(u8 playerIndex, u8 passiveSkillId, u8 cou
     for (i = 0; i < count; i++)
     {
         if (PLAYER(playerIndex).passiveSkillLevelsApplied[slot] >
-            PLAYER(playerIndex).passiveSkillLevels[slot])
+            PLAYER(playerIndex).passiveSkillLevelsPurchased[slot])
         {
             skill_passive_applyLevelStats(playerIndex, slot, -1);
             PLAYER(playerIndex).passiveSkillLevelsApplied[slot] -= 1;
@@ -176,7 +177,7 @@ void skill_passive_removeTemporaryLevels(u8 playerIndex, u8 count)
         for (slot = 0; slot < HERO_PASSIVE_SKILL_COUNT; slot++)
         {
             if (PLAYER(playerIndex).passiveSkillLevelsApplied[slot] >
-                PLAYER(playerIndex).passiveSkillLevels[slot])
+                PLAYER(playerIndex).passiveSkillLevelsPurchased[slot])
             {
                 // BUG: passes the skill id where skill_passive_applyLevelStats expects a tree
                 // slot, so it reads the skill id and applied level of passiveSkillIds[skillId]
@@ -320,7 +321,7 @@ void skill_active_cast(u8 playerIndex, u8 activeSkillIndex)
     {
         actor->actionState = ACTOR_STATE_ACTIVE_SKILL_CAST;
         PLAYER(playerIndex).castingActiveSkill = activeSkillIndex;
-        PLAYER(playerIndex).activeSkillStateFlags |= ACTIVE_SKILL_STATE_CASTING;
+        PLAYER(playerIndex).activeSkillStateFlags |= ACTIVE_SKILL_STATE_FLAG_CASTING;
     }
 }
 
@@ -366,7 +367,7 @@ void skill_active_handleCycleCastModeInput(u8 playerIndex, bool fromHudInit)
     u32 selected = (s8)PLAYER(playerIndex).selectedActiveSkill.cycleSkillIndex;
 
     if (!fromHudInit && (PLAYER_KEYS_PRESSED(playerIndex) & A_BUTTON) != 0 &&
-        (PLAYER(playerIndex).activeSkillStateFlags & ACTIVE_SKILL_STATE_CASTING) == 0)
+        (PLAYER(playerIndex).activeSkillStateFlags & ACTIVE_SKILL_STATE_FLAG_CASTING) == 0)
     {
         if (selected != ACTIVE_SKILL_NONE && skill_active_canCast(playerIndex, selected) == TRUE)
         {
@@ -426,7 +427,7 @@ void skill_active_handleQuickCastModeInput(u8 playerIndex)
     u8 activeSkillIndex;
 
     if ((PLAYER_KEYS_CURRENT(playerIndex) & L_BUTTON) == 0 ||
-        (PLAYER(playerIndex).activeSkillStateFlags & ACTIVE_SKILL_STATE_CASTING) != 0)
+        (PLAYER(playerIndex).activeSkillStateFlags & ACTIVE_SKILL_STATE_FLAG_CASTING) != 0)
     {
         return;
     }

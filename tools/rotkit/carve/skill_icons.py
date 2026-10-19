@@ -189,7 +189,7 @@ def load(rom: bytes) -> Carve:
     for hero_index, hero in enumerate(skill_tables.HEROES_MEMORY_ORDER):
         active[hero] = []
         for row, label in enumerate(labels[hero]):
-            pointer_index = hero_index * skill_tables.ROW_COUNT + row
+            pointer_index = hero_index * skill_tables.HERO_ACTIVE_SKILL_COUNT + row
             addr = _pointer(rom, ACTIVE_POINTERS_ADDR, pointer_index)
             icon = by_addr.get(addr)
             if icon is None:
@@ -409,7 +409,7 @@ def _write_cfg(carve: Carve) -> None:
         (
             ACTIVE_POINTERS_ADDR,
             ACTIVE_POINTERS,
-            f"void *const [{len(carve.active)}][{skill_tables.ROW_COUNT}]",
+            f"void *const [{len(carve.active)}][{skill_tables.HERO_ACTIVE_SKILL_COUNT}]",
         ),
     ]
     write_cfg(
