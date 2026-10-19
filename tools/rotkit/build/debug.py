@@ -374,9 +374,10 @@ def run() -> None:
         "-o",
         str(OUT / "syms.o"),
     )
+    # ARM GDB needs a valid entry address for inferior-call return breakpoints.
     _run(
         "arm-none-eabi-ld",
-        "--entry=0",
+        f"--entry={ROMBASE:#x}",
         "-T",
         str(OUT / "link.ld"),
         "-o",
