@@ -492,7 +492,7 @@ static void setupSprites(void)
         actor->oam.objMode = 0;
         actor->oam.colors256 = 0;
         actor->oam.bgPriority = 1;
-        actor->recordType = 0;
+        actor->type = 0;
         actor->oam.paletteNumber = (u8)(FIRST_PALETTE + i);
         sprite_setAnimation(actor, entryUnlocked((u32)i) ? page->regions[i].icon
                                                          : &MultiplayerLevelSelectLockedAnimation);
@@ -512,7 +512,7 @@ static void setupCursor(void)
     cursor->oam.objMode = 0;
     cursor->oam.colors256 = 0;
     cursor->oam.paletteNumber = 0;
-    cursor->recordType = 0;
+    cursor->type = 0;
     sprite_setAnimation(cursor, &BonusMapCursorAnimation);
 }
 

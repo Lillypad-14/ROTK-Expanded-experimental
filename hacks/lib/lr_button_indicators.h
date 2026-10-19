@@ -8,7 +8,7 @@
 #define LR_INDICATOR_WIDTH 40
 #define LR_INDICATOR_HEIGHT 16
 
-/** Which indicator: index into MenuLrButtonIndicatorAnimations (and the actor's recordType). */
+/** Which indicator: index into MenuLrButtonIndicatorAnimations (and the actor's type). */
 enum LrButtonIndicatorIndex
 {
     // "L" button, chevron sliding rightward (toward the next page)

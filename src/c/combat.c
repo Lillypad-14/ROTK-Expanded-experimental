@@ -145,7 +145,7 @@ u16 combat_handleEnemyAttackOnPlayerStatusArmorSfx(Actor *attacker, Actor *victi
  */
 static inline void configBurstFx(Actor *fx, s32 sfx)
 {
-    fx->recordType = FX_BURST_UNK_PARAM;
+    fx->type = FX_BURST_UNK_PARAM;
     // fx_tickAttachment returns a value that the tick dispatcher discards
     fx->tickCallback = (ActorCallback)fx_tickAttachment;
     sfx_play(sfx);
@@ -202,6 +202,8 @@ s32 combat_computePveDamage(Actor *attacker, Actor *victim, bool crit)
             skill_active_getLeveledValue(playerIndex, ACTIVE_SKILL_UNKNOWN_3, 0, activeSkillLevel);
         break;
     }
+    default:
+        break;
     }
 
     if (!PLAYER_STAT(playerIndex, STAT_BACKSTAB) || !combat_isBackstab(attacker, victim))
@@ -359,6 +361,8 @@ s32 combat_computePvpDamage(Actor *attacker, Actor *victim, bool crit)
             skill_active_getLeveledValue(playerIndex, ACTIVE_SKILL_UNKNOWN_3, 0, activeSkillLevel);
         break;
     }
+    default:
+        break;
     }
 
     if (!PLAYER_STAT(playerIndex, STAT_BACKSTAB) || !combat_isBackstab(attacker, victim))
@@ -677,7 +681,7 @@ u16 combat_absorbDamageIntoShield(Actor *attacker, u16 initialDamage, s32 player
                                  FxChargeVariants[shieldBubble->as.shieldGimli.chargeLevel - 1], 1);
             // fx_tickAttachment returns a value that the tick dispatcher discards
             fx->tickCallback = (ActorCallback)fx_tickAttachment;
-            fx->recordType = FX_SHIELD_ABSORB_UNK_PARAM;
+            fx->type = FX_SHIELD_ABSORB_UNK_PARAM;
             break;
         default:
             break;

@@ -33,7 +33,7 @@ Actor *actor_chest_createFromMission(u8 groupIndex, u8 actorIndex)
     if (actor != NULL)
     {
         sprite_setPosition(actor, (s32)params->head.x << 16, (s32)params->head.y << 16);
-        actor->recordType = params->head.type;
+        actor->type = params->head.type;
         actor->flags.p =
             ACTOR_FLAG_RENDER | ACTOR_FLAG_COLLISION_CHECK | ACTOR_FLAG_COLLISION_PASSIVE;
         actor->unitType = LOOT_UNIT_TYPE_CONTAINER;
@@ -182,7 +182,7 @@ void actor_chest_trigger(Actor *chest, Actor *touching)
     bool *opened;
     u8 *playerIndex;
 
-    if (touching->recordType == 0 && (opened = &chest->as.chest.opened, !*opened) &&
+    if (touching->type == 0 && (opened = &chest->as.chest.opened, !*opened) &&
         (PLAYER_KEYS_PRESSED(touching->as.combat.playerIndex) & R_BUTTON) != 0)
     {
         playerIndex = &touching->as.combat.playerIndex;
@@ -217,7 +217,7 @@ void actor_proximityLinkTrigger(Actor *self, Actor *player)
 {
     s16 savedCooldown;
 
-    if (player->recordType == 0)
+    if (player->type == 0)
     {
         u32 radius = (u32)self->interactionRadius << 16;
         if (math_vector2_distance(*(Vector2Int *)&self->renderCoords,

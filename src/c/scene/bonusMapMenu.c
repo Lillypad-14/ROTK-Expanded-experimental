@@ -119,7 +119,7 @@ void scene_bonusMapMenu_setupSprites(void)
         actor->oam.objMode = 0;
         actor->oam.colors256 = 0;
         actor->oam.bgPriority = 1;
-        actor->recordType = 0;
+        actor->type = 0;
         if (((u32)g_SaveGlobals.d.unlockFlags.p & BonusMapMenuEntries[i].unlockMask) != 0)
         {
             actor->oam.paletteNumber = (u8)BonusMapMenuEntries[i].paletteNumber;
@@ -272,7 +272,7 @@ void scene_bonusMapMenu_setupCursor(void)
     g_BonusMapCursorObj->oam.objMode = 0;
     g_BonusMapCursorObj->oam.colors256 = 0;
     g_BonusMapCursorObj->oam.paletteNumber = 0;
-    g_BonusMapCursorObj->recordType = 0;
+    g_BonusMapCursorObj->type = 0;
     sprite_setAnimation(g_BonusMapCursorObj, &BonusMapCursorAnimation);
 }
 

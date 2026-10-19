@@ -134,7 +134,7 @@ void *sprite_getSlotFrameGfx(Actor *actor, u8 slot);
 void actor_tick(Actor *actor, bool commit);
 /**
  * Release a sprite's OBJ VRAM tiles (main + sub-sprite slots) and unlink it from its
- * actor list. Returns 0, or -1 when the actor's recordType is 0xffff.
+ * actor list. Returns 0, or -1 when the actor's type is 0xffff.
  */
 s32 sprite_free(Actor *actor);
 /**

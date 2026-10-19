@@ -731,7 +731,7 @@ void scene_saveLoadMenu_setupButtonSprites(void)
     g_SaveLoadActionButtonObj->oam.objMode = 0;
     g_SaveLoadActionButtonObj->oam.colors256 = 0;
     g_SaveLoadActionButtonObj->oam.paletteNumber = 0xe;
-    g_SaveLoadActionButtonObj->recordType = 0xe;
+    g_SaveLoadActionButtonObj->type = 0xe;
     g_SaveLoadActionButtonObj->flags.p |= ACTOR_FLAG_RENDER;
     sprite_setAnimation(g_SaveLoadActionButtonObj, &SaveLoadActionButtonAnimation);
 
@@ -740,7 +740,7 @@ void scene_saveLoadMenu_setupButtonSprites(void)
     g_SaveLoadDeleteButtonObj->oam.objMode = 0;
     g_SaveLoadDeleteButtonObj->oam.colors256 = 0;
     g_SaveLoadDeleteButtonObj->oam.paletteNumber = 0xf;
-    g_SaveLoadDeleteButtonObj->recordType = 0xf;
+    g_SaveLoadDeleteButtonObj->type = 0xf;
     g_SaveLoadDeleteButtonObj->flags.p |= ACTOR_FLAG_RENDER;
     sprite_setAnimation(g_SaveLoadDeleteButtonObj, &SaveLoadDeleteButtonAnimation);
 }
@@ -763,7 +763,7 @@ void scene_saveLoadMenu_setupSlotSprites(void)
         g_SaveLoadSlotObjs[slotIndex]->oam.objMode = 0;
         g_SaveLoadSlotObjs[slotIndex]->oam.colors256 = 0;
         g_SaveLoadSlotObjs[slotIndex]->oam.paletteNumber = slotIndex;
-        g_SaveLoadSlotObjs[slotIndex]->recordType = slotIndex;
+        g_SaveLoadSlotObjs[slotIndex]->type = slotIndex;
         g_SaveLoadSlotObjs[slotIndex]->flags.p = ACTOR_FLAG_ANIMATION_PLAYING;
         scene_saveLoadMenu_refreshSlot(slotIndex);
     }

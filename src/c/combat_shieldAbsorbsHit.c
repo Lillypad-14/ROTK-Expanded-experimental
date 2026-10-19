@@ -5,7 +5,7 @@
 /**
  * Absorb an incoming melee hit into the active shield bubble (g_ShieldBubble).
  * The melee-hit paths call this when the hit victim carries the shield marker
- * (recordType == 0x26); a TRUE return cancels the hit outright.
+ * (type == 0x26); a TRUE return cancels the hit outright.
  *
  * @param victim the actor the bubble protects; stored as the bubble's follow target
  * @param damage hit damage, drained from the bubble's pool (floored at 0)

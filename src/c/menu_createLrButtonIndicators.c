@@ -19,7 +19,7 @@ void menu_createLrButtonIndicators(void)
         sprite_setPosition(actor, MenuLrButtonIndicatorPositions[i].x << 16,
                            MenuLrButtonIndicatorPositions[i].y << 16);
         actor->flags.p = ACTOR_FLAG_RENDER | ACTOR_FLAG_TICK_ALWAYS | ACTOR_FLAG_ANIMATION_PLAYING;
-        actor->recordType = i;
+        actor->type = i;
         actor->oam.objMode = 0;
         actor->oam.colors256 = 0;
         actor->oam.paletteNumber = 1;

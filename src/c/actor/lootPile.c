@@ -52,7 +52,7 @@ Actor *actor_lootPile_createFromMission(u8 groupIndex, u8 actorIndex)
         item = &actor->as.lootPile.item;
         item_clearSlot(&item->word);
         sprite_setPosition(actor, (s32)params->head.x << 16, (s32)params->head.y << 16);
-        actor->recordType = params->head.type;
+        actor->type = params->head.type;
         actor->flags.p = ACTOR_FLAG_RENDER | ACTOR_FLAG_COLLISION_CHECK |
                          ACTOR_FLAG_ANIMATION_PLAYING | ACTOR_FLAG_COLLISION_PASSIVE |
                          ACTOR_FLAG_19;
@@ -163,7 +163,7 @@ Actor *actor_lootPile_create(Vector2Fp16 pos, u32 lootType, Item item, s32 despa
         actorItem = &actor->as.lootPile.item;
         item_clearSlot(&actorItem->word);
         sprite_setPosition(actor, pos.x, pos.y);
-        actor->recordType = ACTOR_TYPE_LOOT_PILE;
+        actor->type = ACTOR_TYPE_LOOT_PILE;
         actor->flags.p = ACTOR_FLAG_RENDER | ACTOR_FLAG_COLLISION_CHECK | ACTOR_FLAG_TICK_ALWAYS |
                          ACTOR_FLAG_ANIMATION_PLAYING | ACTOR_FLAG_COLLISION_PASSIVE;
         actor->variant = lootType;
@@ -415,7 +415,7 @@ void actor_lootPile_trigger(Actor *drop, Actor *playerActor)
     Item item = drop->as.lootPile.item;
     u32 playerIndex = playerActor->as.combat.playerIndex;
 
-    if (playerActor->recordType != 0)
+    if (playerActor->type != 0)
     {
         return;
     }
@@ -603,7 +603,7 @@ void actor_lootPile_trigger(Actor *drop, Actor *playerActor)
  */
 void actor_lootPile_triggerArtifact(Actor *drop, Actor *playerActor)
 {
-    if (playerActor->recordType != 0)
+    if (playerActor->type != 0)
     {
         return;
     }

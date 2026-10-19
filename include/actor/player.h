@@ -2,7 +2,7 @@
 
 #include "types.h"
 
-// The player-controlled hero actor (recordType 0). Its Player slot is as.combat.playerIndex; the
+// The player-controlled hero actor (type 0). Its Player slot is as.combat.playerIndex; the
 // trigger callbacks are actor_resolveTouch and combat_resolvePlayerAttackOnActor.
 
 /** Spawn the player's actor at the mission spawn point and rebuild the player from its slot. */

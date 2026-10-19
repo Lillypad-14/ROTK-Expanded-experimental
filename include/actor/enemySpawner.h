@@ -33,7 +33,7 @@ typedef struct ActorEnemySpawnerState
     struct Actor *children[4];
 
     /**
-     * index into the enemy-spawn table @0x080584a8 ({recordType, variant, unitType}
+     * index into the enemy-spawn table @0x080584a8 ({type, variant, unitType}
      * triples; not yet carved)
      */
     u16 enemySpawnId;

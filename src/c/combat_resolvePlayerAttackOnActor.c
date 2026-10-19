@@ -51,7 +51,7 @@ void combat_resolvePlayerAttackOnActor(Actor *attacker, Actor *victim)
             }
         }
 
-        if (victim->recordType == 0 && victim != attacker)
+        if (victim->type == 0 && victim != attacker)
         {
             if (attackerHeroId == HERO_ID_SMEAGOL ||
                 PLAYER(victim->as.combat.playerIndex).heroId == HERO_ID_SMEAGOL ||

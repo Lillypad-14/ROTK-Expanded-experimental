@@ -202,13 +202,10 @@ typedef struct RegionMissionRange
  */
 u32 mission_getRegion(u32 missionId);
 
-/**
- * Actor spawn types: index into ActorMissionConstructors (@0x08050440, 51 entries; the type is
- * the u16 at +0 of every params block). Values with known consumers; the rest are
- * unmapped (every type 1..49 occurs in some mission block except the RNG spawner).
- */
+/** Actor type identifiers. */
 typedef enum ActorType
 {
+    ACTOR_TYPE_UNKNOWN_00 = 0x00,
     ACTOR_TYPE_GATE_PANEL = 2,        // animated tile gate visual; actor_gatePanel_*
     ACTOR_TYPE_MISSION_WARP = 3,      // walk-into-rect mission warp; actor_missionWarp_*
     ACTOR_TYPE_SWITCH = 4,            // two-position animated switch (lever / cycling door)
@@ -229,7 +226,13 @@ typedef enum ActorType
     ACTOR_TYPE_ENEMY = 25,            // one enemy; Actor.variant is the kind: 0..2 roll one of
                                       // three units, 3.. map to a unitType via a table
                                       // @0x08283070 (kind 0xd = the flag bearer)
-} ActorType;
+    ACTOR_TYPE_UNKNOWN_3E = 0x3e,
+    ACTOR_TYPE_UNKNOWN_4F = 0x4f,
+    ACTOR_TYPE_UNKNOWN_50 = 0x50,
+
+    // Preserve the full unsigned 16-bit range.
+    ACTOR_TYPE_STORAGE_MAX = 0xffff,
+} __attribute__((packed)) ActorType;
 
 /**
  * One spawn-group slot's actor params (mission-block data): the 8-byte head is
@@ -238,7 +241,8 @@ typedef enum ActorType
  */
 typedef struct ActorMissionParams
 {
-    ActorType type;
+    // ActorType identifier stored as a word.
+    u32 type;
     s16 x;
     s16 y;
 } ActorMissionParams;

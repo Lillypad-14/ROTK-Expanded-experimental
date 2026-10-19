@@ -299,7 +299,7 @@ typedef struct ActorCombatState
  * attach target / player animation banks / enemy AI parameters). The other views are per
  * record type (enum ActorType), decoded from the ActorMissionConstructors. Embedded mid-struct, so
  * a view must fit 0x28 bytes and declare its pads; what every kind shares (coords,
- * velocity, flags, recordType, the record backrefs) stays a base member outside the
+ * velocity, flags, type, the record backrefs) stays a base member outside the
  * union.
  */
 union ActorKindState {
@@ -387,6 +387,44 @@ typedef enum ActorListId
     ACTOR_LIST_MAIN = 0,
     ACTOR_LIST_OVERLAY = 1,
 } __attribute__((packed)) ActorListId;
+
+/** Actor action-state identifiers. */
+typedef enum ActorActionState
+{
+    ACTOR_STATE_UNKNOWN_00 = 0x00,
+    ACTOR_STATE_UNKNOWN_04 = 0x04,
+    ACTOR_STATE_HURT = 0x06, // set by player_addHp flinch (from states 1/2/5)
+    ACTOR_STATE_UNKNOWN_08 = 0x08,
+    ACTOR_STATE_ACTIVE_SKILL_CAST_RECOVERY = 0x0a,
+    ACTOR_STATE_UNKNOWN_0E = 0x0e,
+    ACTOR_STATE_STUNNED = 0x1a, // victim takes double melee damage; set by Immobilize hits
+    ACTOR_STATE_UNKNOWN_22 = 0x22,
+    // Start an active skill cast. A nonzero castTriggerFrame defers the callback to
+    // ACTOR_STATE_ACTIVE_SKILL_CAST_ANIMATION.
+    ACTOR_STATE_ACTIVE_SKILL_CAST = 0x23,
+    ACTOR_STATE_KNOCKBACK =
+        0x25, // victim pushed away at 2.0 px/frame velocity; set by actor_applyKnockback
+    ACTOR_STATE_FX_ATTACHED = 0x2b,
+    ACTOR_STATE_UNKNOWN_2D = 0x2d,
+    ACTOR_STATE_UNKNOWN_30 = 0x30,
+    ACTOR_STATE_KNOCKED_DOWN = 0x31, // player knockdown from an enemy crit / heavy attack
+    ACTOR_STATE_ACTIVE_SKILL_CAST_ANIMATION = 0x32,
+    ACTOR_STATE_ARAGORN_SWEEP = 0x33,
+    ACTOR_STATE_GIMLI_WHIRLING_ATTACK = 0x34,
+    ACTOR_STATE_LEGOLAS_WHITE_KNIVES = 0x35,
+    ACTOR_STATE_EOWYN_DOUBLE_STRIKE = 0x3a,
+    ACTOR_STATE_EOWYN_SHIELD_BASH = 0x3b,
+    ACTOR_STATE_SHIELD_SPENT = 0x40, // shield bubble leaves FX_ATTACHED for this on a block
+    ACTOR_STATE_UNKNOWN_47 = 0x47,
+    ACTOR_STATE_UNKNOWN_48 = 0x48,
+    ACTOR_STATE_UNKNOWN_49 = 0x49,
+    ACTOR_STATE_SAM_COOKPOT_SMASH = 0x58,
+    ACTOR_STATE_SMEAGOL_BERSERK_ATTACK = 0x59,
+    ACTOR_STATE_LEGOLAS_OVERDRAW = 0x60,
+
+    // Preserve the full unsigned byte range.
+    ACTOR_STATE_STORAGE_MAX = 0xff,
+} __attribute__((packed)) ActorActionState;
 
 struct Actor
 {
@@ -523,7 +561,7 @@ struct Actor
      * per-kind state byte (enum ActorActionState for combat actors); a shop menu
      * cursor's grid cell (SHOP_CURSOR_*)
      */
-    u8 actionState;
+    ActorActionState actionState;
 
     /**
      * state-machine byte (per-kind); a ground drop's LootDropState. Script
@@ -638,13 +676,9 @@ struct Actor
      */
     u32 gfxSize;
 
-    /**
-     * record type (enum ActorType) of a record-spawned actor (0 = engine-spawned:
-     * players, FX). FX actors reuse it as a burst param (combat.c); combat keys
-     * per-enemy-kind behavior off it (0x1f/0x23/0x26 in
-     * combat_resolvePveAttack)
-     */
-    u16 recordType;
+    // Mission spawn type or runtime actor/FX identifier.
+    // Some FX and menu actors reuse this field as a parameter.
+    ActorType type;
 
     /**
      * OBJ VRAM tile number of the main sprite's committed frame gfx (0xffff = none), written
@@ -722,35 +756,6 @@ void actor_clearFlagsAll(u32 mask);
 typedef Actor ActorPoolMain[ACTOR_POOL_MAIN_CAPACITY];
 typedef Actor ActorPoolOverlay[ACTOR_POOL_OVERLAY_CAPACITY];
 
-/** Actor.actionState values with known consumers (most states unmapped). */
-enum ActorActionState
-{
-    ACTOR_STATE_HURT = 0x06, // set by player_addHp flinch (from states 1/2/5)
-    ACTOR_STATE_UNKNOWN_08 = 0x08,
-    ACTOR_STATE_ACTIVE_SKILL_CAST_RECOVERY = 0x0a,
-    ACTOR_STATE_UNKNOWN_0E = 0x0e,
-    ACTOR_STATE_STUNNED = 0x1a, // victim takes double melee damage; set by Immobilize hits
-    ACTOR_STATE_UNKNOWN_22 = 0x22,
-    // Start an active skill cast. A nonzero castTriggerFrame defers the callback to
-    // ACTOR_STATE_ACTIVE_SKILL_CAST_ANIMATION.
-    ACTOR_STATE_ACTIVE_SKILL_CAST = 0x23,
-    ACTOR_STATE_KNOCKBACK =
-        0x25, // victim pushed away at 2.0 px/frame velocity; set by actor_applyKnockback
-    ACTOR_STATE_FX_ATTACHED = 0x2b,
-    ACTOR_STATE_SHIELD_SPENT = 0x40, // shield bubble leaves FX_ATTACHED for this on a block
-    ACTOR_STATE_UNKNOWN_30 = 0x30,
-    ACTOR_STATE_KNOCKED_DOWN = 0x31, // player knockdown from an enemy crit / heavy attack
-    ACTOR_STATE_ACTIVE_SKILL_CAST_ANIMATION = 0x32,
-    ACTOR_STATE_ARAGORN_SWEEP = 0x33,
-    ACTOR_STATE_GIMLI_WHIRLING_ATTACK = 0x34,
-    ACTOR_STATE_LEGOLAS_WHITE_KNIVES = 0x35,
-    ACTOR_STATE_EOWYN_DOUBLE_STRIKE = 0x3a,
-    ACTOR_STATE_EOWYN_SHIELD_BASH = 0x3b,
-    ACTOR_STATE_SAM_COOKPOT_SMASH = 0x58,
-    ACTOR_STATE_SMEAGOL_BERSERK_ATTACK = 0x59,
-    ACTOR_STATE_LEGOLAS_OVERDRAW = 0x60,
-};
-
 /**
  * Iterate the actors within radius (16.16 fixed world units) of center. Pass 0 as cursor to start,
  * then the previous return each call; returns 0 when the sweep is done.
@@ -803,7 +808,7 @@ void actor_resetActionState(Actor *actor);
 void actor_runBehaviorState(Actor *actor);
 
 /**
- * Per-recordType defaults (flags bits, interactionRadius, ...) applied by the
+ * Per-type defaults (flags bits, interactionRadius, ...) applied by the
  * ActorMissionConstructors after the base flags setup.
  */
 void actor_applyTypeDefaults(Actor *actor);

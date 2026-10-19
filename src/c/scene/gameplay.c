@@ -172,7 +172,7 @@ void scene_gameplay_parkWorld(void)
                 Actor *actor;
                 for (actor = g_ActorListMain.head; actor != NULL; actor = actor->next)
                 {
-                    if (actor->recordType == ACTOR_TYPE_LOOT_PILE)
+                    if (actor->type == ACTOR_TYPE_LOOT_PILE)
                     {
                         actor->as.lootPile.standingFlags[i] = 0;
                     }

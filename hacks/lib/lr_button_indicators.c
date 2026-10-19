@@ -9,7 +9,7 @@ Actor *hackLib_createLrButtonIndicator(bool mainPool, enum LrButtonIndicatorInde
 
     sprite_setPosition(actor, x << 16, y << 16);
     actor->flags.p = ACTOR_FLAG_RENDER | ACTOR_FLAG_TICK_ALWAYS | ACTOR_FLAG_ANIMATION_PLAYING;
-    actor->recordType = index;
+    actor->type = (ActorType)index;
     actor->oam.objMode = 0;
     actor->oam.colors256 = 0;
     actor->oam.paletteNumber = 1;

@@ -92,9 +92,9 @@ bool combat_resolvePveAttack(Actor *attacker, Actor *victim)
                 return 0;
             }
 
-            // Gandalf shield-bubble absorbs the whole hit for one enemy record type (recordType ==
+            // Gandalf shield-bubble absorbs the whole hit for one enemy record type (type ==
             // 0x26)
-            if (victim->recordType == 0x26)
+            if (victim->type == 0x26)
             {
                 damage = (u16)combat_computePveDamage(attacker, victim, crit);
                 if (combat_shieldAbsorbsHit(victim, damage))
@@ -104,7 +104,7 @@ bool combat_resolvePveAttack(Actor *attacker, Actor *victim)
             }
 
             // hit: spawn the basic hit FX on the victim (unless it is a no-FX state)
-            if (victim->recordType != 0x1f && victim->recordType != 0x23)
+            if (victim->type != 0x1f && victim->type != 0x23)
             {
                 emitter = fx_allocEmitter(4, 0, 1);
                 emitter->target = victim;
@@ -125,7 +125,7 @@ bool combat_resolvePveAttack(Actor *attacker, Actor *victim)
             }
             if (crit || (PLAYER(playerIndex).combatFlags.p & PLAYER_COMBAT_FLAG_FORCE_CRIT_UNKNOWN))
             {
-                if (victim->recordType != 0x1f && victim->recordType != 0x23)
+                if (victim->type != 0x1f && victim->type != 0x23)
                 {
                     emitter->field_0x3a = 0xc;
                     emitter->field_0x38 = 3;
@@ -136,7 +136,7 @@ bool combat_resolvePveAttack(Actor *attacker, Actor *victim)
             }
             else
             {
-                if (victim->recordType != 0x1f && victim->recordType != 0x23)
+                if (victim->type != 0x1f && victim->type != 0x23)
                 {
                     emitter->field_0x3a = 4;
                     emitter->field_0x38 = 1;
@@ -168,7 +168,7 @@ bool combat_resolvePveAttack(Actor *attacker, Actor *victim)
                             player->combatFlags.p |= PLAYER_COMBAT_FLAG_XP_DOUBLE;
                             {
                                 Actor *fx = fx_spawnOnActor(victim, 0, 3, 0);
-                                fx->recordType = FX_BURST_UNK_PARAM;
+                                fx->type = FX_BURST_UNK_PARAM;
                                 // fx_tickAttachment returns a value that the tick dispatcher
                                 // discards
                                 fx->tickCallback = (ActorCallback)fx_tickAttachment;
@@ -218,7 +218,7 @@ bool combat_resolvePveAttack(Actor *attacker, Actor *victim)
                         {
                             // separate address statement: the zeroing must land inside the
                             // store expansion
-                            u8 *actionAddr = &victim->actionState;
+                            ActorActionState *actionAddr = &victim->actionState;
                             noFlinchFlags = 0; // applyStun's fx argument
                             *actionAddr = ACTOR_STATE_STUNNED;
                         }
@@ -296,7 +296,7 @@ bool combat_resolvePveAttack(Actor *attacker, Actor *victim)
             {
                 player_addSpirit(playerIndex, PLAYER_STAT(playerIndex, STAT_SPIRIT_PER_HIT));
             }
-            if (victim->recordType != 0x1f && victim->recordType != 0x23)
+            if (victim->type != 0x1f && victim->type != 0x23)
             {
                 fx_setEmitterPosition(emitter, victim, &out);
                 emitter->field_0x28 = 1;
@@ -311,7 +311,7 @@ bool combat_resolvePveAttack(Actor *attacker, Actor *victim)
     }
 
     sfx_play(EnemySfxSets[*unitTypePtr].missSfx);
-    if (victim->recordType == 0x1f || victim->recordType == 0x23)
+    if (victim->type == 0x1f || victim->type == 0x23)
     {
         return 0;
     }
@@ -765,7 +765,7 @@ bool combat_resolveEnemyAttackOnNpc(Actor *attacker, Actor *victim)
 
 /**
  * Apply a hazard/object hit to a player: roll [maxDamage/2, maxDamage] and subtract
- * STAT_MELEE_ARMOR (STAT_CRITICAL_ARMOR for attacker recordType 0x6e) after the
+ * STAT_MELEE_ARMOR (STAT_CRITICAL_ARMOR for attacker type 0x6e) after the
  * shield-bubble absorb. No accuracy or avoidance rolls.
  *
  * @return TRUE on a connected hit, FALSE on an invulnerable victim
@@ -782,7 +782,7 @@ bool combat_applyHazardHitOnPlayer(Actor *attacker, Actor *victim, u16 maxDamage
     if (!(victim->flags.p & ACTOR_FLAG_INVULNERABLE))
     {
         damage = rng_rollRange(maxDamage / 2, maxDamage);
-        if (attacker->recordType == 0x6e)
+        if (attacker->type == 0x6e)
         {
             armor = PLAYER_STAT(playerIndex, STAT_CRITICAL_ARMOR);
         }
@@ -913,9 +913,9 @@ bool combat_applyPveRangedHit(Actor *attacker, Actor *victim, u16 baseDamage)
             damage = 1;
         }
 
-        // Gandalf shield-bubble absorbs the whole hit for one enemy record type (recordType ==
+        // Gandalf shield-bubble absorbs the whole hit for one enemy record type (type ==
         // 0x26)
-        if (victim->recordType == 0x26 && combat_shieldAbsorbsHit(victim, damage))
+        if (victim->type == 0x26 && combat_shieldAbsorbsHit(victim, damage))
         {
             return TRUE;
         }

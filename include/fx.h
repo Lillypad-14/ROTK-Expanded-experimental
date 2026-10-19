@@ -17,7 +17,7 @@
 /** spawned by Gimli's shield bubble when it absorbs part of a hit */
 #define FX_TYPE_SHIELD_ABSORB 9
 
-/** written to that shield-absorb FX actor's recordType */
+/** written to that shield-absorb FX actor's type */
 #define FX_SHIELD_ABSORB_UNK_PARAM 0x4d
 
 /** variant values (sprite/palette select nibble) for FX_TYPE_HIT_BURST */
@@ -29,7 +29,7 @@ enum FxBurstVariant
 };
 
 /**
- * written to the spawned burst FX actor's recordType by the Fireburst / Venomous melee hit effects
+ * written to the spawned burst FX actor's type by the Fireburst / Venomous melee hit effects
  */
 #define FX_BURST_UNK_PARAM 0x68
 
@@ -47,7 +47,7 @@ Actor *fx_spawnOnActor(Actor *parent, u8 fxType, u8 variant, u8 alt);
 u32 fx_tickAttachment(Actor *fx);
 
 /**
- * Spawn the boxed interaction FX (recordType 0xe: hand-built trigger box) at a
+ * Spawn the boxed interaction FX (type 0xe: hand-built trigger box) at a
  * position; variant selects the behavior. Called for a chest's on-open spawn.
  * Provisional.
  */
