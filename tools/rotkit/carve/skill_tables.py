@@ -360,11 +360,12 @@ def emit_row(
     field_0x24 = rom[off + 0x24]
 
     callback_init = _callback_init(callback, names_by_addr)
+    # Some callbacks return an effect actor. The cast dispatcher ignores the result.
     # The thumb bit comes from the function symbol itself (SceneHandlers idiom).
     return [
         f"    // [{row}] {label} ({callback_init})",
         "    {",
-        f"        .callback = {callback_init},",
+        f"        .callback = (ActiveSkillCallback){callback_init},",
         f"        .spiritCost = {spirit_cost},",
         f"        .field_0x06 = {field_0x06},",
         "        .values =",

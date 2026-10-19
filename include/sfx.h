@@ -34,6 +34,7 @@ typedef enum SfxId
     SFX_HERB_PICKUP = 0x2e,      // kingsfoil herb pickup
     SFX_EAT_FOOD = 0x2f,         // food drop eaten (actor_lootPile_eatFood, tiered herbs)
     SFX_COMBAT_INSTAKILL = 0x3f, // Aragorn's instakill melee proc fires
+    SFX_DWARVEN_RAGE = 0x4f,     // Dwarven Rage cast
     SFX_CHEST_OPEN = 0x10a,      // chest opens
     SFX_UNLOCK = 0x119,          // unlock jingle: all 8 artifacts (Weathertop) / 2000 kills (Moria)
     SFX_LEVEL_UP = 0x11a,        // player level-up

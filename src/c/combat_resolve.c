@@ -114,8 +114,13 @@ bool combat_resolvePveAttack(Actor *attacker, Actor *victim)
                 emitter->field_0x2e |= 0x6082;
             }
 
-            // crit roll; PLAYER_COMBAT_FLAG_WARRIORS_POOL forces a crit
+#ifdef BUGFIX
+            // Lump in the Dwarven's Rage force crit with the warrior's pool
+            if (PLAYER(playerIndex).combatFlags.p &
+                (PLAYER_COMBAT_FLAG_WARRIORS_POOL | PLAYER_COMBAT_FLAG_DWARVEN_RAGE))
+#else
             if (PLAYER(playerIndex).combatFlags.p & PLAYER_COMBAT_FLAG_WARRIORS_POOL)
+#endif
             {
                 crit = TRUE;
             }
@@ -123,7 +128,9 @@ bool combat_resolvePveAttack(Actor *attacker, Actor *victim)
             {
                 crit = combat_rollPercentage(PLAYER_STAT(playerIndex, STAT_CRIT_CHANCE_PERCENT));
             }
-            if (crit || (PLAYER(playerIndex).combatFlags.p & PLAYER_COMBAT_FLAG_FORCE_CRIT_UNKNOWN))
+            // BUG: Dwarven Rage does not force critical damage, it is especially checked
+            // in ADDITION to crit here. So it looks and sounds like a crit, but isn't a crit.
+            if (crit || (PLAYER(playerIndex).combatFlags.p & PLAYER_COMBAT_FLAG_DWARVEN_RAGE))
             {
                 if (victim->type != 0x1f && victim->type != 0x23)
                 {
@@ -228,7 +235,7 @@ bool combat_resolvePveAttack(Actor *attacker, Actor *victim)
                              unitType <= ENEMY_TYPE_ORC_WARRIOR_ELITE_LONGSWORD &&
                              victim->behaviorState == 0x14 &&
                              (crit || (PLAYER(playerIndex).combatFlags.p &
-                                       PLAYER_COMBAT_FLAG_FORCE_CRIT_UNKNOWN)))
+                                       PLAYER_COMBAT_FLAG_DWARVEN_RAGE)))
                     {
                         victim->actionState = ACTOR_STATE_KNOCKED_DOWN;
                         victim->field_0x64[0] |= 2;
@@ -435,7 +442,13 @@ bool combat_resolvePvpAttack(Actor *attacker, Actor *victim)
             {
                 critChance = PLAYER_STAT(attackerIndex, STAT_CRIT_CHANCE_PERCENT);
             }
+#ifdef BUGFIX
+            if (PLAYER(attackerIndex).combatFlags.p &
+                (PLAYER_COMBAT_FLAG_WARRIORS_POOL | PLAYER_COMBAT_FLAG_DWARVEN_RAGE))
+#else
+            // BUG: Dwarven Rage does not force critical damage against players.
             if (PLAYER(attackerIndex).combatFlags.p & PLAYER_COMBAT_FLAG_WARRIORS_POOL)
+#endif
             {
                 crit = TRUE;
             }
@@ -448,7 +461,7 @@ bool combat_resolvePvpAttack(Actor *attacker, Actor *victim)
             combat_computePveDamage(attacker, victim, crit);
 
             if (crit ||
-                (PLAYER(attackerIndex).combatFlags.p & PLAYER_COMBAT_FLAG_FORCE_CRIT_UNKNOWN) != 0)
+                (PLAYER(attackerIndex).combatFlags.p & PLAYER_COMBAT_FLAG_DWARVEN_RAGE) != 0)
             {
                 emitter->field_0x3a = 0xc;
                 emitter->field_0x38 = 3;
@@ -474,8 +487,8 @@ bool combat_resolvePvpAttack(Actor *attacker, Actor *victim)
                 {
                     damage = 5;
                 }
-                if (crit || (PLAYER(attackerIndex).combatFlags.p &
-                             PLAYER_COMBAT_FLAG_FORCE_CRIT_UNKNOWN) != 0)
+                if (crit ||
+                    (PLAYER(attackerIndex).combatFlags.p & PLAYER_COMBAT_FLAG_DWARVEN_RAGE) != 0)
                 {
                     if (PLAYER(attackerIndex).heroId != HERO_ID_LEGOLAS)
                     {

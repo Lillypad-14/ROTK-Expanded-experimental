@@ -7,7 +7,7 @@
 const ActiveSkill ActiveSkillsFrodo[HERO_ACTIVE_SKILL_COUNT] = {
     // [0] Knife Toss (skill_active_frodoKnifeToss)
     {
-        .callback = skill_active_frodoKnifeToss,
+        .callback = (ActiveSkillCallback)skill_active_frodoKnifeToss,
         .spiritCost = 25,
         .field_0x06 = 0,
         .values =
@@ -23,7 +23,7 @@ const ActiveSkill ActiveSkillsFrodo[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [1] Snare (skill_active_frodoSnare)
     {
-        .callback = skill_active_frodoSnare,
+        .callback = (ActiveSkillCallback)skill_active_frodoSnare,
         .spiritCost = 35,
         .field_0x06 = 0,
         .values =
@@ -39,7 +39,7 @@ const ActiveSkill ActiveSkillsFrodo[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [2] Galadriel's Cloak (skill_active_frodoGaladrielsCloak)
     {
-        .callback = skill_active_frodoGaladrielsCloak,
+        .callback = (ActiveSkillCallback)skill_active_frodoGaladrielsCloak,
         .spiritCost = 40,
         .field_0x06 = 0,
         .values =
@@ -55,7 +55,7 @@ const ActiveSkill ActiveSkillsFrodo[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [3] The One Ring (skill_active_frodoTheOneRing)
     {
-        .callback = skill_active_frodoTheOneRing,
+        .callback = (ActiveSkillCallback)skill_active_frodoTheOneRing,
         .spiritCost = 75,
         .field_0x06 = 0,
         .values =
@@ -71,7 +71,7 @@ const ActiveSkill ActiveSkillsFrodo[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [4] Ring's Persuasion (skill_active_frodoRingsPersuasion)
     {
-        .callback = skill_active_frodoRingsPersuasion,
+        .callback = (ActiveSkillCallback)skill_active_frodoRingsPersuasion,
         .spiritCost = 150,
         .field_0x06 = 0,
         .values =
@@ -87,7 +87,7 @@ const ActiveSkill ActiveSkillsFrodo[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [5] Herbal Healing (skill_active_herbalHealing)
     {
-        .callback = skill_active_herbalHealing,
+        .callback = (ActiveSkillCallback)skill_active_herbalHealing,
         .spiritCost = 0,
         .field_0x06 = 0,
         .values =
@@ -113,7 +113,7 @@ const u8 PassiveSkillIdsFrodo[HERO_PASSIVE_SKILL_COUNT] = {
 const ActiveSkill ActiveSkillsSam[HERO_ACTIVE_SKILL_COUNT] = {
     // [0] Knife Toss (skill_active_frodoKnifeToss)
     {
-        .callback = skill_active_frodoKnifeToss,
+        .callback = (ActiveSkillCallback)skill_active_frodoKnifeToss,
         .spiritCost = 25,
         .field_0x06 = 0,
         .values =
@@ -129,7 +129,7 @@ const ActiveSkill ActiveSkillsSam[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [1] Snare (skill_active_frodoSnare)
     {
-        .callback = skill_active_frodoSnare,
+        .callback = (ActiveSkillCallback)skill_active_frodoSnare,
         .spiritCost = 35,
         .field_0x06 = 0,
         .values =
@@ -145,7 +145,7 @@ const ActiveSkill ActiveSkillsSam[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [2] Galadriel's Cloak (skill_active_frodoGaladrielsCloak)
     {
-        .callback = skill_active_frodoGaladrielsCloak,
+        .callback = (ActiveSkillCallback)skill_active_frodoGaladrielsCloak,
         .spiritCost = 40,
         .field_0x06 = 0,
         .values =
@@ -161,7 +161,7 @@ const ActiveSkill ActiveSkillsSam[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [3] Cookpot Smash (skill_active_samCookpotSmash)
     {
-        .callback = skill_active_samCookpotSmash,
+        .callback = (ActiveSkillCallback)skill_active_samCookpotSmash,
         .spiritCost = 60,
         .field_0x06 = 0,
         .values =
@@ -177,7 +177,7 @@ const ActiveSkill ActiveSkillsSam[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [4] Samwise the Strong (skill_active_samSamwiseTheStrong)
     {
-        .callback = skill_active_samSamwiseTheStrong,
+        .callback = (ActiveSkillCallback)skill_active_samSamwiseTheStrong,
         .spiritCost = 85,
         .field_0x06 = 0,
         .values =
@@ -193,7 +193,7 @@ const ActiveSkill ActiveSkillsSam[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [5] Herbal Healing (skill_active_herbalHealing)
     {
-        .callback = skill_active_herbalHealing,
+        .callback = (ActiveSkillCallback)skill_active_herbalHealing,
         .spiritCost = 0,
         .field_0x06 = 0,
         .values =
@@ -219,7 +219,7 @@ const u8 PassiveSkillIdsSam[HERO_PASSIVE_SKILL_COUNT] = {
 const ActiveSkill ActiveSkillsSmeagol[HERO_ACTIVE_SKILL_COUNT] = {
     // [0] Berserk Attack (skill_active_smeagolBerserkAttack)
     {
-        .callback = skill_active_smeagolBerserkAttack,
+        .callback = (ActiveSkillCallback)skill_active_smeagolBerserkAttack,
         .spiritCost = 35,
         .field_0x06 = 0,
         .values =
@@ -235,7 +235,7 @@ const ActiveSkill ActiveSkillsSmeagol[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [1] Rock Throw (skill_active_smeagolRockThrow)
     {
-        .callback = skill_active_smeagolRockThrow,
+        .callback = (ActiveSkillCallback)skill_active_smeagolRockThrow,
         .spiritCost = 15,
         .field_0x06 = 0,
         .values =
@@ -251,7 +251,7 @@ const ActiveSkill ActiveSkillsSmeagol[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [2] Cower (skill_active_smeagolCower)
     {
-        .callback = skill_active_smeagolCower,
+        .callback = (ActiveSkillCallback)skill_active_smeagolCower,
         .spiritCost = 25,
         .field_0x06 = 0,
         .values =
@@ -267,7 +267,7 @@ const ActiveSkill ActiveSkillsSmeagol[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [3] Gollum! (skill_active_smeagolGollum)
     {
-        .callback = skill_active_smeagolGollum,
+        .callback = (ActiveSkillCallback)skill_active_smeagolGollum,
         .spiritCost = 80,
         .field_0x06 = 0,
         .values =
@@ -283,7 +283,7 @@ const ActiveSkill ActiveSkillsSmeagol[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [4] Pitiful Wail (skill_active_smeagolPitifulWail)
     {
-        .callback = skill_active_smeagolPitifulWail,
+        .callback = (ActiveSkillCallback)skill_active_smeagolPitifulWail,
         .spiritCost = 50,
         .field_0x06 = 0,
         .values =
@@ -299,7 +299,7 @@ const ActiveSkill ActiveSkillsSmeagol[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [5] Herbal Healing (skill_active_herbalHealing)
     {
-        .callback = skill_active_herbalHealing,
+        .callback = (ActiveSkillCallback)skill_active_herbalHealing,
         .spiritCost = 0,
         .field_0x06 = 0,
         .values =
@@ -325,7 +325,7 @@ const u8 PassiveSkillIdsSmeagol[HERO_PASSIVE_SKILL_COUNT] = {
 const ActiveSkill ActiveSkillsLegolas[HERO_ACTIVE_SKILL_COUNT] = {
     // [0] White Knives (skill_active_legolasWhiteKnives)
     {
-        .callback = skill_active_legolasWhiteKnives,
+        .callback = (ActiveSkillCallback)skill_active_legolasWhiteKnives,
         .spiritCost = 25,
         .field_0x06 = 0,
         .values =
@@ -341,7 +341,7 @@ const ActiveSkill ActiveSkillsLegolas[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [1] Spread Fire (skill_active_legolasSpreadFire)
     {
-        .callback = skill_active_legolasSpreadFire,
+        .callback = (ActiveSkillCallback)skill_active_legolasSpreadFire,
         .spiritCost = 90,
         .field_0x06 = 0,
         .values =
@@ -357,7 +357,7 @@ const ActiveSkill ActiveSkillsLegolas[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [2] Friend of Mirkwood (skill_active_legolasFriendOfMirkwood)
     {
-        .callback = skill_active_legolasFriendOfMirkwood,
+        .callback = (ActiveSkillCallback)skill_active_legolasFriendOfMirkwood,
         .spiritCost = 80,
         .field_0x06 = 0,
         .values =
@@ -373,7 +373,7 @@ const ActiveSkill ActiveSkillsLegolas[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [3] Foraging (skill_active_legolasForaging)
     {
-        .callback = skill_active_legolasForaging,
+        .callback = (ActiveSkillCallback)skill_active_legolasForaging,
         .spiritCost = 95,
         .field_0x06 = 0,
         .values =
@@ -389,7 +389,7 @@ const ActiveSkill ActiveSkillsLegolas[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [4] Silent Stride (skill_active_legolasSilentStride)
     {
-        .callback = skill_active_legolasSilentStride,
+        .callback = (ActiveSkillCallback)skill_active_legolasSilentStride,
         .spiritCost = 60,
         .field_0x06 = 0,
         .values =
@@ -405,7 +405,7 @@ const ActiveSkill ActiveSkillsLegolas[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [5] Herbal Healing (skill_active_herbalHealing)
     {
-        .callback = skill_active_herbalHealing,
+        .callback = (ActiveSkillCallback)skill_active_herbalHealing,
         .spiritCost = 0,
         .field_0x06 = 0,
         .values =
@@ -431,7 +431,7 @@ const u8 PassiveSkillIdsLegolas[HERO_PASSIVE_SKILL_COUNT] = {
 const ActiveSkill ActiveSkillsAragorn[HERO_ACTIVE_SKILL_COUNT] = {
     // [0] Sweep (skill_active_aragornSweep)
     {
-        .callback = skill_active_aragornSweep,
+        .callback = (ActiveSkillCallback)skill_active_aragornSweep,
         .spiritCost = 45,
         .field_0x06 = 0,
         .values =
@@ -447,7 +447,7 @@ const ActiveSkill ActiveSkillsAragorn[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [1] King's Command (skill_active_aragornKingsCommand)
     {
-        .callback = skill_active_aragornKingsCommand,
+        .callback = (ActiveSkillCallback)skill_active_aragornKingsCommand,
         .spiritCost = 65,
         .field_0x06 = 0,
         .values =
@@ -463,7 +463,7 @@ const ActiveSkill ActiveSkillsAragorn[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [2] Sword Throw (skill_active_aragornSwordThrow)
     {
-        .callback = skill_active_aragornSwordThrow,
+        .callback = (ActiveSkillCallback)skill_active_aragornSwordThrow,
         .spiritCost = 40,
         .field_0x06 = 0,
         .values =
@@ -479,7 +479,7 @@ const ActiveSkill ActiveSkillsAragorn[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [3] Numenorean Will (skill_active_aragornNumenoreanWill)
     {
-        .callback = skill_active_aragornNumenoreanWill,
+        .callback = (ActiveSkillCallback)skill_active_aragornNumenoreanWill,
         .spiritCost = 80,
         .field_0x06 = 0,
         .values =
@@ -495,7 +495,7 @@ const ActiveSkill ActiveSkillsAragorn[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [4] Call of the Dead (skill_active_aragornCallOfTheDead)
     {
-        .callback = skill_active_aragornCallOfTheDead,
+        .callback = (ActiveSkillCallback)skill_active_aragornCallOfTheDead,
         .spiritCost = 155,
         .field_0x06 = 0,
         .values =
@@ -511,7 +511,7 @@ const ActiveSkill ActiveSkillsAragorn[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [5] Herbal Healing (skill_active_herbalHealing)
     {
-        .callback = skill_active_herbalHealing,
+        .callback = (ActiveSkillCallback)skill_active_herbalHealing,
         .spiritCost = 0,
         .field_0x06 = 0,
         .values =
@@ -537,7 +537,7 @@ const u8 PassiveSkillIdsAragorn[HERO_PASSIVE_SKILL_COUNT] = {
 const ActiveSkill ActiveSkillsGandalf[HERO_ACTIVE_SKILL_COUNT] = {
     // [0] Sword of Power (skill_active_gandalfSwordOfPower)
     {
-        .callback = skill_active_gandalfSwordOfPower,
+        .callback = (ActiveSkillCallback)skill_active_gandalfSwordOfPower,
         .spiritCost = 50,
         .field_0x06 = 0,
         .values =
@@ -553,7 +553,7 @@ const ActiveSkill ActiveSkillsGandalf[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [1] Lightstrike (skill_active_gandalfLightstrike)
     {
-        .callback = skill_active_gandalfLightstrike,
+        .callback = (ActiveSkillCallback)skill_active_gandalfLightstrike,
         .spiritCost = 60,
         .field_0x06 = 0,
         .values =
@@ -569,7 +569,7 @@ const ActiveSkill ActiveSkillsGandalf[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [2] Shield (skill_active_gandalfShield)
     {
-        .callback = skill_active_gandalfShield,
+        .callback = (ActiveSkillCallback)skill_active_gandalfShield,
         .spiritCost = 80,
         .field_0x06 = 0,
         .values =
@@ -585,7 +585,7 @@ const ActiveSkill ActiveSkillsGandalf[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [3] Blinding Aura (skill_active_gandalfBlindingAura)
     {
-        .callback = skill_active_gandalfBlindingAura,
+        .callback = (ActiveSkillCallback)skill_active_gandalfBlindingAura,
         .spiritCost = 75,
         .field_0x06 = 0,
         .values =
@@ -601,7 +601,7 @@ const ActiveSkill ActiveSkillsGandalf[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [4] Summon Gwaihir (skill_active_gandalfSummonGwaihir)
     {
-        .callback = skill_active_gandalfSummonGwaihir,
+        .callback = (ActiveSkillCallback)skill_active_gandalfSummonGwaihir,
         .spiritCost = 150,
         .field_0x06 = 0,
         .values =
@@ -617,7 +617,7 @@ const ActiveSkill ActiveSkillsGandalf[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [5] Herbal Healing (skill_active_herbalHealing)
     {
-        .callback = skill_active_herbalHealing,
+        .callback = (ActiveSkillCallback)skill_active_herbalHealing,
         .spiritCost = 0,
         .field_0x06 = 0,
         .values =
@@ -643,7 +643,7 @@ const u8 PassiveSkillIdsGandalf[HERO_PASSIVE_SKILL_COUNT] = {
 const ActiveSkill ActiveSkillsEowyn[HERO_ACTIVE_SKILL_COUNT] = {
     // [0] Double Strike (skill_active_eowynDoubleStrike)
     {
-        .callback = skill_active_eowynDoubleStrike,
+        .callback = (ActiveSkillCallback)skill_active_eowynDoubleStrike,
         .spiritCost = 30,
         .field_0x06 = 0,
         .values =
@@ -659,7 +659,7 @@ const ActiveSkill ActiveSkillsEowyn[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [1] Shieldmaiden of Rohan (skill_active_eowynShieldmaidenOfRohan)
     {
-        .callback = skill_active_eowynShieldmaidenOfRohan,
+        .callback = (ActiveSkillCallback)skill_active_eowynShieldmaidenOfRohan,
         .spiritCost = 60,
         .field_0x06 = 0,
         .values =
@@ -675,7 +675,7 @@ const ActiveSkill ActiveSkillsEowyn[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [2] Rohan Sprint (skill_active_eowynRohanSprint)
     {
-        .callback = skill_active_eowynRohanSprint,
+        .callback = (ActiveSkillCallback)skill_active_eowynRohanSprint,
         .spiritCost = 65,
         .field_0x06 = 0,
         .values =
@@ -691,7 +691,7 @@ const ActiveSkill ActiveSkillsEowyn[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [3] Shield Bash (skill_active_eowynShieldBash)
     {
-        .callback = skill_active_eowynShieldBash,
+        .callback = (ActiveSkillCallback)skill_active_eowynShieldBash,
         .spiritCost = 50,
         .field_0x06 = 0,
         .values =
@@ -707,7 +707,7 @@ const ActiveSkill ActiveSkillsEowyn[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [4] Forth Eorlingas! (skill_active_eowynForthEorlingas)
     {
-        .callback = skill_active_eowynForthEorlingas,
+        .callback = (ActiveSkillCallback)skill_active_eowynForthEorlingas,
         .spiritCost = 85,
         .field_0x06 = 0,
         .values =
@@ -723,7 +723,7 @@ const ActiveSkill ActiveSkillsEowyn[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [5] Herbal Healing (skill_active_herbalHealing)
     {
-        .callback = skill_active_herbalHealing,
+        .callback = (ActiveSkillCallback)skill_active_herbalHealing,
         .spiritCost = 0,
         .field_0x06 = 0,
         .values =
@@ -749,7 +749,7 @@ const u8 PassiveSkillIdsEowyn[HERO_PASSIVE_SKILL_COUNT] = {
 const ActiveSkill ActiveSkillsGimli[HERO_ACTIVE_SKILL_COUNT] = {
     // [0] Axe Throw (skill_active_gimliAxeThrow)
     {
-        .callback = skill_active_gimliAxeThrow,
+        .callback = (ActiveSkillCallback)skill_active_gimliAxeThrow,
         .spiritCost = 50,
         .field_0x06 = 0,
         .values =
@@ -765,7 +765,7 @@ const ActiveSkill ActiveSkillsGimli[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [1] Whirling Attack (skill_active_gimliWhirlingAttack)
     {
-        .callback = skill_active_gimliWhirlingAttack,
+        .callback = (ActiveSkillCallback)skill_active_gimliWhirlingAttack,
         .spiritCost = 75,
         .field_0x06 = 0,
         .values =
@@ -781,7 +781,7 @@ const ActiveSkill ActiveSkillsGimli[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [2] Dwarven Rage (skill_active_gimliDwarvenRage)
     {
-        .callback = skill_active_gimliDwarvenRage,
+        .callback = (ActiveSkillCallback)skill_active_gimliDwarvenRage,
         .spiritCost = 65,
         .field_0x06 = 0,
         .values =
@@ -797,7 +797,7 @@ const ActiveSkill ActiveSkillsGimli[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [3] Stoicism (skill_active_gimliStoicism)
     {
-        .callback = skill_active_gimliStoicism,
+        .callback = (ActiveSkillCallback)skill_active_gimliStoicism,
         .spiritCost = 85,
         .field_0x06 = 0,
         .values =
@@ -813,7 +813,7 @@ const ActiveSkill ActiveSkillsGimli[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [4] Earth Shatter (skill_active_gimliEarthShatter)
     {
-        .callback = skill_active_gimliEarthShatter,
+        .callback = (ActiveSkillCallback)skill_active_gimliEarthShatter,
         .spiritCost = 120,
         .field_0x06 = 0,
         .values =
@@ -829,7 +829,7 @@ const ActiveSkill ActiveSkillsGimli[HERO_ACTIVE_SKILL_COUNT] = {
     },
     // [5] Herbal Healing (skill_active_herbalHealing)
     {
-        .callback = skill_active_herbalHealing,
+        .callback = (ActiveSkillCallback)skill_active_herbalHealing,
         .spiritCost = 0,
         .field_0x06 = 0,
         .values =

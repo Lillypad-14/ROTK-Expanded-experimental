@@ -23,8 +23,8 @@ enum PlayerCombatFlag
     PLAYER_COMBAT_FLAG_MOVE_SPEED_DIRTY = 1 << 6,
     PLAYER_COMBAT_FLAG_DAMAGE_TYPE = 1 << 8, // 1 = slash, 0 = impale
 
-    // forces every melee hit to critical (provisional; source/meaning unknown)
-    PLAYER_COMBAT_FLAG_FORCE_CRIT_UNKNOWN = 1 << 9,
+    // Dwarven Rage is active. Forces melee critical-hit effects.
+    PLAYER_COMBAT_FLAG_DWARVEN_RAGE = 1 << 9,
     PLAYER_COMBAT_FLAG_ARROWS_EQUIPPED = 1 << 10,
 
     // re-attach the hand item sprites and glow FX on the next player tick (equipment changed)
@@ -60,10 +60,10 @@ typedef union PlayerCombatFlags {
         u16 shieldEquipped : 1;
         u16 mainHandStaff : 1;
         u16 fireArrowsEquipped : 1;
-        u16 moveSpeedDirty : 1;   // 1 << 6: recompute Actor.moveSpeed
-        u16 field_bit_7 : 1;      // 1 << 7
-        u16 damageType : 1;       // 1 << 8: 1 = slash, 0 = impale
-        u16 forceCritUnknown : 1; // 1 << 9: forces a melee hit to crit
+        u16 moveSpeedDirty : 1; // 1 << 6: recompute Actor.moveSpeed
+        u16 field_bit_7 : 1;    // 1 << 7
+        u16 damageType : 1;     // 1 << 8: 1 = slash, 0 = impale
+        u16 dwarvenRage : 1;    // Dwarven Rage is active.
         u16 arrowsEquipped : 1;
         u16 handSpritesDirty : 1; // 1 << 11: re-attach hand item sprites and glow FX
         u16 warriorsPool : 1;     // 1 << 12: Warrior's Pool well-buff active (forces melee crit)

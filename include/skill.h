@@ -123,7 +123,7 @@ static inline void skill_passive_subtractStat(u8 playerIndex, u8 statIndex, s32 
 #define ACTIVE_SKILL_VALUE_COUNT 2
 
 // Active skill callback. The actor parameter is the caster.
-typedef void (*ActiveSkillCallback)(Actor *actor);
+typedef void (*ActiveSkillCallback)(Actor *playerActor);
 
 typedef struct ActiveSkillValue
 {
@@ -305,44 +305,45 @@ void skill_active_handleQuickCastModeInput(u8 playerIndex);
 
 // One callback per distinct active skill. The function name identifies the hero whose row defines
 // the skill. Frodo's Knife Toss, Snare and Galadriel's Cloak callbacks are also used by Sam.
-void skill_active_frodoKnifeToss(Actor *actor);
-void skill_active_frodoSnare(Actor *actor);
-void skill_active_frodoGaladrielsCloak(Actor *actor);
-void skill_active_frodoTheOneRing(Actor *actor);
-void skill_active_frodoRingsPersuasion(Actor *actor);
-void skill_active_herbalHealing(Actor *actor);
-void skill_active_samCookpotSmash(Actor *actor);
-void skill_active_samSamwiseTheStrong(Actor *actor);
-void skill_active_smeagolBerserkAttack(Actor *actor);
-void skill_active_smeagolRockThrow(Actor *actor);
-void skill_active_smeagolCower(Actor *actor);
-void skill_active_smeagolGollum(Actor *actor);
-void skill_active_smeagolPitifulWail(Actor *actor);
-void skill_active_legolasWhiteKnives(Actor *actor);
-void skill_active_legolasSpreadFire(Actor *actor);
-void skill_active_legolasFriendOfMirkwood(Actor *actor);
-void skill_active_legolasForaging(Actor *actor);
-void skill_active_legolasSilentStride(Actor *actor);
-void skill_active_aragornSweep(Actor *actor);
-void skill_active_aragornKingsCommand(Actor *actor);
-void skill_active_aragornSwordThrow(Actor *actor);
-void skill_active_aragornNumenoreanWill(Actor *actor);
-void skill_active_aragornCallOfTheDead(Actor *actor);
-void skill_active_gandalfSwordOfPower(Actor *actor);
-void skill_active_gandalfLightstrike(Actor *actor);
-void skill_active_gandalfShield(Actor *actor);
-void skill_active_gandalfBlindingAura(Actor *actor);
-void skill_active_gandalfSummonGwaihir(Actor *actor);
-void skill_active_eowynDoubleStrike(Actor *actor);
-void skill_active_eowynShieldmaidenOfRohan(Actor *actor);
-void skill_active_eowynRohanSprint(Actor *actor);
-void skill_active_eowynShieldBash(Actor *actor);
-void skill_active_eowynForthEorlingas(Actor *actor);
-void skill_active_gimliAxeThrow(Actor *actor);
-void skill_active_gimliWhirlingAttack(Actor *actor);
-void skill_active_gimliDwarvenRage(Actor *actor);
-void skill_active_gimliStoicism(Actor *actor);
-void skill_active_gimliEarthShatter(Actor *actor);
+void skill_active_frodoKnifeToss(Actor *playerActor);
+void skill_active_frodoSnare(Actor *playerActor);
+void skill_active_frodoGaladrielsCloak(Actor *playerActor);
+void skill_active_frodoTheOneRing(Actor *playerActor);
+void skill_active_frodoRingsPersuasion(Actor *playerActor);
+void skill_active_herbalHealing(Actor *playerActor);
+void skill_active_samCookpotSmash(Actor *playerActor);
+void skill_active_samSamwiseTheStrong(Actor *playerActor);
+void skill_active_smeagolBerserkAttack(Actor *playerActor);
+void skill_active_smeagolRockThrow(Actor *playerActor);
+void skill_active_smeagolCower(Actor *playerActor);
+void skill_active_smeagolGollum(Actor *playerActor);
+void skill_active_smeagolPitifulWail(Actor *playerActor);
+void skill_active_legolasWhiteKnives(Actor *playerActor);
+void skill_active_legolasSpreadFire(Actor *playerActor);
+void skill_active_legolasFriendOfMirkwood(Actor *playerActor);
+void skill_active_legolasForaging(Actor *playerActor);
+void skill_active_legolasSilentStride(Actor *playerActor);
+void skill_active_aragornSweep(Actor *playerActor);
+void skill_active_aragornKingsCommand(Actor *playerActor);
+void skill_active_aragornSwordThrow(Actor *playerActor);
+void skill_active_aragornNumenoreanWill(Actor *playerActor);
+void skill_active_aragornCallOfTheDead(Actor *playerActor);
+void skill_active_gandalfSwordOfPower(Actor *playerActor);
+void skill_active_gandalfLightstrike(Actor *playerActor);
+void skill_active_gandalfShield(Actor *playerActor);
+void skill_active_gandalfBlindingAura(Actor *playerActor);
+void skill_active_gandalfSummonGwaihir(Actor *playerActor);
+void skill_active_eowynDoubleStrike(Actor *playerActor);
+void skill_active_eowynShieldmaidenOfRohan(Actor *playerActor);
+void skill_active_eowynRohanSprint(Actor *playerActor);
+void skill_active_eowynShieldBash(Actor *playerActor);
+void skill_active_eowynForthEorlingas(Actor *playerActor);
+void skill_active_gimliAxeThrow(Actor *playerActor);
+void skill_active_gimliWhirlingAttack(Actor *playerActor);
+Actor *skill_active_gimliDwarvenRage(Actor *playerActor);
+void skill_active_tickGimliDwarvenRage(Actor *actor);
+void skill_active_gimliStoicism(Actor *playerActor);
+void skill_active_gimliEarthShatter(Actor *playerActor);
 
 // Temporary skill levels alter the applied passive levels or active skill levels without changing
 // the purchased levels.

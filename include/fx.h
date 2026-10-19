@@ -40,6 +40,12 @@ enum FxBurstVariant
  */
 Actor *fx_spawnOnActor(Actor *parent, u8 fxType, u8 variant, u8 alt);
 
+/** Spawn attached FX with a timed animation sequence. */
+Actor *fx_spawnTimedOnActor(Actor *parent, s32 duration, u8 fxType, u8 variant, u8 alt);
+
+/** Advance timed attached FX. Returns TRUE when the effect finishes. */
+bool32 fx_tickTimedAttachment(Actor *fx);
+
 /**
  * Tick callback for attached FX: follows the parent, self-destructs when the
  * parent actor is gone.
