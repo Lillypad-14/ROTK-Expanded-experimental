@@ -41,7 +41,15 @@ void skill_passive_applyAllLevels(u8 playerIndex)
 {
     s32 slot;
 
-    for (slot = 0; slot < HERO_PASSIVE_SKILL_COUNT + 1; slot++)
+#ifdef BUGFIX
+    for (slot = 0; slot < HERO_PASSIVE_SKILL_COUNT; slot++)
+#else
+    // BUG: Off by one error! Reads 1 past the passive skill count.
+    // This value is always 0 for all heroes in the ROM, which means the skill is always resolved
+    // to "Fearless". The level overflows into the active skill table, meaning that the skill
+    // "Fearless" is applied at the same level of the first active skill.
+    for (slot = 0; slot <= HERO_PASSIVE_SKILL_COUNT; slot++)
+#endif
     {
         // HACK: the double read is load-bearing: a single read puts the load into the argument
         // register and drops the ROM's register copy.
