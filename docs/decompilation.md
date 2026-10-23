@@ -59,7 +59,7 @@ Tooling changes:
 
 ## Measuring progress
 
-The historical [2026-10-22 handoff](decomp-handoff.md) reported 569 C definitions, 251 C regions and 72,292 compiled code bytes. Those are dated results, not live counters. Regenerate the inventory for current source counts.
+On 2026-10-23, `make coverage` reported 704 C function definitions in 350 source regions, 86,452 compiled bytes and 1,051 mapped functions. The [2026-10-22 handoff](decomp-handoff.md) reported 569 C definitions, 251 C regions and 72,292 compiled code bytes. Those are dated results, not live counters. Regenerate the inventory for current source counts.
 
 ```sh
 uv run python tools/documentation_inventory.py

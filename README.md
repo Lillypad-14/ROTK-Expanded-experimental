@@ -49,6 +49,40 @@ Each hero below has a second skill page with three builds and a mechanic of its 
 | [Ringwraith](docs/heroes.md#ringwraith) | Dread | **New hero.** Terrify foes and raise the slain as thralls. Own skills and gear. |
 | [Saruman](docs/heroes.md#saruman) | The Prism | **New hero.** Spells add three colors. A full Prism refracts the next spell at half cost. |
 
+## Decompilation
+
+Alongside the mod, this fork continues RagingCactus's decompilation: rewriting the original game as readable C that
+compiles back to the exact same bytes. Every recovered function is checked against the original ROM, and the
+rebuilt ROM is byte-identical to the original (SHA-1 `ec3d126d37ea6e2ad7030d8a99cf87c6e46c03fd`).
+
+| | Upstream base | This fork (2026-10-23) |
+| --- | --- | --- |
+| C source files | 51 | 350 |
+| Decompiled C functions | not counted | 704 (86,452 bytes of compiled code) |
+| Mapped functions (named, with or without C) | 772 | 1,051 |
+| Data symbols | 356 | 483 |
+
+What this fork decompiled, by system:
+
+| System | Files | Highlights |
+| --- | --- | --- |
+| Mission scripts | 85 | 63 script opcode handlers and the mission file loaders |
+| Actors | 39 | Allocation, movement, collision, death, stun, knockback, aggro, enemy spawners |
+| Scenes | 38 | Shop, skill tree, new game, logo screens, victory |
+| Sprites | 29 | OAM, affine matrices, palette and cell caches, animation binding |
+| Graphics | 27 | BG layers, scrolling, rotation and zoom, color effects, palette fades |
+| Skills, player, RNG, effects | 51 | Active skill ticks, HUD and stats, the gameplay RNG, particles and status effects |
+| Multiplayer, EEPROM, text, sound, save and others | 30 | |
+
+The game is **not** fully decompiled. Parts without C are still copied from your own ROM when building, and the
+function map is incomplete, so there is no honest "percent done" yet.
+
+- Status, file layout and how verification works: [docs/decompilation.md](docs/decompilation.md)
+- Every C file and function, and what is still missing: [docs/source-inventory.md](docs/source-inventory.md)
+- How to decompile a function yourself: [docs/pipeline.md](docs/pipeline.md) and [docs/workflow.md](docs/workflow.md)
+
+Check it yourself with `make verify` (rebuilds the ROM and compares the hash) and `make coverage` (live counts).
+
 ## Community documentation
 
 Start at the [documentation index](docs/README.md) for player, contributor and testing guides.
