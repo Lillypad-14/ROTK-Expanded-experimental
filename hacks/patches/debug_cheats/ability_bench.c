@@ -177,13 +177,13 @@ OPTION(Cast, castRequest)
 OPTION(Cancel, cancelRequest)
 OPTION(Reset, resetRequest)
 const struct ModOptionEntry AbilityBenchOptions[ABILITY_BENCH_OPTION_COUNT] = {
-    {"Skill", Skills, ARRAY_COUNT(Skills), 0, getSkill, setSkill},
-    {"Test level", Levels, ARRAY_COUNT(Levels), 0, getLevel, setLevel},
+    {"Skill", Skills, ARRAY_COUNT(Skills), 0, getSkill, setSkill, .desc = NULL},
+    {"Test level", Levels, ARRAY_COUNT(Levels), 0, getLevel, setLevel, .desc = NULL},
     {"Cast timing", HackLibCastTimelineNames, HACKLIB_CAST_TIMELINE_COUNT + 1, 0, getTiming,
-     setTiming},
-    {"Practice", Toggles, 2, 0, getPractice, setPractice},
-    {"Cast on resume", Actions, 2, 0, getCast, setCast},
-    {"Cancel cast", Actions, 2, 0, getCancel, setCancel},
-    {"Reset cooldowns", Actions, 2, 0, getReset, setReset},
+     setTiming, .desc = NULL},
+    {"Practice", Toggles, 2, 0, getPractice, setPractice, .desc = NULL},
+    {"Cast on resume", Actions, 2, 0, getCast, setCast, .desc = NULL},
+    {"Cancel cast", Actions, 2, 0, getCancel, setCancel, .desc = NULL},
+    {"Reset cooldowns", Actions, 2, 0, getReset, setReset, .desc = NULL},
 };
 #endif

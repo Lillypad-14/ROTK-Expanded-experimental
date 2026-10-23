@@ -8,7 +8,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 
 
-@pytest.mark.parametrize("hero", ["sam", "smeagol", "aragorn"])
+@pytest.mark.parametrize("hero", ["sam", "smeagol", "aragorn", "frodo"])
 def test_hero_moves(tmp_path: Path, hero: str) -> None:
     compiler = shutil.which("clang") or shutil.which("cc")
     assert compiler
@@ -20,6 +20,7 @@ def test_hero_moves(tmp_path: Path, hero: str) -> None:
             "-Wall",
             "-Wextra",
             "-Werror",
+            *(["-Wno-unused-parameter"] if hero == "frodo" else []),
             f"-DTEST_SAM={int(hero == 'sam')}",
             *(
                 f"-I{ROOT / path}"
@@ -36,6 +37,8 @@ def test_hero_moves(tmp_path: Path, hero: str) -> None:
                 / (
                     "hacks/tests/aragorn.c"
                     if hero == "aragorn"
+                    else "hacks/tests/frodo.c"
+                    if hero == "frodo"
                     else "hacks/tests/hero_moves.c"
                 )
             ),

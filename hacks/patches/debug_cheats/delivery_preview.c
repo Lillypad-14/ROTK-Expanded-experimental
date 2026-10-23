@@ -122,12 +122,12 @@ OPTION(Fire, fireRequest)
 OPTION(Clear, clearRequest)
 OPTION(Display, display)
 const struct ModOptionEntry DeliveryPreviewOptions[DELIVERY_PREVIEW_OPTION_COUNT] = {
-    {"Recipe", SkillDeliveryNames, SKILL_DELIVERY_COUNT, 0, getRecipe, setRecipe},
-    {"Test level", Levels, 5, 0, getLevel, setLevel},
-    {"Mode", Modes, 2, 0, getDamage, setDamage},
-    {"Placement", Placements, 2, 0, getPlacement, setPlacement},
-    {"Fire on resume", Actions, 2, 0, getFire, setFire},
-    {"Clear", Actions, 2, 0, getClear, setClear},
-    {"Results", Toggles, 2, 0, getDisplay, setDisplay},
+    {"Recipe", SkillDeliveryNames, SKILL_DELIVERY_COUNT, 0, getRecipe, setRecipe, .desc = NULL},
+    {"Test level", Levels, 5, 0, getLevel, setLevel, .desc = NULL},
+    {"Mode", Modes, 2, 0, getDamage, setDamage, .desc = NULL},
+    {"Placement", Placements, 2, 0, getPlacement, setPlacement, .desc = NULL},
+    {"Fire on resume", Actions, 2, 0, getFire, setFire, .desc = NULL},
+    {"Clear", Actions, 2, 0, getClear, setClear, .desc = NULL},
+    {"Results", Toggles, 2, 0, getDisplay, setDisplay, .desc = NULL},
 };
 #endif

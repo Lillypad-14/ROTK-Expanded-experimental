@@ -1,6 +1,6 @@
 #include "patches/skill_expansion/skill_expansion_frodo.h"
-#include "fx.h"
 #include "enemy.h"
+#include "fx.h"
 #include "game.h"
 #include "lib/fx_kit.h"
 #include "lib/hud_meter.h"
@@ -19,6 +19,9 @@
 
 #define FRAMES_PER_SECOND 30
 #define BURDEN_MAX 100
+#define BURDEN_TIER_1_MIN 51
+#define BURDEN_TIER_2_MIN 81
+#define BURDEN_TIER_3_MIN 91
 
 // Cast visuals step every CAST_FX_TICKS so they read instead of flashing by.
 #define CAST_FX_TICKS 3
@@ -239,7 +242,8 @@ typedef struct FrodoState
     u16 ringBurdenInterval;
 } FrodoState;
 
-_Static_assert(sizeof(FrodoState) <= sizeof(skillExpansion_heroState[0]), "FrodoState exceeds the hero state");
+_Static_assert(sizeof(FrodoState) <= sizeof(skillExpansion_heroState[0]),
+               "FrodoState exceeds the hero state");
 
 static inline FrodoState *state(u8 playerIndex)
 {
@@ -273,6 +277,25 @@ static inline s32 burden(u8 playerIndex)
 static void addBurden(u8 playerIndex, s32 amount)
 {
     player_addCorruption(playerIndex, amount);
+    // Large changes can skip the stock tier flag transitions.
+    s32 now = burden(playerIndex);
+    u32 tiers = 0;
+
+    if (now >= BURDEN_TIER_1_MIN)
+    {
+        tiers |= GAME_FLAG_CORRUPTION_TIER_1;
+    }
+    if (now >= BURDEN_TIER_2_MIN)
+    {
+        tiers |= GAME_FLAG_CORRUPTION_TIER_2;
+    }
+    if (now >= BURDEN_TIER_3_MIN)
+    {
+        tiers |= GAME_FLAG_CORRUPTION_TIER_3;
+    }
+    g_GameFlags.p = (g_GameFlags.p & ~(GAME_FLAG_CORRUPTION_TIER_1 | GAME_FLAG_CORRUPTION_TIER_2 |
+                                       GAME_FLAG_CORRUPTION_TIER_3)) |
+                    tiers;
 }
 
 /** Clear Burden and return how much there was. */
@@ -280,7 +303,7 @@ static s32 purgeBurden(u8 playerIndex)
 {
     s32 purged = burden(playerIndex);
 
-    player_addCorruption(playerIndex, -BURDEN_MAX);
+    addBurden(playerIndex, -BURDEN_MAX);
     state(playerIndex)->lastBurden = 0;
     return purged;
 }
@@ -416,12 +439,12 @@ static void tickBurdenPressure(u8 playerIndex, FrodoState *st, Actor *actor)
     }
     if (st->pressureFrames == 0)
     {
-        st->pressureFrames = st->inCombat
-                                 ? PULL_BASE_FRAMES +
-                                       PULL_FRAMES_PER_WILL_LEVEL *
-                                           passiveLevel(playerIndex,
-                                                        SKILL_EXPANSION_PASSIVE_STRENGTH_OF_WILL)
-                                 : FADE_FRAMES;
+        st->pressureFrames =
+            st->inCombat
+                ? PULL_BASE_FRAMES +
+                      PULL_FRAMES_PER_WILL_LEVEL *
+                          passiveLevel(playerIndex, SKILL_EXPANSION_PASSIVE_STRENGTH_OF_WILL)
+                : FADE_FRAMES;
         return;
     }
     if (!hackLib_tickTimer(&st->pressureFrames))
@@ -684,7 +707,6 @@ void skillExpansion_frodoReset(u8 playerIndex)
 
 void skillExpansion_frodoCleanup(u8 playerIndex, Actor *actor)
 {
-    (void)actor;
     if (!isFrodo(playerIndex))
     {
         return;
@@ -694,7 +716,29 @@ void skillExpansion_frodoCleanup(u8 playerIndex, Actor *actor)
         state(playerIndex)->claimFrames = 0;
         restoreSpiritCosts(playerIndex, state(playerIndex));
     }
-    state(playerIndex)->phialFrames = 0;
+    FrodoState *st = state(playerIndex);
+    if (actor != NULL)
+    {
+        hackLib_fxTintSlot(actor->oam.paletteNumber, ObjPalettes[FRODO_OBJ_PALETTE],
+                           TINT_FIRST_COLOR, TINT_COLOR_COUNT, BURDEN_TINT_COLOR, 0);
+    }
+    if (st->heldRing != NULL && PLAYER(playerIndex).ringActor == st->heldRing)
+    {
+        takeOffRing(st, st->heldRing);
+    }
+    st->phialFrames = 0;
+    st->tintStrength = 0;
+    st->tintColor = 0;
+    st->tintFrames = 0;
+    st->wispFrames = 0;
+    st->stingGlowing = FALSE;
+    st->calmFrames = 0;
+    st->knifeFrames = 0;
+    st->heldRing = NULL;
+    if (PLAYER(playerIndex).currentHp <= 0)
+    {
+        purgeBurden(playerIndex);
+    }
 }
 
 void skillExpansion_frodoTick(u8 playerIndex, Actor *actor)
@@ -703,6 +747,11 @@ void skillExpansion_frodoTick(u8 playerIndex, Actor *actor)
 
     if (!isFrodo(playerIndex) || actor == NULL)
     {
+        return;
+    }
+    if (PLAYER(playerIndex).currentHp <= 0)
+    {
+        skillExpansion_frodoCleanup(playerIndex, actor);
         return;
     }
     if (hackLib_tickTimer(&st->claimFrames))
@@ -740,8 +789,8 @@ void skillExpansion_frodoTick(u8 playerIndex, Actor *actor)
 static void ringsPersuasion(Actor *playerActor)
 {
     u8 p = playerActor->as.combat.playerIndex;
-    s32 bonus = RIDDLES_FRAMES_PER_LEVEL *
-                passiveLevel(p, SKILL_EXPANSION_PASSIVE_RIDDLES_IN_THE_DARK);
+    s32 bonus =
+        RIDDLES_FRAMES_PER_LEVEL * passiveLevel(p, SKILL_EXPANSION_PASSIVE_RIDDLES_IN_THE_DARK);
     Actor *before[PERSUADED_SNAPSHOT_COUNT];
     u32 count = 0;
     Actor *target = NULL;
@@ -959,8 +1008,8 @@ void skillExpansion_frodoPhialOfGaladriel(Actor *playerActor)
     if (st->calmFrames >= UNWAVERING_CALM_FRAMES &&
         passiveLevel(p, SKILL_EXPANSION_PASSIVE_UNWAVERING) != 0)
     {
-        player_addSpirit(p, skillExpansion_players[p].activeSkills[PLAYER(p).castingActiveSkill]
-                                .spiritCost);
+        player_addSpirit(
+            p, skillExpansion_players[p].activeSkills[PLAYER(p).castingActiveSkill].spiritCost);
     }
     st->phialRadius = PHIAL_BASE_RADIUS + purged / PHIAL_BURDEN_PER_RADIUS;
     damage = PHIAL_PULSE_BASE_DAMAGE + PHIAL_PULSE_DAMAGE_PER_LEVEL * level +
@@ -1052,9 +1101,9 @@ void skillExpansion_frodoShadowOfTheRing(Actor *playerActor)
     {
         if (skillExpansion_isFoe(foe))
         {
-            HackLibDamageResult result = skillExpansion_dealDamage(
-                playerActor, foe, damage > 0xffff ? 0xffff : damage, HACKLIB_DAMAGE_ABILITY,
-                PLAYER(p).castingActiveSkill);
+            HackLibDamageResult result =
+                skillExpansion_dealDamage(playerActor, foe, damage > 0xffff ? 0xffff : damage,
+                                          HACKLIB_DAMAGE_ABILITY, PLAYER(p).castingActiveSkill);
 
             if (result.hit)
             {
@@ -1204,21 +1253,17 @@ bool32 skillExpansion_canCastPhialOfGaladriel(u8 playerIndex)
 // Notches at the stock corruption tiers.
 static const u8 BurdenBarMarks[] = {FRODO_BURDEN_HEAVY, FRODO_BURDEN_CONSUMED};
 
-static const HackLibHudMeterLook BarLight = {
-    HACKLIB_HUD_COLOR_PALE_GOLD, HACKLIB_HUD_COLOR_GOLD, HACKLIB_HUD_COLOR_DARK_GOLD,
-    HACKLIB_HUD_COLOR_WHITE};
-static const HackLibHudMeterLook BarHeavy = {
-    HACKLIB_HUD_COLOR_EMBER, HACKLIB_HUD_COLOR_RED, HACKLIB_HUD_COLOR_DARK_RED,
-    HACKLIB_HUD_COLOR_WHITE};
-static const HackLibHudMeterLook BarConsumed = {
-    HACKLIB_HUD_COLOR_RED, HACKLIB_HUD_COLOR_DARK_RED, HACKLIB_HUD_COLOR_BROWN,
-    HACKLIB_HUD_COLOR_GOLD};
-static const HackLibHudMeterLook BarClaimed = {
-    HACKLIB_HUD_COLOR_DARK_RED, HACKLIB_HUD_COLOR_BROWN, HACKLIB_HUD_COLOR_NEAR_BLACK,
-    HACKLIB_HUD_COLOR_EMBER};
-static const HackLibHudMeterLook BarFlash = {
-    HACKLIB_HUD_COLOR_WHITE, HACKLIB_HUD_COLOR_PALE_GOLD, HACKLIB_HUD_COLOR_GOLD,
-    HACKLIB_HUD_COLOR_WHITE};
+static const HackLibHudMeterLook BarLight = {HACKLIB_HUD_COLOR_PALE_GOLD, HACKLIB_HUD_COLOR_GOLD,
+                                             HACKLIB_HUD_COLOR_DARK_GOLD, HACKLIB_HUD_COLOR_WHITE};
+static const HackLibHudMeterLook BarHeavy = {HACKLIB_HUD_COLOR_EMBER, HACKLIB_HUD_COLOR_RED,
+                                             HACKLIB_HUD_COLOR_DARK_RED, HACKLIB_HUD_COLOR_WHITE};
+static const HackLibHudMeterLook BarConsumed = {HACKLIB_HUD_COLOR_RED, HACKLIB_HUD_COLOR_DARK_RED,
+                                                HACKLIB_HUD_COLOR_BROWN, HACKLIB_HUD_COLOR_GOLD};
+static const HackLibHudMeterLook BarClaimed = {HACKLIB_HUD_COLOR_DARK_RED, HACKLIB_HUD_COLOR_BROWN,
+                                               HACKLIB_HUD_COLOR_NEAR_BLACK,
+                                               HACKLIB_HUD_COLOR_EMBER};
+static const HackLibHudMeterLook BarFlash = {HACKLIB_HUD_COLOR_WHITE, HACKLIB_HUD_COLOR_PALE_GOLD,
+                                             HACKLIB_HUD_COLOR_GOLD, HACKLIB_HUD_COLOR_WHITE};
 
 void skillExpansion_frodoDrawBurdenBar(u8 playerIndex)
 {
