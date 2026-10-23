@@ -55,6 +55,13 @@
 #define REFORGED_PERCENT 10
 #define BAR_FLASH_FRAMES 8
 #define BAR_PULSE_FRAMES 16
+// WeaponPrefixes rows borrowed for their blade glows: Fireburst for a full bar, Sunburst for the blaze.
+#define CHARGED_GLOW_PREFIX 150
+#define BLAZE_GLOW_PREFIX 55
+// Fire damage each melee blow adds while the Flame bar is full.
+#define CHARGED_FIRE_DAMAGE 4
+#define WEAPON_HAND 0
+#define WEAPON_INVENTORY_SLOT 1
 
 // Flame of the West
 #define FLAME_BASE_FRAMES (4 * FRAMES_PER_SECOND)
@@ -188,6 +195,9 @@ typedef struct EliteState
 
     // TRUE while the ambush strike's melee attack resolves
     u8 ambushStrike;
+
+    // WeaponPrefixes row of the blade glow the Flame lit, 0 when none
+    u8 chargedGlow;
 
     // frames since the last melee blow, capped at PATIENCE_READY_FRAMES
     u8 patienceFrames;
@@ -496,6 +506,19 @@ void skillExpansion_spawnBurstFx(Actor *target, u8 variant, s32 sfx)
     sfx_play(sfx);
 }
 
+/** The stock Fireburst hit flash and sound. */
+static void chargedFireFx(Actor *victim)
+{
+    Actor *fx = fx_spawnOnActor(victim, FX_TYPE_HIT_BURST, FX_BURST_FIRE, 1);
+
+    if (fx != NULL)
+    {
+        fx->type = FX_BURST_UNK_PARAM;
+        fx->tickCallback = (ActorCallback)(void *)fx_tickAttachment;
+    }
+    sfx_play(SFX_COMBAT_FIREBURST_PROC);
+}
+
 static void stunFoe(u8 playerIndex, Actor *foe, s32 frames)
 {
     if (!skillExpansion_isFoe(foe) || !actor_isStunnable(foe))
@@ -726,6 +749,17 @@ static void flameBurst(Actor *attacker, Actor *center, s32 damage)
     }
 }
 
+/** A blazing blow burns the foe it lands on and the foes around it. */
+static void flameStrike(Actor *attacker, Actor *victim, s32 damage)
+{
+    if (victim->currentHp > 0)
+    {
+        skillExpansion_dealElementalDamage(attacker, victim, damage, HACKLIB_DAMAGE_SECONDARY,
+                                           HACKLIB_ABILITY_NONE, HACKLIB_ELEMENT_FIRE);
+    }
+    flameBurst(attacker, victim, damage);
+}
+
 /** Strider's Riposte: counter every foe near the player after an enemy attack fails. */
 static void stridersRiposte(Actor *playerActor)
 {
@@ -809,6 +843,38 @@ static void huntersPatience(u8 playerIndex, EliteState *st, Actor *playerActor)
     }
 }
 
+/** Anduril's blade glows with a stock affix glow while the Flame bar is full or Flame of the West burns. */
+static void chargedBlade(u8 playerIndex, EliteState *st)
+{
+    Player *player = &PLAYER(playerIndex);
+    Item weapon = player->inventory.array[WEAPON_INVENTORY_SLOT];
+    u8 glow = 0;
+
+    if (weapon.d.itemType <= ITEM_TYPE_MACE)
+    {
+        if (st->flameFrames != 0)
+        {
+            glow = BLAZE_GLOW_PREFIX;
+        }
+        else if (st->meter >= METER_MAX)
+        {
+            glow = CHARGED_GLOW_PREFIX;
+        }
+    }
+    if (glow != 0 && glow != st->chargedGlow &&
+        (st->chargedGlow != 0 || player->handFxEmitters[WEAPON_HAND] == NULL))
+    {
+        weapon.word = (weapon.word & ~0xff0000u) | ((u32)glow << 16);
+        player_setHandFx(playerIndex, WEAPON_HAND, weapon);
+        st->chargedGlow = glow;
+    }
+    else if (glow == 0 && st->chargedGlow != 0)
+    {
+        st->chargedGlow = 0;
+        player->combatFlags.p |= PLAYER_COMBAT_FLAG_HAND_SPRITES_DIRTY;
+    }
+}
+
 static void eliteTick(u8 playerIndex, Actor *playerActor)
 {
     EliteState *st = &states[playerIndex];
@@ -850,6 +916,7 @@ static void eliteTick(u8 playerIndex, Actor *playerActor)
         bladeReforged(playerIndex, st, playerActor);
         huntersPatience(playerIndex, st, playerActor);
         restlessDead(playerIndex, playerActor);
+        chargedBlade(playerIndex, st);
         if (st->meterIdleFrames < METER_IDLE_FRAMES)
         {
             st->meterIdleFrames++;
@@ -1101,6 +1168,13 @@ static bool resolveMeleeHit(Actor *attacker, Actor *victim)
         return hit;
     }
 
+    if (st->meter >= METER_MAX && st->flameFrames == 0 && victim->currentHp > 0)
+    {
+        skillExpansion_dealElementalDamage(attacker, victim, CHARGED_FIRE_DAMAGE,
+                                           HACKLIB_DAMAGE_SECONDARY, HACKLIB_ABILITY_NONE,
+                                           HACKLIB_ELEMENT_FIRE);
+        chargedFireFx(victim);
+    }
     stokeFlame(p, attacker, isMarked(st, victim) ? 2 * METER_HIT : METER_HIT);
     if (stateBefore != ACTOR_STATE_STUNNED && victim->actionState == ACTOR_STATE_STUNNED)
     {
@@ -1119,7 +1193,7 @@ static bool resolveMeleeHit(Actor *attacker, Actor *victim)
     {
         s32 damage = FLAME_BURST_BASE_DAMAGE + FLAME_BURST_DAMAGE_PER_LEVEL * st->flameLevel;
 
-        flameBurst(attacker, victim, st->flameReforged ? 2 * damage : damage);
+        flameStrike(attacker, victim, st->flameReforged ? 2 * damage : damage);
     }
     return hit;
 }
@@ -1266,7 +1340,7 @@ static HackLibDamageResult resolveRangedHit(Actor *attacker, Actor *victim, u16 
                 s32 damage =
                     FLAME_BURST_BASE_DAMAGE + FLAME_BURST_DAMAGE_PER_LEVEL * st->flameLevel;
 
-                flameBurst(attacker, victim, st->flameReforged ? 2 * damage : damage);
+                flameStrike(attacker, victim, st->flameReforged ? 2 * damage : damage);
             }
         }
     }
@@ -1576,13 +1650,13 @@ bool32 skillExpansion_canCastReturnOfTheKing(u8 playerIndex)
 }
 
 static const HackLibHudMeterLook FlameBarCharge = {
-    HACKLIB_HUD_COLOR_LIGHT_GREEN, HACKLIB_HUD_COLOR_GREEN, HACKLIB_HUD_COLOR_DARK_GREEN,
+    HACKLIB_HUD_COLOR_GOLD, HACKLIB_HUD_COLOR_EMBER, HACKLIB_HUD_COLOR_DARK_RED,
     HACKLIB_HUD_COLOR_WHITE};
 static const HackLibHudMeterLook FlameBarBright = {
-    HACKLIB_HUD_COLOR_WHITE, HACKLIB_HUD_COLOR_LIGHT_GREEN, HACKLIB_HUD_COLOR_GREEN,
+    HACKLIB_HUD_COLOR_PALE_GOLD, HACKLIB_HUD_COLOR_GOLD, HACKLIB_HUD_COLOR_EMBER,
     HACKLIB_HUD_COLOR_WHITE};
 static const HackLibHudMeterLook FlameBarGlint = {
-    HACKLIB_HUD_COLOR_WHITE, HACKLIB_HUD_COLOR_LIGHT_BLUE, HACKLIB_HUD_COLOR_DARK_GREEN,
+    HACKLIB_HUD_COLOR_WHITE, HACKLIB_HUD_COLOR_PALE_GOLD, HACKLIB_HUD_COLOR_RED,
     HACKLIB_HUD_COLOR_WHITE};
 static const u8 FlameBarMarks[] = {METER_MAX / 2};
 

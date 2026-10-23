@@ -23,7 +23,7 @@ host checks but has not been played yet.
 
 | Hero | Mechanic | One-line idea | Status |
 | --- | --- | --- | --- |
-| [Aragorn](#aragorn) | Flame of Anduril | Build a green Flame bar through hits, stuns and marks, then spend it on the King's abilities | tested |
+| [Aragorn](#aragorn) | Flame of Anduril | Build an orange Flame bar through hits, stuns and marks, then spend it on the King's abilities | tested |
 | [Frodo](#frodo) | Burden | The Ring's corruption is a visible meter: power that rises in combat and costs you if it peaks | tested |
 | [Sam](#sam) | Samwise's Garden | Plant taters and brambles that grow, ripen and wilt. Ripe taters pelt foes, harvests restore Spirit | tested |
 | [Smeagol](#smeagol) | Gollum's Grip | Grip builds toward 100. Then Gollum takes over for two seconds at double damage | tested |
@@ -40,14 +40,16 @@ host checks but has not been played yet.
 
 **Idea:** the Ranger who becomes King. Page 2 is about earning momentum in a fight and cashing it in.
 
-**Mechanic: the Flame bar.** A green HUD meter, Anduril's Flame, fills from melee and projectile hits, stuns,
+**Mechanic: the Flame bar.** An orange HUD meter, Anduril's Flame, fills from melee and projectile hits, stuns,
 ambush strikes, ghost hits and hits on marked foes. It powers his page 2 skills and passives.
+While the bar is full, Anduril glows with fire and every melee blow adds 4 fire damage. Flame of the West gives the blade a
+sun glow of its own.
 
 **Builds (page 2):** Ranger | Dead | King.
 
 | Actives | |
 | --- | --- |
-| Flame of the West | Spends the Flame bar. Anduril blazes and hits scorch foes, longer and harder from a full bar. |
+| Flame of the West | Spends the Flame bar. Anduril blazes and every hit scorches the foe it lands on and the foes around it (3 + 3 per level, doubled from a full bar), for longer from a full bar. |
 | Ranger's Ambush | Go unseen. The next blow crits harder, stuns and stokes Flame. |
 | Tracker's Mark | Marks the nearest foe for bonus damage and double Flame. Its death stokes more. |
 | Oath of the Dead | Your ghosts burst, stunning foes and stoking Flame. With no ghosts it raises one. |

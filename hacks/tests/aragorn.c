@@ -170,6 +170,12 @@ Actor *fx_spawnOnActor(Actor *a, u8 kind, u8 variant, u8 layer)
     (void)layer;
     return NULL;
 }
+void player_setHandFx(u8 p, u8 hand, Item item)
+{
+    (void)p;
+    (void)hand;
+    (void)item;
+}
 u32 fx_tickAttachment(Actor *a)
 {
     (void)a;

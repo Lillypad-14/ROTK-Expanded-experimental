@@ -78,13 +78,15 @@ static const struct ModOptionsPage ModOptionsPages[] = {
 #if HACK_unlock_all
     {"Unlocks", UnlockAllOptions, UNLOCK_ALL_OPTION_COUNT, NULL},
 #endif
+#if HACK_debug_cheats
+    {"Debug", DebugCheatsOptions, DEBUG_CHEATS_OPTION_COUNT, NULL},
+#endif
 #if HACK_twists
     {"Twists: Combat", TwistsCombatOptions, TWISTS_COMBAT_OPTION_COUNT, NULL},
     {"Twists: Vigor", TwistsVigorOptions, TWISTS_VIGOR_OPTION_COUNT, NULL},
     {"Twists: Fate", TwistsFateOptions, TWISTS_FATE_OPTION_COUNT, NULL},
 #endif
 #if HACK_debug_cheats
-    {"Debug", DebugCheatsOptions, DEBUG_CHEATS_OPTION_COUNT, NULL},
     {"Combat Lab", DebugLabOptions, DEBUG_LAB_OPTION_COUNT, NULL},
     {"Ability Bench", AbilityBenchOptions, ABILITY_BENCH_OPTION_COUNT, NULL},
     {"Delivery Test", DeliveryPreviewOptions, DELIVERY_PREVIEW_OPTION_COUNT, NULL},

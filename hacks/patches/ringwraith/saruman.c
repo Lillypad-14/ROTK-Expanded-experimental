@@ -1241,7 +1241,7 @@ static const SkillExpansionCastPolicy LongPolicy = POLICY(90);
 static const SkillExpansionCastPolicy UltimatePolicy = POLICY(180);
 
 static const ActiveSkill Actives[HERO_ACTIVE_SKILL_COUNT] = {
-    CAST_ROW(18), CAST_ROW(18), CAST_ROW(36), CAST_ROW(30), CAST_ROW(24), CAST_ROW(32),
+    CAST_ROW(21), CAST_ROW(21), CAST_ROW(42), CAST_ROW(35), CAST_ROW(28), CAST_ROW(37),
 };
 static const void *const Icons[HERO_ACTIVE_SKILL_COUNT] = {
     SarumanIconVoiceOfSaruman,   SarumanIconFlameOfOrthanc, SarumanIconBlastingFire,
@@ -1285,12 +1285,12 @@ static const s8 CurseLevels[] = {12, 15, 18, 21, 24, -1};
 static const s8 LightBrokenLevels[] = {13, 16, 19, 22, 25, -1};
 static const s8 SpiteLevels[] = {14, 17, 20, 23, 25, -1};
 static const s8 WhiteHandLevels[] = {15, 18, 21, 24, 25, -1};
-static const ActiveSkill EchoRow = CAST_ROW(32);
-static const ActiveSkill FurnaceRow = CAST_ROW(55);
-static const ActiveSkill CurseRow = CAST_ROW(30);
-static const ActiveSkill LightBrokenRow = CAST_ROW(55);
-static const ActiveSkill SpiteRow = CAST_ROW(45);
-static const ActiveSkill WhiteHandRow = CAST_ROW(90);
+static const ActiveSkill EchoRow = CAST_ROW(37);
+static const ActiveSkill FurnaceRow = CAST_ROW(63);
+static const ActiveSkill CurseRow = CAST_ROW(35);
+static const ActiveSkill LightBrokenRow = CAST_ROW(63);
+static const ActiveSkill SpiteRow = CAST_ROW(52);
+static const ActiveSkill WhiteHandRow = CAST_ROW(104);
 #define ELITE(name, rowData, iconData, levels, identity, text, rule, condition)                    \
     static const SkillExpansionActiveDef name = {.row = &rowData,                                  \
                                                  .icon = iconData,                                 \

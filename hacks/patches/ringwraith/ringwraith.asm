@@ -108,6 +108,15 @@ ringwraithRepoint scene_backpack_enter + 0x98, RINGWRAITH_BACKPACK_CASES, Ringwr
     bx   r2
     .word ringwraith_skill_tree_name_hook|1
 
+; Character stats screen hero name. was: ldrb r0,[r0] ; adds r0,#19 ; bl text_getString
+.if readu16("rotk.gba", 0x08027bde - 0x08000000) != 0x3013
+    .error "stats screen name: unexpected native instructions"
+.endif
+.org 0x08027bdc
+    ldr  r2, [pc, #0]
+    bx   r2
+    .word ringwraith_stats_name_hook|1
+
 ; Equipment compatibility aliases from the character registry.
 .macro heroEquipmentHook, site, registerNumber, handler
     .if readu16("rotk.gba", site - 0x08000000) != (0x2806 | (registerNumber << 8)) || readu16("rotk.gba", site - 0x08000000 + 2) != 0xd100 || readu16("rotk.gba", site - 0x08000000 + 4) != (0x2000 | (registerNumber << 8))

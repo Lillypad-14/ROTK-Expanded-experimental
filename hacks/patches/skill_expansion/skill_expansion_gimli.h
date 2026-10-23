@@ -2,7 +2,8 @@
 
 // Gimli's page 2, "The Tally": Stone, Fury and Tally builds. Its ranks are bought with kills
 // instead of skill points. The Tally is the stock lifetime kill count, Player.killCount, so old
-// saves keep theirs. Gimli also has a charge bar: every 10 kills empower his next active skill.
+// saves keep theirs. Each bought rank spends the kills its tree label lists, so the available
+// Tally is the lifetime count minus the cost of every rank bought. Gimli also has a charge bar: every 10 kills empower his next active skill.
 // Every entry point does nothing for other heroes.
 
 #include "actor.h"

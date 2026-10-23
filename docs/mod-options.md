@@ -10,10 +10,10 @@ saved in the global mod options area and apply to every save slot.
 | --- | --- |
 | Loot QoL | Loot filter and auto-collect gems ([upstream guide](romhack-user.md#loot-quality-of-life)). |
 | Unlocks | Bonus maps, Sam, Smeagol and every hero path in Chapter Select. |
+| Debug | Max level, infinite skill and attribute points, god mode, infinite Spirit, one-hit kills, max kills. |
 | Twists: Combat | Damage modifiers. See below. |
 | Twists: Vigor | Healing and resource modifiers. See below. |
 | Twists: Fate | XP and random events. See below. |
-| Debug | Max level, infinite skill and attribute points, god mode, infinite Spirit, one-hit kills, max kills. |
 | Combat Lab | Combat display and test encounters. See [test arena](test-arena.md). |
 | Ability Bench | Cast any skill at any level. See [Ability Bench](ability-bench.md). |
 | Delivery Test | Fire projectile and effect deliveries. See [skill deliveries](skill-deliveries.md). |

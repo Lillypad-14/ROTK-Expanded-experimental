@@ -389,7 +389,7 @@ All garden props and hit markers are PNG sprites (15 sheets, shared palette slot
 
 ## Gimli page 2 "The Tally" as built (2026-10-21, ROM ROTK-Mod-Gimli-v31.gba, untested in game)
 Code: skill_expansion_gimli.c/.h, content in skill_expansion_content.c, tree purchase in skill_expansion_tree.c.
-Rule (Gimli only): page 2 costs no skill points. It is bought with kills.
+Rule (Gimli only): page 2 costs no skill points. It is bought with kills. Each rank SPENDS the kills its tree label lists (rank cost = requiredLevel x 20). Available Tally = killCount - cost of ranks bought, computed in tallySpent (no save change). The title and points box (available kills / 10) show the available amount. Whole tree is roughly 14000 kills; tune GIMLI_TALLY_KILLS_PER_STEP. Debug Max Kills now sets 30000.
 - Tally = stock `Player.killCount` (u16, already in the stock save, so old saves keep their count). Stock `player_awardXp` adds 1 per enemy death for every active player, so co-op partner kills count too.
 - Marks = killCount / 10 minus page 2 ranks bought. One mark buys one rank.
 - Page 2 requiredLevels for Gimli are in steps of 20 kills (`GIMLI_TALLY_KILLS_PER_STEP`). The tree shows "(Kills N)" with N = step x 20, and "Maxed" when done.
@@ -616,3 +616,10 @@ fires on the loose, half on normal, full on True. Swap refunds. No bow: "Needs a
   the glint moves to that moment and the window becomes "keep holding until the glint".
 - Whether stock arrow hits reach resolveRangedHit with the player as attacker (needed for the +25% True bonus).
 - Unshaken: where the draw gets cancelled by a hit (flinch path).
+
+## Aragorn Flame bar polish (2026-10-23, ROTK-Mod-AragornBlaze.gba, tried in game: full-bar glow and fire OK, blaze glow untested)
+- Bar is an orange HUD ramp (GOLD/EMBER/DARK_RED, pale gold and white for pulses).
+- Full bar (meter >= METER_MAX, no blaze): `chargedBlade` borrows WeaponPrefixes row 150 (Fireburst glow) through `player_setHandFx` on hand 0, and each melee hit adds CHARGED_FIRE_DAMAGE (4, flat) as fire damage plus the stock Fireburst hit flash.
+- Blaze: row 55 (Sunburst glow). `flameStrike` deals the burst damage to the hit foe too (it used to skip it), melee and ranged.
+- Glow cleanup sets PLAYER_COMBAT_FLAG_HAND_SPRITES_DIRTY so the stock refresh restores the weapon glow. A weapon with its own glow keeps it.
+- Idea not done: scale the full-bar 4 with Flame of the West level.

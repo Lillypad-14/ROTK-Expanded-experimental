@@ -307,7 +307,7 @@ static void charge(void)
 int main(void)
 {
     fixture();
-    assert(cost(SARUMAN_VOICE) == 18 && state(0)->lastRow == ROW_NONE);
+    assert(cost(SARUMAN_VOICE) == 21 && state(0)->lastRow == ROW_NONE);
     for (u32 facing = 0; facing < 5; facing++)
     {
         assert(SarumanQuickAttackAnimations[facing].frameDuration == 1);
@@ -334,7 +334,7 @@ int main(void)
     assert(cast(SARUMAN_FLAME, 1) == SKILL_CAST_INVALID_TARGET && chargeCount(0) == 3);
     hasTarget = TRUE;
     assert(cast(SARUMAN_FLAME, 1) == SKILL_CAST_SUCCESS && lastDamage == 22);
-    assert(chargeCount(0) == 0 && cost(SARUMAN_FLAME) == 18);
+    assert(chargeCount(0) == 0 && cost(SARUMAN_FLAME) == 21);
     assert(cast(SARUMAN_FLAME, 1) == SKILL_CAST_SUCCESS && lastDamage == 15 && chargeCount(0) == 1);
 
     // Every damaging row consumes readiness once, including Echo and periodic Furnace damage.
@@ -398,7 +398,7 @@ int main(void)
         assert(cast(SARUMAN_FLAME, 1) == SKILL_CAST_SUCCESS);
         assert(lastDamage == 15 * (150 + 15 * level) / 100);
         assert(PLAYER(0).currentSpirit == 2 * level + COUNCIL_SPIRIT);
-        assert(cost(SARUMAN_FLAME) == 18);
+        assert(cost(SARUMAN_FLAME) == 21);
     }
     fixture();
     PLAYER_STAT(0, STAT_ACTIVE_SKILL_LEVEL_BONUS) = 1;
@@ -507,7 +507,7 @@ int main(void)
                            SARUMAN_GUARD,        SARUMAN_BINDING, SARUMAN_HEAL,
                            SARUMAN_ECHO,         SARUMAN_FURNACE, SARUMAN_CURSE,
                            SARUMAN_LIGHT_BROKEN, SARUMAN_SPITE,   SARUMAN_WHITE_HAND};
-    const u16 expectedCosts[] = {18, 18, 36, 30, 24, 32, 32, 55, 30, 55, 45, 90};
+    const u16 expectedCosts[] = {21, 21, 42, 35, 28, 37, 37, 63, 35, 63, 52, 104};
     fixture();
     for (u32 i = 0; i < ARRAY_COUNT(costRows); i++)
     {

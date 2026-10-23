@@ -13,7 +13,7 @@
 // Zero-based, matching the skill_expansion level-up hook.
 #define DOUBLE_SKILL_POINTS_LEVEL 20
 // Enough for every Gimli page 2 rank, below the 2000 kills that unlock Moria.
-#define DEBUG_CHEATS_KILLS 1000
+#define DEBUG_CHEATS_KILLS 30000
 
 struct DebugCheatsState g_DebugCheatsState;
 

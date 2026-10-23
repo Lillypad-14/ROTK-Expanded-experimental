@@ -27,6 +27,15 @@ ringwraith_skill_tree_name_hook:
     bx   r1
     .pool
 
+; Character stats hero name. In: r0 = &PLAYER(active).heroId. Out: r0 = name string.
+.align 2
+ringwraith_stats_name_hook:
+    ldrb r0, [r0]
+    bl   ringwraith_getHeroName
+    ldr  r1, =0x08027be4|1
+    bx   r1
+    .pool
+
 RINGWRAITH_START_ITEMS_CASES equ 0x08026460
 RINGWRAITH_BACKPACK_CASES equ 0x0802a578
 RINGWRAITH_SPAWN_OFFSETS equ 0x0805858c

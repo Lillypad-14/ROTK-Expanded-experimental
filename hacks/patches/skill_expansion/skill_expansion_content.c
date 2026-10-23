@@ -118,8 +118,8 @@ static const SkillExpansionActiveDef AragornFlameOfTheWest = {
     .row = &AragornFlameOfTheWestRow,
     .icon = AragornIconFlameOfTheWest,
     .requiredLevels = AragornFlameOfTheWestLevels,
-    .description = "Flame of the West (Level @1) - King. Spend the Flame bar: Anduril blazes 4s "
-                   "+1s/level, +8s if full. Hits scorch foes 3 +3/level, x2 if full. @2 Spirit.",
+    .description = "Flame of the West (Level @1) - King. Spends the Flame bar: Anduril blazes 4s "
+                   "+1s/level, up to +8s by bar. Hits scorch 3 +3/level, x2 if full. @2 Spirit.",
     .canCast = skillExpansion_canCastFlameOfTheWest,
     .baseRow = ACTIVE_SKILL_ARAGORN_NUMENOREAN_WILL,
     .policy = &NumenoreanWillPosePolicy,
@@ -135,8 +135,8 @@ static const SkillExpansionActiveDef AragornRangersAmbush = {
     .row = &AragornRangersAmbushRow,
     .icon = AragornIconRangersAmbush,
     .requiredLevels = AragornRangersAmbushLevels,
-    .description = "Ranger's Ambush (Level @1) - Ranger. Unseen 2s +0.5s/level. Your next blow "
-                   "crits for 150% +50%/level, stuns and stokes +20 Flame. @2 Spirit.",
+    .description = "Ranger's Ambush (Level @1) - Ranger. Unseen 2s +0.5s/level. Next blow crits "
+                   "150% +50%/level, stuns, adds 20 to the Flame bar. @2 Spirit.",
     .canCast = skillExpansion_canCastRangersAmbush,
     .baseRow = ACTIVE_SKILL_ARAGORN_KINGS_COMMAND,
     .policy = &KingsCommandPosePolicy,
@@ -153,7 +153,7 @@ static const SkillExpansionActiveDef AragornTrackersMark = {
     .icon = AragornIconTrackersMark,
     .requiredLevels = AragornTrackersMarkLevels,
     .description = "Tracker's Mark (Level @1) - Ranger. Mark the nearest foe 10s +2s/level: +15% "
-                   "+5%/level damage, double Flame. Its death stokes +25. @2 Spirit.",
+                   "+5%/level damage, double Flame bar gain. Its death adds 25. @2 Spirit.",
     .canCast = skillExpansion_canCastTrackersMark,
     .baseRow = ACTIVE_SKILL_ARAGORN_KINGS_COMMAND,
     .policy = &KingsCommandPosePolicy,
@@ -170,7 +170,7 @@ static const SkillExpansionActiveDef AragornOathOfTheDead = {
     .icon = AragornIconOathOfTheDead,
     .requiredLevels = AragornOathOfTheDeadLevels,
     .description = "Oath of the Dead (Level @1) - Dead. Ghosts burst for 15 +8/level, stunning "
-                   "foes and stoking +10 Flame each. No ghosts raises one. @2 Spirit.",
+                   "foes and adding 10 to the Flame bar each. No ghosts raises one. @2 Spirit.",
     .baseRow = ACTIVE_SKILL_ARAGORN_NUMENOREAN_WILL,
     .policy = &NumenoreanWillPosePolicy,
 };
@@ -695,8 +695,8 @@ static const SkillExpansionActiveDef GandalfFireworks = {
     .row = &GandalfFireworksRow,
     .icon = GandalfIconFireworks,
     .requiredLevels = GandalfFireworksLevels,
-    .description = "Fireworks (Level @1) - Grey: a stunning burst ahead, then 3 pops. White: Flame "
-                   "of Anor, a long beam for 20 +8/level. @2 Spirit.",
+    .description = "Fireworks (Level @1) - GREY: a rocket bursts ahead and stuns, then 3 pops. "
+                   "WHITE: Flame of Anor, a long beam, 20 +8/level damage. @2 Spirit.",
     .resolve = skillExpansion_gandalfFireworks,
     .canCast = skillExpansion_canCastGandalfSkill,
     .baseRow = ACTIVE_SKILL_GANDALF_LIGHTSTRIKE,
@@ -712,8 +712,8 @@ static const SkillExpansionActiveDef GandalfNeverLate = {
     .row = &GandalfNeverLateRow,
     .icon = GandalfIconNeverLate,
     .requiredLevels = GandalfNeverLateLevels,
-    .description = "A Wizard Is Never Late (Level @1) - Grey: in 4s return here with this HP and "
-                   "Spirit. White: Shadowfax, charge through foes. @2 Spirit.",
+    .description = "A Wizard Is Never Late (Level @1) - GREY: marks this spot, 4s later you snap "
+                   "back with the HP and Spirit you had. WHITE: Shadowfax charge. @2 Spirit.",
     .resolve = skillExpansion_gandalfNeverLate,
     .canCast = skillExpansion_canCastGandalfNeverLate,
     .baseRow = ACTIVE_SKILL_GANDALF_SHIELD,
@@ -729,8 +729,8 @@ static const SkillExpansionActiveDef GandalfSmokeRings = {
     .row = &GandalfSmokeRingsRow,
     .icon = GandalfIconSmokeRings,
     .requiredLevels = GandalfSmokeRingsLevels,
-    .description = "Smoke Rings (Level @1) - Grey: a stunning cloud, White spells +10%/level in "
-                   "it. White: break your staff, foes near take more, deal half. @2 Spirit.",
+    .description = "Smoke Rings (Level @1) - GREY: a cloud ahead, White spells hit foes in it "
+                   "+10%/level. WHITE: foes near you deal half and take +25%. @2 Spirit.",
     .resolve = skillExpansion_gandalfSmokeRings,
     .canCast = skillExpansion_canCastGandalfSkill,
     .baseRow = ACTIVE_SKILL_GANDALF_LIGHTSTRIKE,
@@ -746,8 +746,8 @@ static const SkillExpansionActiveDef GandalfPipeWeed = {
     .row = &GandalfPipeWeedRow,
     .icon = GandalfIconPipeWeed,
     .requiredLevels = GandalfPipeWeedLevels,
-    .description = "Pipe-weed Pause (Level @1) - Grey: smoke 3s unseen for 8 +2/level Spirit/s, "
-                   "any input ends it. White: heal you and an ally 20% +4%/level. @2 Spirit.",
+    .description = "Pipe-weed Pause (Level @1) - GREY: hide 3s, +8 +2/level Spirit/s, any input "
+                   "stops it. WHITE: heal you and an ally 20% +4%/level HP. @2 Spirit.",
     .resolve = skillExpansion_gandalfPipeWeed,
     .canCast = skillExpansion_canCastGandalfPipeWeed,
     .baseRow = ACTIVE_SKILL_GANDALF_BLINDING_AURA,
@@ -763,8 +763,8 @@ static const SkillExpansionActiveDef GandalfFlyYouFools = {
     .row = &GandalfFlyYouFoolsRow,
     .icon = GandalfIconFlyYouFools,
     .requiredLevels = GandalfFlyYouFoolsLevels,
-    .description = "Fly, You Fools! (Level @1) - Grey: shove foes off and run 50% faster 3s. "
-                   "White: Look to My Coming, a dawn blast that stuns 2s. @2 Spirit.",
+    .description = "Fly, You Fools! (Level @1) - GREY: shove foes away, run 50% faster 3s. "
+                   "WHITE: dawn hits all near, 16 +6/level damage and a 2s stun. @2 Spirit.",
     .resolve = skillExpansion_gandalfFlyYouFools,
     .canCast = skillExpansion_canCastGandalfSkill,
     .baseRow = ACTIVE_SKILL_GANDALF_BLINDING_AURA,
@@ -780,8 +780,8 @@ static const SkillExpansionActiveDef GandalfShallNotPass = {
     .row = &GandalfShallNotPassRow,
     .icon = GandalfIconYouShallNotPass,
     .requiredLevels = GandalfShallNotPassLevels,
-    .description = "You Shall Not Pass! (Level @1) - Grey: hold the line 3s, then blast and fall. "
-                   "White: Light of Valinor, all your Spirit in one blast. @2 Spirit.",
+    .description = "You Shall Not Pass! (Level @1) - GREY: block foes 3s, then blast; you fall "
+                   "and return White, full Spirit. WHITE: spend all Spirit in one blast. @2 Spirit.",
     .resolve = skillExpansion_gandalfShallNotPass,
     .canCast = skillExpansion_canCastGandalfSkill,
     .baseRow = ACTIVE_SKILL_GANDALF_SUMMON_GWAIHIR,
@@ -859,20 +859,20 @@ const SkillExpansionActiveDef *const SkillExpansionActiveDefs[SKILL_EXPANSION_HE
 static const char *const AragornStockDescriptions[HERO_ACTIVE_SKILL_COUNT] = {
     [ACTIVE_SKILL_ARAGORN_SWEEP] =
         "Sweep (Level @1) - Strike all foes around you for +2 "
-        "damage/level. Stokes +8 Flame, more for each foe hit. @2 Spirit.",
+        "damage/level. Adds 8 to the Flame bar, more for each foe hit. @2 Spirit.",
     [ACTIVE_SKILL_ARAGORN_KINGS_COMMAND] = "King's Command (Level @1) - Stun all foes around you "
-                                           "for 3s +0.5s/level. Stokes +10 Flame. @2 Spirit.",
+                                           "for 3s +0.5s/level. Adds 10 to the Flame bar. @2 Spirit.",
     [ACTIVE_SKILL_ARAGORN_SWORD_THROW] =
-        "Sword Throw (Level @1) - Throw a sword for 10 +2/level, homing from level 3. Hits stoke "
-        "Flame, and scorch during Flame of the West. @2 Spirit.",
+        "Sword Throw (Level @1) - Throw a sword for 10 +2/level, homing from level 3. Hits add "
+        "to the Flame bar and scorch foes while Anduril blazes. @2 Spirit.",
     [ACTIVE_SKILL_ARAGORN_NUMENOREAN_WILL] =
         "Numenorean Will (Level @1) - +1 Armor and +3 damage per level for 5s/level. Wounds don't "
-        "dampen the Flame while it lasts. @2 Spirit.",
+        "drain the Flame bar while it lasts. @2 Spirit.",
     [ACTIVE_SKILL_ARAGORN_CALL_OF_THE_DEAD] = "Call of the Dead (Level @1) - Summon one Ghost "
-                                              "Warrior/level. Each ghost hit stokes +2 Flame. @2 "
+                                              "Warrior/level. Each ghost hit adds 2 to the Flame bar. @2 "
                                               "Spirit.",
     [ACTIVE_SKILL_HERBAL_HEALING] = "Herbal Healing (Level @1) - Heal with a Kingsfoil herb and "
-                                    "stoke +15 Flame. Cannot be improved.",
+                                    "add 15 to the Flame bar. Cannot be improved.",
 };
 static const char *const FrodoStockDescriptions[HERO_ACTIVE_SKILL_COUNT] = {
     [ACTIVE_SKILL_FRODO_KNIFE_TOSS] =
@@ -891,6 +891,12 @@ static const char *const FrodoStockDescriptions[HERO_ACTIVE_SKILL_COUNT] = {
         "Adds 5 Burden. @2 Spirit.",
 };
 
+static const char *const GandalfStockDescriptions[HERO_ACTIVE_SKILL_COUNT] = {
+    [ACTIVE_SKILL_HERBAL_HEALING] =
+        "Herbal Healing (Level @1) - Heal with a Kingsfoil herb. HOLD R at level 10+ (20 Spirit) "
+        "to become Gandalf the White, hold R again to return to Grey.",
+};
+
 const char *skillExpansion_getStockActiveDescription(u32 heroId, u32 row)
 {
     if (row >= HERO_ACTIVE_SKILL_COUNT)
@@ -903,6 +909,8 @@ const char *skillExpansion_getStockActiveDescription(u32 heroId, u32 row)
         return AragornStockDescriptions[row];
     case HERO_ID_FRODO:
         return FrodoStockDescriptions[row];
+    case HERO_ID_GANDALF:
+        return GandalfStockDescriptions[row];
     }
     return NULL;
 }
@@ -938,7 +946,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
                 .icon = AragornIconStridersRiposte,
                 .description =
                     "Strider's Riposte (Level @1) - Ranger. When a foe's attack misses, 10%/level "
-                    "chance to strike all foes nearby and stoke +8 Flame.",
+                    "chance to strike all foes nearby and add 8 to the Flame bar.",
             },
         [SKILL_EXPANSION_PASSIVE_BLADE_REFORGED - PASSIVE_SKILL_COUNT] =
             {
@@ -946,8 +954,8 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
                 .iconPassiveSkillId = PASSIVE_SKILL_DEATH_STRIKE,
                 .icon = AragornIconBladeReforged,
                 .description =
-                    "The Blade Reforged (Level @1) - King. Below 30% health, the Flame fills at "
-                    "once, or a burning Flame gains 4s. Every 90s -10s/level.",
+                    "The Blade Reforged (Level @1) - King. Below 30% health, the Flame bar fills at "
+                    "once, or a blazing Anduril gains 4s. Every 90s -10s/level.",
             },
         [SKILL_EXPANSION_PASSIVE_HUNTERS_PATIENCE - PASSIVE_SKILL_COUNT] =
             {
@@ -956,7 +964,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
                 .icon = AragornIconHuntersPatience,
                 .description =
                     "Hunter's Patience (Level @1) - Ranger. Hold your blade 1.5s and Anduril "
-                    "glints. Your next blow deals +20%/level and stokes +10 Flame.",
+                    "glints. Your next blow deals +20%/level and adds 10 to the Flame bar.",
             },
         [SKILL_EXPANSION_PASSIVE_KINGS_PRESENCE - PASSIVE_SKILL_COUNT] =
             {
@@ -973,7 +981,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
                 .iconPassiveSkillId = PASSIVE_SKILL_HERB_LORE,
                 .icon = AragornIconHandsOfTheKing,
                 .description =
-                    "Hands of the King (Level @1) - King. Kills during Flame of the West heal "
+                    "Hands of the King (Level @1) - King. Kills while Anduril blazes heal "
                     "you, and your co-op partner, 2%/level of max health.",
             },
         [SKILL_EXPANSION_PASSIVE_RESTLESS_DEAD - PASSIVE_SKILL_COUNT] =
@@ -983,7 +991,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
                 .icon = AragornIconRestlessDead,
                 .description =
                     "Restless Dead (Level @1) - Dead. Ghosts burst as they fade, hitting nearby "
-                    "foes for 6 +6/level, stunning them and stoking +5 Flame.",
+                    "foes for 6 +6/level, stunning them and adding 5 to the Flame bar.",
             },
         [SKILL_EXPANSION_PASSIVE_TRACK_THE_QUARRY - PASSIVE_SKILL_COUNT] =
             {
@@ -1516,8 +1524,8 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
                 .iconPassiveSkillId = PASSIVE_SKILL_WISE,
                 .icon = GandalfIconWanderingWizard,
                 .description =
-                    "Wandering Wizard (Level @1) - Grey. The Grey gains 1 Spirit every 3s "
-                    "-0.4s/level.",
+                    "Wandering Wizard (Level @1) - Grey. While Grey, regain 1 Spirit every 3s, "
+                    "0.4s faster per level.",
             },
         [SKILL_EXPANSION_PASSIVE_ROBES_OF_WHITE - PASSIVE_SKILL_COUNT] =
             {
@@ -1525,15 +1533,17 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
                 .iconPassiveSkillId = PASSIVE_SKILL_HARDY,
                 .icon = GandalfIconRobesOfWhite,
                 .description =
-                    "Robes of White (Level @1) - White. The White takes 5%/level less damage.",
+                    "Robes of White (Level @1) - White. While White, take 5% less damage per "
+                    "level.",
             },
         [SKILL_EXPANSION_PASSIVE_KINDLER_OF_HEARTS - PASSIVE_SKILL_COUNT] =
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 12, 14, 16, 18, 20, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_FIGHTERS_RESOLVE,
                 .icon = GandalfIconKindlerOfHearts,
-                .description = "Kindler of Hearts (Level @1) - Narya. Swap stuns and smoke last "
-                               "0.2s/level longer and the Return reaches 12/level farther.",
+                .description = "Kindler of Hearts (Level @1) - Swap. Turning White stuns nearby foes, "
+                               "turning Grey hides you. Both last 0.2s/level longer; the stun reaches "
+                               "12/level farther.",
             },
         [SKILL_EXPANSION_PASSIVE_OLD_TRICKS - PASSIVE_SKILL_COUNT] =
             {
@@ -1541,8 +1551,8 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
                 .iconPassiveSkillId = PASSIVE_SKILL_LUCK,
                 .icon = GandalfIconOldTricks,
                 .description =
-                    "Old Tricks (Level @1) - Grey. Grey halves of your page 2 skills cost "
-                    "10%/level less Spirit.",
+                    "Old Tricks (Level @1) - Grey. While Grey, your page 2 skills cost 10% less "
+                    "Spirit per level.",
             },
         [SKILL_EXPANSION_PASSIVE_UNBENDING - PASSIVE_SKILL_COUNT] =
             {
@@ -1550,8 +1560,8 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
                 .iconPassiveSkillId = PASSIVE_SKILL_IRON_WILL,
                 .icon = GandalfIconUnbending,
                 .description =
-                    "Unbending (Level @1) - White. The White's Spirit drain is 13%/level "
-                    "slower.",
+                    "Unbending (Level @1) - White. While White, your Spirit drains 13% slower "
+                    "per level.",
             },
         [SKILL_EXPANSION_PASSIVE_QUICKENED - PASSIVE_SKILL_COUNT] =
             {
@@ -1559,8 +1569,8 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
                 .iconPassiveSkillId = PASSIVE_SKILL_FLEET_OF_FOOT,
                 .icon = GandalfIconQuickened,
                 .description =
-                    "Quickened (Level @1) - Narya. Swaps recover 0.5s/level faster and the "
-                    "next skill after one costs 10%/level less.",
+                    "Quickened (Level @1) - Swap. Changing form recovers 0.5s/level faster, and "
+                    "your next skill after it costs 10% less per level.",
             },
         [SKILL_EXPANSION_PASSIVE_THE_FALL - PASSIVE_SKILL_COUNT] =
             {
@@ -1568,7 +1578,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
                 .iconPassiveSkillId = PASSIVE_SKILL_LAST_STAND,
                 .icon = GandalfIconTheFall,
                 .description =
-                    "The Fall (Level @1) - Grey. Once per area a killing blow on the Grey "
+                    "The Fall (Level @1) - Grey. Once per area, a killing blow while Grey instead "
                     "hides you 3s, then you return as the White with full Spirit.",
             },
         [SKILL_EXPANSION_PASSIVE_WHITE_RIDER - PASSIVE_SKILL_COUNT] =
@@ -1577,8 +1587,8 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
                 .iconPassiveSkillId = PASSIVE_SKILL_SPIRIT_OF_MIDDLE_EARTH,
                 .icon = GandalfIconWhiteRider,
                 .description =
-                    "The White Rider (Level @1) - White. Each kill as the White restores "
-                    "3/level Spirit.",
+                    "The White Rider (Level @1) - White. While White, each kill restores 3 Spirit "
+                    "per level.",
             },
         [SKILL_EXPANSION_PASSIVE_SECRET_FIRE - PASSIVE_SKILL_COUNT] =
             {
@@ -1586,8 +1596,8 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
                 .iconPassiveSkillId = PASSIVE_SKILL_SERVANT_OF_THE_SECRET_FIRE,
                 .icon = GandalfIconSecretFire,
                 .description =
-                    "Servant of the Secret Fire (Level @1) - Narya. Every swap looses a fire "
-                    "nova for 10 + your level.",
+                    "Servant of the Secret Fire (Level @1) - Swap. Every time you change form, a "
+                    "fire nova hits foes around you for 10 + your level.",
             },
         [SKILL_EXPANSION_PASSIVE_ROBES_OF_MANY_COLOURS - PASSIVE_SKILL_COUNT] =
             {

@@ -175,33 +175,56 @@ static bool tallyPage(u8 playerIndex)
     return skillExpansion_treePage != 0 && skillExpansion_gimliUsesTally(playerIndex);
 }
 
-/** Tally marks not yet spent on page 2 ranks. */
-static u32 tallyMarks(u8 playerIndex)
+/** Kills the bought page 2 ranks cost, each at the kill requirement it was listed with. */
+static u32 tallySpent(u8 playerIndex)
 {
-    u32 activeOffset = skillExpansion_treePage != 0 ? 0 : SKILL_EXPANSION_FIRST_NEW_ACTIVE_ROW;
-    u32 passiveOffset = skillExpansion_treePage != 0 ? 0 : HERO_PASSIVE_SKILL_COUNT;
-    u32 marks = PLAYER(playerIndex).killCount / GIMLI_TALLY_KILLS_PER_MARK;
     u32 spent = 0;
     u32 i;
+    u32 rank;
 
     for (i = 0; i < pageActiveCount(playerIndex); i++)
     {
-        spent += *skillExpansion_activePurchased(playerIndex, activeOffset + i);
+        const SkillExpansionActiveDef *def = skillExpansion_players[playerIndex].activeDefs[i];
+        u32 purchased = *skillExpansion_activePurchased(playerIndex, i);
+
+        if (def == NULL || def->requiredLevels == NULL)
+        {
+            continue;
+        }
+        for (rank = 0; rank < purchased && rank < PASSIVE_SKILL_MAX_LEVEL; rank++)
+        {
+            spent += def->requiredLevels[rank] * GIMLI_TALLY_KILLS_PER_STEP;
+        }
     }
     for (i = 0; i < SKILL_EXPANSION_NEW_PASSIVE_COUNT; i++)
     {
-        s8 purchased = *skillExpansion_passivePurchased(playerIndex, passiveOffset + i);
+        s8 purchased = *skillExpansion_passivePurchased(playerIndex, i);
 
-        spent += purchased > 0 ? purchased : 0;
+        for (rank = 0; (s32)rank < purchased && rank < PASSIVE_SKILL_MAX_LEVEL; rank++)
+        {
+            spent += skillExpansion_getPassiveRequiredLevel(PLAYER(playerIndex).passiveSkillIds[i],
+                                                            rank) *
+                     GIMLI_TALLY_KILLS_PER_STEP;
+        }
     }
-    return marks > spent ? marks - spent : 0;
+    return spent;
+}
+
+/** Tally kills not yet spent on page 2 ranks. */
+static u32 tallyKills(u8 playerIndex)
+{
+    u32 spent = tallySpent(playerIndex);
+    u32 kills = PLAYER(playerIndex).killCount;
+
+    return kills > spent ? kills - spent : 0;
 }
 
 /** The points box: skill points, or Tally marks on a Tally page. */
 static void drawPoints(u8 playerIndex)
 {
     char text[16];
-    u32 points = tallyPage(playerIndex) ? tallyMarks(playerIndex) : PLAYER(playerIndex).skillPoints;
+    u32 points = tallyPage(playerIndex) ? tallyKills(playerIndex) / GIMLI_TALLY_KILLS_PER_MARK
+                                        : PLAYER(playerIndex).skillPoints;
 
     font_setStyle(FONT_STYLE_21PX, 3, -1);
     gfx_fillBgRect(3, 0xe, 0xb, 5, 4, 0);
@@ -450,7 +473,7 @@ static void drawTitle(u8 playerIndex)
 
     if (tallyPage(playerIndex))
     {
-        const char *parts[] = {TallyPrefix, text_formatInt(PLAYER(playerIndex).killCount, digits),
+        const char *parts[] = {TallyPrefix, text_formatInt(tallyKills(playerIndex), digits),
                                TallySuffix};
         u32 length = 0;
         u32 i;
@@ -835,8 +858,7 @@ static void buyWithTally(u8 playerIndex)
         return;
     }
     required = skillExpansion_treeGetRequiredLevel(playerIndex, skill);
-    if (required == -1 || tallyMarks(playerIndex) == 0 ||
-        PLAYER(playerIndex).killCount < (u32)required * GIMLI_TALLY_KILLS_PER_STEP)
+    if (required == -1 || tallyKills(playerIndex) < (u32)required * GIMLI_TALLY_KILLS_PER_STEP)
     {
         sfx_play(SFX_MENU_ERROR);
         return;
@@ -857,6 +879,7 @@ static void buyWithTally(u8 playerIndex)
                                            *skillExpansion_passiveApplied(playerIndex, slot));
     }
     drawPoints(playerIndex);
+    drawTitle(playerIndex);
     skillExpansion_treeDrawDescription();
     sfx_play(active ? SFX_SKILL_TREE_BUY_ACTIVE : SFX_SKILL_TREE_BUY_PASSIVE);
 }
