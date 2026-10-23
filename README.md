@@ -85,7 +85,7 @@ Check it yourself with `make verify` (rebuilds the ROM and compares the hash) an
 
 ## Community documentation
 
-Start at the [documentation index](docs/README.md) for player, contributor and testing guides.
+Start at the [documentation index](docs/README.md) for player, contributor and testing guides. To continue the work, start with [where the work stands](docs/status.md).
 
 - [Heroes](docs/heroes.md): every hero's idea, mechanic and skills.
 - [Mod options](docs/mod-options.md): every mod options page, all Twists and their values.

@@ -27,6 +27,13 @@ def _index() -> Any:
             if os.path.exists(cand):
                 cindex.Config.set_library_file(cand)
                 return cindex.Index.create()
+        # On Windows, use the LLVM installer's libclang and let it find its own DLLs.
+        if os.name == "nt":
+            llvm = os.path.join(os.environ.get("ProgramFiles", r"C:\Program Files"), "LLVM", "bin")
+            if os.path.exists(os.path.join(llvm, "libclang.dll")):
+                os.add_dll_directory(llvm)
+                cindex.Config.set_library_file(os.path.join(llvm, "libclang.dll"))
+                return cindex.Index.create()
         raise
 
 

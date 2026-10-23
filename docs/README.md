@@ -4,6 +4,7 @@ This repository combines the original-game decompilation with the experimental R
 
 | Goal | Start here |
 | --- | --- |
+| Pick up the work where it stands | [Status](status.md) |
 | Learn each hero's mechanic and skills | [Heroes](heroes.md) |
 | See every mod options page and Twist | [Mod options](mod-options.md) |
 | Understand what Expanded changes | [Expansion overview](expanded-changes.md), then [engine changes](engine-changes.md) |

@@ -1,0 +1,10 @@
+# Text files use LF in the repository and in every checkout, whatever core.autocrlf is set to.
+# Git for Windows defaults core.autocrlf to true, which would otherwise break baserom.sha1 checks
+# and shell recipes.
+* text=auto eol=lf
+
+*.png binary
+*.gba binary
+*.bin binary
+*.bps binary
+*.lz binary
