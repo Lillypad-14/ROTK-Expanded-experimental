@@ -114,6 +114,7 @@ void skillExpansion_hudUpdateSkillPalette(u8 playerIndex)
     bool32 canCast;
     bool32 uncastable;
     bool32 page2;
+    bool32 unspent;
     u32 row;
     u32 i;
 
@@ -158,13 +159,13 @@ void skillExpansion_hudUpdateSkillPalette(u8 playerIndex)
     }
 
     // The unspent-points graphic shares the panel's bank and needs the stock colors.
-    own = NULL;
-    if (!(flags->p & PLAYERHUD_FLAG_UNSPENT_POINTS) &&
-        g_PlayerHuds[playerIndex].skillPanelState != PLAYERHUD_SKILL_PANEL_DRAW_UNSPENT_POINTS)
-    {
-        own =
-            skillExpansion_iconColors(skillExpansion_players[playerIndex].activeSkillIcons[row]);
-    }
+    unspent = (flags->p & PLAYERHUD_FLAG_UNSPENT_POINTS) ||
+              g_PlayerHuds[playerIndex].skillPanelState == PLAYERHUD_SKILL_PANEL_DRAW_UNSPENT_POINTS ||
+              ((PLAYER(playerIndex).statusFlags.p & PLAYER_STATUS_FLAG_UNSPENT_POINTS) &&
+               g_PlayerHuds[playerIndex].skillPanelState == PLAYERHUD_SKILL_PANEL_IDLE);
+    own = unspent ? NULL
+                  : skillExpansion_iconColors(
+                        skillExpansion_players[playerIndex].activeSkillIcons[row]);
     if (own != NULL)
     {
         for (i = 0; i < SKILL_EXPANSION_ICON_OWN_COLOR_COUNT; i++)
@@ -180,6 +181,10 @@ void skillExpansion_hudUpdateSkillPalette(u8 playerIndex)
             (const u16 *)((uncastable ? HudSkillPaletteDisabled : HudSkillPaletteNormal) +
                           BG_ASSET_HEADER_SIZE);
 
+        if (unspent)
+        {
+            ramp = stock + SKILL_EXPANSION_ICON_ART_FIRST_COLOR;
+        }
         memory_memcpy(colors, ramp, SKILL_EXPANSION_ICON_ART_COLOR_COUNT * sizeof(u16));
         for (i = SKILL_EXPANSION_ICON_ART_COLOR_COUNT; i < SKILL_EXPANSION_ICON_OWN_COLOR_COUNT; i++)
         {
