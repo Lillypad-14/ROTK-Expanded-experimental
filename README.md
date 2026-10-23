@@ -22,7 +22,7 @@ An experimental content mod for _The Lord of the Rings: The Return of the King_ 
     Overdraw release for True Shots).
 - **New playable heroes.** Ringwraith (hero 8, built from the Nazgul model, with its own gear) and Saruman
   ("The Prism").
-- **Twists.** Playthrough modifier pages in the mod options.
+- **Twists.** Playthrough modifier pages in the mod options. See [mod options](docs/mod-options.md).
 - **Debug cheats and Unlocks pages** for testing.
 - **Content toolkit** in `hacks/lib/`: FX kit (stock effects, recolors, sprite tints, custom PNG effects), combat
   events, targeting, movement, status effects, timed zones, summons, HUD meters and cast timelines.
@@ -54,6 +54,7 @@ Each hero below has a second skill page with three builds and a mechanic of its 
 Start at the [documentation index](docs/README.md) for player, contributor and testing guides.
 
 - [Heroes](docs/heroes.md): every hero's idea, mechanic and skills.
+- [Mod options](docs/mod-options.md): every mod options page, all Twists and their values.
 - [Engine changes](docs/engine-changes.md): hooks, memory and save layout, the skill system and the combat system.
 - [Pipeline](docs/pipeline.md): from Ghidra to byte matching, patch building, testing and release.
 - [Expansion changes](docs/expanded-changes.md): hero content, engine systems, tooling and known testing limits.

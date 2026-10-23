@@ -44,7 +44,7 @@ Generated includes and binary assets are build outputs. Edit the content manifes
 [`hacks/patches.cfg`](../hacks/patches.cfg) is the default selection. The [generated patch inventory](source-inventory.md#mod-patch-inventory) lists every patch directory and whether that file selects it.
 
 - The inherited foundation includes save-slot pages, Ranger Hollow pages, loot quality-of-life options, chapter select, fast fades and modular options/scenes. Read the [upstream user guide](romhack-user.md) for their controls and save behavior.
-- Expanded also contains debug cheats, unlock controls, Twists playthrough modifiers, text overrides, item descriptions and wait-state changes. Inspect their patch directories for current behavior and dependencies.
+- Expanded also contains debug cheats, unlock controls, Twists playthrough modifiers, text overrides, item descriptions and wait-state changes. The [mod options guide](mod-options.md) lists every settings page and Twist. Inspect the patch directories for other behavior and dependencies.
 - `test_arena` is available through `make test-arena`. Demo patch directories are examples and are not default gameplay features.
 - Required save/RAM/startup/scene patches must remain selected as documented by the build. A patch appearing in the inventory does not establish that it can run alone.
 

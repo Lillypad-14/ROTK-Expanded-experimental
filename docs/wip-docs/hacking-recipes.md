@@ -218,3 +218,12 @@ actor_applyTypeDefaults loads a player's sprite palette from ObjPalettes[0x21 + 
 - Hero palette is `ObjPalettes[0x21 + heroId]` (Smeagol 0x2a). Blend per channel toward a 16-color target and
   load with `hackLib_fxTintSlot(actor->oam.paletteNumber, colors, 0, 0, 0, 0)`. Refresh every 30 frames,
   since the slot can be reloaded. Gandalf colors 3..14 are robe/hat/beard, 0..2 skin, 15 outline.
+
+## Mod options text layout (trap, 2026-10-23)
+- The options screen is BG3 (char base 0x06008000). BG2 shares that charblock and uses tiles 0..0xe1 for the art.
+- Row glyphs: `row * 0x19 + 0xf6`, label and value share the 25 tiles. "Mod Options" label 0x1d8, page counter 0x1e8.
+- Page title: tile 0x200 (`MOD_OPTIONS_TITLE_TILE`). The stock title base 0xe2 only had 0x14 tiles before row 0,
+  so 11px titles over 80 px got overwritten by row 0's label and left ghost glyphs top right.
+- `drawTitle` clears the full header row (cols 0..29), or the "Page x/y" counter lingers on the stock screen.
+- To find free tiles: dump 0x06008000..0x0600E000 and the four screen maps, then list tile indices no map references.
+- Limits for page authors are in docs/mod-options.md (title ~14 chars, help 2 x ~26 chars, max 6 entries with help).

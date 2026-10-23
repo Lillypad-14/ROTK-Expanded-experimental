@@ -38,6 +38,7 @@ struct ModOptionEntry
 
 /**
  * One mod-settings page (L/R switches pages): title drawn in the header, rows below.
+ * Keep the title to about 14 characters so it clears the "Page x/y" counter.
  * draw is an optional extra-drawing callback (section headers, explainer text), run at
  * the end of every full page draw; NULL for none. Single-row redraws (cursor moves,
  * value adjusts) don't re-run it, so draw on spacer rows only - those never redraw

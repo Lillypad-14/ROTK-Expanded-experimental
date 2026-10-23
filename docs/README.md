@@ -5,6 +5,7 @@ This repository combines the original-game decompilation with the experimental R
 | Goal | Start here |
 | --- | --- |
 | Learn each hero's mechanic and skills | [Heroes](heroes.md) |
+| See every mod options page and Twist | [Mod options](mod-options.md) |
 | Understand what Expanded changes | [Expansion overview](expanded-changes.md), then [engine changes](engine-changes.md) |
 | See how the combat system was extended | [Engine changes: combat](engine-changes.md#combat-system) |
 | Follow the whole workflow, Ghidra to release | [Pipeline](pipeline.md) |
