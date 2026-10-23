@@ -618,7 +618,7 @@ uv run --group dev pytest hacks/tools -q
 ================================== FAILURES ===================================
 ________________________________ test_runtime _________________________________
 
-tmp_path = WindowsPath('~/AppData/Local/Temp/pytest-of-user/pytest-153/test_runtime0')
+tmp_path = WindowsPath('~/AppData/Local/Temp/pytest-of-clemm/pytest-153/test_runtime0')
 
     def test_runtime(tmp_path):
         compiler = shutil.which("clang") or shutil.which("cc")
@@ -742,15 +742,15 @@ kwargs = {}
             if check and retcode:
 >               raise CalledProcessError(retcode, process.args,
                                          output=stdout, stderr=stderr)
-E               subprocess.CalledProcessError: Command '['~\\AppData\\Local\\Microsoft\\WinGet\\Packages\\MartinStorsjo.LLVM-MinGW.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\\llvm-mingw-20260908-ucrt-x86_64\\bin\\clang.EXE', '-std=c11', '-Wall', '-Wextra', '-Werror', '-ffunction-sections', '-fdata-sections', '-Wl,--gc-sections', '-DHACK_debug_cheats=1', '-DHACK_mod_options=1', '-I~\\AppData\\Local\\Temp\\pytest-of-user\\pytest-153\\test_runtime0', '-I~\\Desktop\\lotr\\rotk\\include', '-I~\\Desktop\\lotr\\rotk\\carved\\include', '-I~\\Desktop\\lotr\\rotk\\build\\include', '-I~\\Desktop\\lotr\\rotk\\build\\hack_include', '-I~\\Desktop\\lotr\\rotk\\hacks', '~\\Desktop\\lotr\\rotk\\hacks\\tests\\cast_timeline.c', '~\\Desktop\\lotr\\rotk\\hacks\\lib\\cast_timeline.c', '~\\Desktop\\lotr\\rotk\\hacks\\patches\\skill_expansion\\skill_expansion_timeline.c', '~\\Desktop\\lotr\\rotk\\hacks\\patches\\debug_cheats\\ability_bench.c', '-o', '~\\AppData\\Local\\Temp\\pytest-of-user\\pytest-153\\test_runtime0\\timeline-tests.exe']' returned non-zero exit status 1.
+E               subprocess.CalledProcessError: Command '['~\\AppData\\Local\\Microsoft\\WinGet\\Packages\\MartinStorsjo.LLVM-MinGW.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\\llvm-mingw-20260908-ucrt-x86_64\\bin\\clang.EXE', '-std=c11', '-Wall', '-Wextra', '-Werror', '-ffunction-sections', '-fdata-sections', '-Wl,--gc-sections', '-DHACK_debug_cheats=1', '-DHACK_mod_options=1', '-I~\\AppData\\Local\\Temp\\pytest-of-clemm\\pytest-153\\test_runtime0', '-I~\\Desktop\\lotr\\rotk\\include', '-I~\\Desktop\\lotr\\rotk\\carved\\include', '-I~\\Desktop\\lotr\\rotk\\build\\include', '-I~\\Desktop\\lotr\\rotk\\build\\hack_include', '-I~\\Desktop\\lotr\\rotk\\hacks', '~\\Desktop\\lotr\\rotk\\hacks\\tests\\cast_timeline.c', '~\\Desktop\\lotr\\rotk\\hacks\\lib\\cast_timeline.c', '~\\Desktop\\lotr\\rotk\\hacks\\patches\\skill_expansion\\skill_expansion_timeline.c', '~\\Desktop\\lotr\\rotk\\hacks\\patches\\debug_cheats\\ability_bench.c', '-o', '~\\AppData\\Local\\Temp\\pytest-of-clemm\\pytest-153\\test_runtime0\\timeline-tests.exe']' returned non-zero exit status 1.
 
 ..\..\..\AppData\Local\Programs\Python\Python312\Lib\subprocess.py:571: CalledProcessError
 ---------------------------- Captured stdout call -----------------------------
 Cast timelines: 2 validated
 ---------------------------- Captured stderr call -----------------------------
-ld.lld: error: undefined symbol: skillDelivery_launch
->>> referenced by ~/AppData/Local/Temp/cast_timeline-3d4487.o:(skillExpansion_resolveTimelineCast)
-clang-23: error: linker command failed with exit code 1 (use -v to see invocation)
+ld.lld: error: undefined symbol: skillDelivery_launch
+>>> referenced by ~/AppData/Local/Temp/cast_timeline-3d4487.o:(skillExpansion_resolveTimelineCast)
+clang-23: error: linker command failed with exit code 1 (use -v to see invocation)
 =========================== short test summary info ===========================
 FAILED hacks/tools/test_cast_timelines.py::test_runtime - subprocess.CalledPr...
 1 failed, 64 passed in 16.95s

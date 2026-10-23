@@ -33,7 +33,7 @@ uv run --group dev pytest hacks/tools -q
 ================================== FAILURES ===================================
 __________________________ test_hero_moves[aragorn] ___________________________
 
-tmp_path = WindowsPath('~/AppData/Local/Temp/pytest-of-user/pytest-119/test_hero_moves_aragorn_0')
+tmp_path = WindowsPath('~/AppData/Local/Temp/pytest-of-clemm/pytest-119/test_hero_moves_aragorn_0')
 hero = 'aragorn'
 
     @pytest.mark.parametrize("hero", ["sam", "smeagol", "aragorn"])
@@ -147,23 +147,23 @@ kwargs = {}
             if check and retcode:
 >               raise CalledProcessError(retcode, process.args,
                                          output=stdout, stderr=stderr)
-E               subprocess.CalledProcessError: Command '['~\\AppData\\Local\\Microsoft\\WinGet\\Packages\\MartinStorsjo.LLVM-MinGW.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\\llvm-mingw-20260908-ucrt-x86_64\\bin\\clang.EXE', '-std=gnu11', '-Wall', '-Wextra', '-Werror', '-DTEST_SAM=0', '-I~\\Desktop\\lotr\\rotk\\include', '-I~\\Desktop\\lotr\\rotk\\carved\\include', '-I~\\Desktop\\lotr\\rotk\\build\\include', '-I~\\Desktop\\lotr\\rotk\\build\\hack_include', '-I~\\Desktop\\lotr\\rotk\\hacks', '~\\Desktop\\lotr\\rotk\\hacks\\tests\\aragorn.c', '-o', '~\\AppData\\Local\\Temp\\pytest-of-user\\pytest-119\\test_hero_moves_aragorn_0\\aragorn.exe']' returned non-zero exit status 1.
+E               subprocess.CalledProcessError: Command '['~\\AppData\\Local\\Microsoft\\WinGet\\Packages\\MartinStorsjo.LLVM-MinGW.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\\llvm-mingw-20260908-ucrt-x86_64\\bin\\clang.EXE', '-std=gnu11', '-Wall', '-Wextra', '-Werror', '-DTEST_SAM=0', '-I~\\Desktop\\lotr\\rotk\\include', '-I~\\Desktop\\lotr\\rotk\\carved\\include', '-I~\\Desktop\\lotr\\rotk\\build\\include', '-I~\\Desktop\\lotr\\rotk\\build\\hack_include', '-I~\\Desktop\\lotr\\rotk\\hacks', '~\\Desktop\\lotr\\rotk\\hacks\\tests\\aragorn.c', '-o', '~\\AppData\\Local\\Temp\\pytest-of-clemm\\pytest-119\\test_hero_moves_aragorn_0\\aragorn.exe']' returned non-zero exit status 1.
 
 ..\..\..\AppData\Local\Programs\Python\Python312\Lib\subprocess.py:571: CalledProcessError
 ---------------------------- Captured stderr call -----------------------------
-~\Desktop\lotr\rotk\hacks\tests\aragorn.c:297:1: error: conflicting types for 'skill_active_aragornSweep'
-  297 | STOCK_CAST(aragornSweep)
-      | ^
-~\Desktop\lotr\rotk\hacks\tests\aragorn.c:293:10: note: expanded from macro 'STOCK_CAST'
-  293 |     void skill_active_##name(Actor *a)                                                             \
-      |          ^
-<scratch space>:113:1: note: expanded from here
-  113 | skill_active_aragornSweep
-      | ^
-~\Desktop\lotr\rotk\include/skill.h:330:5: note: previous declaration is here
-  330 | u32 skill_active_aragornSweep(Actor *playerActor);
-      |     ^
-1 error generated.
+~\Desktop\lotr\rotk\hacks\tests\aragorn.c:297:1: error: conflicting types for 'skill_active_aragornSweep'
+  297 | STOCK_CAST(aragornSweep)
+      | ^
+~\Desktop\lotr\rotk\hacks\tests\aragorn.c:293:10: note: expanded from macro 'STOCK_CAST'
+  293 |     void skill_active_##name(Actor *a)                                                             \
+      |          ^
+<scratch space>:113:1: note: expanded from here
+  113 | skill_active_aragornSweep
+      | ^
+~\Desktop\lotr\rotk\include/skill.h:330:5: note: previous declaration is here
+  330 | u32 skill_active_aragornSweep(Actor *playerActor);
+      |     ^
+1 error generated.
 =========================== short test summary info ===========================
 FAILED hacks/tools/test_hero_moves.py::test_hero_moves[aragorn] - subprocess....
 1 failed, 54 passed in 14.89s

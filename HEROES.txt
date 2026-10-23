@@ -41,12 +41,13 @@ LEGOLAS - The Glint
   His new arrows do their full effect only on a True Shot.
 
 RINGWRAITH (new hero) - Dread
-  Scares and stuns enemies. Slain enemies rise to fight for you.
+  Scares and stuns enemies. Cannot heal from the usual sources, only through specific mechanics. Killing dreaded enemies or HP absorb gear/abilities.
   Only gets Spirit from kills. Has its own wraith gear.
 
 SARUMAN (new hero) - The Prism
-  Each spell adds a color: White, Isengard or Voice.
-  Get all three to trigger a bonus effect, and your next spell costs half.
+  Every successful colored spell fills one Prism segment, even repeated spells.
+  Fill three for a bonus based on the final spell, then your next spell costs half.
+  Faster staff attacks restore 2 Spirit when they deal damage.
 
 EOWYN
   Unchanged for now.
