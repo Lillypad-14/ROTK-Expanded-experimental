@@ -7,8 +7,8 @@ Prioritize core systems, then gameplay dependencies.
 The user authorized implementation and tooling work and resumed Codex after Claude's progress.
 The full decompilation remains incomplete.
 
-Verified on 2026-10-22: 569 C function definitions, 251 C source regions, and 72,292 compiled code bytes.
-There are 888 mapped function symbols, an incomplete inventory that cannot serve as a full-game denominator.
+Verified on 2026-10-23: 710 C function definitions, 355 C source regions, and 88,760 compiled code bytes.
+There are 1,058 mapped function symbols, an incomplete inventory that cannot serve as a full-game denominator.
 Asset reconstruction coverage is not C decompilation progress.
 
 The base ROM is `rotk.gba` in this repository.
@@ -18,7 +18,7 @@ Hack changes use a separate build path.
 
 Latest validation:
 
-- `make check`: passed, including all 453 manifest regions, source/store consistency, BUGFIX compilation and 297 tests with three default-environment Ghidra skips.
+- `make check`: passed, including all 557 manifest regions, source/store consistency, BUGFIX compilation and 297 tests with three default-environment Ghidra skips.
 - Configured Ghidra header/symbol test files: 18 passed, including the three integrations skipped by default.
 - Whole-ROM SHA-1: identical to the base ROM.
 
