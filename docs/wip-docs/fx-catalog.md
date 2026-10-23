@@ -324,10 +324,6 @@ Damage still lands at cast, about 0.2 s before the bolt arrives.
 | Light Broken | STAR_BLOOM GOLD | | WIDE_RING per held color, 8 frames apart |
 | Sharkey's Spite | GROUND_POOL SHADOW | | TENDRIL_BURST BLOOD on foes, SPARKLE_RING GREEN drain at 14 if any hit |
 | Power of the White Hand | SKY_RAIN WHITE + TENDRIL_STAR NIGHT | | LIGHTNING WHITE per foe at 10+6i, SHOCKWAVE GHOST at 36 |
-| White refraction | STAR_BLOOM WHITE | | timed SPARKLE_RING guard, sunburst sfx |
-| Isengard refraction | SHOCKWAVE NIGHT | | POOL_FLASH per foe, SHOCKWAVE_ALT NIGHT at 12 |
-| Voice refraction | SHOCKWAVE VENOM | | SPARK VENOM per foe at 6+3i, timed DIAMOND_RING VENOM 60 |
-| Prism gains a color | SPARK in the color, 30 px above Saruman | | |
 | Powder of Orthanc | | | STAR_BLOOM EMBER at the corpse, NAZGUL smoke at 4 |
 
 ## Gandalf map (page 2 "The Grey and the White", v36)

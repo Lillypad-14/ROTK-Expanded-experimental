@@ -343,72 +343,31 @@ Code: `hacks/patches/skill_expansion/skill_expansion_sam.c`, data in skill_expan
 - I Can Carry You: once per area (cleanup clears it), a hit that leaves Sam at <= 25% HP is cancelled, heals 40%, 2s immunity. Self only.
 - Icons are stock Sam icons for now (Snare used twice). Candidate for user art ([[custom-skill-icons]] pipeline).
 
-## Saruman "The Prism" as built (2026-10-21, ROM ROTK-Mod-Saruman-v28.gba, untested in game)
-Code: `hacks/patches/ringwraith/saruman.c` (kit), passives + build tables in `skill_expansion_content.c`,
-ids `SKILL_EXPANSION_PASSIVE_LORE_OF_COLOURS..PARTING_SHOT` (PASSIVE_SKILL_COUNT + 54..62, END +63).
-Host test `hacks/tests/saruman.c`. RAM: 0 new .bss, `SarumanState` (32 B) lives in
-`skillExpansion_heroState[p]`, every access gated on heroId 9.
+## Saruman "Empowered spells" (current, 2026-10-23)
+Code: `hacks/patches/ringwraith/saruman.c` (kit), passives and build tables in `skill_expansion_content.c`.
+Host test `hacks/tests/saruman.c`. `SarumanState` lives in `skillExpansion_heroState[p]` through
+`skillExpansion_heroStateClaim`, so fetch it only after the `isSaruman` guard.
 
-Columns (internal build enum only picks colors): GOOD = Curunir, EVIL = White Hand, TRICKS = Sharkey.
+The Prism (colors, refraction, half-cost spells) was removed. The current mechanic:
+- Three successful casts fill the empowerment meter (`EMPOWER_CAST_COUNT` 3). Repeating a spell counts.
+- The next damaging spell deals +50% (`EMPOWER_DAMAGE_PERCENT`) and empties the meter. Lore of Colours adds
+  15 points per rank (`EMPOWER_POWER_PER_LEVEL`).
+- Ward and Remedy charge the meter and preserve a full one. Failed casts keep progress. No timeout. Resets on
+  death, hero reset and cleanup. Melee and automatic passive attacks neither charge nor spend it.
+- Light Broken is a plain area attack that needs no charge. White Hand is a wide blast with no color bonus.
+- The meter draws in the HUD gap through `hackLib_drawHudMeter`.
 
-Prism: each successful spell adds its color (White / Isengard / Voice). Same color twice in a row
-adds nothing. All three held = refraction, decided by the color that completed it. Prism fades
-after 6s without a new color. After a refraction the next spell costs half (free with Head of the
-White Council). Costs are rewritten every tick from ROM costs, so reset/cleanup/death/level up
-restore them.
-- White: heal 8% max HP, 25% damage reduction 6s.  Isengard: 64px nova 20 + 2/hero level.
-  Voice: 96px stun 4s. Lore of Colours +15%/lvl to all of it.
+Costs, damage per rank, cooldowns and refunds: `docs/saruman-balance.md`. Player summary: `docs/heroes.md`.
+Spell visuals: fx-catalog.md "Saruman map".
 
-Page 1 (stats: strength 16 -> 10, courage 32 -> 36, melee damage halved, +1 Spirit / 30 frames
-on top of stock ~6/s):
-| row | name | color | effect |
-|0|Voice of Saruman|Voice|64px, 4+3/lvl dmg, stun 45+15/lvl f|
-|1|Flame of Orthanc|Isengard|10+7/lvl hit + Burn 2+lvl/s for 150+30/lvl f|
-|2|Blasting Fire (replaces Wizard's Force)|Isengard|target in 128px, 40px burst 28+8/lvl, stun 30 f|
-|3|Many-Coloured Ward|White|20+5%/lvl DR for 180+60/lvl f|
-|4|Word of Binding (replaces Servant)|Voice|6+3/lvl dmg, stun 120+30/lvl f, spells +25% vs it|
-|5|Orthanc's Remedy|White|heal 12+8/lvl|
+Test list: meter fills on 3 casts including repeats; the bonus lands on the next damaging spell only; Ward and
+Remedy keep a full meter; Echo spends readiness only when it repeats a damaging spell; meter resets on death;
+Spirit refund caps from the balance doc; co-op with Frodo, Sam or Smeagol (shared heroState).
 
-Page 2 (pyramid Curunir | White Hand | Sharkey, Curunir | Sharkey, White Hand):
-| row | id | name | column | cost/cd | effect |
-|7|0xa10|Echo of Power|Curunir|30/45f|recast last page-1 or Furnace/Curse/Spite at 40+10/lvl % power, adds White|
-|8|0xa09|Furnaces of Isengard|White Hand|50/240f|up to 5 foes in 72px Burn 3+2/lvl/s 6s|
-|9|0xa11|Sharkey's Curse|Sharkey|25/120f|5+3/lvl hit, curse 480+60/lvl f: spells +20+5/lvl %, each hit leaks 2 Spirit|
-|10|0xa12|Light Broken|Curunir|30/120f|needs Prism: 80px (18+8/lvl) x colors held, +8 Spirit/color, empties Prism|
-|11|0xa13|Sharkey's Spite|Sharkey|35/120f|72px (16+6/lvl) x (100 + missing HP%)%, steal 2 Spirit per foe|
-|12|0xa0c|Power of the White Hand|White Hand|90/360f, lv 30..38|104px 45+15/lvl stun 60f, then refract as last color (Isengard if none)|
+Old save slots keep page 1 ids 0xa01..0xa06, so Wizard's Force and Servant points carry into Blasting Fire and
+Binding. Old page 2 ids 0xa08/0xa0a/0xa0b vanish (points lost), 0xa09/0xa0c keep their points.
 
-Passives (first level): Curunir Lore of Colours 20, Ring-lore 24 (4 Spirit/lvl per refraction),
-Head of the White Council 28 (post-refraction spell free). White Hand Fires of Industry 21 (Burn
-+1/s and +2s per lvl), Machine of War 25 (spell kill +2 Spirit/lvl), Powder of Orthanc 29 (spell
-kill explodes 40px for 20 + hero level, SECONDARY so no chains). Sharkey Cutpurse 22 (cursed foe
-dies: steal 5 Spirit/lvl and curse jumps 96px), Spite 26 (below 40% HP spells +6%/lvl), Parting
-Shot 30 (dropping below 30% HP fires a free level-matched Spite blast and curses nearest foe, 20s cd).
-
-Risks: cost rewrite every tick (any other writer of Saruman's RAM costs gets clobbered, none known);
-Parting Shot fires from tick outside a cast damage source (burst sets its own kind/row); Word of
-Binding stun then a hit could break the hold on some enemy types; old save slots keep page 1 ids
-0xa01..0xa06 so Wizard's Force/Servant points carry into Blasting Fire/Binding; old page-2 ids
-0xa08/0xa0a/0xa0b vanish (points lost), 0xa09/0xa0c keep their points.
-Test list: refraction of each color + feedback text; half / free cost shows in tree and HUD and
-reverts after the next cast, on death and on level up; Echo with nothing cast (should refuse);
-Light Broken with empty Prism (refuse); curse puff + jump on kill with Cutpurse; Powder chains
-not looping; Parting Shot once per 20s; co-op with Frodo/Sam/Smeagol (shared heroState untouched).
-
-### Saruman page 1 passives (DRAFT v1, not built)
-
-Replace the 9 vanilla page 1 passives. Three per color, no overlap with page 2. First ranks at levels 1..9, +2 levels per rank.
-| # | name | color | effect |
-|1|Robes of Many Colours|White|3%/lvl less damage taken while the Prism holds a color|
-|2|Keeper of Orthanc|White|Remedy heals +10%/lvl, overheal becomes Spirit|
-|3|Wisdom of the Istari|White|a new Prism color refunds 1 Spirit/lvl|
-|4|Kindling|Isengard|Blasting Fire +10%/lvl vs burning foes|
-|5|Wildfire|Isengard|hit on a burning foe: 10%/lvl chance burn spreads to nearest foe in 48px|
-|6|Staff of Orthanc|Isengard|melee hits burn 1s and refund 1 Spirit/lvl|
-|7|Honeyed Words|Voice|stuns and holds +10%/lvl duration|
-|8|Voice of Command|Voice|stunned/held foes take +5%/lvl from Isengard spells|
-|9|Lies of Saruman|Voice|stunned foes deal 5%/lvl less to you for 4s after|
-Open: vanilla stat grants lost (fold into base stats, or keep per passive). New ids append before SKILL_EXPANSION_PASSIVE_END.
+The sections below are build history. Their Prism references are out of date.
 
 ### Saruman visuals v29 (ROTK-Mod-Saruman-v29.gba, untested)
 
