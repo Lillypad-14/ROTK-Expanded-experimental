@@ -1,6 +1,7 @@
 // 64-bit host pointers widen the actor refs in SarumanState.
 #define SKILL_EXPANSION_HERO_STATE_WORDS 32
 #include "patches/ringwraith/saruman.c"
+#include "patches/ringwraith/saruman_icons.c"
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -8,10 +9,15 @@
 PlayerGlobals g_PlayerGlobals;
 SkillExpansionPlayer skillExpansion_players[2];
 u32 skillExpansion_heroState[2][SKILL_EXPANSION_HERO_STATE_WORDS];
+u8 skillExpansion_heroStateOwner[2];
+u8 skillExpansion_heroStateMisuse;
+void skillExpansion_noteHeroStateMisuse(void) { skillExpansion_heroStateMisuse++; }
 static Actor avatar, foe;
 static bool hasTarget = TRUE;
+static u32 burstHits = 1;
 static u32 generation = 1;
 static u16 lastDamage;
+static bool hit = TRUE, killed, recycleVictim;
 static HackLibTimedEffect attachment;
 static SkillExpansionBurst lastBurst;
 static u8 passives[SKILL_EXPANSION_PASSIVE_END];
@@ -24,6 +30,15 @@ ANIMATION(Walk);
 ANIMATION(Stagger);
 ANIMATION(Attack);
 ANIMATION(Death);
+#define ATTACK_ASSET(facing)                                                                       \
+    const u8 EnemyAnimationTiles_EnemyTypeSaruman_Attack_Facing##facing[sizeof(                    \
+        EnemyAnimationTiles_EnemyTypeSaruman_Attack_Facing##facing)] = {0};                        \
+    const SpriteFrameSet EnemyAnimationFrames_EnemyTypeSaruman_Attack_Facing##facing = {0}
+ATTACK_ASSET(0);
+ATTACK_ASSET(1);
+ATTACK_ASSET(2);
+ATTACK_ASSET(3);
+ATTACK_ASSET(4);
 #define ICON(name) const u8 ActiveSkillGandalf##name##Icon[0x184] = {0}
 ICON(BlindingAura);
 ICON(Lightstrike);
@@ -39,6 +54,19 @@ Actor *hackLib_fxBurst(Actor *actor, u8 shape, HackLibFxColor color, u8 layer)
     (void)color;
     (void)layer;
     return NULL;
+}
+static u32 auraRequests;
+Actor *hackLib_fxAura(Actor *on, u8 aura, HackLibFxColor color, s32 frames, u8 layer)
+{
+    assert(on != NULL && aura < 14 && frames > 0 && layer <= FX_LAYER_FRONT);
+    (void)color;
+    auraRequests++;
+    return NULL;
+}
+bool32 fx_tickTimedAttachment(Actor *fx)
+{
+    (void)fx;
+    return FALSE;
 }
 Actor *hackLib_fxTimed(Actor *on, u8 shape, HackLibFxColor color, s32 frames, u8 layer)
 {
@@ -108,6 +136,14 @@ void *memory_memset(void *dest, u32 value, size_t count)
 void player_addSpirit(u8 playerIndex, s16 delta)
 {
     PLAYER(playerIndex).currentSpirit += delta;
+    if (PLAYER(playerIndex).currentSpirit > PLAYER_STAT(playerIndex, STAT_MAX_SPIRIT))
+    {
+        PLAYER(playerIndex).currentSpirit = PLAYER_STAT(playerIndex, STAT_MAX_SPIRIT);
+    }
+    if (PLAYER(playerIndex).currentSpirit < 0)
+    {
+        PLAYER(playerIndex).currentSpirit = 0;
+    }
 }
 void skillExpansion_feedback(u8 playerIndex, const char *message)
 {
@@ -141,7 +177,7 @@ bool32 skillExpansion_isFoe(Actor *actor)
 u32 skillExpansion_burstDamage(const SkillExpansionBurst *burst)
 {
     lastBurst = *burst;
-    return hasTarget;
+    return hasTarget ? burstHits : 0;
 }
 HackLibDamageResult skillExpansion_dealDamage(Actor *attacker, Actor *target, u16 damage, u8 kind,
                                               u8 row)
@@ -151,7 +187,15 @@ HackLibDamageResult skillExpansion_dealDamage(Actor *attacker, Actor *target, u1
     lastDamage = damage;
     (void)kind;
     (void)row;
-    return (HackLibDamageResult){TRUE, FALSE, 10};
+    if (recycleVictim)
+    {
+        generation++;
+    }
+    if (killed)
+    {
+        target->currentHp = 0;
+    }
+    return (HackLibDamageResult){hit, killed, hit ? 10 : 0};
 }
 void skillExpansion_addHp(u8 player, s16 amount, bool flinch)
 {
@@ -212,189 +256,321 @@ Actor *hackLib_nextTargetAt(const Vector2Fp16 *position, Actor *exclude, u16 rad
     (void)exclude;
     return actor_iterateInRadius(NULL, cursor, (s32)radius * 65536);
 }
-int main(void)
+
+static s32 hudValue, hudMax;
+void hackLib_drawHudMeter(const HackLibHudMeter *meter, s32 value, s32 max,
+                          const HackLibHudMeterLook *look, const u8 *marks, u32 markCount)
 {
+    (void)meter;
+    (void)look;
+    (void)marks;
+    (void)markCount;
+    hudValue = value;
+    hudMax = max;
+}
+
+static void fixture(void)
+{
+    memset(passives, 0, sizeof(passives));
+    memset(&attachment, 0, sizeof(attachment));
     PLAYER(0).heroId = HERO_ID_SARUMAN;
     PLAYER(0).ownerActor = &avatar;
     PLAYER(0).level = 20;
+    PLAYER(0).currentHp = 100;
+    PLAYER(0).currentSpirit = 0;
     PLAYER_STAT(0, STAT_MAX_HP) = 100;
     PLAYER_STAT(0, STAT_MAX_SPIRIT) = 200;
-    PLAYER(0).currentHp = 100;
-    foe.currentHp = 50;
-    reset(0);
-    assert(state(0)->lastRow == ROW_NONE && cost(SARUMAN_VOICE) == 18);
-
-    assert(cast(SARUMAN_VOICE, 2) == SKILL_CAST_SUCCESS);
-    assert(lastBurst.damage == 10 && lastBurst.stunFrames == 75);
-    assert(state(0)->prismMask == 1 << COLOR_VOICE && state(0)->lastRow == SARUMAN_VOICE);
-    assert(cast(SARUMAN_VOICE, 2) == SKILL_CAST_SUCCESS && state(0)->prismMask == 1 << COLOR_VOICE);
-    assert(cast(SARUMAN_ECHO, 1) == SKILL_CAST_SUCCESS && lastBurst.damage == 5);
-    assert(state(0)->prismMask == ((1 << COLOR_VOICE) | (1 << COLOR_WHITE)));
-
-    hasTarget = FALSE;
-    assert(cast(SARUMAN_FLAME, 2) == SKILL_CAST_INVALID_TARGET);
-    assert(cast(SARUMAN_BLASTING_FIRE, 2) == SKILL_CAST_INVALID_TARGET);
+    PLAYER_STAT(0, STAT_ACTIVE_SKILL_LEVEL_BONUS) = 0;
+    foe.currentHp = 100;
+    foe.actionState = 0;
     hasTarget = TRUE;
-    assert(cast(SARUMAN_FLAME, 2) == SKILL_CAST_SUCCESS);
-    assert(lastFeedback == RefractionMessages[COLOR_ISENGARD] && state(0)->prismMask == 0);
-    assert(state(0)->discount == DISCOUNT_HALF);
-    tick(0, &avatar);
-    assert(cost(SARUMAN_VOICE) == 9 && cost(SARUMAN_WHITE_HAND) == 45);
-    assert(cast(SARUMAN_BLASTING_FIRE, 2) == SKILL_CAST_SUCCESS && lastBurst.damage == 44);
-    tick(0, &avatar);
-    assert(state(0)->discount == DISCOUNT_NONE && cost(SARUMAN_VOICE) == 18);
+    burstHits = 1;
+    hit = TRUE;
+    killed = recycleVictim = FALSE;
+    auraRequests = 0;
+    source.kind = HACKLIB_DAMAGE_ABILITY;
+    lastFeedback = NULL;
+    reset(0);
+}
 
-    passives[SKILL_EXPANSION_PASSIVE_FIRES_OF_INDUSTRY] = 1;
-    assert(cast(SARUMAN_FURNACE, 2) == SKILL_CAST_SUCCESS);
-    assert(attachment.definition == &Burn && attachment.magnitude == 8 &&
-           attachment.remaining == 240);
+static void charge(void)
+{
+    for (u32 i = 0; i < EMPOWER_CAST_COUNT; i++)
+    {
+        assert(cast(SARUMAN_FLAME, 1) == SKILL_CAST_SUCCESS);
+        assert(chargeCount(0) == i + 1);
+        assert(lastDamage == 15);
+    }
+    assert(strstr(lastFeedback, "Empowered") != NULL);
+}
 
-    assert(cast(SARUMAN_GUARD, 2) == SKILL_CAST_SUCCESS);
-    assert(incomingDamage(0, &foe, 100) == 70);
-    assert(cast(SARUMAN_HEAL, 2) == SKILL_CAST_UNAVAILABLE);
-    PLAYER(0).currentHp = 20;
-    assert(cast(SARUMAN_HEAL, 2) == SKILL_CAST_SUCCESS && PLAYER(0).currentHp == 48);
+int main(void)
+{
+    fixture();
+    assert(cost(SARUMAN_VOICE) == 18 && state(0)->lastRow == ROW_NONE);
+    for (u32 facing = 0; facing < 5; facing++)
+    {
+        assert(SarumanQuickAttackAnimations[facing].frameDuration == 1);
+    }
+    for (u32 pose = 0; pose < SARUMAN_PARTS * SARUMAN_POSES; pose++)
+    {
+        assert(SarumanMeleeAnimationBank[pose] == SarumanQuickAttackAnimations);
+        assert(SarumanCastAnimationBank[pose] == SarumanQuickAttackAnimations);
+    }
+    charge();
+    drawEmpowerment(0);
+    assert(hudValue == 3 && hudMax == 3);
+    for (u32 frame = 0; frame < 400; frame++)
+    {
+        tick(0, &avatar);
+    }
+    assert(chargeCount(0) == 3);
+    assert(cast(SARUMAN_GUARD, 1) == SKILL_CAST_SUCCESS && chargeCount(0) == 3);
+    PLAYER(0).currentHp = 1;
+    assert(cast(SARUMAN_HEAL, 1) == SKILL_CAST_SUCCESS && PLAYER(0).currentHp == 21);
+    assert(chargeCount(0) == 3);
+    assert(cast(SARUMAN_ECHO, 1) == SKILL_CAST_SUCCESS && chargeCount(0) == 3);
+    hasTarget = FALSE;
+    assert(cast(SARUMAN_FLAME, 1) == SKILL_CAST_INVALID_TARGET && chargeCount(0) == 3);
+    hasTarget = TRUE;
+    assert(cast(SARUMAN_FLAME, 1) == SKILL_CAST_SUCCESS && lastDamage == 22);
+    assert(chargeCount(0) == 0 && cost(SARUMAN_FLAME) == 18);
+    assert(cast(SARUMAN_FLAME, 1) == SKILL_CAST_SUCCESS && lastDamage == 15 && chargeCount(0) == 1);
 
-    PLAYER(0).currentHp = 100;
+    // Every damaging row consumes readiness once, including Echo and periodic Furnace damage.
+    const u8 damageRows[] = {
+        SARUMAN_VOICE,   SARUMAN_FLAME, SARUMAN_BLASTING_FIRE, SARUMAN_BINDING, SARUMAN_ECHO,
+        SARUMAN_FURNACE, SARUMAN_CURSE, SARUMAN_LIGHT_BROKEN,  SARUMAN_SPITE,   SARUMAN_WHITE_HAND};
+    for (u32 i = 0; i < ARRAY_COUNT(damageRows); i++)
+    {
+        fixture();
+        charge();
+        hasTarget = FALSE;
+        assert(cast(damageRows[i], 1) == SKILL_CAST_INVALID_TARGET && chargeCount(0) == 3);
+        hasTarget = TRUE;
+        assert(cast(damageRows[i], 1) == SKILL_CAST_SUCCESS && chargeCount(0) == 0);
+        if (damageRows[i] == SARUMAN_ECHO)
+        {
+            assert(lastDamage == 11);
+        }
+        if (damageRows[i] == SARUMAN_FURNACE)
+        {
+            assert(attachment.magnitude == 6);
+        }
+        if (damageRows[i] == SARUMAN_BLASTING_FIRE)
+        {
+            assert(lastBurst.damage == 40);
+        }
+    }
+    fixture();
+    assert(cast(SARUMAN_LIGHT_BROKEN, 1) == SKILL_CAST_SUCCESS && lastBurst.damage == 38);
+    assert(chargeCount(0) == 1);
+    fixture();
+    assert(cast(SARUMAN_WHITE_HAND, 1) == SKILL_CAST_SUCCESS && lastBurst.damage == 48);
+    assert(chargeCount(0) == 1);
+    fixture();
+    hasTarget = FALSE;
+    assert(cast(SARUMAN_VOICE, 1) == SKILL_CAST_INVALID_TARGET && chargeCount(0) == 0);
+    assert(cast(SARUMAN_ECHO, 1) == SKILL_CAST_UNAVAILABLE && chargeCount(0) == 0);
+    assert(cast(SARUMAN_HEAL, 1) == SKILL_CAST_UNAVAILABLE && chargeCount(0) == 0);
+
+    for (u8 level = 1; level <= 5; level++)
+    {
+        fixture();
+        assert(cast(SARUMAN_FLAME, level) == SKILL_CAST_SUCCESS);
+        assert(lastDamage == 10 + 5 * level && attachment.magnitude == 1 + level &&
+               attachment.remaining == 120 + 30 * level);
+        assert(state(0)->bolt.trail == FXID_FLAME_TRAIL);
+        assert(cast(SARUMAN_GUARD, level) == SKILL_CAST_SUCCESS);
+        assert(incomingDamage(0, &foe, 100) == 80 - 5 * level);
+        fixture();
+        PLAYER(0).currentHp = 1;
+        assert(cast(SARUMAN_HEAL, level) == SKILL_CAST_SUCCESS &&
+               PLAYER(0).currentHp == 13 + 8 * level);
+        fixture();
+        passives[SKILL_EXPANSION_PASSIVE_FIRES_OF_INDUSTRY] = level;
+        assert(cast(SARUMAN_FLAME, 1) == SKILL_CAST_SUCCESS && attachment.magnitude == 2 + level);
+        fixture();
+        charge();
+        passives[SKILL_EXPANSION_PASSIVE_LORE_OF_COLOURS] = level;
+        passives[SKILL_EXPANSION_PASSIVE_RING_LORE] = level;
+        passives[SKILL_EXPANSION_PASSIVE_HEAD_OF_THE_COUNCIL] = 1;
+        assert(cast(SARUMAN_FLAME, 1) == SKILL_CAST_SUCCESS);
+        assert(lastDamage == 15 * (150 + 15 * level) / 100);
+        assert(PLAYER(0).currentSpirit == 2 * level + COUNCIL_SPIRIT);
+        assert(cost(SARUMAN_FLAME) == 18);
+    }
+    fixture();
+    PLAYER_STAT(0, STAT_ACTIVE_SKILL_LEVEL_BONUS) = 1;
+    assert(cast(SARUMAN_FLAME, 1) == SKILL_CAST_SUCCESS && lastDamage == 20);
+    fixture();
     assert(cast(SARUMAN_CURSE, 1) == SKILL_CAST_SUCCESS && state(0)->curseFrames == 540);
     assert(rangedDamage(0, &foe, 100) == 125);
     assert(cast(SARUMAN_BINDING, 2) == SKILL_CAST_SUCCESS && foe.actionStateTimer == 180);
     assert(rangedDamage(0, &foe, 100) == 150);
-    source.kind = HACKLIB_DAMAGE_WEAPON;
-    assert(rangedDamage(0, &foe, 100) == 100);
-    assert(meleeDamage(0, &foe, 10) == 5);
-    source.kind = HACKLIB_DAMAGE_ABILITY;
-
-    PLAYER(0).currentSpirit = 0;
-    onHit(0, &avatar, &foe, (HackLibDamageResult){TRUE, FALSE, 10}, FALSE);
-    assert(PLAYER(0).currentSpirit == CURSE_LEAK_SPIRIT);
-    passives[SKILL_EXPANSION_PASSIVE_CUTPURSE] = 2;
-    passives[SKILL_EXPANSION_PASSIVE_MACHINE_OF_WAR] = 1;
-    passives[SKILL_EXPANSION_PASSIVE_POWDER_OF_ORTHANC] = 1;
-    PLAYER(0).currentSpirit = 0;
-    onKill(0, &avatar, &foe);
-    assert(PLAYER(0).currentSpirit == 12 && state(0)->curseFrames != 0);
-    assert(lastBurst.kind == HACKLIB_DAMAGE_SECONDARY && lastBurst.damage == 40);
-
-    state(0)->prismMask = (1 << COLOR_VOICE) | (1 << COLOR_WHITE);
-    PLAYER(0).currentSpirit = 0;
-    assert(cast(SARUMAN_LIGHT_BROKEN, 1) == SKILL_CAST_SUCCESS && lastBurst.damage == 52);
-    assert(PLAYER(0).currentSpirit == 16 && !canCastLightBroken(0));
-
-    PLAYER(0).currentHp = 50;
-    PLAYER(0).currentSpirit = 0;
-    assert(cast(SARUMAN_SPITE, 1) == SKILL_CAST_SUCCESS && lastBurst.damage == 33);
-    assert(PLAYER(0).currentSpirit == SPITE_STEAL_SPIRIT);
-
-    passives[SKILL_EXPANSION_PASSIVE_HEAD_OF_THE_COUNCIL] = 1;
-    state(0)->lastColor = COLOR_WHITE;
-    state(0)->prismMask = 1 << COLOR_WHITE;
-    assert(cast(SARUMAN_WHITE_HAND, 255) == SKILL_CAST_SUCCESS);
-    assert(lastFeedback == RefractionMessages[COLOR_WHITE] && state(0)->discount == DISCOUNT_FREE);
-    tick(0, &avatar);
-    assert(cost(SARUMAN_FURNACE) == 0);
-
-    passives[SKILL_EXPANSION_PASSIVE_PARTING_SHOT] = 1;
-    PLAYER(0).currentHp = 20;
-    lastFeedback = NULL;
-    tick(0, &avatar);
-    assert(lastFeedback != NULL && state(0)->partingCooldown == PARTING_COOLDOWN_FRAMES);
-    lastFeedback = NULL;
-    tick(0, &avatar);
-    assert(lastFeedback == NULL);
-
-    PLAYER(0).currentHp = 0;
-    tick(0, &avatar);
-    assert(state(0)->discount == DISCOUNT_NONE && cost(SARUMAN_FURNACE) == 50);
-
-    for (u8 level = 1; level <= 5; level++)
-    {
-        memory_memset(passives, 0, sizeof(passives));
-        PLAYER(0).currentHp = 50;
-        attachment.definition = NULL;
-        reset(0);
-        assert(cast(SARUMAN_FLAME, level) == SKILL_CAST_SUCCESS);
-        assert(lastDamage == 10 + 7 * level && attachment.magnitude == 2 + level &&
-               attachment.remaining == 150 + 30 * level);
-        assert(cast(SARUMAN_GUARD, level) == SKILL_CAST_SUCCESS);
-        assert(incomingDamage(0, &foe, 100) == 80 - 5 * level);
-        PLAYER(0).currentHp = 1;
-        assert(cast(SARUMAN_HEAL, level) == SKILL_CAST_SUCCESS &&
-               PLAYER(0).currentHp == 13 + 8 * level);
-        reset(0);
-        passives[SKILL_EXPANSION_PASSIVE_FIRES_OF_INDUSTRY] = level;
-        attachment.definition = NULL;
-        assert(cast(SARUMAN_FLAME, 1) == SKILL_CAST_SUCCESS && attachment.magnitude == 3 + level &&
-               attachment.remaining == 180 + FIRES_FRAMES_PER_LEVEL * level);
-    }
-    memory_memset(passives, 0, sizeof(passives));
-    reset(0);
-    PLAYER_STAT(0, STAT_ACTIVE_SKILL_LEVEL_BONUS) = 1;
-    assert(cast(SARUMAN_FLAME, 1) == SKILL_CAST_SUCCESS && lastDamage == 24);
-    assert(cast(SARUMAN_FLAME, 5) == SKILL_CAST_SUCCESS && lastDamage == 52);
-    PLAYER_STAT(0, STAT_ACTIVE_SKILL_LEVEL_BONUS) = 0;
-    reset(0);
-    assert(cast(SARUMAN_CURSE, 1) == SKILL_CAST_SUCCESS);
-    passives[SKILL_EXPANSION_PASSIVE_CUTPURSE] = 2;
     generation++;
-    PLAYER(0).currentSpirit = 0;
     assert(rangedDamage(0, &foe, 100) == 100);
+    passives[SKILL_EXPANSION_PASSIVE_CUTPURSE] = 2;
     onKill(0, &avatar, &foe);
     assert(PLAYER(0).currentSpirit == 0);
-
-    memory_memset(passives, 0, sizeof(passives));
-    reset(0);
-    attachment.definition = NULL;
-    passives[SKILL_EXPANSION_PASSIVE_HONEYED_WORDS] = 2;
-    assert(cast(SARUMAN_VOICE, 2) == SKILL_CAST_SUCCESS && lastBurst.stunFrames == 90);
-    passives[SKILL_EXPANSION_PASSIVE_WISDOM_OF_THE_ISTARI] = 2;
-    assert(cast(SARUMAN_ECHO, 1) == SKILL_CAST_SUCCESS && state(0)->prismFrames == 420);
+    fixture();
+    charge();
     passives[SKILL_EXPANSION_PASSIVE_ROBES_OF_MANY_COLOURS] = 2;
-    assert(incomingDamage(0, &foe, 100) == 92);
-
+    assert(incomingDamage(0, &foe, 100) == 88);
+    fixture();
+    passives[SKILL_EXPANSION_PASSIVE_WISDOM_OF_THE_ISTARI] = 2;
+    passives[SKILL_EXPANSION_PASSIVE_TREACHERY] = 2;
+    foe.actionState = ACTOR_STATE_STUNNED;
+    assert(meleeDamage(0, &foe, 10) == 10 && !PLAYER(0).currentSpirit);
+    onHit(0, &avatar, &foe, (HackLibDamageResult){FALSE, FALSE, 0}, TRUE);
+    assert(!PLAYER(0).currentSpirit);
+    onHit(0, &avatar, &foe, (HackLibDamageResult){TRUE, FALSE, 10}, TRUE);
+    assert(PLAYER(0).currentSpirit == STAFF_HIT_SPIRIT + 4);
+    assert(chargeCount(0) == 0);
+    fixture();
+    charge();
+    state(0)->curseFrames = state(0)->boundFrames = 500;
+    state(0)->wildfirePending = TRUE;
+    PLAYER(0).currentHp = 0;
+    tick(0, &avatar);
+    assert(!chargeCount(0) && !state(0)->curseFrames && !state(0)->boundFrames &&
+           !state(0)->wildfirePending);
+    fixture();
     passives[SKILL_EXPANSION_PASSIVE_KEEPER_OF_ORTHANC] = 1;
     PLAYER(0).currentHp = 95;
-    PLAYER(0).currentSpirit = 0;
-    assert(cast(SARUMAN_HEAL, 1) == SKILL_CAST_SUCCESS && PLAYER(0).currentSpirit == 17);
-
-    reset(0);
-    attachment.definition = NULL;
-    foe.actionState = 0;
+    assert(cast(SARUMAN_HEAL, 1) == SKILL_CAST_SUCCESS &&
+           PLAYER(0).currentSpirit == REMEDY_SPIRIT_CAP);
+    fixture();
+    passives[SKILL_EXPANSION_PASSIVE_STAFF_OF_ORTHANC] = 1;
     passives[SKILL_EXPANSION_PASSIVE_KINDLING] = 2;
     passives[SKILL_EXPANSION_PASSIVE_VOICE_OF_COMMAND] = 3;
-    passives[SKILL_EXPANSION_PASSIVE_TREACHERY] = 2;
-    passives[SKILL_EXPANSION_PASSIVE_STAFF_OF_ORTHANC] = 1;
-    assert(rangedDamage(0, &foe, 100) == 100);
     onHit(0, &avatar, &foe, (HackLibDamageResult){TRUE, FALSE, 10}, TRUE);
-    assert(attachment.definition == &Burn && attachment.magnitude == 2 &&
-           attachment.remaining == STAFF_BURN_FRAMES);
+    assert(attachment.definition == &Burn && attachment.magnitude == 2);
     assert(rangedDamage(0, &foe, 100) == 112);
     source.kind = HACKLIB_DAMAGE_PERIODIC;
     assert(rangedDamage(0, &foe, 100) == 100);
     source.kind = HACKLIB_DAMAGE_ABILITY;
     foe.actionState = ACTOR_STATE_STUNNED;
     assert(rangedDamage(0, &foe, 100) == 130);
-    PLAYER(0).currentSpirit = 0;
-    assert(meleeDamage(0, &foe, 10) == 5 && PLAYER(0).currentSpirit == 2);
-    foe.actionState = 0;
-    assert(cast(SARUMAN_FLAME, 2) == SKILL_CAST_SUCCESS && attachment.magnitude == 4);
-    onHit(0, &avatar, &foe, (HackLibDamageResult){TRUE, FALSE, 10}, TRUE);
-    assert(attachment.magnitude == 4);
-
     passives[SKILL_EXPANSION_PASSIVE_WILDFIRE] = 2;
     onKill(0, &avatar, &foe);
     assert(state(0)->wildfirePending);
     attachment.definition = NULL;
     tick(0, &avatar);
-    assert(!state(0)->wildfirePending && attachment.definition == &Burn &&
-           attachment.remaining == WILDFIRE_FRAMES + 2 * WILDFIRE_FRAMES_PER_LEVEL);
-
+    assert(!state(0)->wildfirePending && attachment.definition == &Burn);
+    assert(!chargeCount(0));
+    fixture();
+    assert(cast(SARUMAN_CURSE, 1) == SKILL_CAST_SUCCESS);
+    passives[SKILL_EXPANSION_PASSIVE_CUTPURSE] = 2;
+    passives[SKILL_EXPANSION_PASSIVE_MACHINE_OF_WAR] = 1;
+    passives[SKILL_EXPANSION_PASSIVE_POWDER_OF_ORTHANC] = 1;
+    onKill(0, &avatar, &foe);
+    assert(PLAYER(0).currentSpirit == 7 && lastBurst.kind == HACKLIB_DAMAGE_SECONDARY);
+    assert(lastBurst.damage == 40);
+    fixture();
+    passives[SKILL_EXPANSION_PASSIVE_PARTING_SHOT] = 1;
+    PLAYER(0).currentHp = 20;
+    tick(0, &avatar);
+    assert(state(0)->partingCooldown == PARTING_COOLDOWN_FRAMES && !chargeCount(0));
+    fixture();
+    for (u32 frame = 0; frame < REGEN_FRAMES; frame++)
+    {
+        tick(0, &avatar);
+    }
+    assert(PLAYER(0).currentSpirit == 1);
+    PLAYER(0).currentSpirit = PLAYER_STAT(0, STAT_MAX_SPIRIT);
+    onHit(0, &avatar, &foe, (HackLibDamageResult){TRUE, FALSE, 10}, TRUE);
+    assert(PLAYER(0).currentSpirit == PLAYER_STAT(0, STAT_MAX_SPIRIT));
+    for (u32 failure = 0; failure < 3; failure++)
+    {
+        fixture();
+        hit = failure != 0;
+        killed = failure == 1;
+        recycleVictim = failure == 2;
+        assert(cast(SARUMAN_BINDING, 1) == SKILL_CAST_SUCCESS);
+        assert(!state(0)->boundFrames && !auraRequests);
+        fixture();
+        hit = failure != 0;
+        killed = failure == 1;
+        recycleVictim = failure == 2;
+        assert(cast(SARUMAN_FLAME, 1) == SKILL_CAST_SUCCESS);
+        assert(attachment.definition == NULL);
+    }
+    fixture();
+    assert(cast(SARUMAN_BINDING, 1) == SKILL_CAST_SUCCESS && auraRequests == 1);
     PLAYER(1).heroId = HERO_ID_FRODO;
     skillExpansion_heroState[1][0] = 0x1234;
     reset(1);
-    tick(1, &avatar);
     assert(skillExpansion_heroState[1][0] == 0x1234);
-    puts(
-        "PASS: Saruman Prism, refractions, discounts, curse, binding, page 1 and Sharkey passives");
+    // Runtime costs must match the menu rows for base and advanced spells.
+    const u8 costRows[] = {SARUMAN_VOICE,        SARUMAN_FLAME,   SARUMAN_BLASTING_FIRE,
+                           SARUMAN_GUARD,        SARUMAN_BINDING, SARUMAN_HEAL,
+                           SARUMAN_ECHO,         SARUMAN_FURNACE, SARUMAN_CURSE,
+                           SARUMAN_LIGHT_BROKEN, SARUMAN_SPITE,   SARUMAN_WHITE_HAND};
+    const u16 expectedCosts[] = {18, 18, 36, 30, 24, 32, 32, 55, 30, 55, 45, 90};
+    fixture();
+    for (u32 i = 0; i < ARRAY_COUNT(costRows); i++)
+    {
+        assert(cost(costRows[i]) == expectedCosts[i]);
+    }
+    for (u8 rank = 1; rank <= 5; rank++)
+    {
+        fixture();
+        assert(cast(SARUMAN_BLASTING_FIRE, rank) == SKILL_CAST_SUCCESS);
+        assert(lastBurst.damage == 20 + 7 * rank);
+        fixture();
+        assert(cast(SARUMAN_LIGHT_BROKEN, rank) == SKILL_CAST_SUCCESS);
+        assert(lastBurst.damage == 28 + 10 * rank);
+        fixture();
+        assert(cast(SARUMAN_WHITE_HAND, rank) == SKILL_CAST_SUCCESS);
+        assert(lastBurst.damage == 36 + 12 * rank);
+        fixture();
+        assert(cast(SARUMAN_FURNACE, rank) == SKILL_CAST_SUCCESS);
+        assert(attachment.magnitude == 2 + 2 * rank && attachment.remaining == 180);
+        fixture();
+        assert(cast(SARUMAN_FLAME, 5) == SKILL_CAST_SUCCESS);
+        assert(cast(SARUMAN_ECHO, rank) == SKILL_CAST_SUCCESS);
+        assert(lastDamage == 35 * (40 + 10 * rank) / 100);
+
+        // Even a nearly full heal with maximum Keeper cannot pay for itself or its Echo.
+        fixture();
+        passives[SKILL_EXPANSION_PASSIVE_KEEPER_OF_ORTHANC] = 5;
+        PLAYER(0).currentHp = 99;
+        PLAYER(0).currentSpirit = 100;
+        assert(cast(SARUMAN_HEAL, rank) == SKILL_CAST_SUCCESS);
+        player_addSpirit(0, -(s32)cost(SARUMAN_HEAL));
+        assert(PLAYER(0).currentSpirit == 76);
+        PLAYER(0).currentHp = 99;
+        assert(cast(SARUMAN_ECHO, rank) == SKILL_CAST_SUCCESS);
+        player_addSpirit(0, -(s32)cost(SARUMAN_ECHO));
+        assert(PLAYER(0).currentSpirit == 52);
+    }
+    // Maximum empowerment refunds still leave a four-Flame cycle costing 56 Spirit.
+    fixture();
+    passives[SKILL_EXPANSION_PASSIVE_RING_LORE] = 5;
+    passives[SKILL_EXPANSION_PASSIVE_HEAD_OF_THE_COUNCIL] = 1;
+    PLAYER(0).currentSpirit = 200;
+    for (u32 i = 0; i < 4; i++)
+    {
+        player_addSpirit(0, -(s32)cost(SARUMAN_FLAME));
+        assert(cast(SARUMAN_FLAME, 5) == SKILL_CAST_SUCCESS);
+    }
+    assert(PLAYER(0).currentSpirit == 144 && chargeCount(0) == 0);
+    fixture();
+    burstHits = 30;
+    assert(cast(SARUMAN_SPITE, 5) == SKILL_CAST_SUCCESS);
+    assert(PLAYER(0).currentSpirit == SPITE_SPIRIT_CAP);
+    fixture();
+    assert(cast(SARUMAN_CURSE, 1) == SKILL_CAST_SUCCESS);
+    source.kind = HACKLIB_DAMAGE_PERIODIC;
+    onHit(0, &avatar, &foe, (HackLibDamageResult){TRUE, FALSE, 10}, FALSE);
+    assert(PLAYER(0).currentSpirit == 0);
+    source.kind = HACKLIB_DAMAGE_ABILITY;
+    onHit(0, &avatar, &foe, (HackLibDamageResult){TRUE, FALSE, 0}, FALSE);
+    assert(PLAYER(0).currentSpirit == 0);
+    onHit(0, &avatar, &foe, (HackLibDamageResult){TRUE, FALSE, 10}, FALSE);
+    assert(PLAYER(0).currentSpirit == CURSE_LEAK_SPIRIT);
+    puts("PASS: Saruman three-cast empowerment, damage rows, support/Echo preservation, failures, "
+         "upgrades and cleanup");
     return 0;
 }

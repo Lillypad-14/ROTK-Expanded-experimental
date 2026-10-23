@@ -26,7 +26,7 @@ These fail silently or corrupt saves. The build catches only the ones marked (bu
 10. **Every custom AoE, stun or Dread target goes through `skillExpansion_isFoe`** (skill_expansion_elite.c:160). It requires hp > 0, not NPC, not a player, not invulnerable, and `ACTOR_FLAG_COLLISION_CHECK`.
     Why: pillar/ledge climbers (enemy spawner variant 1/2, e.g. Moria) start in behaviorState 0x2f with collision cleared. The climb handler 0x0800b050 only advances while actionState == 2, so a hit mid-climb aborts it and strands the foe in the wall (fixed in v8). `actor_checkDeath` 0x0800a54c also clears collision when it sets dying state 0x11.
 11. **Stock stun pattern** (copy it for new stuns): gate on hp > 0 and `actor_isStunnable`, then actionState 0x1a, `actionStateTimer = frames`, `field_0x64 |= 2`, `fx_attachStatusEffect(NULL, foe, frames, 0xc, 8, 0, 8)`.
-12. **Modcode .bss is nearly full** (2 KB). See hacking-recipes.md "Modcode RAM budget" before adding globals.
+12. **Modcode .bss is nearly full.** See hacking-recipes.md "Modcode RAM budget" before adding globals. Fetch hero state only after the isX guard (same section). Run the hero sweep (docs/test-arena.md) after skill work.
 
 ## Where things live
 

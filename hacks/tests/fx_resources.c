@@ -2,6 +2,7 @@
 #include "game.h"
 #include "lib/actor_ref.h"
 #include "lib/fx_kit.h"
+#include "lib/fx_shockwave.h"
 #include "lib/profile.h"
 #include "variables.h"
 #include <assert.h>
@@ -39,7 +40,7 @@ Actor *fx_spawnOnActor(Actor *on, u8 shape, u8 slot, u8 layer)
 Actor *fx_spawnTimedOnActor(Actor *on, s32 frames, u8 shape, u8 slot, u8 layer)
 {
     nativeTimedSpawns++;
-    assert(frames > 0);
+    assert(frames > 0 && shape < FX_AURA_COUNT);
     return fx_spawnOnActor(on, shape, slot, layer);
 }
 u32 fx_tickAttachment(Actor *actor)
@@ -114,6 +115,9 @@ int main(void)
     assert(hackLib_fxSprite(&owner, &animation, FX_COLOR_SHADOW, 0, 0) == NULL);
     assert(hackLib_fxSpritePalette(&owner, &animation, colors, 32, 1, 0) == NULL);
     assert(hackLib_fxSpritePalette(&owner, &animation, colors, 0, 1, 2) == NULL);
+    assert(hackLib_fxAura(&owner, 14, FX_COLOR_WHITE, 30, 0) == NULL);
+    assert(hackLib_fxAura(&owner, 255, FX_COLOR_WHITE, 30, 0) == NULL);
+    assert(nativeTimedSpawns == 0);
     assert(allocations == 0 && writes == 0);
 
     failAllocation = TRUE;
@@ -162,6 +166,20 @@ int main(void)
     timed->tickCallback(timed);
     assert(timed->flags.p & ACTOR_FLAG_PENDING_REMOVE);
     assert(hackLib_fxTimed(&owner, 0, FX_COLOR_WHITE, 32768, 0) == NULL);
+    // Both stock half-wave requests must use one complete animation and one actor.
+    for (u8 shape = FX_SHAPE_SHOCKWAVE; shape <= FX_SHAPE_SHOCKWAVE_ALT; shape++)
+    {
+        before = allocations;
+        Actor *wave = hackLib_fxBurst(&owner, shape, FX_COLOR_WHITE, FX_LAYER_BEHIND);
+        assert(wave == &effect && allocations == before + 1);
+        assert(wave->spriteAnimation == &HackLibFxGroundShockwave);
+        assert(wave->spriteAnimation->frames->frameCount == 17);
+        assert(wave->spriteAnimation->frames->maxFrameTileBytes <= 2304);
+        Vector2Fp16 position = {100 << 16, 80 << 16};
+        hackLib_fxDetach(wave, &position);
+        assert(wave->coords.x == position.x && wave->coords.y == position.y);
+        assert(wave->renderFollowTarget == NULL);
+    }
     puts("PASS: FX request validation, palette rollback, sharing and exhaustion");
     return 0;
 }

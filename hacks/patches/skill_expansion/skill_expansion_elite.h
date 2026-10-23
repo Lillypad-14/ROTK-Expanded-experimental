@@ -48,6 +48,34 @@ void skillExpansion_original_player_addHp(u32 playerIndex, s32 delta, u32 flinch
 #define SKILL_EXPANSION_HERO_STATE_WORDS 22
 #endif
 extern u32 skillExpansion_heroState[2][SKILL_EXPANSION_HERO_STATE_WORDS];
+// Owner of each block as heroId + 1, or 0 when unowned.
+extern u8 skillExpansion_heroStateOwner[2];
+// Count of accesses for a hero the player is not, saturating at 255. Expected to stay 0.
+extern u8 skillExpansion_heroStateMisuse;
+void skillExpansion_noteHeroStateMisuse(void);
+
+/**
+ * The block for heroId, where currentHeroId is PLAYER(playerIndex).heroId.
+ * The block is zeroed whenever its owning hero changes. An access for another hero is counted
+ * in skillExpansion_heroStateMisuse and still returns the block.
+ */
+static inline u32 *skillExpansion_heroStateClaim(u8 playerIndex, u8 heroId, u8 currentHeroId)
+{
+    u32 *block = skillExpansion_heroState[playerIndex];
+    if (heroId != currentHeroId)
+    {
+        skillExpansion_noteHeroStateMisuse();
+    }
+    else if (skillExpansion_heroStateOwner[playerIndex] != heroId + 1)
+    {
+        for (u32 i = 0; i < SKILL_EXPANSION_HERO_STATE_WORDS; i++)
+        {
+            block[i] = 0;
+        }
+        skillExpansion_heroStateOwner[playerIndex] = heroId + 1;
+    }
+    return block;
+}
 
 void skillExpansion_eliteReset(u8 playerIndex);
 void skillExpansion_eliteCleanup(u8 playerIndex, Actor *actor);

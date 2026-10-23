@@ -37,12 +37,69 @@ Omit `--recipe` for a boot/idle or incoming-attack scenario.
 The current runner issues real delivery calls through a mailbox, rather than simulating attack button input.
 Use normal emulator controls for manual skill, movement, menu, and artwork checks.
 
+## Hero sweep
+
+Sweep every hero:
+
+```powershell
+uv run python hacks/tools/arena_sweep_all.py `
+  --emulator "C:/path/to/mGBA.exe" --output build/arena-runs/sweep-all-01
+```
+
+It builds the arena once, then runs each hero in its own unthrottled mGBA instance, `--jobs` (default 5) at a time.
+No debugger is involved.
+The runner patches `testArena_config` in a copy of the ROM: `hero`, `sweepTicks` (`--ticks`) and `sweepFixture` (`--fixture`, default 1).
+With `sweepTicks` set, the arena drives itself through every active row.
+Each row resets the fixture, casts, waits `sweepTicks`, clears while effects may be live, resets, casts again, waits, and clears.
+
+Results go through the mGBA debug log registers at warning level, captured in each hero's `mgba.log`:
+`ARENA_ROW` lists the values of `TestArenaSweepValue` in order, `ARENA_DONE` ends a run, and `ARENA_FAIL` means the arena did not start.
+`ARENA_LAG` reports each tick longer than two vblanks with the row, step, vblanks, ticks since the last reset and actor count.
+A player death reloads the mission, which shows up as a lag tick of about 46 vblanks, and sets `playerDowned` for the row.
+The reset command restarts the hero systems the same way a new mission does, so hero timers do not carry over between casts.
+Some stock skills still refuse the second cast because their native cooldown outlasts the default 150 ticks.
+A longer `--ticks` run confirms them.
+Each hero folder gets a `result.json`, and the run gets a `summary.json`.
+A rejected cast is reported as not castable rather than failed.
+`hung` is true when a hero hit `--timeout` without finishing.
+`--heroes 3 7` limits the run and `--no-build` reuses `build/test_arena.gba`.
+
+## Busy fight benchmark
+
+```powershell
+uv run python hacks/tools/arena_bench.py --emulator "C:/path/to/mGBA.exe" `
+  --hero 2 --crowd 16 --ticks 1200 --output build/arena-runs/bench-01
+```
+
+It patches `benchTicks`, `benchCrowd` and `benchSample` into a copy of the arena ROM.
+The arena keeps `--crowd` orc archers alive around the player, refills HP and Spirit, clears skill cooldowns, and casts whatever is castable every tick.
+After a 60 tick warmup it measures `--ticks` ticks and prints `ARENA_BENCH` and one `ARENA_PROFILE` line per `HackLibProfileSection`.
+`vblanksPerTick` is 2.0 at full speed.
+
+With sampling on, Timer 2 interrupts about 1000 times a second through a wrapper on the BIOS interrupt vector, and each tick prints the interrupted program counters as `ARENA_PC` lines.
+`result.json` lists the share of samples per region and per function, named from `config/functions.cfg` and the arena ELF.
+The sampler itself shows up as `samplerFlush`, so compare lag with `--no-samples`.
+Timer 2 is otherwise only used by EEPROM writes, which the arena does not make.
+
 ## Debugger interface
 
 Load `build/test_arena.elf` in ARM GDB and connect to mGBA's GDB server.
 `g_TestArena` points to a versioned `TestArenaControl` with magic `0x41524e41`.
 `ready` is 0 during boot, 1 when usable, and 2 when practice-lane or initial fixture setup failed.
 `testArena_checkpoint` is a breakpoint at the end of each arena tick, after telemetry is updated.
+`testArena_acknowledgedPoint` runs only on ticks that acknowledge a request.
+Breaking there with the wait command avoids a debugger stop on every tick, which makes long scenarios much faster.
+
+Version 2 adds engine health telemetry, updated every arena tick:
+
+- `lagTicks`: ticks that took more than two vblanks.
+- `worstTickVblanks`: most vblanks between two arena ticks.
+- `heapRoom`: bytes between the highest heap allocation since boot and the end of the heap.
+- `allocFailures` and `invalidFrees`: heap allocator totals since boot.
+- `bssGuardIntact`: 1 while the guard words below the mod `.bss` are untouched.
+- `heroStateMisuse`: accesses to the shared hero state block for a hero the player is not.
+
+Version 3 adds the automatic sweep progress fields `sweepRow`, `sweepStep` and `sweepValues`.
 
 Write `argument`, `level`, `cosmetic`, and `command`, then publish a new `request` value last.
 Advance until `acknowledged` equals the request.
@@ -55,6 +112,7 @@ Advance until `acknowledged` equals the request.
 | Begin hero skill cast | 3 | Active skill row |
 | Refill HP and Spirit | 4 | Ignored |
 | Clear targets, owner effects, summons, and deliveries | 5 | Ignored |
+| Wait | 6 | Gameplay ticks before acknowledgement |
 
 Cast acknowledgement confirms the cast was accepted, not that a later hit landed.
 The cast follows its normal animation or timeline.

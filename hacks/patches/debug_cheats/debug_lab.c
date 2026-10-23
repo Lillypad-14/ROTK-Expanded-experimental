@@ -336,7 +336,13 @@ static void showEngineTelemetry(u8 p)
         output = appendText(output, " Size:");
         output = appendNumber(output, stats.lastFailureSize);
         output = appendText(output, " Reuse:");
-        appendNumber(output, modRam_sharedTextUses());
+        output = appendNumber(output, modRam_sharedTextUses());
+        output = appendText(output, " Room:");
+        output = appendNumber(output, stats.heapEnd - stats.peakTop);
+        if (!modRam_isBssGuardIntact())
+        {
+            appendText(output, " GUARD!");
+        }
     }
     else
     {

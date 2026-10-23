@@ -21,7 +21,7 @@ An experimental content mod for _The Lord of the Rings: The Return of the King_ 
     Gimli ("The Tally"), Gandalf ("The Grey and the White", hold R to swap form), Legolas ("The Glint", timed
     Overdraw release for True Shots).
 - **New playable heroes.** Ringwraith (hero 8, built from the Nazgul model, with its own gear) and Saruman
-  ("The Prism").
+  (empowered spells).
 - **Twists.** Playthrough modifier pages in the mod options. See [mod options](docs/mod-options.md).
 - **Debug cheats and Unlocks pages** for testing.
 - **Content toolkit** in `hacks/lib/`: FX kit (stock effects, recolors, sprite tints, custom PNG effects), combat
@@ -47,7 +47,7 @@ Each hero below has a second skill page with three builds and a mechanic of its 
 | [Gandalf](docs/heroes.md#gandalf) | The Grey and the White | Hold R to swap form. Grey saves Spirit, White burns it for +30% power. |
 | [Legolas](docs/heroes.md#legolas) | The Glint | Release Overdraw on the glint for a True Shot and chain a five-shot streak. |
 | [Ringwraith](docs/heroes.md#ringwraith) | Dread | **New hero.** Terrify foes and raise the slain as thralls. Own skills and gear. |
-| [Saruman](docs/heroes.md#saruman) | The Prism | **New hero.** Spells add three colors. A full Prism refracts the next spell at half cost. |
+| [Saruman](docs/heroes.md#saruman) | Empowered spells | **New hero.** Cast three spells, then your next damaging spell deals +50% damage. |
 
 ## Decompilation
 

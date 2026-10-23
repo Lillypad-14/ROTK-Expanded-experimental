@@ -21,6 +21,7 @@ SECTIONS
     .bss (MEM_MODCODE_BSS_END + 1 - ((SIZEOF(.bss) + 15) & ~15)) (NOLOAD) :
     {
         __modcode_bss_start = .;
+        KEEP(*(.bss.guard))
         *(.bss .bss.* COMMON)
         __modcode_bss_end = .;
     }

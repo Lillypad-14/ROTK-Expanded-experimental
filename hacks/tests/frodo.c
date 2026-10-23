@@ -8,6 +8,9 @@ PlayerGlobals g_PlayerGlobals;
 GameFlags g_GameFlags;
 SkillExpansionPlayer skillExpansion_players[2];
 u32 skillExpansion_heroState[2][SKILL_EXPANSION_HERO_STATE_WORDS];
+u8 skillExpansion_heroStateOwner[2];
+u8 skillExpansion_heroStateMisuse;
+void skillExpansion_noteHeroStateMisuse(void) { skillExpansion_heroStateMisuse++; }
 static const u16 palette[16];
 const u16 *ObjPalettes[90] = {[0 ... 89] = palette};
 static u8 tintStrength = 255;

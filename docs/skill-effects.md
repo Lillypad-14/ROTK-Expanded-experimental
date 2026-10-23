@@ -99,3 +99,11 @@ For scheduled windup, release and recovery cues, see [Cast timelines and Ability
 For projectiles, splash, ground bursts and hit rules, see [Skill delivery recipes](skill-deliveries.md).
 
 For interactive frame, anchor, layer and timing edits, use [Effect Studio](effect-editor.md).
+
+## Stock ground shockwaves
+
+The shared FX helpers combine stock rows 20 and 21, the lower and upper arcs, into one complete shockwave animation.
+Both `FX_SHAPE_SHOCKWAVE` and `FX_SHAPE_SHOCKWAVE_ALT` use it, including fixed-position and timed effects.
+The animation keeps the stock 17 frames and palette indices and uses one actor with at most 896 tile bytes per frame.
+Regenerate `hacks/lib/fx_shockwave.c` with `uv run python hacks/tools/ground_shockwave.py` using the base ROM.
+`hacks/tools/test_fx_resources.py` checks both halves, tile offsets, generated data and shared-helper selection.

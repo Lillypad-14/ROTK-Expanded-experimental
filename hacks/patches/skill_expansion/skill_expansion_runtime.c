@@ -40,32 +40,90 @@ asm(".section .text\n"
 
 void skillExpansion_original_player_tickHud(s32 playerIndex);
 
+#define HUD_TEXT_CLEARED (1u << 2)
+
+static bool feedbackMatches(const char *message, const char *drawn, u32 capacity)
+{
+    for (u32 i = 0; i + 1 < capacity; i++)
+    {
+        if (message[i] != drawn[i])
+        {
+            return FALSE;
+        }
+        if (message[i] == '\0')
+        {
+            return TRUE;
+        }
+    }
+    return drawn[capacity - 1] == '\0';
+}
+
+static void copyFeedback(char *out, const char *message, u32 capacity)
+{
+    u32 i = 0;
+    while (i + 1 < capacity && message[i] != '\0')
+    {
+        out[i] = message[i];
+        i++;
+    }
+    out[i] = '\0';
+}
+
 void skillExpansion_prepareHud(u8 playerIndex)
 {
     SkillExpansionRuntime *runtime;
     PlayerHud *hud;
 
-    if (playerIndex >= 2 || playerIndex != ACTIVE_PLAYER_INDEX ||
-        g_SceneCurrent.id != SCENE_ID_GAMEPLAY || g_GameFlags.d.overlay)
+    if (playerIndex >= 2)
     {
         return;
     }
     runtime = &skillExpansion_runtime[playerIndex];
+    if (playerIndex != ACTIVE_PLAYER_INDEX || g_SceneCurrent.id != SCENE_ID_GAMEPLAY ||
+        g_GameFlags.d.overlay)
+    {
+        runtime->feedbackDrawn = FALSE;
+        return;
+    }
     hud = &g_PlayerHuds[playerIndex];
     // Native pickup and interaction text takes priority.
     if (hud->flags.p & PLAYERHUD_FLAG_0)
     {
+        runtime->feedbackDrawn = FALSE;
         return;
     }
 #if HACK_debug_cheats
     debugLab_drawTelemetry(playerIndex);
     deliveryPreview_drawTelemetry(playerIndex);
 #endif
-    if (runtime->feedbackFrames != 0)
+    if (hud->flags.p & PLAYERHUD_FLAG_0)
     {
-        hud->text = (char *)runtime->feedback;
+        runtime->feedbackDrawn = FALSE;
+        return;
+    }
+    if (runtime->feedbackFrames != 0 && runtime->feedback != NULL)
+    {
+        bool redraw =
+            !runtime->feedbackDrawn ||
+            !feedbackMatches(runtime->feedback, hud->textBuffer, sizeof(hud->textBuffer)) ||
+            hud->text != hud->textBuffer || hud->textColor != HUD_TEXT_COLOR_GAMEPLAY_YELLOW ||
+            (hud->flags.p & HUD_TEXT_CLEARED);
+        if (redraw)
+        {
+            copyFeedback(hud->textBuffer, runtime->feedback, sizeof(hud->textBuffer));
+        }
+        hud->text = hud->textBuffer;
         hud->textColor = HUD_TEXT_COLOR_GAMEPLAY_YELLOW;
-        hud->flags.p |= PLAYERHUD_FLAG_0 | PLAYERHUD_FLAG_1;
+        hud->flags.p |= PLAYERHUD_FLAG_0;
+        if (redraw)
+        {
+            hud->flags.p |= PLAYERHUD_FLAG_1;
+        }
+        runtime->feedbackDrawn = TRUE;
+    }
+    else
+    {
+        runtime->feedbackDrawn = FALSE;
     }
 }
 
@@ -90,6 +148,10 @@ void skillExpansion_tickHud(s32 playerIndex)
 
 void skillExpansion_feedback(u8 playerIndex, const char *message)
 {
+    if (message == g_PlayerHuds[playerIndex].textBuffer)
+    {
+        skillExpansion_runtime[playerIndex].feedbackDrawn = FALSE;
+    }
     skillExpansion_runtime[playerIndex].feedback = message;
     skillExpansion_runtime[playerIndex].feedbackFrames = 90;
 }
@@ -380,6 +442,7 @@ void skillExpansion_runtimeTick(u8 playerIndex, Actor *actor)
         runtime->ownerGeneration = hackLib_actorGeneration(actor);
         runtime->pending = FALSE;
         runtime->paidSpirit = 0;
+        runtime->feedbackDrawn = FALSE;
         memory_memset(runtime->cooldowns, 0, sizeof(runtime->cooldowns));
         skillExpansion_eliteReset(playerIndex);
         if (runtime->kit != NULL && runtime->kit->reset != NULL)

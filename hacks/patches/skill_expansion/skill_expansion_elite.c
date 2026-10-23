@@ -198,6 +198,16 @@ typedef struct EliteState
 
 static EliteState states[2];
 u32 skillExpansion_heroState[2][SKILL_EXPANSION_HERO_STATE_WORDS];
+u8 skillExpansion_heroStateOwner[2];
+u8 skillExpansion_heroStateMisuse;
+
+__attribute__((noinline)) void skillExpansion_noteHeroStateMisuse(void)
+{
+    if (skillExpansion_heroStateMisuse != 0xff)
+    {
+        skillExpansion_heroStateMisuse++;
+    }
+}
 
 asm(".section .text\n"
     ".balign 4\n"

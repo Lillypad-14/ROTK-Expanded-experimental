@@ -30,16 +30,21 @@ Code and data that do not fit in the stock ROM go in the expansion area past the
 | --- | --- | --- |
 | `HOOK` (asm hook handlers) | `0x09000000-0x090001ff` | `0x09000000-0x09000fff` |
 | `MODCODE` (mod C code and data) | from `0x09000200` | from `0x09001000` |
-| `MODCODE_BSS` (mod RAM) | `0x0203fd00-0x0203ffff` | `0x0203f5e0-0x0203ffff` |
+| `MODCODE_BSS` (mod RAM) | `0x0203fd00-0x0203ffff` | `0x0203f5a0-0x0203ffff` |
 
 The `mod_ram` patch now replaces the game's allocator (`memory_init`, `malloc`, `zalloc`, `free`, `realloc`), the
 actor allocators (`actor_allocMain`, `actor_allocOverlay`) and `sprite_free`. This adds:
 
 - a heap that starts after the real end of the mod's BSS instead of a fixed address
-- allocation diagnostics (peak use, failures), shown in the debug pages
+- allocation diagnostics (peak use, failures, and `Room:`, the bytes between the highest allocation and the heap
+  end), shown in the debug pages
+- two guard words at the start of the mod BSS (`modRam_bssGuard`), so a heap overrun into mod RAM shows `GUARD!`
 - an actor lifecycle notification, which gives every actor a generation number so mod code can hold actor
   references that safely go stale (see `hacks/lib/actor_ref.h`)
 - a shared graphics scratch buffer
+
+The `MODCODE_BSS` budget is the lowest address mod RAM may reach. The heap ends where a build's BSS actually
+starts, so a larger budget only costs heap when a build uses it. The main build starts its BSS at `0x0203f5e0`.
 
 ## Save format
 
@@ -88,6 +93,11 @@ required levels, descriptions, passives, and optional callbacks:
 | `incomingDamage` | An enemy attack is about to land. Returns the new damage. |
 | `onHpChange` | HP changes through `player_addHp`. |
 | `refundSpirit` | A cast refunds Spirit. |
+
+Page 2 heroes keep their transient state in one shared per-player block, `skillExpansion_heroState`. Each hero
+reaches it through `skillExpansion_heroStateClaim`, which zeroes the block when its owning hero changes and counts
+any access for a hero the player is not in `skillExpansion_heroStateMisuse`. Hooks that run for every player fetch
+the block only after their hero check.
 
 ## Combat system
 
@@ -204,7 +214,10 @@ makes room for hero ids 8 (Ringwraith) and 9 (Saruman):
 `hacks/lib/hud_meter.c` draws hero bars in the stock HP/Spirit style, in the gap between the two bars:
 
 - plain bars with threshold notches
-- segmented bars, like Saruman's Prism
+- segmented bars and continuous meters, including Saruman's empowerment meter
+
+A draw is skipped when its inputs and the meter's VRAM match the previous draw, which keeps the per-frame cost
+near zero while still repairing the bar after a HUD reload.
 
 The meter owns BG char tiles `0x62..0x6a`. Tiles `0x4d..0x55` look unused but the compass draws its herb and item
 counts there.
@@ -216,7 +229,7 @@ counts there.
 | `twists` | Playthrough modifiers in the mod options (damage dealt and taken, life drain, lucky strikes, regen, kill rewards, XP gain, Omens, Ring's Whisper, Fellowship and more). Wraps `player_awardXp` and the combat hooks above. |
 | `debug_cheats` | A Debug options page (max level, god mode, infinite Spirit, one-hit kills and more), the Debug Lab combat readout, Ability Bench and delivery preview. |
 | `unlock_all` | An Unlocks options page, for example every hero path in Chapter Select. |
-| `test_arena` | A boot-to-arena build for testing abilities (`make test-arena`). Stubs mission spawning and fixes the RNG seed. |
+| `test_arena` | A boot-to-arena build for testing abilities (`make test-arena`). Stubs mission spawning and fixes the RNG seed. Also runs the self-driving hero sweep and the busy fight benchmark (see [test-arena.md](test-arena.md)). |
 | `fast_waitstates` | Faster ROM wait states at startup. |
 | `item_descriptions`, `text_overrides` | Text for new items and skills, and overrides of stock strings. |
 | `mod_options`, `save_slot_pages`, `mod_startup` | Extended for the new pages, heroes and startup hooks. |

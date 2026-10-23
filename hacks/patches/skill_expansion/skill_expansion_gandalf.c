@@ -309,7 +309,8 @@ extern u8 skillExpansion_treePage;
 
 static inline GandalfState *state(u8 playerIndex)
 {
-    return (GandalfState *)skillExpansion_heroState[playerIndex];
+    return (GandalfState *)skillExpansion_heroStateClaim(playerIndex, HERO_ID_GANDALF,
+                                                    PLAYER(playerIndex).heroId);
 }
 
 static const Vector2Int FacingVectors[8] = {
@@ -1041,13 +1042,14 @@ void skillExpansion_gandalfCleanup(u8 playerIndex, Actor *actor)
 
 void skillExpansion_gandalfInput(u8 playerIndex)
 {
-    GandalfState *st = state(playerIndex);
+    GandalfState *st;
     u16 keys = PLAYER_KEYS_CURRENT(playerIndex);
 
     if (!isGandalf(playerIndex) || PLAYER(playerIndex).ownerActor == NULL)
     {
         return;
     }
+    st = state(playerIndex);
     if (st->pipeFrames != 0 && (PLAYER_KEYS_PRESSED(playerIndex) != 0 || (keys & DPAD_ANY) != 0))
     {
         st->pipeFrames = 0;
@@ -1071,12 +1073,13 @@ void skillExpansion_gandalfInput(u8 playerIndex)
 
 void skillExpansion_gandalfTick(u8 playerIndex, Actor *actor)
 {
-    GandalfState *st = state(playerIndex);
+    GandalfState *st;
 
     if (!isGandalf(playerIndex) || actor == NULL)
     {
         return;
     }
+    st = state(playerIndex);
     if (PLAYER(playerIndex).currentHp <= 0)
     {
         if (st->form == FORM_WHITE || st->passFrames != 0 || st->pipeFrames != 0 ||
@@ -1141,7 +1144,6 @@ bool32 skillExpansion_gandalfIsWhite(void)
 
 s32 skillExpansion_gandalfDamage(u8 playerIndex, Actor *victim, s32 damage, bool melee)
 {
-    GandalfState *st = state(playerIndex);
     const HackLibDamageSource *source = hackLib_currentDamageSource();
     bool spell;
     s32 percent = 0;
@@ -1150,6 +1152,7 @@ s32 skillExpansion_gandalfDamage(u8 playerIndex, Actor *victim, s32 damage, bool
     {
         return damage;
     }
+    GandalfState *st = state(playerIndex);
     // Stock spells hit without a damage source.
     spell = !melee && (source == NULL || source->kind == HACKLIB_DAMAGE_ABILITY);
     if (spell && st->form == FORM_WHITE)
@@ -1172,13 +1175,14 @@ s32 skillExpansion_gandalfDamage(u8 playerIndex, Actor *victim, s32 damage, bool
 
 s32 skillExpansion_gandalfIncomingDamage(u8 playerIndex, Actor *origin, s32 damage)
 {
-    GandalfState *st = state(playerIndex);
+    GandalfState *st;
     Actor *actor = PLAYER(playerIndex).ownerActor;
 
     if (!isGandalf(playerIndex) || damage <= 0 || actor == NULL)
     {
         return damage;
     }
+    st = state(playerIndex);
     if (st->fallFrames != 0)
     {
         return 0;

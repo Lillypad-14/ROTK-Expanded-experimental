@@ -403,6 +403,73 @@ int main(void)
     assert(deliveryLaunches == 2 && PLAYER(0).currentSpirit == 90);
     assert(skillExpansion_runtime[0].lastResult == SKILL_CAST_UNAVAILABLE);
     assert(skillExpansion_runtime[0].cooldowns[7] == 0 && damageSource == NULL);
+    reset();
+    memset(g_PlayerHuds, 0, sizeof(g_PlayerHuds));
+    skillExpansion_feedback(0, "Ability not ready");
+    u32 redraws = 0;
+    for (u32 frame = 0; frame < 90; frame++)
+    {
+        skillExpansion_prepareHud(0);
+        assert(g_PlayerHuds[0].flags.p & PLAYERHUD_FLAG_0);
+        redraws += !!(g_PlayerHuds[0].flags.p & PLAYERHUD_FLAG_1);
+        g_PlayerHuds[0].flags.p &= ~(PLAYERHUD_FLAG_0 | PLAYERHUD_FLAG_1 | HUD_TEXT_CLEARED);
+        if (frame == 45)
+        {
+            skillExpansion_feedback(0, "Ability not ready");
+        }
+    }
+    assert(redraws == 1);
+    skillExpansion_feedback(0, "No valid target");
+    skillExpansion_prepareHud(0);
+    assert(g_PlayerHuds[0].flags.p & PLAYERHUD_FLAG_1);
+    g_PlayerHuds[0].flags.p = 0;
+    char changingText[] = "Ability not ready";
+    skillExpansion_feedback(0, changingText);
+    skillExpansion_prepareHud(0);
+    g_PlayerHuds[0].flags.p = 0;
+    changingText[0] = 'a';
+    skillExpansion_prepareHud(0);
+    assert(g_PlayerHuds[0].flags.p & PLAYERHUD_FLAG_1);
+    g_PlayerHuds[0].flags.p = PLAYERHUD_FLAG_0;
+    g_PlayerHuds[0].text = "Native pickup";
+    skillExpansion_prepareHud(0);
+    assert(g_PlayerHuds[0].text != changingText && !skillExpansion_runtime[0].feedbackDrawn);
+    g_PlayerHuds[0].flags.p = 0;
+    skillExpansion_prepareHud(0);
+    assert(strcmp(g_PlayerHuds[0].text, changingText) == 0 &&
+           (g_PlayerHuds[0].flags.p & PLAYERHUD_FLAG_1));
+    g_PlayerHuds[0].flags.p = 0;
+    g_GameFlags.p |= GAME_FLAG_OVERLAY;
+    skillExpansion_prepareHud(0);
+    assert(!skillExpansion_runtime[0].feedbackDrawn && !g_PlayerHuds[0].flags.p);
+    g_GameFlags.p &= ~GAME_FLAG_OVERLAY;
+    skillExpansion_prepareHud(0);
+    assert(g_PlayerHuds[0].flags.p & PLAYERHUD_FLAG_1);
+    g_PlayerHuds[0].flags.p = HUD_TEXT_CLEARED;
+    skillExpansion_prepareHud(0);
+    assert(g_PlayerHuds[0].flags.p & PLAYERHUD_FLAG_1);
+    g_PlayerHuds[0].flags.p = 0;
+    skillExpansion_runtime[0].feedbackFrames = 0;
+    skillExpansion_prepareHud(0);
+    assert(!g_PlayerHuds[0].flags.p && !skillExpansion_runtime[0].feedbackDrawn);
+    skillExpansion_feedback(0, changingText);
+    skillExpansion_prepareHud(0);
+    assert(g_PlayerHuds[0].flags.p & PLAYERHUD_FLAG_1);
+    g_PlayerHuds[0].flags.p = 0;
+    char longFeedback[120];
+    memset(longFeedback, 'W', sizeof(longFeedback) - 1);
+    longFeedback[sizeof(longFeedback) - 1] = 0;
+    memset(g_PlayerHuds[0].field_0x6c, 0xa5, sizeof(g_PlayerHuds[0].field_0x6c));
+    skillExpansion_feedback(0, longFeedback);
+    skillExpansion_prepareHud(0);
+    assert(g_PlayerHuds[0].textBuffer[sizeof(g_PlayerHuds[0].textBuffer) - 1] == 0);
+    for (u32 i = 0; i < sizeof(g_PlayerHuds[0].field_0x6c); i++)
+    {
+        assert(g_PlayerHuds[0].field_0x6c[i] == 0xa5);
+    }
+    skillExpansion_prepareHud(255);
+    puts("PASS: HUD feedback draws once, refreshes changed text, yields to native text and "
+         "restores after overlays");
     puts("PASS: timeline release, recovery, pause, refund, cancellation, reentrancy and bench "
          "isolation");
     return 0;

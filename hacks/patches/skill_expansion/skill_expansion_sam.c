@@ -178,7 +178,8 @@ _Static_assert(sizeof(SamState) <= sizeof(skillExpansion_heroState[0]),
 
 static inline SamState *state(u8 playerIndex)
 {
-    return (SamState *)skillExpansion_heroState[playerIndex];
+    return (SamState *)skillExpansion_heroStateClaim(playerIndex, HERO_ID_SAM,
+                                                    PLAYER(playerIndex).heroId);
 }
 
 static const Vector2Int FacingVectors[8] = {
@@ -583,7 +584,7 @@ void skillExpansion_samCleanup(u8 playerIndex, Actor *actor)
 
 void skillExpansion_samTick(u8 playerIndex, Actor *actor)
 {
-    SamState *st = state(playerIndex);
+    SamState *st;
     u32 count;
     u32 i;
 
@@ -591,6 +592,7 @@ void skillExpansion_samTick(u8 playerIndex, Actor *actor)
     {
         return;
     }
+    st = state(playerIndex);
     if (st->immuneFrames != 0)
     {
         st->immuneFrames--;
@@ -626,12 +628,13 @@ void skillExpansion_samTick(u8 playerIndex, Actor *actor)
 
 s32 skillExpansion_samDamage(u8 playerIndex, s32 damage, bool melee)
 {
-    SamState *st = state(playerIndex);
+    SamState *st;
 
     if (!isSam(playerIndex))
     {
         return damage;
     }
+    st = state(playerIndex);
     if (st->buffFrames != 0)
     {
         damage += damage * TATERS_FOR_ALL_PERCENT / 100;
@@ -666,7 +669,6 @@ static bool nearGarden(SamState *st, Actor *actor)
 
 s32 skillExpansion_samIncomingDamage(u8 playerIndex, Actor *origin, s32 damage)
 {
-    SamState *st = state(playerIndex);
     Actor *actor = PLAYER(playerIndex).ownerActor;
     s32 stubborn = passiveLevel(playerIndex, SKILL_EXPANSION_PASSIVE_STUBBORN);
     s32 maxHp = PLAYER_STAT(playerIndex, STAT_MAX_HP);
@@ -676,6 +678,7 @@ s32 skillExpansion_samIncomingDamage(u8 playerIndex, Actor *origin, s32 damage)
     {
         return damage;
     }
+    SamState *st = state(playerIndex);
     if (st->immuneFrames != 0)
     {
         return 0;

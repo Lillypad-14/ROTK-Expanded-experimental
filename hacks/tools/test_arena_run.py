@@ -81,6 +81,12 @@ def main() -> None:
         "--engine-checks", action="store_true", help="Run the engine regression suite"
     )
     parser.add_argument(
+        "--timeout", type=int, default=120, help="Debugger time limit in seconds"
+    )
+    parser.add_argument(
+        "--real-time", action="store_true", help="Run the emulator at normal speed"
+    )
+    parser.add_argument(
         "--output", type=Path, required=True, help="New report directory"
     )
     args = parser.parse_args()
@@ -120,8 +126,14 @@ def main() -> None:
         startup.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         startup.wShowWindow = 0
     with (output / "emulator.log").open("w") as log:
+        # Unthrottled: lag telemetry counts emulated vblanks, so wall-clock speed does not matter.
+        speed = (
+            []
+            if args.real_time
+            else ["-C", "audioSync=0", "-C", "videoSync=0", "-C", "fpsTarget=10000", "-C", "mute=1"]
+        )
         process = subprocess.Popen(
-            [str(emulator), "-g", str(test_rom)],
+            [str(emulator), *speed, "-g", str(test_rom)],
             cwd=emulator.parent,
             stdout=log,
             stderr=subprocess.STDOUT,
@@ -134,7 +146,7 @@ def main() -> None:
                     stdout=debugger_log,
                     stderr=subprocess.STDOUT,
                     text=True,
-                    timeout=120,
+                    timeout=args.timeout,
                 )
             debugger_output = (output / "gdb.log").read_text()
             result.check_returncode()

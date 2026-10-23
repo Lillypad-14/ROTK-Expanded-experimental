@@ -1,0 +1,166 @@
+{
+  "sheets": [
+    {
+      "source": "source/Saruman.png",
+      "grid": "40,258,482,710,946,1180,1410,1640:138,363,583:6.8",
+      "icons": [
+        {
+          "slot": 1,
+          "key": "staff_of_orthanc",
+          "subject": "Glowing staff"
+        },
+        {
+          "slot": 2,
+          "key": "honeyed_words",
+          "subject": "Saruman portrait"
+        },
+        {
+          "slot": 4,
+          "key": "keeper_of_orthanc",
+          "subject": "Orthanc tower"
+        },
+        {
+          "slot": 5,
+          "key": "power_of_the_white_hand",
+          "subject": "White Hand emblem"
+        },
+        {
+          "slot": 7,
+          "key": "parting_shot",
+          "subject": "Enemies thrown back"
+        },
+        {
+          "slot": 9,
+          "key": "furnaces_of_isengard",
+          "subject": "Industrial Isengard"
+        },
+        {
+          "slot": 10,
+          "key": "kindling",
+          "subject": "Burning tree"
+        },
+        {
+          "slot": 11,
+          "key": "orthancs_remedy",
+          "subject": "Restorative light around a kneeling wizard"
+        },
+        {
+          "slot": 12,
+          "key": "blasting_fire",
+          "subject": "Tower exploding"
+        },
+        {
+          "slot": 13,
+          "key": "sharkeys_spite",
+          "subject": "Dark explosive orb"
+        },
+        {
+          "slot": 14,
+          "key": "powder_of_orthanc",
+          "subject": "Explosive debris"
+        },
+        {
+          "slot": 15,
+          "key": "voice_of_saruman",
+          "subject": "Commanding wizard"
+        },
+        {
+          "slot": 16,
+          "key": "head_of_the_white_council",
+          "subject": "White-robed leader with companions"
+        },
+        {
+          "slot": 22,
+          "key": "flame_of_orthanc",
+          "subject": "Burning Orthanc"
+        },
+        {
+          "slot": 23,
+          "key": "treachery",
+          "subject": "Watching sinister eye"
+        },
+        {
+          "slot": 24,
+          "key": "robes_of_many_colours",
+          "subject": "Robed wizard"
+        }
+      ]
+    },
+    {
+      "source": "source/Saruman2.png",
+      "grid": "47,269,497,725,960,1194,1425,1655:118,342,562:6.6",
+      "icons": [
+        {
+          "slot": 2,
+          "key": "wisdom_of_the_istari",
+          "subject": "Wizard studying his staff"
+        },
+        {
+          "slot": 3,
+          "key": "echo_of_power",
+          "subject": "Repeating spiral of power"
+        },
+        {
+          "slot": 7,
+          "key": "wildfire",
+          "subject": "Flaming hand"
+        },
+        {
+          "slot": 8,
+          "key": "machine_of_war",
+          "subject": "Army of Isengard"
+        },
+        {
+          "slot": 9,
+          "key": "many_coloured_ward",
+          "subject": "Protective ring around the wizard"
+        },
+        {
+          "slot": 12,
+          "key": "cutpurse",
+          "subject": "Orc raider"
+        },
+        {
+          "slot": 13,
+          "key": "sharkeys_curse",
+          "subject": "Cursed shadow"
+        },
+        {
+          "slot": 15,
+          "key": "spite",
+          "subject": "Bitter scarred face"
+        },
+        {
+          "slot": 16,
+          "key": "lore_of_colours",
+          "subject": "Charged magical crystal"
+        },
+        {
+          "slot": 17,
+          "key": "light_broken",
+          "subject": "Crystal bursting with light"
+        },
+        {
+          "slot": 20,
+          "key": "voice_of_command",
+          "subject": "Raised staff commanding power"
+        },
+        {
+          "slot": 22,
+          "key": "fires_of_industry",
+          "subject": "Isengard towers"
+        },
+        {
+          "slot": 23,
+          "key": "word_of_binding",
+          "subject": "Hand controlling magical rings"
+        },
+        {
+          "slot": 24,
+          "key": "ring_lore",
+          "subject": "Seeing-stone eye"
+        }
+      ]
+    }
+  ]
+}

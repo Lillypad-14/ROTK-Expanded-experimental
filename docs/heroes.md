@@ -31,7 +31,7 @@ host checks but has not been played yet.
 | [Gandalf](#gandalf) | The Grey and the White | Hold R to swap form. Grey saves Spirit, White burns it for power | untested |
 | [Legolas](#legolas) | The Glint | Release Overdraw on the glint for a True Shot. Chain them into a streak | untested |
 | [Ringwraith](#ringwraith) | Dread | New hero. Terrify and stun foes, then raise the slain as thralls | mostly tested |
-| [Saruman](#saruman) | The Prism | New hero. Spells add colors. Holding all three refracts the next spell at half cost | tested |
+| [Saruman](#saruman) | Empowered spells | Cast three spells, then empower the next damaging spell | host tested; rework needs playtesting |
 | Eowyn | none yet | Stock kit. Page 2 is not built yet | stock |
 
 ---
@@ -228,14 +228,32 @@ Code: [`hacks/patches/ringwraith/`](../hacks/patches/ringwraith/) (kit in `ringw
 
 ## Saruman
 
-**Idea:** the White Hand, before and after the fall. A tenth playable hero (hero id 9) built on Gandalf's model, who
+**Idea:** the White Hand, before and after the fall. A tenth playable hero (hero id 9) using Saruman's boss graphics and Gandalf's equipment mapping, who
 replaces both skill pages.
 
-**Mechanic: The Prism.** Every spell adds a color to a three-segment Prism bar on the HUD: **White**, **Isengard** or
-**Voice**.
+**Mechanic: Empowered spells.** Three successful casts fill one gold meter. The next damaging spell deals +50% damage and empties it.
 
-- Holding all three colors at once is a **refraction**. The color that completes the set decides its effect.
-- After a refraction, the next spell costs half Spirit.
+- Repeating a spell counts. The third cast readies the bonus, and the next damaging cast spends it.
+- Ward and Remedy can charge the meter. At full charge they preserve it, including an Echo that repeats a support spell.
+- Failed casts preserve progress and readiness. Charge has no timeout, and resets on death, hero reset or cleanup.
+- Melee hits and automatic passive attacks do not charge or consume the meter.
+- Echo consumes readiness only when repeating a damaging spell. Its normal power multiplier still applies.
+- Light Broken is an ordinary area attack for 28 +10 damage per rank and needs no charge. White Hand is a wide blast without a separate color bonus.
+- Damaging staff hits restore 2 Spirit, plus Wisdom of the Istari and Treachery where applicable. Reserve regeneration grants 1 Spirit every second.
+- Lore of Colours adds 15 percentage points per rank to empowered damage. Ring-lore restores 2 Spirit per rank when it is spent. Head of the White Council restores another 6 Spirit.
+- Robes of Many Colours uses the number of charged segments. Wisdom of the Istari adds 1 Spirit per rank to damaging staff hits and retains its stat-based regeneration bonus.
+
+The first responsiveness pass removes the half-damage melee penalty and uses separate one-tick attack descriptors for the playable hero, preserving the boss's original assets.
+New characters start with 18 Strength and 32 Accuracy. Existing saves keep their stored stats.
+Quick spells have a 12-tick cooldown, ordinary spells 30, long spells 90 and White Hand 180, at 30 ticks per second.
+Voice, Flame, Blasting Fire, Ward, Binding and Remedy cost 18, 18, 36, 30, 24 and 32 Spirit.
+Flame's first rank is available at character level 1.
+The damage and resource balance is listed in [Saruman balance](saruman-balance.md).
+These changes have host regression coverage and still need normal-control playtesting for timing, hit detection and balance.
+Instant damage spells show their impact at release rather than waiting for a decorative bolt to arrive.
+Voice's stun markers, healing cues and the ultimate's lightning also begin immediately, with shorter cosmetic follow-up delays.
+The skill descriptions distinguish self-protection, self-healing, nearest-target attacks and area control.
+Echo and Curse descriptions use the actual formulas of 40% +10% per rank and 20% +5% per rank respectively.
 
 **Builds:** Curunir | White Hand | Sharkey.
 
@@ -250,6 +268,7 @@ Page 2 passives: Lore of Colours, Ring-lore, Head of the White Council, Fires of
 Powder of Orthanc, Cutpurse, Spite, Parting Shot.
 
 Code: [`saruman.c`](../hacks/patches/ringwraith/saruman.c).
+Both pages use 30 custom icons matched to the skill subjects. See the [art mapping and rebuild instructions](../hacks/content/icons/saruman/README.md).
 
 ---
 

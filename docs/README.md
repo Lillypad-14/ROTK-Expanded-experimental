@@ -38,3 +38,5 @@ The [source inventory](source-inventory.md) is generated from the checkout and c
 `docs/wip-docs/` contains inherited research, compiler probes and design notes. It is useful background, but can describe old implementations or unconfirmed candidates. Follow links to current code before relying on it. New speculative research belongs in gitignored `local/wip-docs/` according to the repository rules.
 
 The [decompilation handoff](decomp-handoff.md) records a particular development session. Its local tooling details and next-task list are historical context rather than a current installation guide.
+
+[Saruman spell balance](saruman-balance.md) lists current costs, damage and resource refunds.

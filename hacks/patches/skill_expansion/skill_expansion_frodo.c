@@ -247,7 +247,8 @@ _Static_assert(sizeof(FrodoState) <= sizeof(skillExpansion_heroState[0]),
 
 static inline FrodoState *state(u8 playerIndex)
 {
-    return (FrodoState *)skillExpansion_heroState[playerIndex];
+    return (FrodoState *)skillExpansion_heroStateClaim(playerIndex, HERO_ID_FRODO,
+                                                    PLAYER(playerIndex).heroId);
 }
 
 static const Vector2Int FacingVectors[8] = {
@@ -743,12 +744,13 @@ void skillExpansion_frodoCleanup(u8 playerIndex, Actor *actor)
 
 void skillExpansion_frodoTick(u8 playerIndex, Actor *actor)
 {
-    FrodoState *st = state(playerIndex);
+    FrodoState *st;
 
     if (!isFrodo(playerIndex) || actor == NULL)
     {
         return;
     }
+    st = state(playerIndex);
     if (PLAYER(playerIndex).currentHp <= 0)
     {
         skillExpansion_frodoCleanup(playerIndex, actor);
@@ -862,13 +864,14 @@ void skillExpansion_frodoWrapStockCallbacks(u8 playerIndex, ActiveSkill *rows)
 
 s32 skillExpansion_frodoDamage(u8 playerIndex, s32 damage, bool melee)
 {
-    FrodoState *st = state(playerIndex);
+    FrodoState *st;
     s32 level;
 
     if (!isFrodo(playerIndex))
     {
         return damage;
     }
+    st = state(playerIndex);
     level = passiveLevel(playerIndex, SKILL_EXPANSION_PASSIVE_WEIGHT_OF_THE_RING);
     damage += damage * WEIGHT_PERCENT_PER_LEVEL * level * (burden(playerIndex) / 10) / 100;
     if (st->claimFrames != 0)
@@ -899,13 +902,14 @@ s32 skillExpansion_frodoDamage(u8 playerIndex, s32 damage, bool melee)
 void skillExpansion_frodoOnHit(u8 playerIndex, Actor *victim, HackLibDamageResult result,
                                bool melee)
 {
-    FrodoState *st = state(playerIndex);
+    FrodoState *st;
     s32 level;
 
     if (!isFrodo(playerIndex))
     {
         return;
     }
+    st = state(playerIndex);
     if (!melee && st->knifeFrames != 0 && result.hit)
     {
         hackLib_fxBurst(victim, FX_SHAPE_SPARK, FX_COLOR_SHADOW, FX_LAYER_FRONT);
@@ -961,13 +965,14 @@ void skillExpansion_frodoOnHit(u8 playerIndex, Actor *victim, HackLibDamageResul
 
 s32 skillExpansion_frodoIncomingDamage(u8 playerIndex, Actor *attacker, s32 damage)
 {
-    FrodoState *st = state(playerIndex);
+    FrodoState *st;
     Actor *actor = PLAYER(playerIndex).ownerActor;
 
     if (!isFrodo(playerIndex) || damage <= 0)
     {
         return damage;
     }
+    st = state(playerIndex);
     // Wraith blades weigh on the Ring. Strength of Will resists this like any gain.
     if (attacker != NULL && skillExpansion_isFoe(attacker) &&
         attacker->unitType < ENEMY_TYPE_COUNT &&
@@ -1267,7 +1272,7 @@ static const HackLibHudMeterLook BarFlash = {HACKLIB_HUD_COLOR_WHITE, HACKLIB_HU
 
 void skillExpansion_frodoDrawBurdenBar(u8 playerIndex)
 {
-    FrodoState *st = state(playerIndex);
+    FrodoState *st;
     s32 now = burden(playerIndex);
     const HackLibHudMeterLook *look;
 
@@ -1275,6 +1280,7 @@ void skillExpansion_frodoDrawBurdenBar(u8 playerIndex)
     {
         return;
     }
+    st = state(playerIndex);
     if (now != st->barBurden)
     {
         st->barBurden = now;

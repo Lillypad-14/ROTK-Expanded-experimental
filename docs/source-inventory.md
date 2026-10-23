@@ -984,7 +984,7 @@ These implement new behavior and hooks rather than byte-matched original-game C.
 | `mod_scenes` | [hacks/patches/mod_scenes/mod_scenes.c](../hacks/patches/mod_scenes/mod_scenes.c) |
 | `mod_startup` | [hacks/patches/mod_startup/mod_startup.c](../hacks/patches/mod_startup/mod_startup.c) |
 | `ranger_hollow_pages` | [hacks/patches/ranger_hollow_pages/ranger_hollow_pages.c](../hacks/patches/ranger_hollow_pages/ranger_hollow_pages.c) |
-| `ringwraith` | [hacks/patches/ringwraith/hero_registry.c](../hacks/patches/ringwraith/hero_registry.c), [hacks/patches/ringwraith/ringwraith.c](../hacks/patches/ringwraith/ringwraith.c), [hacks/patches/ringwraith/ringwraith_icons.c](../hacks/patches/ringwraith/ringwraith_icons.c), [hacks/patches/ringwraith/ringwraith_kit.c](../hacks/patches/ringwraith/ringwraith_kit.c), [hacks/patches/ringwraith/ringwraith_thralls.c](../hacks/patches/ringwraith/ringwraith_thralls.c), [hacks/patches/ringwraith/saruman.c](../hacks/patches/ringwraith/saruman.c), [hacks/patches/ringwraith/wraith_gear.c](../hacks/patches/ringwraith/wraith_gear.c) |
+| `ringwraith` | [hacks/patches/ringwraith/hero_registry.c](../hacks/patches/ringwraith/hero_registry.c), [hacks/patches/ringwraith/ringwraith.c](../hacks/patches/ringwraith/ringwraith.c), [hacks/patches/ringwraith/ringwraith_icons.c](../hacks/patches/ringwraith/ringwraith_icons.c), [hacks/patches/ringwraith/ringwraith_kit.c](../hacks/patches/ringwraith/ringwraith_kit.c), [hacks/patches/ringwraith/ringwraith_thralls.c](../hacks/patches/ringwraith/ringwraith_thralls.c), [hacks/patches/ringwraith/saruman.c](../hacks/patches/ringwraith/saruman.c), [hacks/patches/ringwraith/saruman_icons.c](../hacks/patches/ringwraith/saruman_icons.c), [hacks/patches/ringwraith/wraith_gear.c](../hacks/patches/ringwraith/wraith_gear.c) |
 | `save_slot_pages` | [hacks/patches/save_slot_pages/save_slot_pages.c](../hacks/patches/save_slot_pages/save_slot_pages.c) |
 | `skill_expansion` | [hacks/patches/skill_expansion/aragorn_icons.c](../hacks/patches/skill_expansion/aragorn_icons.c), [hacks/patches/skill_expansion/frodo_icons.c](../hacks/patches/skill_expansion/frodo_icons.c), [hacks/patches/skill_expansion/gandalf_icons.c](../hacks/patches/skill_expansion/gandalf_icons.c), [hacks/patches/skill_expansion/gimli_icons.c](../hacks/patches/skill_expansion/gimli_icons.c), [hacks/patches/skill_expansion/legolas_icons.c](../hacks/patches/skill_expansion/legolas_icons.c), [hacks/patches/skill_expansion/sam_icons.c](../hacks/patches/skill_expansion/sam_icons.c), [hacks/patches/skill_expansion/skill_delivery.c](../hacks/patches/skill_expansion/skill_delivery.c), [hacks/patches/skill_expansion/skill_expansion.c](../hacks/patches/skill_expansion/skill_expansion.c), [hacks/patches/skill_expansion/skill_expansion_abilities.c](../hacks/patches/skill_expansion/skill_expansion_abilities.c), [hacks/patches/skill_expansion/skill_expansion_active.c](../hacks/patches/skill_expansion/skill_expansion_active.c), [hacks/patches/skill_expansion/skill_expansion_content.c](../hacks/patches/skill_expansion/skill_expansion_content.c), [hacks/patches/skill_expansion/skill_expansion_elite.c](../hacks/patches/skill_expansion/skill_expansion_elite.c), [hacks/patches/skill_expansion/skill_expansion_frodo.c](../hacks/patches/skill_expansion/skill_expansion_frodo.c), [hacks/patches/skill_expansion/skill_expansion_gandalf.c](../hacks/patches/skill_expansion/skill_expansion_gandalf.c), [hacks/patches/skill_expansion/skill_expansion_gimli.c](../hacks/patches/skill_expansion/skill_expansion_gimli.c), [hacks/patches/skill_expansion/skill_expansion_hud.c](../hacks/patches/skill_expansion/skill_expansion_hud.c), [hacks/patches/skill_expansion/skill_expansion_legolas.c](../hacks/patches/skill_expansion/skill_expansion_legolas.c), [hacks/patches/skill_expansion/skill_expansion_passive.c](../hacks/patches/skill_expansion/skill_expansion_passive.c), [hacks/patches/skill_expansion/skill_expansion_runtime.c](../hacks/patches/skill_expansion/skill_expansion_runtime.c), [hacks/patches/skill_expansion/skill_expansion_sam.c](../hacks/patches/skill_expansion/skill_expansion_sam.c), [hacks/patches/skill_expansion/skill_expansion_save.c](../hacks/patches/skill_expansion/skill_expansion_save.c), [hacks/patches/skill_expansion/skill_expansion_save_format.c](../hacks/patches/skill_expansion/skill_expansion_save_format.c), [hacks/patches/skill_expansion/skill_expansion_smeagol.c](../hacks/patches/skill_expansion/skill_expansion_smeagol.c), [hacks/patches/skill_expansion/skill_expansion_timeline.c](../hacks/patches/skill_expansion/skill_expansion_timeline.c), [hacks/patches/skill_expansion/skill_expansion_tree.c](../hacks/patches/skill_expansion/skill_expansion_tree.c), [hacks/patches/skill_expansion/skill_expansion_validation.c](../hacks/patches/skill_expansion/skill_expansion_validation.c), [hacks/patches/skill_expansion/skill_expansion_values.c](../hacks/patches/skill_expansion/skill_expansion_values.c), [hacks/patches/skill_expansion/skill_status.c](../hacks/patches/skill_expansion/skill_status.c), [hacks/patches/skill_expansion/smeagol_icons.c](../hacks/patches/skill_expansion/smeagol_icons.c) |
 | `test_arena` | [hacks/patches/test_arena/test_arena.c](../hacks/patches/test_arena/test_arena.c) |
@@ -1002,6 +1002,7 @@ See [shared ability support](ability-support.md) for contracts and [the change o
 - [hacks/lib/combat_result.h](../hacks/lib/combat_result.h)
 - [hacks/lib/combat_source.h](../hacks/lib/combat_source.h)
 - [hacks/lib/fx_kit.h](../hacks/lib/fx_kit.h)
+- [hacks/lib/fx_shockwave.h](../hacks/lib/fx_shockwave.h)
 - [hacks/lib/fx_sprites.h](../hacks/lib/fx_sprites.h)
 - [hacks/lib/hex.h](../hacks/lib/hex.h)
 - [hacks/lib/hud_meter.h](../hacks/lib/hud_meter.h)
@@ -1020,13 +1021,18 @@ See [shared ability support](ability-support.md) for contracts and [the change o
 
 Test modules describe automated coverage, not full hardware or emulator certification.
 
+- [hacks/tools/arena_bench.py](../hacks/tools/arena_bench.py)
 - [hacks/tools/arena_engine_checks.py](../hacks/tools/arena_engine_checks.py)
+- [hacks/tools/arena_hero_sweep.py](../hacks/tools/arena_hero_sweep.py)
+- [hacks/tools/arena_sweep_all.py](../hacks/tools/arena_sweep_all.py)
 - [hacks/tools/cast_timelines.py](../hacks/tools/cast_timelines.py)
 - [hacks/tools/effect_editor.py](../hacks/tools/effect_editor.py)
 - [hacks/tools/fx_palette.py](../hacks/tools/fx_palette.py)
 - [hacks/tools/fx_sprite.py](../hacks/tools/fx_sprite.py)
+- [hacks/tools/ground_shockwave.py](../hacks/tools/ground_shockwave.py)
 - [hacks/tools/hero_registry.py](../hacks/tools/hero_registry.py)
 - [hacks/tools/sam_fx_art.py](../hacks/tools/sam_fx_art.py)
+- [hacks/tools/saruman_icons.py](../hacks/tools/saruman_icons.py)
 - [hacks/tools/skill_deliveries.py](../hacks/tools/skill_deliveries.py)
 - [hacks/tools/skill_fx.py](../hacks/tools/skill_fx.py)
 - [hacks/tools/skill_icon_art.py](../hacks/tools/skill_icon_art.py)

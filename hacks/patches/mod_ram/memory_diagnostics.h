@@ -13,7 +13,17 @@ typedef struct ModRamMemoryStats
     const void *lastFailureCaller;
     u32 allocations;
     u32 invalidFrees;
+    // Highest end address any allocation reached.
+    u32 peakTop;
+    // End of the heap, where the mod .bss begins.
+    u32 heapEnd;
 } ModRamMemoryStats;
+
+// Words below the mod .bss that a heap overrun would hit first.
+#define MOD_RAM_BSS_GUARD_WORDS 2
+extern u32 modRam_bssGuard[MOD_RAM_BSS_GUARD_WORDS];
+void modRam_armBssGuard(void);
+bool32 modRam_isBssGuardIntact(void);
 
 void modRam_initMemoryStats(void);
 void modRam_getMemoryStats(ModRamMemoryStats *out);

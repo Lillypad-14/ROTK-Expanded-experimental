@@ -44,9 +44,9 @@ RINGWRAITH (new hero) - Dread
   Scares and stuns enemies. Cannot heal from the usual sources, only through specific mechanics. Killing dreaded enemies or HP absorb gear/abilities.
   Only gets Spirit from kills. Has its own wraith gear.
 
-SARUMAN (new hero) - The Prism
-  Every successful colored spell fills one Prism segment, even repeated spells.
-  Fill three for a bonus based on the final spell, then your next spell costs half.
+SARUMAN (new hero) - Empowered spells
+  Cast three spells to fill the meter. Your next damaging spell deals +50% damage.
+  Repeating spells counts. Healing and protection preserve a full meter.
   Faster staff attacks restore 2 Spirit when they deal damage.
 
 EOWYN

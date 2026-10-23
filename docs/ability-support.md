@@ -310,6 +310,10 @@ Targeting and FX also count work items.
 Leaving CPU views releases the profiler's heap storage.
 Source numbers are 0 unknown, 1 weapon, 2 projectile, 3 ability, 4 summon, 5 periodic and 6 secondary.
 Ordinary ability feedback reports insufficient Spirit, unavailable targets, blocked landings, summon limits and fading Ringwraith buffs.
+Unchanged feedback stays visible without requesting native text rasterization every frame.
+The HUD requests a fresh draw when the message bytes, displayed buffer or color change, after native text or telemetry takes the band, when the native clear flag is set, and after leaving an overlay.
+Repeated identical feedback refreshes its lifetime without repeatedly writing its character tiles.
+Host HUD regressions cover changed mutable text, pickup priority, expiry and overlay restoration.
 Native pickup and interaction text has priority over these messages.
 
 ## Implementation checklist

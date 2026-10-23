@@ -18,6 +18,7 @@ typedef struct SkillExpansionRuntime
     SkillExpansionCastResult lastResult;
     u16 cooldowns[SKILL_EXPANSION_ACTIVE_ROW_COUNT];
     bool timelineCast;
+    bool feedbackDrawn;
 } SkillExpansionRuntime;
 
 extern SkillExpansionRuntime skillExpansion_runtime[2];

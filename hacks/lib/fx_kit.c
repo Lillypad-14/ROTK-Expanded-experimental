@@ -1,4 +1,5 @@
 #include "fx_kit.h"
+#include "fx_shockwave.h"
 #include "gba_io.h"
 #include "lib/actor_ref.h"
 #include "lib/profile.h"
@@ -161,6 +162,15 @@ static bool validAnimation(const SpriteAnimation *animation, u8 frameTicks)
            animation->frames->maxFrameTileBytes <= 2304 && frameTicks != 0;
 }
 
+/** A burst of an upright hoop shape, drawn FX_HOOP_LIFT above its position. */
+static bool32 isHoop(Actor *fx)
+{
+    u8 shape = fx->as.combat.appliedPose;
+
+    return fx->type == FX_BURST_UNK_PARAM &&
+           (shape == FX_SHAPE_CHECKER_RING || shape == FX_SHAPE_WIDE_RING);
+}
+
 /** Tie a claimed shared slot to fx so freeing fx releases it. */
 static Actor *bindSlot(Actor *fx, u8 slot)
 {
@@ -197,6 +207,15 @@ Actor *hackLib_fxBurst(Actor *on, u8 shape, HackLibFxColor color, u8 layer)
     {
         fx->type = FX_BURST_UNK_PARAM;
         fx->tickCallback = (ActorCallback)(void *)fx_tickAttachment;
+        // Stock shockwave rows contain opposite halves of the same ground wave.
+        if (shape == FX_SHAPE_SHOCKWAVE || shape == FX_SHAPE_SHOCKWAVE_ALT)
+        {
+            sprite_setAnimation(fx, &HackLibFxGroundShockwave);
+        }
+        if (isHoop(fx))
+        {
+            hackLib_fxDetach(fx, &on->coords);
+        }
     }
     hackLib_profileWork(HACKLIB_PROFILE_FX, fx != NULL);
     hackLib_profileEnd(profile);
@@ -236,15 +255,44 @@ Actor *hackLib_fxTimed(Actor *on, u8 shape, HackLibFxColor color, s32 frames, u8
     return fx;
 }
 
+Actor *hackLib_fxAura(Actor *on, u8 aura, HackLibFxColor color, s32 frames, u8 layer)
+{
+    u8 slot;
+    Actor *fx;
+
+    if (on == NULL || aura >= FX_AURA_COUNT || layer > FX_LAYER_FRONT || frames <= 0 ||
+        frames > 32767)
+    {
+        return NULL;
+    }
+    slot = resolveColor(color);
+    if (slot == NO_SLOT)
+    {
+        return NULL;
+    }
+    fx = bindSlot(fx_spawnTimedOnActor(on, frames, aura, slot, layer), slot);
+    if (fx != NULL)
+    {
+        fx->type = ACTOR_TYPE_UNKNOWN_50;
+        fx->tickCallback = (ActorCallback)(void *)fx_tickTimedAttachment;
+    }
+    return fx;
+}
+
 void hackLib_fxDetach(Actor *fx, const Vector2Fp16 *pos)
 {
     Vector2Fp16 *spawnPos = (Vector2Fp16 *)((u8 *)&fx->as + FX_SPAWN_POS_OFFSET);
+    Vector2Fp16 at = *pos;
 
+    if (isHoop(fx))
+    {
+        at.y -= FX_HOOP_LIFT << 16;
+    }
     fx->renderFollowTarget = NULL;
     fx->spriteFlags &= ~SPRITE_FLAGS_FOLLOW_LAYER;
-    fx->coords = *pos;
-    fx->renderCoords = *pos;
-    *spawnPos = *pos;
+    fx->coords = at;
+    fx->renderCoords = at;
+    *spawnPos = at;
 }
 
 Actor *hackLib_fxAt(Actor *origin, const Vector2Fp16 *pos, u8 shape, HackLibFxColor color)

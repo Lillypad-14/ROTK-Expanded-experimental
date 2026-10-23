@@ -4,7 +4,9 @@
 
 // A small horizontal meter on the gameplay HUD, drawn into a strip of private BG tiles in the
 // stock HP and Spirit bar style: gold frame on top, 5 rows of dithered fill, gold trim below.
-// Redraw it every HUD tick. It keeps no state, so HUD reloads can't leave it stale.
+// Draw it every HUD tick. A draw is skipped when its inputs match the previous draw and the
+// meter's tiles and map entries in VRAM still hold what that draw wrote, so HUD reloads can't
+// leave it stale.
 
 // Gameplay HUD layer. Its char and screen blocks are read from BG0CNT at draw time.
 #define HACKLIB_HUD_BG 0

@@ -19,9 +19,12 @@
 #include "patches/ringwraith/ringwraith.h"
 #include "patches/ringwraith/ringwraith_icons.h"
 #include "patches/ringwraith/ringwraith_kit.h"
+#include "patches/ringwraith/saruman_icons.h"
 #define RINGWRAITH_ICON(name) .icon = RingwraithIcon##name,
+#define SARUMAN_ICON(name) .icon = SarumanIcon##name,
 #else
 #define RINGWRAITH_ICON(name)
+#define SARUMAN_ICON(name)
 #endif
 
 // Cast fields of the stock rows the elite actives borrow from.
@@ -585,8 +588,9 @@ static const SkillExpansionActiveDef LegolasPiercingShot = {
     .row = &LegolasPiercingShotRow,
     .icon = LegolasIconPiercingShot,
     .requiredLevels = LegolasPiercingShotLevels,
-    .description = "Piercing Shot (Level @1) - Nock: the loose pierces every foe on a long line for "
-                   "14 +6/level. True: +50%. @2 Spirit.",
+    .description =
+        "Piercing Shot (Level @1) - Nock: the loose pierces every foe on a long line for "
+        "14 +6/level. True: +50%. @2 Spirit.",
     .resolve = skillExpansion_legolasNock,
     .canCast = skillExpansion_canCastLegolasNock,
     .baseRow = ACTIVE_SKILL_LEGOLAS_FRIEND_OF_MIRKWOOD,
@@ -602,8 +606,9 @@ static const SkillExpansionActiveDef LegolasShieldSurf = {
     .row = &LegolasShieldSurfRow,
     .icon = LegolasIconShieldSurf,
     .requiredLevels = LegolasShieldSurfLevels,
-    .description = "Shield-Surf (Level @1) - Nock: the loose slides you back 96px. True: you cannot be "
-                   "hit or seen for 1s. @2 Spirit.",
+    .description =
+        "Shield-Surf (Level @1) - Nock: the loose slides you back 96px. True: you cannot be "
+        "hit or seen for 1s. @2 Spirit.",
     .resolve = skillExpansion_legolasNock,
     .canCast = skillExpansion_canCastLegolasNock,
     .baseRow = ACTIVE_SKILL_LEGOLAS_FRIEND_OF_MIRKWOOD,
@@ -619,8 +624,9 @@ static const SkillExpansionActiveDef LegolasPinningShot = {
     .row = &LegolasPinningShotRow,
     .icon = LegolasIconPinningShot,
     .requiredLevels = LegolasPinningShotLevels,
-    .description = "Pinning Shot (Level @1) - Nock: pins the first foe on the line 1.5s +0.3s/level. "
-                   "True: foes near it too. @2 Spirit.",
+    .description =
+        "Pinning Shot (Level @1) - Nock: pins the first foe on the line 1.5s +0.3s/level. "
+        "True: foes near it too. @2 Spirit.",
     .resolve = skillExpansion_legolasNock,
     .canCast = skillExpansion_canCastLegolasNock,
     .baseRow = ACTIVE_SKILL_LEGOLAS_FRIEND_OF_MIRKWOOD,
@@ -636,8 +642,9 @@ static const SkillExpansionActiveDef LegolasGift = {
     .row = &LegolasGiftRow,
     .icon = LegolasIconGiftOfTheGaladhrim,
     .requiredLevels = LegolasGiftLevels,
-    .description = "Gift of the Galadhrim (Level @1) - Nock: 4 +2/level Spirit per foe on the line. "
-                   "True: refunds the nock. @2 Spirit.",
+    .description =
+        "Gift of the Galadhrim (Level @1) - Nock: 4 +2/level Spirit per foe on the line. "
+        "True: refunds the nock. @2 Spirit.",
     .resolve = skillExpansion_legolasNock,
     .canCast = skillExpansion_canCastLegolasNock,
     .baseRow = ACTIVE_SKILL_LEGOLAS_FRIEND_OF_MIRKWOOD,
@@ -1363,64 +1370,73 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 10, 12, 14, 16, 18, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_WISE,
-                .description = "Lore of Colours (Level @1) - Curunir. Refractions are 15%/level "
-                               "stronger.",
+                SARUMAN_ICON(LoreOfColours).description =
+                    "Lore of Colours (Level @1) - Empowered spells gain another +15% "
+                    "damage per level.",
             },
         [SKILL_EXPANSION_PASSIVE_FIRES_OF_INDUSTRY - PASSIVE_SKILL_COUNT] =
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 11, 13, 15, 17, 19, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_BERSERKER,
-                .description = "Fires of Industry (Level @1) - White Hand. Your burns deal "
-                               "+1/level damage each second and last 2s/level longer.",
+                SARUMAN_ICON(FiresOfIndustry).description =
+                    "Fires of Industry (Level @1) - White Hand. Your burns deal "
+                    "+1/level damage each second and last 2s/level longer.",
             },
         [SKILL_EXPANSION_PASSIVE_CUTPURSE - PASSIVE_SKILL_COUNT] =
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 12, 14, 16, 18, 20, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_ACCURACY,
-                .description = "Cutpurse (Level @1) - Sharkey. When a cursed foe dies, steal "
-                               "5/level Spirit and the curse jumps to a foe nearby.",
+                SARUMAN_ICON(Cutpurse).description =
+                    "Cutpurse (Level @1) - Sharkey. When a cursed foe dies, steal "
+                    "3/level Spirit and the curse jumps to a foe nearby.",
             },
         [SKILL_EXPANSION_PASSIVE_RING_LORE - PASSIVE_SKILL_COUNT] =
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 14, 16, 18, 20, 22, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_SPIRIT_OF_MIDDLE_EARTH,
-                .description = "Ring-lore (Level @1) - Curunir. Each refraction restores "
-                               "4/level Spirit.",
+                SARUMAN_ICON(RingLore).description =
+                    "Ring-lore (Level @1) - Casting an empowered spell restores 2 "
+                    "Spirit per level.",
             },
         [SKILL_EXPANSION_PASSIVE_MACHINE_OF_WAR - PASSIVE_SKILL_COUNT] =
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 15, 17, 19, 21, 23, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_FIGHTERS_RESOLVE,
-                .description = "Machine of War (Level @1) - White Hand. Each foe your spells "
-                               "kill restores 2/level Spirit.",
+                SARUMAN_ICON(MachineOfWar).description =
+                    "Machine of War (Level @1) - White Hand. Each foe your spells "
+                    "kill restores 1/level Spirit.",
             },
         [SKILL_EXPANSION_PASSIVE_SPITE - PASSIVE_SKILL_COUNT] =
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 16, 18, 20, 22, 24, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_LAST_STAND,
-                .description = "Spite (Level @1) - Sharkey. Below 40% HP your spells deal "
-                               "+6%/level damage.",
+                SARUMAN_ICON(Spite).description =
+                    "Spite (Level @1) - Sharkey. Below 40% HP your spells deal "
+                    "+6%/level damage.",
             },
         [SKILL_EXPANSION_PASSIVE_HEAD_OF_THE_COUNCIL - PASSIVE_SKILL_COUNT] =
             {
                 ELITE_PASSIVE(1, 22, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_SERVANT_OF_THE_SECRET_FIRE,
-                .description = "Head of the White Council (Level @1) - Curunir. The spell after "
-                               "a refraction costs no Spirit instead of half.",
+                SARUMAN_ICON(HeadOfTheWhiteCouncil).description =
+                    "Head of the White Council (Level @1) - Casting an empowered spell "
+                    "restores 6 extra Spirit.",
             },
         [SKILL_EXPANSION_PASSIVE_POWDER_OF_ORTHANC - PASSIVE_SKILL_COUNT] =
             {
                 ELITE_PASSIVE(1, 23, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_RANGEMASTER,
-                .description = "Powder of Orthanc (Level @1) - White Hand. Foes your spells "
-                               "kill explode, hurting foes near them.",
+                SARUMAN_ICON(PowderOfOrthanc).description =
+                    "Powder of Orthanc (Level @1) - White Hand. Foes your spells "
+                    "kill explode, hurting foes near them.",
             },
         [SKILL_EXPANSION_PASSIVE_PARTING_SHOT - PASSIVE_SKILL_COUNT] =
             {
                 ELITE_PASSIVE(1, 24, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_IRON_WILL,
-                .description = "Parting Shot (Level @1) - Sharkey. Falling below 30% HP lets "
-                               "loose a free Spite blast and curses a foe. Once per 20s.",
+                SARUMAN_ICON(PartingShot).description =
+                    "Parting Shot (Level @1) - Sharkey. Falling below 30% HP lets "
+                    "loose a free Spite blast and curses a foe. Once per 20s.",
             },
         [SKILL_EXPANSION_PASSIVE_DWARVEN_MAIL - PASSIVE_SKILL_COUNT] =
             {
@@ -1578,128 +1594,145 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
                 STAT_PASSIVE(1, STAT_RECORD(STAT_MELEE_ARMOR, 2),
                              STAT_RECORD(STAT_MISSILE_ARMOR, 2)),
                 .iconPassiveSkillId = PASSIVE_SKILL_BATTLE_SCARRED,
-                .description = "Robes of Many Colours (Level @1) - White. Take 2% less damage per "
-                               "level for each color in your Prism. +2 armor per level.",
+                SARUMAN_ICON(RobesOfManyColours).description =
+                    "Robes of Many Colours (Level @1) - Take 2% less damage per level "
+                    "for each charged segment. +2 armor per level.",
             },
         [SKILL_EXPANSION_PASSIVE_KEEPER_OF_ORTHANC - PASSIVE_SKILL_COUNT] =
             {
                 STAT_PASSIVE(4, STAT_RECORD(STAT_MAX_HP, 15), NO_STAT),
                 .iconPassiveSkillId = PASSIVE_SKILL_HARDY,
-                .description = "Keeper of Orthanc (Level @1) - White. Remedy heals 10% more per "
-                               "level. Overhealing becomes Spirit. +15 max HP per level.",
+                SARUMAN_ICON(KeeperOfOrthanc).description =
+                    "Keeper of Orthanc (Level @1) - White. Remedy heals 10% more per "
+                    "level. Overhealing restores up to 8 Spirit. +15 max HP per level.",
             },
         [SKILL_EXPANSION_PASSIVE_WISDOM_OF_THE_ISTARI - PASSIVE_SKILL_COUNT] =
             {
                 STAT_PASSIVE(7, STAT_RECORD(STAT_SPIRIT_REGEN_PERCENT, 20), NO_STAT),
                 .iconPassiveSkillId = PASSIVE_SKILL_SPIRIT_OF_MIDDLE_EARTH,
-                .description = "Wisdom of the Istari (Level @1) - White. The Prism holds its "
-                               "colors 1s longer per level. +20% Spirit regen per level.",
+                SARUMAN_ICON(WisdomOfTheIstari).description =
+                    "Wisdom of the Istari (Level @1) - Damaging staff hits restore +1 "
+                    "Spirit per level. +20% Spirit regen per level.",
             },
         [SKILL_EXPANSION_PASSIVE_KINDLING - PASSIVE_SKILL_COUNT] =
             {
                 STAT_PASSIVE(2, NO_STAT, NO_STAT),
                 .iconPassiveSkillId = PASSIVE_SKILL_SERVANT_OF_THE_SECRET_FIRE,
-                .description = "Kindling (Level @1) - Isengard. Your spell hits deal 6% more per "
-                               "level to burning foes.",
+                SARUMAN_ICON(Kindling).description =
+                    "Kindling (Level @1) - Isengard. Your spell hits deal 6% more per "
+                    "level to burning foes.",
             },
         [SKILL_EXPANSION_PASSIVE_WILDFIRE - PASSIVE_SKILL_COUNT] =
             {
                 STAT_PASSIVE(5, NO_STAT, NO_STAT),
                 .iconPassiveSkillId = PASSIVE_SKILL_WISDOM_OF_THE_AGES,
-                .description = "Wildfire (Level @1) - Isengard. When a burning foe dies, its fire "
-                               "leaps to a foe nearby and burns for 3s +1s per level.",
+                SARUMAN_ICON(Wildfire).description =
+                    "Wildfire (Level @1) - Isengard. When a burning foe dies, its fire "
+                    "leaps to a foe nearby and burns for 3s +1s per level.",
             },
         [SKILL_EXPANSION_PASSIVE_STAFF_OF_ORTHANC - PASSIVE_SKILL_COUNT] =
             {
                 STAT_PASSIVE(8, STAT_RECORD(STAT_ACCURACY, 1), NO_STAT),
                 .iconPassiveSkillId = PASSIVE_SKILL_ACCURACY,
-                .description = "Staff of Orthanc (Level @1) - Isengard. Staff hits burn a foe for "
-                               "1 +1/level each second for 3s. +1 accuracy per level.",
+                SARUMAN_ICON(StaffOfOrthanc).description =
+                    "Staff of Orthanc (Level @1) - Isengard. Staff hits burn a foe for "
+                    "1 +1/level each second for 3s. +1 accuracy per level.",
             },
         [SKILL_EXPANSION_PASSIVE_HONEYED_WORDS - PASSIVE_SKILL_COUNT] =
             {
                 STAT_PASSIVE(3, STAT_RECORD(STAT_FEAR_RESIST_PERCENT, 6), NO_STAT),
                 .iconPassiveSkillId = PASSIVE_SKILL_FEARLESS,
-                .description = "Honeyed Words (Level @1) - Voice. Your stuns and holds last 10% "
-                               "longer per level. +6% fear resist per level.",
+                SARUMAN_ICON(HoneyedWords).description =
+                    "Honeyed Words (Level @1) - Voice. Your stuns and holds last 10% "
+                    "longer per level. +6% fear resist per level.",
             },
         [SKILL_EXPANSION_PASSIVE_VOICE_OF_COMMAND - PASSIVE_SKILL_COUNT] =
             {
                 STAT_PASSIVE(6, NO_STAT, NO_STAT),
                 .iconPassiveSkillId = PASSIVE_SKILL_IRON_WILL,
-                .description = "Voice of Command (Level @1) - Voice. Stunned foes take 6% more per "
-                               "level from your spell hits.",
+                SARUMAN_ICON(VoiceOfCommand).description =
+                    "Voice of Command (Level @1) - Voice. Stunned foes take 6% more per "
+                    "level from your spell hits.",
             },
         [SKILL_EXPANSION_PASSIVE_TREACHERY - PASSIVE_SKILL_COUNT] =
             {
                 STAT_PASSIVE(9, NO_STAT, NO_STAT),
                 .iconPassiveSkillId = PASSIVE_SKILL_WISE,
-                .description = "Treachery (Level @1) - Voice. Staff hits on stunned foes restore 1 "
-                               "Spirit per level.",
+                SARUMAN_ICON(Treachery).description =
+                    "Treachery (Level @1) - Voice. Staff hits on stunned foes restore 1 "
+                    "Spirit per level.",
             },
         [SKILL_EXPANSION_PASSIVE_ELF_SIGHT - PASSIVE_SKILL_COUNT] =
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 10, 12, 14, 16, 18, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_KEEN_EYES,
                 .icon = LegolasIconElfSight,
-                .description = "Elf-Sight (Level @1) - Eye. The glint stays open 1 frame longer per "
-                               "level.",
+                .description =
+                    "Elf-Sight (Level @1) - Eye. The glint stays open 1 frame longer per "
+                    "level.",
             },
         [SKILL_EXPANSION_PASSIVE_SWIFT_NOCK - PASSIVE_SKILL_COUNT] =
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 11, 13, 15, 17, 19, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_NIMBLE,
                 .icon = LegolasIconSwiftNock,
-                .description = "Swift Nock (Level @1) - Quiver. Nocking an arrow costs 8%/level less "
-                               "Spirit.",
+                .description =
+                    "Swift Nock (Level @1) - Quiver. Nocking an arrow costs 8%/level less "
+                    "Spirit.",
             },
         [SKILL_EXPANSION_PASSIVE_ELVEN_CLOAK - PASSIVE_SKILL_COUNT] =
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 12, 14, 16, 18, 20, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_GALADRIELS_BLESSING,
                 .icon = LegolasIconElvenCloak,
-                .description = "Elven Cloak (Level @1) - Grace. For 2s after a True Shot you take 6%/level "
-                               "less damage.",
+                .description =
+                    "Elven Cloak (Level @1) - Grace. For 2s after a True Shot you take 6%/level "
+                    "less damage.",
             },
         [SKILL_EXPANSION_PASSIVE_STEADY_HAND - PASSIVE_SKILL_COUNT] =
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 14, 16, 18, 20, 22, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_ACCURACY,
                 .icon = LegolasIconSteadyHand,
-                .description = "Steady Hand (Level @1) - Eye. True Shot arrows deal +5%/level more per "
-                               "streak step.",
+                .description =
+                    "Steady Hand (Level @1) - Eye. True Shot arrows deal +5%/level more per "
+                    "streak step.",
             },
         [SKILL_EXPANSION_PASSIVE_FLETCHER - PASSIVE_SKILL_COUNT] =
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 15, 17, 19, 21, 23, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_RANGEMASTER,
                 .icon = LegolasIconFletcher,
-                .description = "Fletcher (Level @1) - Quiver. A True loose of a nocked arrow refunds "
-                               "10%/level of its cost.",
+                .description =
+                    "Fletcher (Level @1) - Quiver. A True loose of a nocked arrow refunds "
+                    "10%/level of its cost.",
             },
         [SKILL_EXPANSION_PASSIVE_POINT_BLANK - PASSIVE_SKILL_COUNT] =
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 16, 18, 20, 22, 24, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_ARROW_PARRY,
                 .icon = LegolasIconPointBlank,
-                .description = "Point Blank (Level @1) - Grace. True Shots knock near foes back and stun "
-                               "them 0.5s +0.1s/level.",
+                .description =
+                    "Point Blank (Level @1) - Grace. True Shots knock near foes back and stun "
+                    "them 0.5s +0.1s/level.",
             },
         [SKILL_EXPANSION_PASSIVE_UNERRING - PASSIVE_SKILL_COUNT] =
             {
                 ELITE_PASSIVE(1, 20, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_ARCHER_OF_MIRKWOOD,
                 .icon = LegolasIconUnerring,
-                .description = "Unerring (Level @1) - Eye. At a streak of 5 every True Shot also looses a "
-                               "free half Piercing Shot.",
+                .description =
+                    "Unerring (Level @1) - Eye. At a streak of 5 every True Shot also looses a "
+                    "free half Piercing Shot.",
             },
         [SKILL_EXPANSION_PASSIVE_TWIN_NOCK - PASSIVE_SKILL_COUNT] =
             {
                 ELITE_PASSIVE(1, 21, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_DEATH_STRIKE,
                 .icon = LegolasIconTwinNock,
-                .description = "Twin Nock (Level @1) - Quiver. A True loose fires the nocked arrow twice, "
-                               "the second at half.",
+                .description =
+                    "Twin Nock (Level @1) - Quiver. A True loose fires the nocked arrow twice, "
+                    "the second at half.",
             },
         [SKILL_EXPANSION_PASSIVE_UNSHAKEN - PASSIVE_SKILL_COUNT] =
             {

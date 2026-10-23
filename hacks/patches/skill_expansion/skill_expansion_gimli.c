@@ -195,7 +195,8 @@ _Static_assert(sizeof(GimliState) <= sizeof(skillExpansion_heroState[0]),
 
 static inline GimliState *state(u8 playerIndex)
 {
-    return (GimliState *)skillExpansion_heroState[playerIndex];
+    return (GimliState *)skillExpansion_heroStateClaim(playerIndex, HERO_ID_GIMLI,
+                                                    PLAYER(playerIndex).heroId);
 }
 
 static inline bool isGimli(u8 playerIndex)
@@ -508,7 +509,7 @@ static void endCounting(u8 playerIndex, GimliState *st, Actor *actor)
 
 void skillExpansion_gimliTick(u8 playerIndex, Actor *actor)
 {
-    GimliState *st = state(playerIndex);
+    GimliState *st;
     u32 tally = PLAYER(playerIndex).killCount;
     u32 handled = 0;
     bool raging;
@@ -517,6 +518,7 @@ void skillExpansion_gimliTick(u8 playerIndex, Actor *actor)
     {
         return;
     }
+    st = state(playerIndex);
     raging = PLAYER(playerIndex).combatFlags.d.dwarvenRage;
     if (raging && !st->raging &&
         passiveLevel(playerIndex, SKILL_EXPANSION_PASSIVE_DURINS_FOLK) != 0)
@@ -577,7 +579,7 @@ void skillExpansion_gimliTick(u8 playerIndex, Actor *actor)
 
 s32 skillExpansion_gimliDamage(u8 playerIndex, Actor *victim, s32 damage)
 {
-    GimliState *st = state(playerIndex);
+    GimliState *st;
     s32 grudgebearer = passiveLevel(playerIndex, SKILL_EXPANSION_PASSIVE_GRUDGEBEARER);
     s32 wager = passiveLevel(playerIndex, SKILL_EXPANSION_PASSIVE_FRIENDLY_WAGER);
     s32 percent = 0;
@@ -586,6 +588,7 @@ s32 skillExpansion_gimliDamage(u8 playerIndex, Actor *victim, s32 damage)
     {
         return damage;
     }
+    st = state(playerIndex);
     if (st->grudgeType != NO_GRUDGE && victim->unitType == st->grudgeType)
     {
         percent += GRUDGE_PERCENT_PER_LEVEL * st->grudgeLevel +
@@ -996,13 +999,13 @@ static const u8 ChargeBarMarks[] = {CHARGE_KILLS / 2};
 
 void skillExpansion_gimliDrawTallyBar(u8 playerIndex)
 {
-    GimliState *st = state(playerIndex);
     const HackLibHudMeterLook *look = &BarCharge;
 
     if (!isGimli(playerIndex))
     {
         return;
     }
+    GimliState *st = state(playerIndex);
     if (st->chargeKills >= CHARGE_KILLS)
     {
         if (++st->barPulseFrames >= 2 * BAR_PULSE_FRAMES)

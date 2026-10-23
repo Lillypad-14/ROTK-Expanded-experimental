@@ -17,6 +17,39 @@ extern void modRam_nativeMergeNextBlock(HeapBlock *, u32) asm("mergeNextBlock");
 #define ALIGN_REQUEST(size) (((size) + HEAP_ALIGNMENT - 1) & ~(HEAP_ALIGNMENT - 1))
 
 static ModRamMemoryStats stats;
+extern u8 __modcode_bss_start[];
+
+#define BSS_GUARD_VALUE 0x4d4f4447
+
+u32 modRam_bssGuard[MOD_RAM_BSS_GUARD_WORDS] __attribute__((section(".bss.guard")));
+
+void modRam_armBssGuard(void)
+{
+    for (u32 i = 0; i < MOD_RAM_BSS_GUARD_WORDS; i++)
+    {
+        modRam_bssGuard[i] = BSS_GUARD_VALUE ^ i;
+    }
+}
+
+bool32 modRam_isBssGuardIntact(void)
+{
+    for (u32 i = 0; i < MOD_RAM_BSS_GUARD_WORDS; i++)
+    {
+        if (modRam_bssGuard[i] != (BSS_GUARD_VALUE ^ i))
+        {
+            return FALSE;
+        }
+    }
+    return TRUE;
+}
+
+static void recordTop(const void *end)
+{
+    if ((u32)end > stats.peakTop)
+    {
+        stats.peakTop = (u32)end;
+    }
+}
 
 static void sampleFreeSpace(void)
 {
@@ -55,6 +88,7 @@ void modRam_initMemoryStats(void)
     memory_memset(&stats, 0, sizeof(stats));
     sampleFreeSpace();
     stats.capacity = stats.freeBytes;
+    stats.heapEnd = (u32)__modcode_bss_start;
 }
 
 void modRam_getMemoryStats(ModRamMemoryStats *out)
@@ -67,8 +101,10 @@ void modRam_getMemoryStats(ModRamMemoryStats *out)
 void modRam_resetMemoryStats(void)
 {
     u32 capacity = stats.capacity;
+    u32 peakTop = stats.peakTop;
     modRam_initMemoryStats();
     stats.capacity = capacity;
+    stats.peakTop = peakTop;
     recordUsed();
 }
 
@@ -112,6 +148,7 @@ static void *allocate(size_t request, const void *caller)
                 stats.allocations++;
                 stats.freeBytes -= cost;
                 recordUsed();
+                recordTop((u8 *)(block + 1) + size);
                 return block + 1;
             }
         }
@@ -233,6 +270,7 @@ void *modRam_realloc(void *pointer, size_t request)
         modRam_nativeUnlinkBlock(next, index);
         stats.freeBytes -= size - usable - (size == combined ? sizeof(HeapBlock) : 0);
         recordUsed();
+        recordTop((u8 *)pointer + size);
     }
     return pointer;
 }

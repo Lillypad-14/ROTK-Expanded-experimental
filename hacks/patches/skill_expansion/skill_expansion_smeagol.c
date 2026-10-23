@@ -252,7 +252,8 @@ _Static_assert(sizeof(SmeagolState) <= sizeof(skillExpansion_heroState[0]),
 
 static inline SmeagolState *state(u8 playerIndex)
 {
-    return (SmeagolState *)skillExpansion_heroState[playerIndex];
+    return (SmeagolState *)skillExpansion_heroStateClaim(playerIndex, HERO_ID_SMEAGOL,
+                                                    PLAYER(playerIndex).heroId);
 }
 
 static const Vector2Int FacingVectors[8] = {
@@ -873,12 +874,13 @@ void skillExpansion_smeagolReset(u8 playerIndex)
 
 void skillExpansion_smeagolCleanup(u8 playerIndex, Actor *actor)
 {
-    SmeagolState *st = state(playerIndex);
+    SmeagolState *st;
 
     if (!isSmeagol(playerIndex))
     {
         return;
     }
+    st = state(playerIndex);
     if (st->hiding && actor != NULL)
     {
         actor->flags.p &= ~ACTOR_FLAG_HIDDEN;
@@ -896,12 +898,13 @@ void skillExpansion_smeagolCleanup(u8 playerIndex, Actor *actor)
 
 void skillExpansion_smeagolTick(u8 playerIndex, Actor *actor)
 {
-    SmeagolState *st = state(playerIndex);
+    SmeagolState *st;
 
     if (!isSmeagol(playerIndex) || actor == NULL)
     {
         return;
     }
+    st = state(playerIndex);
     if (st->barkFrames != 0)
     {
         st->barkFrames--;
@@ -996,7 +999,7 @@ static void takeoverInput(u8 playerIndex, SmeagolState *st, Actor *actor)
 
 void skillExpansion_smeagolInput(u8 playerIndex)
 {
-    SmeagolState *st = state(playerIndex);
+    SmeagolState *st;
     Actor *actor = PLAYER(playerIndex).ownerActor;
     u16 strip;
 
@@ -1004,6 +1007,7 @@ void skillExpansion_smeagolInput(u8 playerIndex)
     {
         return;
     }
+    st = state(playerIndex);
     if (st->takeoverFrames != 0)
     {
         takeoverInput(playerIndex, st, actor);
@@ -1035,13 +1039,14 @@ void skillExpansion_smeagolInput(u8 playerIndex)
 
 s32 skillExpansion_smeagolDamage(u8 playerIndex, s32 damage, bool melee)
 {
-    SmeagolState *st = state(playerIndex);
+    SmeagolState *st;
     s32 level;
 
     if (!isSmeagol(playerIndex))
     {
         return damage;
     }
+    st = state(playerIndex);
     level = passiveLevel(playerIndex, SKILL_EXPANSION_PASSIVE_HUNGRY);
     damage += damage * HUNGRY_PERCENT_PER_LEVEL * level * (st->grip / 10) / 100;
     if (st->takeoverFrames != 0)
@@ -1059,12 +1064,13 @@ s32 skillExpansion_smeagolDamage(u8 playerIndex, s32 damage, bool melee)
 void skillExpansion_smeagolOnHit(u8 playerIndex, Actor *victim, HackLibDamageResult result,
                                  bool melee)
 {
-    SmeagolState *st = state(playerIndex);
+    SmeagolState *st;
 
     if (!isSmeagol(playerIndex))
     {
         return;
     }
+    st = state(playerIndex);
     if (st->striking && melee)
     {
         st->striking = FALSE;
@@ -1098,12 +1104,13 @@ void skillExpansion_smeagolOnHit(u8 playerIndex, Actor *victim, HackLibDamageRes
 
 s32 skillExpansion_smeagolIncomingDamage(u8 playerIndex, s32 damage)
 {
-    SmeagolState *st = state(playerIndex);
+    SmeagolState *st;
 
     if (!isSmeagol(playerIndex) || damage <= 0)
     {
         return damage;
     }
+    st = state(playerIndex);
     if (st->freeFrames != 0)
     {
         return 0;

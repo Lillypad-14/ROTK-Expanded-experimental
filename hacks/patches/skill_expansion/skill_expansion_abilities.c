@@ -50,7 +50,8 @@ u32 skillExpansion_burstDamage(const SkillExpansionBurst *burst)
         return 0;
     }
 
-    while ((target = hackLib_nextTargetAt(&burst->center->coords, burst->exclude,
+    Vector2Fp16 center = burst->center->coords;
+    while ((target = hackLib_nextTargetAt(&center, burst->exclude,
                                           burst->radius > 32767 ? 32767 : burst->radius, target)) !=
            NULL)
     {
@@ -61,7 +62,10 @@ u32 skillExpansion_burstDamage(const SkillExpansionBurst *burst)
             if (result.hit)
             {
                 hits++;
-                hackLib_applyStun(target, burst->stunFrames);
+                if (!result.killed)
+                {
+                    hackLib_applyStun(target, burst->stunFrames);
+                }
             }
         }
     }

@@ -13,5 +13,6 @@ extern u8 __modcode_bss_start[];
 void modRam_init(void)
 {
     memory_addHeap(0, g_HeapArena, __modcode_bss_start);
+    modRam_armBssGuard();
     modRam_initMemoryStats();
 }

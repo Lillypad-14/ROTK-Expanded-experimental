@@ -180,7 +180,8 @@ extern u8 skillExpansion_treePage;
 
 static inline LegolasState *state(u8 playerIndex)
 {
-    return (LegolasState *)skillExpansion_heroState[playerIndex];
+    return (LegolasState *)skillExpansion_heroStateClaim(playerIndex, HERO_ID_LEGOLAS,
+                                                    PLAYER(playerIndex).heroId);
 }
 
 static const Vector2Int FacingVectors[8] = {
@@ -761,7 +762,7 @@ void skillExpansion_legolasCleanup(u8 playerIndex, Actor *actor)
 
 void skillExpansion_legolasInput(u8 playerIndex)
 {
-    LegolasState *st = state(playerIndex);
+    LegolasState *st;
     Actor *actor = PLAYER(playerIndex).ownerActor;
     bool held;
     bool fullDraw;
@@ -770,6 +771,7 @@ void skillExpansion_legolasInput(u8 playerIndex)
     {
         return;
     }
+    st = state(playerIndex);
     held = (PLAYER_KEYS_CURRENT(playerIndex) & B_BUTTON) != 0;
     if (!held)
     {
@@ -829,12 +831,13 @@ void skillExpansion_legolasInput(u8 playerIndex)
 
 void skillExpansion_legolasTick(u8 playerIndex, Actor *actor)
 {
-    LegolasState *st = state(playerIndex);
+    LegolasState *st;
 
     if (!isLegolas(playerIndex) || actor == NULL)
     {
         return;
     }
+    st = state(playerIndex);
     if (PLAYER(playerIndex).currentHp <= 0)
     {
         if (st->nockRow != 0 || st->streak != 0 || st->volleyWaves != 0)
@@ -867,12 +870,16 @@ void skillExpansion_legolasTick(u8 playerIndex, Actor *actor)
 
 s32 skillExpansion_legolasDamage(u8 playerIndex, Actor *victim, s32 damage, bool melee)
 {
-    LegolasState *st = state(playerIndex);
     const HackLibDamageSource *source = hackLib_currentDamageSource();
     s32 percent;
 
-    if (!isLegolas(playerIndex) || victim == NULL || melee || st->trueArrowFrames == 0 ||
-        source == NULL || source->kind != HACKLIB_DAMAGE_PROJECTILE)
+    if (!isLegolas(playerIndex) || victim == NULL || melee || source == NULL ||
+        source->kind != HACKLIB_DAMAGE_PROJECTILE)
+    {
+        return damage;
+    }
+    LegolasState *st = state(playerIndex);
+    if (st->trueArrowFrames == 0)
     {
         return damage;
     }
@@ -883,12 +890,13 @@ s32 skillExpansion_legolasDamage(u8 playerIndex, Actor *victim, s32 damage, bool
 
 s32 skillExpansion_legolasIncomingDamage(u8 playerIndex, s32 damage)
 {
-    LegolasState *st = state(playerIndex);
+    LegolasState *st;
 
     if (!isLegolas(playerIndex) || damage <= 0)
     {
         return damage;
     }
+    st = state(playerIndex);
     if (st->surfFrames != 0)
     {
         return 0;

@@ -29,8 +29,8 @@ enum HackLibFxShape
     FX_SHAPE_OVAL_RING = 17,     // dotted oval ring expanding
     FX_SHAPE_TENDRIL_STAR = 18,  // bright core with lightning tendrils
     FX_SHAPE_WIDE_RING = 19,     // checkered ring expanding wide
-    FX_SHAPE_SHOCKWAVE = 20,     // ground shockwave arcs, multicolor
-    FX_SHAPE_SHOCKWAVE_ALT = 21, // ground shockwave arcs, second set
+    FX_SHAPE_SHOCKWAVE = 20,     // complete ground wave, multicolor
+    FX_SHAPE_SHOCKWAVE_ALT = 21, // complete ground wave, alternate stock row
     FX_SHAPE_DEBRIS = 22,        // debris puffs, follows the parent's animation frame
     FX_SHAPE_COUNT = 23,
 };
@@ -72,6 +72,22 @@ enum HackLibFxCustomPalette
 #define FX_COLOR_GHOST FX_COLOR_CUSTOM(FX_PALETTE_GHOST)
 #define FX_COLOR_VENOM FX_COLOR_CUSTOM(FX_PALETTE_VENOM)
 
+/**
+ * Rows of the native timed FX table (fx_spawnTimedOnActor). Most follow the slot hue. SHIELD
+ * is multicolor: slot 6 (FX_COLOR_NAZGUL) is the stock blue bubble.
+ */
+enum HackLibFxAura
+{
+    FX_AURA_BIG_RING = 2,      // upright ring that thickens
+    FX_AURA_RISING_SPARKS = 3, // sparks streaming upward, 26 frames
+    FX_AURA_FLAME_CROWN = 4,   // spiky ground ring that grows, the stock triple-damage aura
+    FX_AURA_SWIRL = 7,         // arcs circling the feet
+    FX_AURA_SHIELD = 9,        // bubble forming around the actor, the stock Gandalf shield
+    FX_AURA_GROUND_RINGS = 10, // concentric ground ellipses
+    FX_AURA_ORBIT = 12,        // small arc orbiting the feet
+    FX_AURA_COUNT = 14,
+};
+
 /** Where an effect draws relative to the actor it follows. */
 enum HackLibFxLayer
 {
@@ -87,6 +103,15 @@ Actor *hackLib_fxTimed(Actor *on, u8 shape, HackLibFxColor color, s32 frames, u8
 
 /** One-shot effect left at a world position. origin only seeds the draw layer. */
 Actor *hackLib_fxAt(Actor *origin, const Vector2Fp16 *pos, u8 shape, HackLibFxColor color);
+
+/**
+ * Pixels the upright hoop shapes (CHECKER_RING, WIDE_RING) are raised so they ring the body
+ * instead of sinking half into the floor. fxDetach applies it, and fxBurst detaches hoops.
+ */
+#define FX_HOOP_LIFT 16
+
+/** A native timed FX row (HackLibFxAura) on an actor for 1..32767 ticks. */
+Actor *hackLib_fxAura(Actor *on, u8 aura, HackLibFxColor color, s32 frames, u8 layer);
 
 /**
  * A sprite animation played once as an effect on an actor, frameTicks ticks per frame. Frames

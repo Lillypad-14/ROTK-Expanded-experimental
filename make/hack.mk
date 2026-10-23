@@ -39,6 +39,9 @@ HACK_OUT ?= build/rotk_hack.gba
 # hacks/lib helper still costs ROM.
 C_SRCS  := $(foreach p,$(SEL),$(filter-out %/tables.c,$(wildcard hacks/patches/$(p)/*.c))) \
            $(wildcard hacks/lib/*.c)
+# Sources built from the base ROM's own graphics, so the repository holds no stock art.
+GEN_C_SRCS := build/generated/fx_shockwave.c
+C_SRCS  += $(GEN_C_SRCS)
 C_OBJS  := build/hack_obj/hack.o \
            $(addprefix build/hack_obj/,$(addsuffix .o,$(basename $(notdir $(C_SRCS)))))
 
@@ -73,11 +76,16 @@ check-fx: hack-fx
 hack-heroes:
 	uv run python hacks/tools/hero_registry.py
 
+build/generated/fx_shockwave.c: hacks/tools/ground_shockwave.py rotk.gba
+	@mkdir -p $(@D)
+	uv run python hacks/tools/ground_shockwave.py $@
+
 # Selection is a runtime choice, so the modcode is rebuilt each `make hack` (it's small): guard
 # hook-site collisions, compile the enabled C bodies into one blob, then armips.
 hack: $(if $(SKIP_ROM_CHECK),,check-base-rom) build/game_symbols.inc build/game_symbols.ld \
                      build/memmap.inc build/hack_include/memmap.h build/memmap.ld \
-                     build/include/variables.h clangd hack-text-overrides hack-heroes hack-fx
+                     build/include/variables.h clangd hack-text-overrides hack-heroes hack-fx \
+                     $(GEN_C_SRCS)
 	@# hook-site guard: the site arg of every hookTrampoline/hookReplace/hookTrap/hookStub
 	@# call (hack.asm + all patch asm) must be unique - armips would let a later write silently
 	@# overwrite an earlier one at the same site. Repo-wide on purpose: a shared site must

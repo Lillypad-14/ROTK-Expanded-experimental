@@ -9,7 +9,7 @@ Coverage includes:
 - Sam: levels 1..5 for planting, stew healing/duration and parry damage/duration; Green Thumb, Master Gardener, Stubborn, Fine Seasoning, Lembas Crumbs, Shire Grit, Taters for All and the emergency heal; failed targets and missed-hit secondary effects.
 - Smeagol: levels 1..5 for Play Dead, Catch a Fish capacity, Throttle and Slink duration; stealth cleanup, the follow-up strike, failed targets/landings, grip passives, takeover/free-state rewards and bait visual reuse.
 - Aragorn: levels 1..5 for Mark, Flame, Ambush and Return duration; Return level/cost restoration, mark target reuse, King's Presence, Blade Reforged and Hands of the King scaling.
-- Saruman: Prism colors, refractions, discounts, spell targeting failures, Guard, healing, curse/binding and Sharkey passives; level 1..5 Flame/Guard/healing and Fires of Industry scaling; curse target reuse.
+- Saruman: three-cast empowerment, failed-cast and support/Echo preservation, meter cleanup, spell targeting failures, Guard, healing, curse/binding and Sharkey passives; level 1..5 Flame/Guard/healing and Fires of Industry scaling; curse target reuse.
 - All four: positive equipment active-level bonuses on custom moves, with the same capped applied level and one extra level used by the stock curves.
 
 The audit fixes secondary effects applying on Sam's missed rope/potato attacks, stale Mark/bait/curse references after actor reuse, omitted equipment level bonuses, and Sam's rope/potato moves inheriting Knife Toss's weapon requirement.
@@ -20,4 +20,6 @@ These measurements use debug-controlled test state.
 
 Host checks do not validate every native animation, hit roll, equipment combination, map, co-op interaction or visual lifetime.
 The suite does not certify all characters or all stock moves.
+Saruman crash regressions reject native timed-effect row 14, which overlaps the one-shot descriptor table, and check that Binding and Flame do not attach secondary effects after a miss, kill or actor-slot reuse.
+The FX resource checks validate the native timed-effect table bounds against the base ROM when it is available.
 Full ROM reconstruction requires the matching `agbcc` compiler described in [setup](setup.md). Its local availability is separate from these host checks.

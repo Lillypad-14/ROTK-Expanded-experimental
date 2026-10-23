@@ -9,6 +9,8 @@
 #define TRIM_ROW 6
 #define BASE_ROW 7
 #define MAP_WIDTH 32
+#define HASH_SEED 0x811c9dc5
+#define HASH_PRIME 0x01000193
 
 const HackLibHudMeter HackLibHudGapMeter = {
     .x = HACKLIB_HUD_GAP_X,
@@ -16,6 +18,63 @@ const HackLibHudMeter HackLibHudGapMeter = {
     .widthTiles = HACKLIB_HUD_GAP_WIDTH,
     .firstTile = HACKLIB_HUD_FREE_TILE,
 };
+
+// Hash of the inputs of the latest draw.
+static u32 lastInputs;
+// Hash of the tiles and map entries the latest draw left in VRAM.
+static u32 lastVram;
+
+static u32 mix(u32 hash, u32 value)
+{
+    return (hash ^ value) * HASH_PRIME;
+}
+
+static u32 hashGeometry(u32 kind, const HackLibHudMeter *meter)
+{
+    u32 hash = mix(HASH_SEED, kind);
+    hash = mix(hash, REG_BG0CNT);
+    hash = mix(hash, meter->x | meter->y << 8 | meter->widthTiles << 16);
+    return mix(hash, meter->firstTile);
+}
+
+static u32 hashLook(u32 hash, const HackLibHudMeterLook *look)
+{
+    return mix(hash, look == NULL ? 0 : look->light | look->mid << 8 | look->dark << 16 |
+                                            (u32)look->mark << 24 | 1);
+}
+
+static u32 hashVram(const HackLibHudMeter *meter)
+{
+    u32 cnt = REG_BG0CNT;
+    const volatile u32 *tiles =
+        (volatile u32 *)(BG_CHAR_ADDR(BGCNT_GET_CHARBASE(cnt)) + meter->firstTile * 32);
+    const volatile u16 *map =
+        (volatile u16 *)BG_SCREEN_ADDR(BGCNT_GET_SCREENBASE(cnt)) + meter->y * MAP_WIDTH + meter->x;
+    u32 hash = HASH_SEED;
+    u32 i;
+
+    for (i = 0; i < meter->widthTiles * TILE_WORDS; i++)
+    {
+        hash = mix(hash, tiles[i]);
+    }
+    for (i = 0; i < meter->widthTiles; i++)
+    {
+        hash = mix(hash, map[i]);
+    }
+    return hash;
+}
+
+/** Whether the meter on screen already shows a draw with these inputs. */
+static bool isCurrent(const HackLibHudMeter *meter, u32 inputs)
+{
+    return inputs == lastInputs && hashVram(meter) == lastVram;
+}
+
+static void remember(const HackLibHudMeter *meter, u32 inputs)
+{
+    lastInputs = inputs;
+    lastVram = hashVram(meter);
+}
 
 static u32 fillColor(const HackLibHudMeterLook *look, u32 px, u32 row)
 {
@@ -142,7 +201,17 @@ void hackLib_drawHudSegments(const HackLibHudMeter *meter, const HackLibHudMeter
     draw.segmentWidth = (draw.width - 2 - (count - 1)) / count;
     // A segment with any time left keeps at least one lit pixel.
     draw.fill = value == 0 ? 0 : 1 + (u32)(value - 1) * draw.segmentWidth / (u32)max;
+    u32 inputs = mix(hashGeometry(2, meter), count << 16 | draw.fill);
+    for (u32 i = 0; i < count; i++)
+    {
+        inputs = hashLook(inputs, looks[i]);
+    }
+    if (isCurrent(meter, inputs))
+    {
+        return;
+    }
     drawTiles(meter, segmentColor, &draw);
+    remember(meter, inputs);
 }
 
 void hackLib_drawHudMeter(const HackLibHudMeter *meter, s32 value, s32 max,
@@ -182,6 +251,15 @@ void hackLib_drawHudMeter(const HackLibHudMeter *meter, s32 value, s32 max,
     {
         markPx[i] = 1 + marks[i] * inner / (u32)max;
     }
+    u32 inputs = hashLook(mix(hashGeometry(1, meter), fill), look);
+    for (i = 0; i < markCount; i++)
+    {
+        inputs = mix(inputs, markPx[i]);
+    }
+    if (isCurrent(meter, inputs))
+    {
+        return;
+    }
     for (t = 0; t < meter->widthTiles; t++)
     {
         u32 row;
@@ -200,4 +278,5 @@ void hackLib_drawHudMeter(const HackLibHudMeter *meter, s32 value, s32 max,
         }
         map[t] = meter->firstTile + t;
     }
+    remember(meter, inputs);
 }
