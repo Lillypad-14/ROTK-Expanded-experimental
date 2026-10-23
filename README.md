@@ -32,6 +32,8 @@ Most of this is **untested on hardware and only lightly tested in emulators**. E
 
 ## Heroes
 
+Quick version: [HEROES.txt](HEROES.txt).
+
 Each hero below has a second skill page with three builds and a mechanic of its own. Eowyn keeps her stock kit for now. Full rundowns with every skill are in
 **[docs/heroes.md](docs/heroes.md)**.
 

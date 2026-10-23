@@ -1,0 +1,55 @@
+ROTK EXPANDED - HERO MECHANICS
+==============================
+
+Every hero has a second skill page. Press L or R on the skill tree to switch pages.
+From level 21, you get 2 skill points per level.
+
+
+ARAGORN - Flame of Anduril
+  Hitting, stunning and marking enemies fills a green Flame bar.
+  Spend the Flame on his new skills to make Anduril blaze.
+
+FRODO - Burden
+  The Ring's pull is shown as a bar on the HUD.
+  It rises while you fight and falls when you rest.
+  More Burden means more power, but it gets dangerous near the top.
+
+SAM - Samwise's Garden
+  Plant taters and brambles. They grow, ripen and wilt over time.
+  Ripe taters throw themselves at enemies. Pick them up to get Spirit back.
+
+SMEAGOL - Gollum's Grip
+  Fighting fills the Grip bar.
+  At 100, Gollum takes over for 2 seconds: he hunts enemies and hits for double damage.
+  Mash A to take control back early.
+
+GIMLI - The Tally
+  Gimli counts his kills.
+  His second page is bought with kills as well as skill points.
+  Every 10 kills, his next skill is free and hits 50% harder.
+
+GANDALF - The Grey and the White
+  Hold R for half a second to switch form.
+  Grey: gets Spirit back over time.
+  White: loses Spirit over time, but his skills hit 30% harder.
+  Each new skill does something different depending on your form.
+
+LEGOLAS - The Glint
+  Hold B to draw your bow. After full draw, a glint flashes.
+  Let go during the glint for a True Shot (+25% damage).
+  True Shots in a row build a streak up to 5.
+  His new arrows do their full effect only on a True Shot.
+
+RINGWRAITH (new hero) - Dread
+  Scares and stuns enemies. Slain enemies rise to fight for you.
+  Only gets Spirit from kills. Has its own wraith gear.
+
+SARUMAN (new hero) - The Prism
+  Each spell adds a color: White, Isengard or Voice.
+  Get all three to trigger a bonus effect, and your next spell costs half.
+
+EOWYN
+  Unchanged for now.
+
+
+More detail: docs/heroes.md
