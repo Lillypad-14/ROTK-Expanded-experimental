@@ -10,8 +10,7 @@ An experimental content mod for _The Lord of the Rings: The Return of the King_ 
 > options, loot QoL, chapter select, fast fades, and more).
 > This repository adds experimental content on top of that work. Please support and contribute to the original project
 > and join the [LOTR GBA Discord community](https://discord.gg/yjHm8uf49e).
-> The upstream project has no license file, so its code remains RagingCactus's. This repository is shared for study
-> and community use with credit, and will be changed or taken down on request.
+
 
 ## What this mod adds
 
