@@ -32,9 +32,7 @@ void twists_combatEvent(u8 playerIndex, const HackLibCombatEvent *event);
 
 #define TWISTS_COMBAT_OPTION_COUNT 6
 #define TWISTS_VIGOR_OPTION_COUNT 6
-#define TWISTS_GROWTH_OPTION_COUNT 1
-#define TWISTS_FATE_OPTION_COUNT 3
+#define TWISTS_FATE_OPTION_COUNT 4
 extern const struct ModOptionEntry TwistsCombatOptions[TWISTS_COMBAT_OPTION_COUNT];
 extern const struct ModOptionEntry TwistsVigorOptions[TWISTS_VIGOR_OPTION_COUNT];
-extern const struct ModOptionEntry TwistsGrowthOptions[TWISTS_GROWTH_OPTION_COUNT];
 extern const struct ModOptionEntry TwistsFateOptions[TWISTS_FATE_OPTION_COUNT];

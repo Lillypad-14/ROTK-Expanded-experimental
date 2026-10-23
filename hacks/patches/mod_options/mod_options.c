@@ -61,6 +61,10 @@ static u8 g_ModOptionsPage;
 #define MOD_OPTIONS_COUNTER_X 0x04
 #define MOD_OPTIONS_COUNTER_Y 0xc
 
+// Glyph-tile base of the header title. The stock base 0xe2 leaves only 0x14 tiles before row 0,
+// too few for an 11px title wider than 80 px. 0x200 to 0x23f is unused by the options screen.
+#define MOD_OPTIONS_TITLE_TILE 0x200
+
 /**
  * The registered pages, one entry per page per enabled consumer patch (a patch may own
  * several, like demo_pages). The compiler infers the size; with no consumer enabled the
@@ -77,7 +81,6 @@ static const struct ModOptionsPage ModOptionsPages[] = {
 #if HACK_twists
     {"Twists: Combat", TwistsCombatOptions, TWISTS_COMBAT_OPTION_COUNT, NULL},
     {"Twists: Vigor", TwistsVigorOptions, TWISTS_VIGOR_OPTION_COUNT, NULL},
-    {"Twists: Growth", TwistsGrowthOptions, TWISTS_GROWTH_OPTION_COUNT, NULL},
     {"Twists: Fate", TwistsFateOptions, TWISTS_FATE_OPTION_COUNT, NULL},
 #endif
 #if HACK_debug_cheats
@@ -152,14 +155,14 @@ void modOptions_drawRowText(s32 row, s32 x, const char *str, FontStyle style, s3
 
 /**
  * Redraw the header title (cleared first: the stock Enter draws it once and never clears,
- * and page titles differ in length). Same tile base, position, and style as the stock
- * "Options" title.
+ * and page titles differ in length). Same position and style as the stock "Options" title.
  */
 static void drawTitle(char *title)
 {
-    gfx_fillBgRect(3, 4, 1, 0x1e - 4, 2, 0);
+    // full width, so the page counter clears too
+    gfx_fillBgRect(3, 0, 1, 0x1e, 2, 0);
     font_setStyle(FONT_STYLE_11PX_A, 3, -1);
-    font_drawString(0xe2, 0x70, 0xc, title, 1);
+    font_drawString(MOD_OPTIONS_TITLE_TILE, 0x70, 0xc, title, 1);
 }
 
 static void drawModTitle(void)

@@ -500,17 +500,14 @@ const struct ModOptionEntry TwistsVigorOptions[TWISTS_VIGOR_OPTION_COUNT] = {
      "Taking a hit stops HP\nregen for 5 seconds."},
 };
 
-const struct ModOptionEntry TwistsGrowthOptions[TWISTS_GROWTH_OPTION_COUNT] = {
+const struct ModOptionEntry TwistsFateOptions[TWISTS_FATE_OPTION_COUNT] = {
     {"XP Gain", XpNames, 6, 0, get_xpGain, set_xpGain,
      "Scales all XP you earn,\nfrom kills and rewards."},
-};
-
-const struct ModOptionEntry TwistsFateOptions[TWISTS_FATE_OPTION_COUNT] = {
     {"Omens", OffOnNames, 2, 0, get_omens, set_omens,
      "Each level rolls a random\nomen with a bonus or curse."},
     {"Ring's Whisper", OffOnNames, 2, 0, get_ringWhisper, set_ringWhisper,
-     "Kills feed the Ring. At 10\nkills: 10s of +50%/+50%."},
+     "10 kills fill the Ring: 10s\nof +50% dealt and taken."},
     {"Fellowship", OffOnNames, 2, 0, get_fellowship, set_fellowship,
-     "Co-op: stay close for +15%\ndamage and -15% hurt. Far: -15%."},
+     "Co-op: near ally +15% dmg,\n-15% hurt. Far: -15% dmg."},
 };
 #endif
