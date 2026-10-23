@@ -93,7 +93,7 @@ uv run --group dev pytest tools/rotkit/ghidra_build/test_parse_headers.py tools/
 
 ## Next work
 
-Continue the actor update/render foundations: `actor_tickAllInList`, `sprite_composeOam`, and `sprite_commitGfx`.
+`actor_tickAllInList`, `actor_getFrameGfx`, `sprite_getFrameCompression`, `sprite_uploadFrame` and `sprite_commitGfx` now match. Continue with `sprite_composeFrame` (0x08002cd8, best candidate is 92 instructions off) and `sprite_composeOam`.
 Inspect the current source/manifest before selecting a target, since progress may continue outside this chat.
 Then recover `rotk_main` and its startup dependencies through Ghidra.
 `decompress_chunk` has a verified signature in `include/decompress.h`, but no C body yet.

@@ -409,6 +409,7 @@
 // VRAM block layout.
 #define VRAM 0x06000000u
 #define VRAM_SIZE 0x18000u
+#define OBJ_TILE_RAM 0x06010000u
 #define BG_VRAM VRAM
 #define BG_CHAR_SIZE 0x4000u
 #define BG_SCREEN_SIZE 0x800u

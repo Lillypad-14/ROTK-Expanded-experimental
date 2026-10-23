@@ -40,6 +40,13 @@ typedef enum CombatTriggerBoxSlot
     COMBAT_TRIGGER_HITBOX = 1,  // active attack area and attack callback
 } CombatTriggerBoxSlot;
 
+enum SpriteFrameCompression
+{
+    SPRITE_COMPRESSION_RAW = 0,
+    SPRITE_COMPRESSION_RL = 1,
+    SPRITE_COMPRESSION_LZ77 = 2,
+};
+
 /** SpriteFrame.flags bits above the OAM template count. */
 enum SpriteFrameFlag
 {

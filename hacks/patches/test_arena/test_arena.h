@@ -48,7 +48,7 @@ typedef struct TestArenaConfig
     u32 benchTicks;
     // Living foes the benchmark keeps around the player.
     u32 benchCrowd;
-    // 1 to sample the interrupted program counter about 1000 times a second while measuring.
+    // 1 to sample the interrupted program counter about 131 times a second while measuring.
     u32 benchSample;
 } TestArenaConfig;
 

@@ -1929,6 +1929,36 @@ u8 skillExpansion_activeBuild(u32 heroId, u32 row)
     return SKILL_EXPANSION_BUILD_NONE;
 }
 
+// Color tables of heroes whose icons were made with skill_icon_art.py's color style, each ended by
+// a NULL icon.
+static const SkillExpansionIconColors *const IconColorTables[] = {
+    AragornIconColors, FrodoIconColors,   GandalfIconColors, GimliIconColors,
+    LegolasIconColors, SamIconColors,     SmeagolIconColors,
+#if HACK_ringwraith
+    RingwraithIconColors, SarumanIconColors,
+#endif
+};
+
+const SkillExpansionIconColors *skillExpansion_iconColors(const void *icon)
+{
+    if (icon == NULL)
+    {
+        return NULL;
+    }
+    for (u32 t = 0; t < ARRAY_COUNT(IconColorTables); t++)
+    {
+        for (const SkillExpansionIconColors *entry = IconColorTables[t]; entry->icon != NULL;
+             entry++)
+        {
+            if (entry->icon == icon)
+            {
+                return entry;
+            }
+        }
+    }
+    return NULL;
+}
+
 u8 skillExpansion_passiveBuild(u32 passiveSkillId)
 {
     switch (passiveSkillId)

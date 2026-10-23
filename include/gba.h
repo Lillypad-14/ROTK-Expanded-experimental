@@ -86,3 +86,6 @@ s32 bios_div(s32 dividend, s32 divisor);
 s32 bios_divMod(s32 dividend, s32 divisor);
 /** swi 0x0a wrapper: ArcTan2(x, y), returns the angle 0..0xffff for 0..2*pi. */
 s32 bios_arcTan2(s32 x, s32 y);
+
+/** Decompress BIOS run-length encoded tiles into VRAM. */
+void bios_rlUnCompVram(const void *source, void *destination);

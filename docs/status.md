@@ -37,8 +37,9 @@ A starting point for anyone picking up ROTK Expanded from this repository. Last 
 ## Next Steps
 
 - Playtest Gandalf, Legolas and Saruman page 2 against the test lists in `docs/wip-docs/skill-tree.md`.
-- Bigger speedups need the stock actor loop moved to ARM code in IWRAM. That waits for matched C of
-  `actor_tickAllInList`, `sprite_composeOam` and `sprite_commitGfx`.
+- The actor dispatcher and `sprite_commitGfx` are byte-matched.
+  Finish `sprite_composeOam` and its frame-composition helper, verify safe IWRAM placement, then benchmark the relocated code.
+  See [performance groundwork](decompilation.md#actor-and-sprite-performance-groundwork).
 - Keep [heroes.md](heroes.md) and the README hero table in step when a hero's mechanic changes.
 
 ## Notes and Recipes

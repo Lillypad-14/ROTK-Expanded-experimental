@@ -7,12 +7,12 @@
 #include "lib/summon_registry.h"
 #include "lib/timed_effect.h"
 #include "memory.h"
-#include "patches/mod_ram/memory_diagnostics.h"
-#include "patches/skill_expansion/skill_expansion_elite.h"
 #include "mission.h"
 #include "patches/debug_cheats/debug_cheats.h"
 #include "patches/debug_cheats/debug_lab.h"
+#include "patches/mod_ram/memory_diagnostics.h"
 #include "patches/skill_expansion/skill_delivery.h"
+#include "patches/skill_expansion/skill_expansion_elite.h"
 #include "patches/skill_expansion/skill_expansion_runtime.h"
 #include "patches/skill_expansion/skill_expansion_timeline.h"
 #include "rng.h"
@@ -48,10 +48,10 @@ _Static_assert(TEST_ARENA_HERO < SKILL_EXPANSION_HERO_COUNT, "invalid arena hero
 #define BENCH_SPAWNS_PER_TICK 2
 #define BENCH_WARMUP_TICKS 60
 
-// CPU sampler: Timer 2 at 16.78 MHz / 64, reloading every 251 counts (about 1044 Hz).
+// CPU sampler: Timer 2 at 16.78 MHz / 1024, reloading every 125 counts (about 131 Hz).
 #define SAMPLE_CAPACITY 64
-#define SAMPLE_TIMER_RELOAD (0x10000 - 251)
-#define SAMPLE_TIMER_START 0xc1
+#define SAMPLE_TIMER_RELOAD (0x10000 - 125)
+#define SAMPLE_TIMER_START 0xc3
 #define SAMPLE_IRQ_TIMER2 (1 << 5)
 #define BIOS_ISR_POINTER (*(void *volatile *)0x03007ffc)
 
@@ -482,13 +482,22 @@ static char *appendHex(char *output, u32 value)
     return output;
 }
 
-static void samplerStart(void)
+static void samplerPrepare(void)
 {
     testArena_samples = memory_zalloc(sizeof(*testArena_samples));
     if (testArena_samples == NULL)
     {
+        debugPrint("ARENA_PC_UNAVAILABLE 1");
+    }
+}
+
+static void samplerStart(void)
+{
+    if (testArena_samples == NULL)
+    {
         return;
     }
+    debugPrint("ARENA_PC_START");
     u16 ime = REG_IME;
     REG_IME = 0;
     testArena_samples->chain = BIOS_ISR_POINTER;
@@ -507,7 +516,7 @@ static void samplerFlush(void)
     u32 pcs[SAMPLE_CAPACITY];
     char line[DEBUG_STRING_SIZE];
 
-    if (buffer == NULL)
+    if (buffer == NULL || buffer->chain == NULL)
     {
         return;
     }
@@ -535,17 +544,20 @@ static void samplerStop(void)
     {
         return;
     }
-    samplerFlush();
-    u16 ime = REG_IME;
-    REG_IME = 0;
-    REG_TM2CNT_H = 0;
-    REG_IE &= ~SAMPLE_IRQ_TIMER2;
-    REG_IF = SAMPLE_IRQ_TIMER2;
-    BIOS_ISR_POINTER = testArena_samples->chain;
-    REG_IME = ime;
-    char line[DEBUG_STRING_SIZE];
-    appendNumber(appendText(line, "ARENA_PC_DROPPED"), testArena_samples->dropped);
-    debugPrint(line);
+    if (testArena_samples->chain != NULL)
+    {
+        samplerFlush();
+        u16 ime = REG_IME;
+        REG_IME = 0;
+        REG_TM2CNT_H = 0;
+        REG_IE &= ~SAMPLE_IRQ_TIMER2;
+        REG_IF = SAMPLE_IRQ_TIMER2;
+        BIOS_ISR_POINTER = testArena_samples->chain;
+        REG_IME = ime;
+        char line[DEBUG_STRING_SIZE];
+        appendNumber(appendText(line, "ARENA_PC_DROPPED"), testArena_samples->dropped);
+        debugPrint(line);
+    }
     memory_free(testArena_samples);
     testArena_samples = NULL;
 }
@@ -596,6 +608,7 @@ static void benchTick(void)
     if (arena->benchPhase == 0)
     {
         debugLab_clearTargets();
+        samplerPrepare();
         hackLib_enableProfiler(TRUE);
         arena->benchPhase = 1;
         arena->benchPhaseTick = arena->ticks;

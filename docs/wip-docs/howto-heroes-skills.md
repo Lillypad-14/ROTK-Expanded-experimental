@@ -347,6 +347,27 @@ Steps (needs `make carve` output in carved-local):
    - Stock passives on a custom hero cannot take a custom icon yet.
 6. Build and look at both tree pages and the HUD.
 
+### Full-color icons (current pipeline, replaces the indexed steps above)
+All heroes with custom art now use full-color icons. The 16-color shared palette made them look
+"deep fried", so each icon keeps its own colors instead.
+- `slice` writes full-color RGB PNGs by default (`--style classic` gives the old indexed output).
+  Slice, then `preview PNG_DIR OUT.png [--scale N]` shows each PNG beside its in-game look and its
+  palette group number. Check it before building.
+- `build` on color PNGs also writes `<Prefix>Palettes` and a `<Prefix>Colors[]` registry
+  (`SkillExpansionIconColors`: icon, 8 colors, group), ended by a NULL entry.
+- Stock frame uses palette indices 0..7, so indices 8..15 are free per icon: each icon gets 8
+  k-means colors. Icons of a hero split into at most 6 groups that share one 8-color set.
+- Skill tree: `colorTile` loads the group's colors into BG palette bank `BUILD_PALETTE_FIRST` (9) +
+  group and repoints the tile's map entries. Works on both pages. Banks 9..15 are free.
+- HUD: `skillExpansion_hudUpdateSkillPalette` loads the selected icon's colors into HUD bank 1,
+  colors 8..15 (halved when uncastable). Trap: the level-up (unspent points) graphic shares that
+  bank, so own colors are skipped while it shows.
+- New hero: add its `<Hero>IconColors` table to `IconColorTables[]` in skill_expansion_content.c,
+  or the icons fall back to the build ramp.
+- Names starting with `-` (skip) need `--names="-,a,b"` with `=`, else the parser reads a flag.
+- Stock 16-color icons keep the old build ramps. Frodo's sheet is `new icons/FrodoNewIcons.png`:
+  `--grid "40,222,404,586,768,950,1132,1314,1497,1680:128,338,548:5.7"`.
+
 Build colors (page 2): page 2 art is drawn through palette colors 8..13, which get a ramp per build
 (`BuildArtRamps` in skill_expansion_hud.c: gold = Good, violet = Evil, green = Tricks, darker when
 uncastable). Blue art quantizes mostly into 8..13 so it recolors well. Tag a skill with

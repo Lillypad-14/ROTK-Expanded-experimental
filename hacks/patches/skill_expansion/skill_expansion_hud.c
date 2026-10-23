@@ -2,9 +2,12 @@
 #include "game.h"
 #include "gba_io.h"
 #include "gfx.h"
+#include "memory.h"
+#include "variables.h"
 
 // HUD skill panel icon colors. Page 2 rows reuse stock icons, so the HUD loads a page 2 art ramp
-// into the panel's palette bank while one of them is selected.
+// into the panel's palette bank while one of them is selected. Icons with their own colors load
+// those instead, darkened while the skill can't be cast.
 
 #define ART_COLOR(r, g, b) ((((b) >> 3) << 10) | (((g) >> 3) << 5) | ((r) >> 3))
 
@@ -87,6 +90,10 @@ static const u16 StockUncastableArtRamp[SKILL_EXPANSION_ICON_ART_COLOR_COUNT] = 
 #define HUD_SKILL_ICON_PALETTE 1
 #define PALETTE_COLOR_COUNT 16
 #define COLOR_MASK 0x7fff
+// Halves every channel of a BGR555 color after a right shift by one.
+#define DARKEN_MASK 0x3def
+// Palette assets start with a 2-byte header.
+#define BG_ASSET_HEADER_SIZE 2
 
 // Stock PlayerHud.flags bit: the uncastable palette is loaded.
 #define PLAYERHUD_FLAG_UNCASTABLE_PALETTE (1 << 9)
@@ -99,6 +106,8 @@ static const u16 StockUncastableArtRamp[SKILL_EXPANSION_ICON_ART_COLOR_COUNT] = 
  */
 void skillExpansion_hudUpdateSkillPalette(u8 playerIndex)
 {
+    const SkillExpansionIconColors *own;
+    u16 colors[SKILL_EXPANSION_ICON_OWN_COLOR_COUNT];
     const u16 *ramp;
     volatile u16 *paletteRam;
     PlayerHudFlags *flags;
@@ -148,16 +157,46 @@ void skillExpansion_hudUpdateSkillPalette(u8 playerIndex)
         flags->p &= ~PLAYERHUD_FLAG_UNCASTABLE_PALETTE;
     }
 
+    // The unspent-points graphic shares the panel's bank and needs the stock colors.
+    own = NULL;
+    if (!(flags->p & PLAYERHUD_FLAG_UNSPENT_POINTS) &&
+        g_PlayerHuds[playerIndex].skillPanelState != PLAYERHUD_SKILL_PANEL_DRAW_UNSPENT_POINTS)
+    {
+        own =
+            skillExpansion_iconColors(skillExpansion_players[playerIndex].activeSkillIcons[row]);
+    }
+    if (own != NULL)
+    {
+        for (i = 0; i < SKILL_EXPANSION_ICON_OWN_COLOR_COUNT; i++)
+        {
+            colors[i] = uncastable ? (own->colors[i] >> 1) & DARKEN_MASK : own->colors[i];
+        }
+    }
+    else
+    {
+        // The ramp covers colors 8..13. Colors 14 and 15 come back from the stock palette in case
+        // an icon with its own colors replaced them.
+        const u16 *stock =
+            (const u16 *)((uncastable ? HudSkillPaletteDisabled : HudSkillPaletteNormal) +
+                          BG_ASSET_HEADER_SIZE);
+
+        memory_memcpy(colors, ramp, SKILL_EXPANSION_ICON_ART_COLOR_COUNT * sizeof(u16));
+        for (i = SKILL_EXPANSION_ICON_ART_COLOR_COUNT; i < SKILL_EXPANSION_ICON_OWN_COLOR_COUNT; i++)
+        {
+            colors[i] = stock[SKILL_EXPANSION_ICON_ART_FIRST_COLOR + i];
+        }
+    }
+
     paletteRam = (volatile u16 *)BG_PALETTE_RAM +
                  HUD_SKILL_ICON_PALETTE * PALETTE_COLOR_COUNT + SKILL_EXPANSION_ICON_ART_FIRST_COLOR;
-    for (i = 0; i < SKILL_EXPANSION_ICON_ART_COLOR_COUNT; i++)
+    for (i = 0; i < SKILL_EXPANSION_ICON_OWN_COLOR_COUNT; i++)
     {
-        if ((paletteRam[i] & COLOR_MASK) != (ramp[i] & COLOR_MASK))
+        if ((paletteRam[i] & COLOR_MASK) != (colors[i] & COLOR_MASK))
         {
-            gfx_loadBgPaletteColors(ramp,
+            gfx_loadBgPaletteColors(colors,
                                     HUD_SKILL_ICON_PALETTE * PALETTE_COLOR_COUNT +
                                         SKILL_EXPANSION_ICON_ART_FIRST_COLOR,
-                                    SKILL_EXPANSION_ICON_ART_COLOR_COUNT);
+                                    SKILL_EXPANSION_ICON_OWN_COLOR_COUNT);
             return;
         }
     }

@@ -43,7 +43,7 @@ void sprite_setPosition(Actor *actor, u32 x, u32 y);
  *
  * @param commit true also commits the frame (gfx upload + OAM compose)
  */
-u8 actor_tickAllInList(ActorList *list, bool commit);
+u32 actor_tickAllInList(ActorList *list, bool commit);
 void sprite_flushList(ActorList *list);
 s32 sprite_pushOam(u8 index, OamEntryWords *entry);
 u8 actor_tickAll(void);
@@ -140,3 +140,16 @@ u16 sprite_allocOamMatrix(void);
 void sprite_freeOamMatrix(u16 index);
 void sprite_buildOamMatrices(void);
 void sprite_releasePalette(Actor *actor);
+
+void *actor_getFrameGfx(Actor *actor);
+u8 sprite_getFrameCompression(const SpriteFrameSetHeader *frames, u16 frameIndex);
+void sprite_uploadActorFrame(Actor *actor, const void *tiles);
+void sprite_uploadFrame(const SpriteFrameSetHeader *frames, const void *tiles, u16 tileNumber,
+                        u16 frameIndex, u16 tileBytes);
+
+void sprite_composeFrame(const SpriteFrameSetHeader *frames, u16 frameIndex, u8 flags,
+                         const Vector2Int *position, u16 tileNumber, const OamEntryWords *base,
+                         Actor *actor);
+
+// Search the OBJ tile bitmap using the native first-fit traversal.
+u32 sprite_findFreeObjTiles(const u8 *bitmap, u32 tileCount, u32 firstTile);

@@ -403,6 +403,25 @@ static inline u32 skillExpansion_baseRow(u8 playerIndex, u32 row)
 #define SKILL_EXPANSION_ICON_ART_FIRST_COLOR 8
 #define SKILL_EXPANSION_ICON_ART_COLOR_COUNT 6
 
+// Icons made from user art carry their own colors for palette indices 8..15. Indices 0..7 stay the
+// frame's colors.
+#define SKILL_EXPANSION_ICON_OWN_COLOR_COUNT 8
+// Icon palette groups per table. The tree shows each group in its own palette bank.
+#define SKILL_EXPANSION_ICON_GROUP_COUNT 6
+
+typedef struct SkillExpansionIconColors
+{
+    // The icon's tile asset.
+    const u8 *icon;
+    // BGR555 colors for palette indices 8..15, shared by every icon of the group.
+    const u16 *colors;
+    // Palette group, 0..SKILL_EXPANSION_ICON_GROUP_COUNT - 1.
+    u8 group;
+} SkillExpansionIconColors;
+
+/** The colors of an icon made from user art, or NULL for icons that use the art ramps. */
+const SkillExpansionIconColors *skillExpansion_iconColors(const void *icon);
+
 extern const u16 SkillExpansionPage2ArtRamp[SKILL_EXPANSION_ICON_ART_COLOR_COUNT];
 extern const u16 SkillExpansionPage2UncastableArtRamp[SKILL_EXPANSION_ICON_ART_COLOR_COUNT];
 extern const u16 SkillExpansionPage2DisabledArtRamp[SKILL_EXPANSION_ICON_ART_COLOR_COUNT];

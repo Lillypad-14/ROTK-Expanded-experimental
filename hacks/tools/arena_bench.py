@@ -3,6 +3,7 @@
 import argparse
 import bisect
 from collections import Counter
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -25,6 +26,13 @@ EMULATOR_CONFIG = (
 )
 LOG_WARNINGS = 4
 
+# Native startup copies these routines from ROM into IWRAM.
+NATIVE_IWRAM_ROUTINES = (
+    (0x03002C30, 0x03002D28, "actor render sort"),
+    (0x03002D30, 0x0300320C, "actor_checkCollisions"),
+    (0x03007690, 0x0300771C, "sprite_findFreeObjTiles"),
+)
+
 
 def symbol_table(elf: Path, nm: str) -> tuple[list[int], list[str]]:
     """Function start addresses and names from the game config and the arena ELF."""
@@ -33,7 +41,9 @@ def symbol_table(elf: Path, nm: str) -> tuple[list[int], list[str]]:
         match = re.match(r"\s*0x([0-9a-fA-F]+)\s+\w+\s+(\S+)", line)
         if match:
             entries[int(match.group(1), 16)] = match.group(2)
-    listing = subprocess.run([nm, "--defined-only", str(elf)], capture_output=True, text=True)
+    listing = subprocess.run(
+        [nm, "--defined-only", str(elf)], capture_output=True, text=True
+    )
     for line in listing.stdout.splitlines():
         parts = line.split()
         if len(parts) == 3 and parts[1] in "tT":
@@ -56,6 +66,10 @@ def region(pc: int) -> str:
 
 def name_of(pc: int, starts: list[int], names: list[str]) -> str:
     kind = region(pc)
+    if kind == "iwram":
+        for start, end, name in NATIVE_IWRAM_ROUTINES:
+            if start <= pc < end:
+                return f"iwram:{name}"
     if kind in ("game", "mod"):
         index = bisect.bisect_right(starts, pc) - 1
         if index >= 0 and pc - starts[index] < 0x2000:
@@ -67,15 +81,25 @@ def name_of(pc: int, starts: list[int], names: list[str]) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--emulator", type=Path, required=True, help="mGBA desktop executable")
-    parser.add_argument("--nm", default=shutil.which("arm-none-eabi-nm") or "arm-none-eabi-nm")
+    parser.add_argument(
+        "--emulator", type=Path, required=True, help="mGBA desktop executable"
+    )
+    parser.add_argument(
+        "--nm", default=shutil.which("arm-none-eabi-nm") or "arm-none-eabi-nm"
+    )
     parser.add_argument("--hero", type=int, default=2)
-    parser.add_argument("--ticks", type=int, default=1200, help="Measured benchmark ticks")
-    parser.add_argument("--crowd", type=int, default=8, help="Living foes to keep around")
+    parser.add_argument(
+        "--ticks", type=int, default=1200, help="Measured benchmark ticks"
+    )
+    parser.add_argument(
+        "--crowd", type=int, default=8, help="Living foes to keep around"
+    )
     parser.add_argument("--no-samples", action="store_true", help="Measure lag only")
     parser.add_argument("--timeout", type=int, default=600)
     parser.add_argument("--top", type=int, default=40)
-    parser.add_argument("--output", type=Path, required=True, help="New report directory")
+    parser.add_argument(
+        "--output", type=Path, required=True, help="New report directory"
+    )
     args = parser.parse_args()
     emulator = args.emulator.resolve(strict=True)
     output = args.output.resolve()
@@ -133,11 +157,26 @@ def main() -> None:
                 if len(value) == 8:
                     samples[int(value, 16)] += 1
     dropped = re.search(r"ARENA_PC_DROPPED (\d+)", text)
+    dropped_samples = int(dropped.group(1)) if dropped else None
     report = dict(
+        sourceRomSha256=hashlib.sha256(rom).hexdigest(),
+        arenaRomSha256=hashlib.sha256(test_rom.read_bytes()).hexdigest(),
         hero=args.hero,
         crowd=args.crowd,
+        samplingRequested=not args.no_samples,
+        samplingStatus=(
+            "disabled" if args.no_samples else "ok" if samples else "no_samples"
+        ),
         samples=sum(samples.values()),
-        droppedSamples=int(dropped.group(1)) if dropped else None,
+        droppedSamples=dropped_samples,
+        droppedSamplePercent=(
+            round(
+                100 * dropped_samples / max(sum(samples.values()) + dropped_samples, 1),
+                2,
+            )
+            if dropped_samples is not None
+            else None
+        ),
     )
     bench = re.search(r"ARENA_BENCH ((?:-?\d+ ?)+)", text)
     if bench:
@@ -154,8 +193,10 @@ def main() -> None:
     for match in re.finditer(r"ARENA_PROFILE (\d+) (\d+) (\d+) (\d+) (\d+)", text):
         section, calls, total, peak, work = map(int, match.groups())
         profile[SECTION_NAMES[section]] = dict(
-            calls=calls, linesPerTick=round(total / max(report.get("ticks", 1), 1), 1),
-            peakLines=peak, work=work,
+            calls=calls,
+            linesPerTick=round(total / max(report.get("ticks", 1), 1), 1),
+            peakLines=peak,
+            work=work,
         )
     report["profile"] = profile
     if samples:
@@ -166,12 +207,23 @@ def main() -> None:
         for pc, count in samples.items():
             regions[region(pc)] += count
             functions[name_of(pc, starts, names)] += count
-        report["regions"] = {k: round(100 * v / total, 1) for k, v in regions.most_common()}
+        report["regions"] = {
+            k: round(100 * v / total, 1) for k, v in regions.most_common()
+        }
         report["functions"] = [
-            [name, round(100 * count / total, 1)] for name, count in functions.most_common(args.top)
+            [name, round(100 * count / total, 1)]
+            for name, count in functions.most_common(args.top)
         ]
     (output / "result.json").write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps(report, indent=2))
+    if not bench:
+        raise SystemExit(
+            "Benchmark did not complete; inspect mgba.log in the report directory"
+        )
+    if not args.no_samples and not samples:
+        raise SystemExit(
+            "CPU sampling returned no samples; inspect mgba.log in the report directory"
+        )
 
 
 if __name__ == "__main__":

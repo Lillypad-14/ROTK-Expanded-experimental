@@ -76,9 +76,17 @@ The arena keeps `--crowd` orc archers alive around the player, refills HP and Sp
 After a 60 tick warmup it measures `--ticks` ticks and prints `ARENA_BENCH` and one `ARENA_PROFILE` line per `HackLibProfileSection`.
 `vblanksPerTick` is 2.0 at full speed.
 
-With sampling on, Timer 2 interrupts about 1000 times a second through a wrapper on the BIOS interrupt vector, and each tick prints the interrupted program counters as `ARENA_PC` lines.
+Both sampling modes reserve the same 268-byte buffer before spawning the crowd, keeping heap availability consistent.
+With sampling on, Timer 2 interrupts about 131 times a second through a wrapper on the BIOS interrupt vector, and each tick prints the interrupted program counters as `ARENA_PC` lines.
 `result.json` lists the share of samples per region and per function, named from `config/functions.cfg` and the arena ELF.
+The native IWRAM collision, render-sort and OBJ tile-search routines are also named, using their startup copy ranges.
+Samples outside those ranges retain their memory-address buckets.
+Reports include source and patched ROM SHA-256 hashes so comparisons can identify the exact build.
+A requested CPU sampling run with no samples exits unsuccessfully and records `samplingStatus: "no_samples"`.
+Its completed lag measurements remain available in `result.json`.
 The sampler itself shows up as `samplerFlush`, so compare lag with `--no-samples`.
+Inspect `droppedSamplePercent` before interpreting the CPU shares.
+Dropped samples can bias the profile toward the start of each tick.
 Timer 2 is otherwise only used by EEPROM writes, which the arena does not make.
 
 ## Debugger interface

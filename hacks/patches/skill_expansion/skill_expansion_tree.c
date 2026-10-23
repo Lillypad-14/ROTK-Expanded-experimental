@@ -293,6 +293,27 @@ static void tintAssetPalette(const void *asset, u32 paletteNumber, const u16 *ar
                             PALETTE_COLOR_COUNT);
 }
 
+/** Point the icon map entries of the tile at `pos` that use bank `from` at bank `to`. */
+static void moveTileToBank(const Vector2Int *pos, u32 from, u32 to)
+{
+    volatile u16 *map = (volatile u16 *)BG_SCREEN_ADDR(BGCNT_GET_SCREENBASE(REG_BG2CNT));
+    u32 x;
+    u32 y;
+
+    for (y = 0; y < TILE_ICON_HEIGHT; y++)
+    {
+        for (x = 0; x < TILE_ICON_WIDTH; x++)
+        {
+            volatile u16 *entry = &map[(pos->y + y) * TREE_MAP_WIDTH + pos->x + x];
+
+            if ((*entry >> MAP_PALETTE_SHIFT) == from)
+            {
+                *entry = (*entry & 0x0fff) | (to << MAP_PALETTE_SHIFT);
+            }
+        }
+    }
+}
+
 /**
  * Page 2 only: give the tile at `pos` the art ramp of `build` in that build's own palette bank and
  * point the tile's icon map entries at it. Tiles without a build share the drawn bank.
@@ -300,11 +321,7 @@ static void tintAssetPalette(const void *asset, u32 paletteNumber, const u16 *ar
 static void tintTileForBuild(const void *asset, u32 paletteNumber, const Vector2Int *pos, u8 build)
 {
     const u8 *header = asset;
-    volatile u16 *map;
-    u32 bank = (header[1] >> 4) + paletteNumber;
     u32 buildBank;
-    u32 x;
-    u32 y;
 
     if (build == SKILL_EXPANSION_BUILD_NONE)
     {
@@ -318,19 +335,32 @@ static void tintTileForBuild(const void *asset, u32 paletteNumber, const Vector2
     {
         return;
     }
-    map = (volatile u16 *)BG_SCREEN_ADDR(BGCNT_GET_SCREENBASE(REG_BG2CNT));
-    for (y = 0; y < TILE_ICON_HEIGHT; y++)
-    {
-        for (x = 0; x < TILE_ICON_WIDTH; x++)
-        {
-            volatile u16 *entry = &map[(pos->y + y) * TREE_MAP_WIDTH + pos->x + x];
+    moveTileToBank(pos, (header[1] >> 4) + paletteNumber, buildBank);
+}
 
-            if ((*entry >> MAP_PALETTE_SHIFT) == bank)
-            {
-                *entry = (*entry & 0x0fff) | (buildBank << MAP_PALETTE_SHIFT);
-            }
-        }
+/**
+ * Draw the icon at `pos` in its own colors when it has them, in the bank of its color group with
+ * the frame colors of `asset`. Other icons get the art ramp of `build` on page 2.
+ */
+static void colorTile(const void *asset, u32 paletteNumber, const void *icon,
+                      const Vector2Int *pos, u8 build)
+{
+    const SkillExpansionIconColors *own = skillExpansion_iconColors(icon);
+    const u8 *header = asset;
+    u16 colors[PALETTE_COLOR_COUNT];
+    u32 bank;
+
+    if (own == NULL || !(header[0] & BG_ASSET_FLAG_PALETTE))
+    {
+        tintTileForBuild(asset, paletteNumber, pos, build);
+        return;
     }
+    bank = BUILD_PALETTE_FIRST + own->group;
+    memory_memcpy(colors, header + 2, sizeof(colors));
+    memory_memcpy(&colors[PALETTE_COLOR_COUNT - SKILL_EXPANSION_ICON_OWN_COLOR_COUNT], own->colors,
+                  SKILL_EXPANSION_ICON_OWN_COLOR_COUNT * sizeof(u16));
+    gfx_loadBgPaletteColors(colors, bank * PALETTE_COLOR_COUNT, PALETTE_COLOR_COUNT);
+    moveTileToBank(pos, (header[1] >> 4) + paletteNumber, bank);
 }
 
 /** Clear a tile's icon and level and draw only its frame. */
@@ -565,7 +595,7 @@ void skillExpansion_treeDrawPassiveTile(u8 playerIndex, u8 passiveSkillId, u8 ti
     gfx_loadBgAsset(2, icon, iconTiles, 4, pos->x, pos->y);
     build = skillExpansion_passiveBuild(passiveSkillId);
     tintAssetPalette(icon, 4, skillExpansion_buildArtRamp(build, FALSE));
-    tintTileForBuild(skillExpansion_getHeroTileBgAsset(playerIndex), 4, pos, build);
+    colorTile(skillExpansion_getHeroTileBgAsset(playerIndex), 4, icon, pos, build);
     if (tile == UNIQUE_PASSIVE_TILE && skillExpansion_treePage == 0)
     {
         if (level != 0)
@@ -615,10 +645,10 @@ void skillExpansion_treeDrawActiveTile(u8 playerIndex, u8 activeSkillIndex, u8 t
         gfx_unknown08012808(2, skillExpansion_getHeroTileBgAsset(playerIndex), iconTiles, 4, pos->x,
                             pos->y);
         gfx_unknown080127d0(2, icon, iconTiles, 4, pos->x, pos->y);
-        tintTileForBuild(
-            skillExpansion_getHeroTileBgAsset(playerIndex), 4, pos,
-            skillExpansion_activeBuild(PLAYER(playerIndex).heroId,
-                                       SKILL_EXPANSION_FIRST_NEW_ACTIVE_ROW + activeSkillIndex));
+        colorTile(skillExpansion_getHeroTileBgAsset(playerIndex), 4, icon, pos,
+                  skillExpansion_activeBuild(PLAYER(playerIndex).heroId,
+                                             SKILL_EXPANSION_FIRST_NEW_ACTIVE_ROW +
+                                                 activeSkillIndex));
         gfx_unknown08012808(2, SkillTreeLevelBgAsset, levelTiles, 5, pos->x,
                             pos->y + TILE_ICON_HEIGHT);
         gfx_unknown080127d0(2, SkillTreeLevelDigitAssets[level], levelTiles, 5, pos->x,

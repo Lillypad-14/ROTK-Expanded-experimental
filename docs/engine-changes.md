@@ -209,6 +209,18 @@ makes room for hero ids 8 (Ringwraith) and 9 (Saruman):
   `ItemTypeInfos` rows point at extended tables. The stock rows are copied from the ROM and the wraith rows are
   appended after them.
 
+## Skill icon colors
+
+Page 2 icons can carry their own colors. The stock frame uses palette indices 0..7, so each icon gets 8
+colors in indices 8..15.
+
+- The tree loads an icon's color group into BG palette bank 9 + group (banks 9..15 are free) and repoints the tile.
+- `skillExpansion_hudUpdateSkillPalette` loads the selected icon's colors into HUD bank 1 and halves them when the
+  skill can't be cast. It uses the stock colors while the unspent-points graphic shows, since that graphic shares
+  the bank.
+- Icons come from `skillExpansion_iconColors`, a lookup over each hero's generated `<Prefix>Colors[]` table.
+  `hacks/tools/skill_icon_art.py` builds the tables.
+
 ## HUD
 
 `hacks/lib/hud_meter.c` draws hero bars in the stock HP/Spirit style, in the gap between the two bars:

@@ -83,3 +83,27 @@ make check
 Add the source region to `config/split.cfg` once matching succeeds. A definition without manifest membership is not included in reconstruction checks. Inspect each command's result rather than treating the presence of an old build artifact as verification.
 
 `make verify` produces `build/rom.gba`, which must match SHA-1 `ec3d126d37ea6e2ad7030d8a99cf87c6e46c03fd`. Hack outputs use a separate path and intentionally differ from that ROM. Matching requires the repository's agbcc toolchain; the expansion build uses ARM GCC. See setup for both.
+
+## Actor and sprite performance groundwork
+
+`actor_tickAllInList` at `0x08000708` is implemented in `src/c/actor_tickAllInList.c` and matches all 732 ROM bytes without matching hacks.
+Its caller `actor_tickAll` and the existing 660-byte `actor_tick` implementation also retain exact matches.
+The dispatcher includes forward and reverse actor traversal, collision dispatch, render-follow updates, fixed and sorted sprite submission, particle layers, mirrored sprites and hit flashes.
+
+The native startup copy code places the render sorter at `0x03002c30` (248 bytes) and collision code at `0x03002d30` (1244 bytes).
+Both already execute from IWRAM.
+The OBJ tile-search routine at `0x0800e17c` is also copied to IWRAM at `0x03007690` (140 bytes).
+These buffers are named in `config/data.cfg`, rather than treated as free memory.
+The dispatcher has a word-sized return type, matching the original generated code.
+
+The remaining sprite target is `sprite_composeOam` at `0x08002484`.
+Its `sprite_composeFrame` helper at `0x08002cd8` also still needs a matched C implementation.
+No new IWRAM placement patch or measured speed gain is included in this groundwork.
+Placement still requires a verified memory range and equivalent behavior across gameplay, overlays and co-op.
+
+Four sprite dependencies are also matched: `actor_getFrameGfx` (36 bytes), `sprite_getFrameCompression` (50 bytes), and the two upload routines in `sprite_uploadFrame.c` (224 bytes combined).
+They cover packed frame tile offsets, RL/LZ77 selection, raw tile copying, BIOS RL decompression and the native IWRAM LZ77 decoder.
+The upload paths retain the original tile addresses and transfer sizes.
+`sprite_commitGfx` at `0x0800304c` is also byte-matched and included in reconstruction.
+It preserves shared-cell and per-frame tile caches, deferred tile releases, actor frame uploads and attached sprite frames.
+Its function body is 1,266 bytes, with alignment padding preserved by the reconstruction build.
