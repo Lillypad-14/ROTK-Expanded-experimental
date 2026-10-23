@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 
+u8 __modcode_bss_start[16];
 Heap g_Heaps[1];
 u32 g_HeapCount = 1;
 FontRenderCtx g_FontRenderCtx;

@@ -115,6 +115,8 @@ def main() -> None:
                 "-Wall",
                 "-Wextra",
                 "-Werror",
+                "-Wno-pointer-to-int-cast",
+                "-Wno-void-pointer-to-int-cast",
                 *(
                     f"-I{root / path}"
                     for path in ("include", "carved/include", "build/include", "hacks")

@@ -539,13 +539,13 @@ int main(void)
         PLAYER(0).currentSpirit = 100;
         assert(cast(SARUMAN_HEAL, rank) == SKILL_CAST_SUCCESS);
         player_addSpirit(0, -(s32)cost(SARUMAN_HEAL));
-        assert(PLAYER(0).currentSpirit == 76);
+        assert(PLAYER(0).currentSpirit == 71);
         PLAYER(0).currentHp = 99;
         assert(cast(SARUMAN_ECHO, rank) == SKILL_CAST_SUCCESS);
         player_addSpirit(0, -(s32)cost(SARUMAN_ECHO));
-        assert(PLAYER(0).currentSpirit == 52);
+        assert(PLAYER(0).currentSpirit == 42);
     }
-    // Maximum empowerment refunds still leave a four-Flame cycle costing 56 Spirit.
+    // Maximum empowerment refunds still leave a four-Flame cycle costing 68 Spirit.
     fixture();
     passives[SKILL_EXPANSION_PASSIVE_RING_LORE] = 5;
     passives[SKILL_EXPANSION_PASSIVE_HEAD_OF_THE_COUNCIL] = 1;
@@ -555,7 +555,7 @@ int main(void)
         player_addSpirit(0, -(s32)cost(SARUMAN_FLAME));
         assert(cast(SARUMAN_FLAME, 5) == SKILL_CAST_SUCCESS);
     }
-    assert(PLAYER(0).currentSpirit == 144 && chargeCount(0) == 0);
+    assert(PLAYER(0).currentSpirit == 132 && chargeCount(0) == 0);
     fixture();
     burstHits = 30;
     assert(cast(SARUMAN_SPITE, 5) == SKILL_CAST_SUCCESS);

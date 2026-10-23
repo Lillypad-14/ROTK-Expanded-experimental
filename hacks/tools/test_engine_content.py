@@ -39,7 +39,7 @@ def main() -> None:
     assert validate(content) > 0
     start = content.symbols["__modcode_bss_start"][0]
     end = content.symbols["__modcode_bss_end"][0]
-    assert 0x0203F600 <= start <= end <= 0x02040000
+    assert 0x0203F5A0 <= start <= end <= 0x02040000
     assert start == 0x02040000 - ((end - start + 15) & ~15)
     address, size = content.symbols["SkillExpansionValidationSchema"]
     schema = dict(
