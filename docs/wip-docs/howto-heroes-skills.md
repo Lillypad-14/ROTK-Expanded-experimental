@@ -299,6 +299,7 @@ The user draws icons as one upscaled mockup of the skill screen: 3x3 passive gri
 3/2/1 active slots on the right (example: `Desktop/lotr/new icons/wraith skill icons.png`, 1858x846,
 7.5x GBA scale). The user lets us choose which picture fits which skill.
 
+(Older indexed format, used by `--style classic` and stock icons. New work uses the full-color pipeline below the steps.)
 Icon format: 32x24, 4bpp, 4x3 tiles row major, in the one 16-color palette all skill icons share
 (0 transparent, 1 white, 2..6 gold/orange/red/brown, 7 near black, 8..12 greens, 13 navy, 14/15
 grey green). The asset is `u8[0x184]`: header `{0x10, 0, 0x80, 0x01}` plus 384 bytes of tiles.
