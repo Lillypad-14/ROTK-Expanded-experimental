@@ -1,0 +1,159 @@
+[Context] Operating on: rotk
+
+Decompiled function actor_enemySpawner_spawnChild:
+
+
+
+Actor * actor_enemySpawner_spawnChild(u16 enemySpawnId,Actor *spawner)
+
+
+
+{
+
+  byte bVar1;
+
+  u8 uVar2;
+
+  Actor *pAVar3;
+
+  ActorType *pAVar4;
+
+  int iVar5;
+
+  s32 sVar6;
+
+  s32 sVar7;
+
+  code *UNRECOVERED_JUMPTABLE;
+
+  
+
+  sVar7 = 0;
+
+  sVar6 = 0;
+
+  pAVar3 = actor_allocMain();
+
+  if (pAVar3 != (Actor *)0x0) {
+
+    func_0x08009dec();
+
+    if ((spawner->variant == '\0') && ((ushort)(spawner->type - ACTOR_TYPE_ENEMY_SPAWNER) < 2)) {
+
+      sVar7 = rng_rollRange(-0x14,0x14);
+
+      sVar6 = rng_rollRange(-0x14,0x14);
+
+    }
+
+    pAVar3->facing = DIRECTION8_SOUTH;
+
+    sprite_setPosition(pAVar3,(spawner->coords).x + sVar7 * 0x10000,
+
+                       (spawner->coords).y + sVar6 * 0x10000);
+
+    pAVar3->parentActor = spawner;
+
+    iVar5 = (enemySpawnId & 0xff) * 4;
+
+    pAVar4 = &pAVar3->type;
+
+    *pAVar4 = *(ActorType *)(&UNK_080584a8 + iVar5);
+
+    bVar1 = (&UNK_080584aa)[iVar5];
+
+    pAVar3->variant = bVar1;
+
+    if ((*pAVar4 == ACTOR_TYPE_ENEMY) && (bVar1 < 3)) {
+
+      func_0x080370a4(pAVar3);
+
+    }
+
+    else {
+
+      pAVar3->unitType = (&UNK_080584ab)[iVar5];
+
+      func_0x0801b798(pAVar3);
+
+      if (*pAVar4 == (ACTOR_TYPE_GEM_RAIN|ACTOR_TYPE_LOOT_PILE)) {
+
+        bVar1 = pAVar3->variant;
+
+        if (bVar1 < 2) {
+
+          func_0x0804955c(pAVar3);
+
+        }
+
+        else if ((byte)(bVar1 - 4) < 2) {
+
+          func_0x080495b8(pAVar3);
+
+        }
+
+      }
+
+      else if (*pAVar4 == 0x30) {
+
+        func_0x0801b6a0(pAVar3);
+
+      }
+
+    }
+
+    uVar2 = spawner->variant;
+
+    if (uVar2 == '\x01') {
+
+      pAVar3->behaviorState = '/';
+
+      *(fp16_16 *)(pAVar3->field_0xbc + 8) = (pAVar3->coords).x;
+
+      *(fp16_16 *)(pAVar3->field_0xbc + 0xc) = (pAVar3->coords).y + 0xf0000;
+
+      (pAVar3->flags).p = (pAVar3->flags).p & 0xffff7dfb;
+
+    }
+
+    else if (uVar2 == '\x02') {
+
+      pAVar3->behaviorState = '/';
+
+      *(fp16_16 *)(pAVar3->field_0xbc + 8) = (pAVar3->coords).x;
+
+      *(fp16_16 *)(pAVar3->field_0xbc + 0xc) = (pAVar3->coords).y + -0xf0000;
+
+      (pAVar3->flags).p = (pAVar3->flags).p & 0xffff7dfb;
+
+      pAVar3->facing = DIRECTION8_NORTH;
+
+    }
+
+    if (*pAVar4 == (ACTOR_TYPE_GEM_RAIN|ACTOR_TYPE_CHEST|ACTOR_TYPE_MISSION_WARP)) {
+
+      func_0x080229d8(pAVar3);
+
+    }
+
+    if ((g_CurrentMissionId == 0x3a) && (g_MissionVariant == '\x01')) {
+
+      (pAVar3->flags).p = (pAVar3->flags).p | 8;
+
+    }
+
+  }
+
+                    /* WARNING: Could not recover jumptable at 0x08022074. Too many branches */
+
+                    /* WARNING: Treating indirect jump as call */
+
+  pAVar3 = (Actor *)(*UNRECOVERED_JUMPTABLE)(pAVar3);
+
+  return pAVar3;
+
+}
+
+
+
+

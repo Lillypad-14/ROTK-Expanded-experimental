@@ -96,12 +96,6 @@ void *text_objFromString(char **pstr);
 void text_objRasterizeString(void *obj, char **pstr);
 void text_objSetPos(void *obj, s32 xCenter, s32 y);
 
-/**
- * Text objects are sprite actors rasterized from a string; menus keep up to 6 of them in
- * g_TextObjSlots. Creating into an occupied slot replaces the pointer only, so the caller
- * flags the old actor for removal first. See text_objRasterizeString for the font render
- * target it leaves behind.
- */
-void text_objCreateInSlot(char **pstr, s32 slotIndex);
-/** Forget every g_TextObjSlots entry (the actors are freed with their list). */
+void *text_objCreateInSlot(char **pstr, s32 slotIndex);
+u8 text_objCreateAllInSlots(char **pstr, s32 firstSlot);
 void text_objClearSlots(void);

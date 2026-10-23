@@ -1,0 +1,26 @@
+#include "actor.h"
+#include "math.h"
+#include "terrain.h"
+#include "variables.h"
+
+/**
+ * @romaddress 0x08033dd8
+ */
+void actor_updateBgPriorityFromTerrain(Actor *actor)
+{
+    Vector2Int pos;
+    Vector2Int size;
+    s32 x;
+    s32 y;
+    u32 collision;
+
+    math_vector2_fromFp16(&actor->renderCoords, &pos);
+    x = pos.x;
+    y = pos.y;
+    terrain_getWorldSize(&size);
+    if (x > size.x || x < 0 || y > size.y || y < 0)
+        collision = 0;
+    else
+        collision = g_TerrainCollisionCells[(((u32)g_TerrainCollisionBlocks[(x >> 5) + (y >> 5) * (size.x >> 5)] << 20) >> 16) | ((x >> 3) & 3 | (y >> 1) & 12)];
+    actor->oam.bgPriority = ((collision >> 3) + 2) & 3;
+}

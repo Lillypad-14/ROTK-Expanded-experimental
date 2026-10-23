@@ -1,0 +1,35 @@
+[Context] Operating on: rotk
+
+Decompiled function memory_init:
+
+
+
+/* Register the single game heap over the EWRAM tail. */
+
+
+
+void memory_init(void)
+
+
+
+{
+
+  code *UNRECOVERED_JUMPTABLE;
+
+  
+
+  memory_addHeap(0,&g_HeapArena,(void *)0x2040000);
+
+                    /* WARNING: Could not recover jumptable at 0x08032bb0. Too many branches */
+
+                    /* WARNING: Treating indirect jump as call */
+
+  (*UNRECOVERED_JUMPTABLE)();
+
+  return;
+
+}
+
+
+
+

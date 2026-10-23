@@ -1,0 +1,45 @@
+[xjump] insn 40: no merge: no opposing jump-back before target
+[xjump] insn 46: no merge: no opposing jump-back before target
+[xjump] insn 46 vs label 475: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 72: no merge: no opposing jump-back before target
+[xjump] insn 107: no merge: no opposing jump-back before target
+[xjump] insn 107 vs label 165: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 107 vs insn 143: no merge: insn kind mismatch
+[xjump] insn 123: no merge: no opposing jump-back before target
+[xjump] insn 143: no merge: no opposing jump-back before target
+[xjump] insn 143 vs label 165: no merge: insn kind mismatch
+[xjump] insn 143 vs insn 107: no merge: insn kind mismatch
+[xjump] insn 347: no merge: no opposing jump-back before target
+[xjump] insn 351: no merge: no opposing jump-back before target
+[xjump] insn 371: no merge: no opposing jump-back before target
+[xjump] insn 371: tail merged into label 571
+[xjump] insn 371: no merge: no opposing jump-back before target
+[xjump] insn 371 vs label 571: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 398: no merge: no opposing jump-back before target
+[xjump] insn 398 vs label 419: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 398 vs insn 411: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 407: no merge: no opposing jump-back before target
+[xjump] insn 411: no merge: no opposing jump-back before target
+[xjump] insn 411: tail merged into label 572
+[xjump] insn 411: no merge: no opposing jump-back before target
+[xjump] insn 411 vs label 572: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 40: no merge: no opposing jump-back before target
+[xjump] insn 46: no merge: no opposing jump-back before target
+[xjump] insn 46 vs label 475: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 72: no merge: no opposing jump-back before target
+[xjump] insn 107: no merge: no opposing jump-back before target
+[xjump] insn 107 vs label 165: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 107 vs insn 143: no merge: insn kind mismatch
+[xjump] insn 123: no merge: no opposing jump-back before target
+[xjump] insn 143: no merge: no opposing jump-back before target
+[xjump] insn 143 vs label 165: no merge: insn kind mismatch
+[xjump] insn 143 vs insn 107: no merge: insn kind mismatch
+[xjump] insn 347: no merge: no opposing jump-back before target
+[xjump] insn 351: no merge: no opposing jump-back before target
+[xjump] insn 371: no merge: no opposing jump-back before target
+[xjump] insn 371 vs label 571: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 398: no merge: no opposing jump-back before target
+[xjump] insn 398 vs label 419: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 407: no merge: no opposing jump-back before target
+[xjump] insn 411: no merge: no opposing jump-back before target
+[xjump] insn 411 vs label 572: no merge: insns differ (no REG_EQUAL rescue)

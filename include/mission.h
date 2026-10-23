@@ -7,6 +7,81 @@
 /** Don't include actor.h to avoid cycles, we only need pointers anyway */
 typedef struct Actor Actor;
 
+/** Relative offsets from the beginning of a mission group or record table. */
+typedef struct MissionOffsetTable
+{
+    u16 count;
+    u16 offsets[0];
+} MissionOffsetTable;
+
+typedef struct MissionChunkHeader
+{
+    u16 waypointSectionOffset;
+    u16 scriptSectionOffset;
+    u16 flags;
+} MissionChunkHeader;
+
+typedef struct MissionStreamSection
+{
+    u8 count;
+    u8 field_0x1;
+    u16 offsets[0];
+} MissionStreamSection;
+
+typedef struct MissionGroupSection
+{
+    u8 count;
+    u8 field_0x1;
+    u16 offsets[0];
+} MissionGroupSection;
+
+enum MissionFlag
+{
+    MISSION_FLAG_SHARED_CHUNK = 1 << 0,
+};
+
+typedef struct MissionWaypointRecord
+{
+    s16 x;
+    s16 y;
+    u32 field_0x4;
+} MissionWaypointRecord;
+
+typedef struct MissionWaypointPath
+{
+    u32 count;
+    MissionWaypointRecord waypoints[0];
+} MissionWaypointPath;
+
+typedef struct MissionSpawnRecord
+{
+    s16 x;
+    s16 y;
+    u8 spawnPointId;
+    u8 playerIndex;
+    u8 field_0x6[2];
+} MissionSpawnRecord;
+
+typedef struct MissionBlockHeader
+{
+    u16 headerSize;
+    u16 spawnRecordCount;
+    MissionSpawnRecord spawnRecords[0];
+} MissionBlockHeader;
+
+typedef struct MissionChunkReference
+{
+    u16 offset;
+    u8 field_0x2[6];
+} MissionChunkReference;
+
+typedef struct MissionVariantTable
+{
+    u8 chunkCount;
+    u8 variantChunks[11];
+    MissionChunkReference chunks[0];
+} MissionVariantTable;
+
 typedef enum MissionId
 {
     MISSION_ANDUIN_BANKS = 0x00,
@@ -195,11 +270,6 @@ typedef struct RegionMissionRange
     u16 loMission;
     u16 hiMission;
 } RegionMissionRange;
-/**
- * Map a mission id to its region (enum RegionId) via RegionMissionRanges.
- *
- * @param missionId enum MissionId
- */
 u32 mission_getRegion(u32 missionId);
 
 /** Actor type identifiers. */
@@ -247,6 +317,19 @@ typedef struct ActorMissionParams
     s16 y;
 } ActorMissionParams;
 
+typedef struct MissionActorRecordHeader
+{
+    Actor *actor;
+    u32 field_0x4;
+} MissionActorRecordHeader;
+
+typedef struct MissionActorGroupSource
+{
+    u8 count;
+    u8 field_0x1;
+    u8 recordSizes[0];
+} MissionActorGroupSource;
+
 /**
  * ActorMissionConstructors entry: build the engine object for one spawn-group slot.
  * NULL entries are unused spawn types. Each kind's params, its
@@ -265,94 +348,161 @@ typedef struct Actor *(*ActorMissionConstructor)(u8 groupIndex, u8 actorIndex);
 // (op 62 reads them, ops 63-66 write them), g_MissionScriptVars (scratch the
 // read-modify-write ops 58-61 address as base + index), g_MissionVariant, and the
 // g_MissionGroups / g_MissionWaypointPaths / g_MissionStreams areas inside the VM's
-// 0x2c00-byte state arena @0x0300324c.
+// 0x2c00-byte state arena addressed by g_MissionScriptState.
 
-/** TRUE when a group/stream slot is not always loaded and needs an explicit spawn/start. */
 bool mission_script_slotNeedsLoad(u8 slotIndex);
 
 /** Spawn a spawn group's actors, skipping slots that already have a live actor. */
 void mission_script_spawnGroup(u8 groupIndex);
+void mission_script_setRecordActor(Actor *actor, u8 groupIndex, u8 recordIndex);
 
-/** Run one script stream of the loaded variant to completion (the VM's record loop). */
 void mission_script_runStream(u8 streamIndex);
 
-/**
- * The script edge op: spawn group groupIndex (when mission_script_slotNeedsLoad), then run
- * stream streamIndex. Called by the flow ops (5/52/62/68) and by actor record links.
- */
 void mission_script_spawnGroupAndStartStream(u8 groupIndex, u8 streamIndex);
 
-/** Number of actor slots in a spawn group. */
+/** Compare value with operand and start the pass or fail spawn group and stream pair. */
+void mission_script_compareAndSpawn(u32 value, u32 operand, u32 op, u32 passGroup, u32 passStream, u32 failGroup,
+                                    u32 failStream);
+
 u16 mission_script_getGroupActorCount(u8 groupIndex);
 
-/** On-disk params of one spawn-group slot (payload per head.type). */
 ActorMissionParams *mission_script_getActorParams(u8 groupIndex, u8 actorIndex);
 
-/** Live actor of one spawn-group slot, NULL when not spawned. */
 Actor *mission_script_getGroupActor(u8 groupIndex, u8 actorIndex);
+
+/** Script opcode handlers (MissionScriptOpcodeHandlers[opcode - 1]); command points at the record. */
+void mission_script_op01(const u8 *command);
+void mission_script_op02(const u8 *command);
+void mission_script_op03(const u8 *command);
+void mission_script_op04(const u8 *command);
+void mission_script_op14(const u8 *command);
+void mission_script_op15(const u8 *command);
+void mission_script_op46(const u8 *command);
+void mission_script_op68(const u8 *command);
+void mission_script_op05(const u8 *command);
+void mission_script_op08(const u8 *command);
+void mission_script_op19(const u8 *command);
+void mission_script_op37(const u8 *command);
+void mission_script_op67(const u8 *command);
+void mission_script_op23(const u8 *command);
+void mission_script_op44(const u8 *command);
+void mission_script_op53(const u8 *command);
+void mission_script_op56(const u8 *command);
+void mission_script_op24(const u8 *command);
+void mission_script_op48(const u8 *command);
+void mission_script_op49(const u8 *command);
+void mission_script_op51(const u8 *command);
+void mission_script_op52(const u8 *command);
+void mission_script_op38(const u8 *command);
+void mission_script_op39(const u8 *command);
+void mission_script_op40(const u8 *command);
+void mission_script_op41(const u8 *command);
+void mission_script_op17(const u8 *command);
+void mission_script_op28(const u8 *command);
+void mission_script_op50(const u8 *command);
+void mission_script_op32(const u8 *command);
+void mission_script_op34(const u8 *command);
+void mission_script_op55(const u8 *command);
+void mission_script_op27(const u8 *command);
+void mission_script_op62(const u8 *command);
+void mission_script_op42(const u8 *command);
+void mission_script_op36(const u8 *command);
+void mission_script_op21(const u8 *command);
+void mission_script_op22(const u8 *command);
+void mission_script_op45(const u8 *command);
+void mission_script_op33(const u8 *command);
+void mission_script_op57(const u8 *command);
+void mission_script_op43(const u8 *command);
+void mission_script_op06(const u8 *command);
+void mission_script_op07(const u8 *command);
+void mission_script_op09(const u8 *command);
+void mission_script_op10(const u8 *command);
+void mission_script_op11(const u8 *command);
+void mission_script_op20(const u8 *command);
+void mission_script_op25(const u8 *command);
+void mission_script_op29(const u8 *command);
+void mission_script_op47(const u8 *command);
+void mission_script_op54(const u8 *command);
+void mission_script_op58(const u8 *command);
+void mission_script_op59(const u8 *command);
+void mission_script_op60(const u8 *command);
+void mission_script_op61(const u8 *command);
+void mission_script_op63(const u8 *command);
+void mission_script_op64(const u8 *command);
+void mission_script_op65(const u8 *command);
+void mission_script_op66(const u8 *command);
+void mission_script_op12(const u8 *command);
+void mission_script_op13(const u8 *command);
+void mission_script_op16(const u8 *command);
 
 /**
  * Allocate a countdown object (tick fn from MissionScriptTimerUpdates[kind]); script
  * op 12 arms it to fire mission_script_spawnGroupAndStartStream when the count expires.
  */
-void *mission_script_allocTimer(u8 kind);
+Actor *mission_script_allocTimer(u8 kind);
 
-/**
- * Load a mission block: decompress the shared and variant-selected chunks and
- * build the stream and spawn-group state areas from them.
- */
 void mission_script_loadMissionBlock(const u8 *block);
 
-/**
- * Build the spawn-group state from the shared and variant chunks; sets
- * g_MissionFlags.
- *
- * @return state-area cursor past the groups
- */
 u8 *mission_script_loadGroups(const u8 *chunk0, const u8 *chunk, u8 *dest);
 
-/**
- * Copy one spawn group's actor params into the group state.
- *
- * @return state-area cursor past the group
- */
 u8 *mission_script_copyGroup(const u8 *groupSection, u8 *dest, u8 groupIndex);
+void mission_script_copyActorRecord(const u8 *source, u8 *dest, u8 size);
 
-/**
- * Copy the mission block's header and spawn records into the mission-script state area.
- *
- * @return state-area cursor past the copy (start of the group state)
- */
-u8 *mission_script_copySpawnRecords(const u8 *block);
+u8 *mission_script_copySpawnRecords(const u8 *block, const u8 *chunk);
 
-/**
- * Merge both chunks' waypoint-path sections (u16 @chunk+0: path count, u16 offset table,
- * then per path a u32 header + 8-byte {s16 x, s16 y, ...} waypoint records) into the
- * state area; sets g_MissionWaypointPaths.
- *
- * @return state-area cursor past the table
- */
 u8 *mission_script_loadWaypointPaths(const u8 *chunk0, const u8 *chunk, u8 *dest);
 
-/** Waypoint count of one path in the merged table. */
 u8 mission_script_getWaypointCount(u8 pathIndex);
 
-/** Read one waypoint of a path. */
-void mission_script_getWaypoint(Vector2Int *out, u8 pathIndex, u8 waypointIndex);
+Vector2Int mission_script_getWaypoint(u8 pathIndex, u8 waypointIndex);
 
-/**
- * Build the stream state from the shared and variant chunks.
- *
- * @return state-area cursor past the streams
- */
 u8 *mission_script_loadStreams(const u8 *chunk0, const u8 *chunk, u8 *dest);
 
-/**
- * Copy one stream's records into the stream state.
- *
- * @return state-area cursor past the stream
- */
 u8 *mission_script_copyStream(const u8 *scriptSection, u8 *dest, u8 streamIndex);
+
+u16 mission_script_getAlignedHalfwordBytes(u16 count);
+u16 mission_script_alignByteSize(u16 size);
+u8 *mission_script_copyWaypointPath(const MissionOffsetTable *section, u8 *dest, u8 pathIndex);
+
+/** Per-player scripted camera pan state. */
+typedef struct MissionCameraPan
+{
+    // actor the pan follows, or the player's own actor
+    struct Actor *target;
+
+    // the target's velocity when the pan started
+    Vector2Fp16 savedVelocity;
+
+    u8 field_0xc[8];
+
+    // pan speed in 16.16 fixed point
+    s32 speed;
+
+    // pan length in frames
+    s32 frames;
+
+    u16 duration;
+
+    u16 field_0x1e;
+    u8 field_0x20;
+    u8 field_0x21;
+
+    // pan destination, only used by the first player
+    u8 destX;
+    u8 destY;
+
+    // nonzero while a pan is running
+    u8 state;
+
+    // the target's action state when the pan started
+    u8 savedActionState;
+
+    u8 field_0x26;
+    u8 field_0x27;
+    u8 field_0x28;
+    u8 field_0x29;
+    u8 field_0x2a[2];
+} MissionCameraPan;
 
 /**
  * Per-player camera pan state machine: drives the player's velocity and action state
@@ -362,4 +512,4 @@ void mission_tickCameraPan(u8 playerIndex);
 
 // Drain two pooled object lists back to the free pool (scene transition teardown).
 void mission_unknown0803915c(void);
-void mission_unknown08039198(void);
+void fx_freeAllParticles(void);

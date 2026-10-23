@@ -61,3 +61,10 @@ typedef struct Vector2Fp16
     fp16_16 x;
     fp16_16 y;
 } Vector2Fp16;
+
+/** Word and vector views of an eight-direction fixed-point table. */
+typedef union Direction8VectorTable
+{
+    s32 words[16];
+    Vector2Fp16 vectors[8];
+} Direction8VectorTable;

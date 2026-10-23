@@ -1,0 +1,123 @@
+[Context] Operating on: rotk
+
+Decompiled function fx_tickAttachment:
+
+
+
+u32 fx_tickAttachment(Actor *fx)
+
+
+
+{
+
+  byte bVar1;
+
+  ActorActionState AVar2;
+
+  undefined4 uVar3;
+
+  u32 uVar4;
+
+  uint uVar5;
+
+  Actor *actor;
+
+  code *UNRECOVERED_JUMPTABLE;
+
+  u32 uStack_18;
+
+  int iStack_14;
+
+  
+
+  bVar1 = (fx->as).combat.appliedPose;
+
+  uStack_18 = 0;
+
+  iStack_14 = 0;
+
+  if ((fx->renderFollowTarget != (Actor *)0x0) && (((fx->renderFollowTarget->flags).p & 2) != 0)) {
+
+    fx->renderFollowTarget = (Actor *)0x0;
+
+    fx->spriteFlags = fx->spriteFlags & 0xf3;
+
+  }
+
+  if (((&UNK_08287b8c)[(uint)bVar1 * 0x14] & 4) != 0) {
+
+    actor = (fx->as).shieldGandalf.followTarget;
+
+    if (((actor->flags).p & 2) == 0) {
+
+      actor_getAnimationFrame(actor,&uStack_18);
+
+      uStack_18 = (actor->coords).x;
+
+      iStack_14 = (actor->coords).y + iStack_14 * -0x8000;
+
+      (fx->renderCoords).x = uStack_18;
+
+      (fx->renderCoords).y = iStack_14;
+
+      (fx->coords).x = uStack_18;
+
+      (fx->coords).y = iStack_14;
+
+    }
+
+    else {
+
+      fx->actionState = ACTOR_STATE_UNKNOWN_04;
+
+    }
+
+  }
+
+  AVar2 = fx->actionState;
+
+  if (AVar2 == ACTOR_STATE_UNKNOWN_04) {
+
+    (fx->flags).p = (fx->flags).p & 0xfffffffe | 0x82;
+
+    uVar3 = 1;
+
+  }
+
+  else {
+
+    if (AVar2 == ACTOR_STATE_FX_ATTACHED) {
+
+      uVar5 = (fx->flags).p;
+
+      if ((uVar5 & 0x400000) != 0) {
+
+        (fx->flags).p = uVar5 & 0xfffffffe | 0x82;
+
+        uVar3 = 1;
+
+        goto LAB_08043d6c;
+
+      }
+
+    }
+
+    uVar3 = 0;
+
+  }
+
+LAB_08043d6c:
+
+                    /* WARNING: Could not recover jumptable at 0x08043d72. Too many branches */
+
+                    /* WARNING: Treating indirect jump as call */
+
+  uVar4 = (*UNRECOVERED_JUMPTABLE)(uVar3);
+
+  return uVar4;
+
+}
+
+
+
+

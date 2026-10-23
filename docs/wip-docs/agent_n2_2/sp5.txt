@@ -1,0 +1,16 @@
+    u8 playerIndex = ACTIVE_PLAYER_INDEX;
+    HeroId heroId = PLAYER(playerIndex).heroId;|||    HeroId heroId;
+    u8 playerIndex = ACTIVE_PLAYER_INDEX;
+    heroId = PLAYER(playerIndex).heroId;
+====
+    u8 playerIndex = ACTIVE_PLAYER_INDEX;
+    HeroId heroId = PLAYER(playerIndex).heroId;|||    u32 playerIndex = ACTIVE_PLAYER_INDEX;
+    HeroId heroId = PLAYER(playerIndex).heroId;
+====
+    u8 playerIndex = ACTIVE_PLAYER_INDEX;
+    HeroId heroId = PLAYER(playerIndex).heroId;
+    char *text;
+    s32 level;|||    s32 level;
+    char *text;
+    u8 playerIndex = ACTIVE_PLAYER_INDEX;
+    HeroId heroId = PLAYER(playerIndex).heroId;

@@ -1,0 +1,59 @@
+#include "actor.h"
+#include "match_hacks.h"
+#include "math.h"
+#include "mission.h"
+#include "variables.h"
+
+/**
+ * Walk a scripted enemy to its target position, then start its type behavior.
+ * Two mission bosses get a fixed action timer on arrival.
+ *
+ * @romaddress 0x0800b050
+ */
+void actor_unknown0800b050(Actor *self)
+{
+    Vector2Fp16 pos;
+    MATCH_PIN(s32, destX, "r4");
+    MATCH_PIN(s32, destY, "r5");
+    u8 dir;
+    u8 state = self->actionState;
+    Direction8 *facingPtr = &self->facing;
+
+    switch (state)
+    {
+    case 0x12:
+        self->actionState = 2;
+        self->field_0x64[0] |= 2;
+        break;
+    case 2:
+        math_vector2_copy(&self->coords, &pos);
+        destX = ((s32 *)&self->field_0xbc[8])[0];
+        destY = ((s32 *)&self->field_0xbc[8])[1];
+        dir = actor_direction8TowardPoint(pos.x, pos.y, destX, destY, self->moveSpeed);
+        if (dir == 8)
+        {
+            actor_initBehaviorByType(self);
+            self->flags.p = (self->flags.p | 0x204) & ~8;
+            if (g_CurrentMissionId == MISSION_ITHILIEN_BLACK_GATE && g_MissionVariant == 1)
+            {
+                self->flags.p |= 8;
+                self->as.combat.head.scripted.targetY = 400;
+            }
+            if (g_CurrentMissionId == MISSION_PELENNOR_BATTLE_WITCH_KING && g_MissionVariant == 4)
+            {
+                self->flags.p |= 8;
+                self->as.combat.head.scripted.targetY = 1000;
+            }
+        }
+        else if (*facingPtr != dir)
+        {
+            *facingPtr = dir;
+            self->field_0x64[0] |= 1;
+        }
+        break;
+    default:
+        actor_unknown0800b5bc(self);
+        self->flags.p = (self->flags.p | 0x204) & ~8;
+        break;
+    }
+}

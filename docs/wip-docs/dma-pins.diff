@@ -1,0 +1,68 @@
+DIFF   eeprom_dmaBits  @ 0x0804ddec: 24 instruction(s) differ
+  --- original ---                       --- agbcc candidate ---
+  804ddec: push {r4, r5, r6, lr}            804ddec: push {r4, r5, r6, lr}
+  804ddee: lsls r2, r2, #16                 804ddee: lsls r2, r2, #16
+  804ddf0: lsrs r2, r2, #16                 804ddf0: lsrs r2, r2, #16
+* 804ddf2: ldr r4, [pc, #88] @ (0x804de4c)  804ddf2: ldr r4, [pc, #84] @ (0x804de48)
+  804ddf4: ldrh r3, [r4, #0]                804ddf4: ldrh r3, [r4, #0]
+  804ddf6: adds r6, r3, #0                  804ddf6: adds r6, r3, #0
+  804ddf8: movs r3, #0                      804ddf8: movs r3, #0
+  804ddfa: strh r3, [r4, #0]                804ddfa: strh r3, [r4, #0]
+* 804ddfc: ldr r5, [pc, #80] @ (0x804de50)  804ddfc: ldr r5, [pc, #76] @ (0x804de4c)
+  804ddfe: ldrh r4, [r5, #0]                804ddfe: ldrh r4, [r5, #0]
+* 804de00: ldr r3, [pc, #80] @ (0x804de54)  804de00: ldr r3, [pc, #76] @ (0x804de50)
+  804de02: ands r4, r3                      804de02: ands r4, r3
+* 804de04: ldr r3, [pc, #80] @ (0x804de58)  804de04: ldr r3, [pc, #76] @ (0x804de54)
+  804de06: ldr r3, [r3, #0]                 804de06: ldr r3, [r3, #0]
+  804de08: ldrh r3, [r3, #6]                804de08: ldrh r3, [r3, #6]
+  804de0a: orrs r4, r3                      804de0a: orrs r4, r3
+  804de0c: strh r4, [r5, #0]                804de0c: strh r4, [r5, #0]
+* 804de0e: ldr r3, [pc, #76] @ (0x804de5c)  804de0e: ldr r3, [pc, #72] @ (0x804de58)
+  804de10: str r0, [r3, #0]                 804de10: str r0, [r3, #0]
+* 804de12: ldr r0, [pc, #76] @ (0x804de60)  804de12: ldr r0, [pc, #72] @ (0x804de5c)
+  804de14: str r1, [r0, #0]                 804de14: str r1, [r0, #0]
+* 804de16: ldr r1, [pc, #76] @ (0x804de64)  804de16: ldr r1, [pc, #72] @ (0x804de60)
+  804de18: movs r0, #128 @ 0x80             804de18: movs r0, #128 @ 0x80
+  804de1a: lsls r0, r0, #24                 804de1a: lsls r0, r0, #24
+  804de1c: orrs r2, r0                      804de1c: orrs r2, r0
+  804de1e: str r2, [r1, #0]                 804de1e: str r2, [r1, #0]
+  804de20: adds r1, #2                      804de20: adds r1, #2
+* 804de22: movs r2, #128 @ 0x80             
+* 804de24: lsls r2, r2, #8                  
+* 804de26: adds r0, r2, #0                  
+  804de28: ldrh r1, [r1, #0]                804de22: ldrh r1, [r1, #0]
+*                                           804de24: movs r3, #128 @ 0x80
+*                                           804de26: lsls r3, r3, #8
+*                                           804de28: adds r0, r3, #0
+  804de2a: ands r0, r1                      804de2a: ands r0, r1
+  804de2c: cmp r0, #0                       804de2c: cmp r0, #0
+* 804de2e: beq.n 0x804de40                  804de2e: beq.n 0x804de3c
+* 804de30: ldr r2, [pc, #52] @ (0x804de68)  804de30: ldr r2, [pc, #48] @ (0x804de64)
+* 804de32: movs r0, #128 @ 0x80             804de32: ldrh r1, [r2, #0]
+* 804de34: lsls r0, r0, #8                  804de34: adds r0, r3, #0
+* 804de36: adds r1, r0, #0                  
+* 804de38: ldrh r0, [r2, #0]                
+  804de3a: ands r0, r1                      804de36: ands r0, r1
+  804de3c: cmp r0, #0                       804de38: cmp r0, #0
+* 804de3e: bne.n 0x804de38                  804de3a: bne.n 0x804de32
+* 804de40: ldr r0, [pc, #8] @ (0x804de4c)   804de3c: ldr r0, [pc, #8] @ (0x804de48)
+  804de42: strh r6, [r0, #0]                804de3e: strh r6, [r0, #0]
+  804de44: pop {r4, r5, r6}                 804de40: pop {r4, r5, r6}
+  804de46: pop {r0}                         804de42: pop {r0}
+  804de48: bx r0                            804de44: bx r0
+  804de4a: movs r0, r0                      804de46: movs r0, r0
+  804de4c: lsls r0, r1, #8                  804de48: lsls r0, r1, #8
+  804de4e: lsls r0, r0, #16                 804de4a: lsls r0, r0, #16
+  804de50: lsls r4, r0, #8                  804de4c: lsls r4, r0, #8
+  804de52: lsls r0, r0, #16                 804de4e: lsls r0, r0, #16
+* 804de54: ldr??.w r0, [pc] @ 0x804de58     804de50: ldr??.w r0, [pc] @ 0x804de54
+  804de58: strb r0, [r6, #28]               804de54: strb r0, [r6, #28]
+  804de5a: lsls r0, r0, #12                 804de56: lsls r0, r0, #12
+  804de5c: lsls r4, r2, #3                  804de58: lsls r4, r2, #3
+  804de5e: lsls r0, r0, #16                 804de5a: lsls r0, r0, #16
+  804de60: lsls r0, r3, #3                  804de5c: lsls r0, r3, #3
+  804de62: lsls r0, r0, #16                 804de5e: lsls r0, r0, #16
+  804de64: lsls r4, r3, #3                  804de60: lsls r4, r3, #3
+  804de66: lsls r0, r0, #16                 804de62: lsls r0, r0, #16
+*                                           804de64: lsls r6, r3, #3
+*                                           804de66: lsls r0, r0, #16

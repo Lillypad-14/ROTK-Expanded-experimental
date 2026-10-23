@@ -1,0 +1,3 @@
+[xjump] insn 115 vs insn 56: no merge: match too short to be profitable
+[xjump] insn 56 vs insn 115: no merge: match too short to be profitable
+[xjump] insn 91: no merge: no opposing jump-back before target

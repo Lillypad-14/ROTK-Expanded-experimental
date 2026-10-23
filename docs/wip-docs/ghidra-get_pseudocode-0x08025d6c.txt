@@ -1,0 +1,183 @@
+[Context] Operating on: rotk
+
+Decompiled function player_initHeroStats:
+
+
+
+void player_initHeroStats(u32 heroId,u32 playerIndex)
+
+
+
+{
+
+  Player *pPVar1;
+
+  u16 uVar2;
+
+  uint uVar3;
+
+  code *UNRECOVERED_JUMPTABLE;
+
+  
+
+  uVar3 = playerIndex & 0xff;
+
+  switch(heroId & 0xff) {
+
+  case 0:
+
+    pPVar1 = g_PlayerGlobals.players + uVar3;
+
+    g_PlayerGlobals.players[uVar3].baseStats.courage = 0x1e;
+
+    g_PlayerGlobals.players[uVar3].baseStats.defense = 0x1c;
+
+    g_PlayerGlobals.players[uVar3].baseStats.health = 0x12;
+
+    g_PlayerGlobals.players[uVar3].baseStats.accuracy = 0x15;
+
+    uVar2 = 0x10;
+
+    break;
+
+  case 1:
+
+    pPVar1 = g_PlayerGlobals.players + uVar3;
+
+    g_PlayerGlobals.players[uVar3].baseStats.courage = 0x14;
+
+    g_PlayerGlobals.players[uVar3].baseStats.defense = 0x16;
+
+    g_PlayerGlobals.players[uVar3].baseStats.health = 0x14;
+
+    g_PlayerGlobals.players[uVar3].baseStats.accuracy = 0x1e;
+
+    uVar2 = 0x12;
+
+    break;
+
+  case 2:
+
+    pPVar1 = g_PlayerGlobals.players + uVar3;
+
+    g_PlayerGlobals.players[uVar3].baseStats.courage = 0x14;
+
+    g_PlayerGlobals.players[uVar3].baseStats.defense = 0x18;
+
+    g_PlayerGlobals.players[uVar3].baseStats.health = 0x16;
+
+    uVar2 = 0x17;
+
+    g_PlayerGlobals.players[uVar3].baseStats.accuracy = 0x17;
+
+    break;
+
+  case 3:
+
+    pPVar1 = g_PlayerGlobals.players + uVar3;
+
+    g_PlayerGlobals.players[uVar3].baseStats.courage = 0x1e;
+
+    g_PlayerGlobals.players[uVar3].baseStats.defense = 0x14;
+
+    g_PlayerGlobals.players[uVar3].baseStats.health = 0x16;
+
+    g_PlayerGlobals.players[uVar3].baseStats.accuracy = 0x14;
+
+    uVar2 = 0x12;
+
+    break;
+
+  case 4:
+
+    pPVar1 = g_PlayerGlobals.players + uVar3;
+
+    g_PlayerGlobals.players[uVar3].baseStats.courage = 0x19;
+
+    g_PlayerGlobals.players[uVar3].baseStats.defense = 0x14;
+
+    g_PlayerGlobals.players[uVar3].baseStats.health = 0x18;
+
+    g_PlayerGlobals.players[uVar3].baseStats.accuracy = 0x19;
+
+    uVar2 = 0x12;
+
+    break;
+
+  case 5:
+
+    pPVar1 = g_PlayerGlobals.players + uVar3;
+
+    g_PlayerGlobals.players[uVar3].baseStats.courage = 0x14;
+
+    g_PlayerGlobals.players[uVar3].baseStats.defense = 0x15;
+
+    g_PlayerGlobals.players[uVar3].baseStats.health = 0x15;
+
+    g_PlayerGlobals.players[uVar3].baseStats.accuracy = 0x16;
+
+    uVar2 = 0x1c;
+
+    break;
+
+  case 6:
+
+    pPVar1 = g_PlayerGlobals.players + uVar3;
+
+    g_PlayerGlobals.players[uVar3].baseStats.courage = 0x22;
+
+    g_PlayerGlobals.players[uVar3].baseStats.defense = 0x19;
+
+    g_PlayerGlobals.players[uVar3].baseStats.health = 0x16;
+
+    g_PlayerGlobals.players[uVar3].baseStats.accuracy = 0x12;
+
+    uVar2 = 0x11;
+
+    break;
+
+  case 7:
+
+    pPVar1 = g_PlayerGlobals.players + uVar3;
+
+    g_PlayerGlobals.players[uVar3].baseStats.courage = 0xc;
+
+    g_PlayerGlobals.players[uVar3].baseStats.defense = 0x16;
+
+    g_PlayerGlobals.players[uVar3].baseStats.health = 0x19;
+
+    g_PlayerGlobals.players[uVar3].baseStats.accuracy = 0x1e;
+
+    uVar2 = 0x1d;
+
+    break;
+
+  default:
+
+    goto LAB_08025eb2;
+
+  }
+
+  (pPVar1->baseStats).strength = uVar2;
+
+LAB_08025eb2:
+
+  player_recomputeBaseStats((u8)playerIndex);
+
+  g_PlayerGlobals.players[uVar3].selectedActiveSkill.cycleSkillIndex = '\x06';
+
+  g_PlayerGlobals.players[uVar3].whetstoneLevel = '\x0f';
+
+                    /* WARNING: Could not recover jumptable at 0x08025eda. Too many branches */
+
+                    /* WARNING: Treating indirect jump as call */
+
+  (*UNRECOVERED_JUMPTABLE)();
+
+  return;
+
+}
+
+
+
+

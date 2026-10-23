@@ -1,0 +1,1604 @@
+{
+  "decompiled_functions": 569,
+  "mapped_functions": 888,
+  "compiled_code_bytes": 72292,
+  "source_regions": 251,
+  "rom_sha1": "ec3d126d37ea6e2ad7030d8a99cf87c6e46c03fd",
+  "remaining_mapped_functions": [
+    {
+      "address": "0x080000c0",
+      "mode": "arm",
+      "name": "crt0"
+    },
+    {
+      "address": "0x08000188",
+      "mode": "arm",
+      "name": "system_irqDispatch"
+    },
+    {
+      "address": "0x080002dc",
+      "mode": "arm",
+      "name": "decompress_pucrunch"
+    },
+    {
+      "address": "0x08000708",
+      "mode": "thumb",
+      "name": "actor_tickAllInList"
+    },
+    {
+      "address": "0x08000de8",
+      "mode": "thumb",
+      "name": "sprite_setAnimationFrame"
+    },
+    {
+      "address": "0x0800103c",
+      "mode": "thumb",
+      "name": "actor_getOffsetPosition"
+    },
+    {
+      "address": "0x08001100",
+      "mode": "thumb",
+      "name": "sprite_getSlotFrameInfo"
+    },
+    {
+      "address": "0x080011ac",
+      "mode": "thumb",
+      "name": "sprite_getSlotFrameGfx"
+    },
+    {
+      "address": "0x08001d54",
+      "mode": "thumb",
+      "name": "actor_getAnimationFrame"
+    },
+    {
+      "address": "0x08001e48",
+      "mode": "thumb",
+      "name": "actor_direction8Toward"
+    },
+    {
+      "address": "0x08002484",
+      "mode": "thumb",
+      "name": "sprite_composeOam"
+    },
+    {
+      "address": "0x0800304c",
+      "mode": "thumb",
+      "name": "sprite_commitGfx"
+    },
+    {
+      "address": "0x080089ac",
+      "mode": "thumb",
+      "name": "actor_applyPersuasion"
+    },
+    {
+      "address": "0x08009aac",
+      "mode": "thumb",
+      "name": "actor_applyKnockback"
+    },
+    {
+      "address": "0x08009e44",
+      "mode": "thumb",
+      "name": "actor_runBehaviorState"
+    },
+    {
+      "address": "0x0800a54c",
+      "mode": "thumb",
+      "name": "actor_checkDeath"
+    },
+    {
+      "address": "0x0800c0ec",
+      "mode": "thumb",
+      "name": "mission_script_spawnGroup"
+    },
+    {
+      "address": "0x0800c820",
+      "mode": "thumb",
+      "name": "skill_active_aragornCallOfTheDead"
+    },
+    {
+      "address": "0x0800c97c",
+      "mode": "thumb",
+      "name": "skill_active_aragornKingsCommand"
+    },
+    {
+      "address": "0x0800cae4",
+      "mode": "thumb",
+      "name": "skill_active_aragornNumenoreanWill"
+    },
+    {
+      "address": "0x0800cc74",
+      "mode": "thumb",
+      "name": "skill_active_aragornSwordThrow"
+    },
+    {
+      "address": "0x0800cd5c",
+      "mode": "arm",
+      "name": "actor_checkCollisions"
+    },
+    {
+      "address": "0x0800d1d4",
+      "mode": "arm",
+      "name": "decompress_lz77"
+    },
+    {
+      "address": "0x0800e300",
+      "mode": "thumb",
+      "name": "scene_artifacts_enter"
+    },
+    {
+      "address": "0x0800e3d8",
+      "mode": "thumb",
+      "name": "scene_artifacts_tick"
+    },
+    {
+      "address": "0x0800e828",
+      "mode": "thumb",
+      "name": "scene_artifacts_exit"
+    },
+    {
+      "address": "0x08011bc0",
+      "mode": "thumb",
+      "name": "gfx_unknown08011bc0"
+    },
+    {
+      "address": "0x08011c8c",
+      "mode": "thumb",
+      "name": "gfx_unknown08011c8c"
+    },
+    {
+      "address": "0x08011d78",
+      "mode": "thumb",
+      "name": "gfx_unknown08011d78"
+    },
+    {
+      "address": "0x08011ff0",
+      "mode": "thumb",
+      "name": "gfx_tickBgTransforms"
+    },
+    {
+      "address": "0x08012238",
+      "mode": "thumb",
+      "name": "gfx_commitBgRegisters"
+    },
+    {
+      "address": "0x080123fc",
+      "mode": "thumb",
+      "name": "gfx_setBgControl"
+    },
+    {
+      "address": "0x08012478",
+      "mode": "thumb",
+      "name": "gfx_initDisplay"
+    },
+    {
+      "address": "0x0801252c",
+      "mode": "thumb",
+      "name": "gfx_setBgOffset"
+    },
+    {
+      "address": "0x08012864",
+      "mode": "thumb",
+      "name": "gfx_loadPalette"
+    },
+    {
+      "address": "0x08012b1c",
+      "mode": "thumb",
+      "name": "gfx_resetBgTransform"
+    },
+    {
+      "address": "0x08012d10",
+      "mode": "thumb",
+      "name": "gfx_setBgScrollSpeedX"
+    },
+    {
+      "address": "0x08013a24",
+      "mode": "thumb",
+      "name": "mission_tickCameraPan"
+    },
+    {
+      "address": "0x080140e0",
+      "mode": "thumb",
+      "name": "scene_newGame_enter"
+    },
+    {
+      "address": "0x08014338",
+      "mode": "thumb",
+      "name": "scene_newGame_unknown08014338"
+    },
+    {
+      "address": "0x080144f4",
+      "mode": "thumb",
+      "name": "scene_newGame_unknown080144f4"
+    },
+    {
+      "address": "0x080146ec",
+      "mode": "thumb",
+      "name": "scene_newGame_unknown080146ec"
+    },
+    {
+      "address": "0x08014878",
+      "mode": "thumb",
+      "name": "scene_newGame_exit"
+    },
+    {
+      "address": "0x08014d40",
+      "mode": "thumb",
+      "name": "actor_missionWarp_trigger"
+    },
+    {
+      "address": "0x08014e08",
+      "mode": "thumb",
+      "name": "actor_resolveTouch"
+    },
+    {
+      "address": "0x08015e14",
+      "mode": "thumb",
+      "name": "actor_alignTouching"
+    },
+    {
+      "address": "0x08016100",
+      "mode": "thumb",
+      "name": "actor_staggerOnTouch"
+    },
+    {
+      "address": "0x08016354",
+      "mode": "thumb",
+      "name": "actor_npcGhost_trigger"
+    },
+    {
+      "address": "0x08016bdc",
+      "mode": "thumb",
+      "name": "gfx_registerPaletteCycles"
+    },
+    {
+      "address": "0x08016cdc",
+      "mode": "thumb",
+      "name": "gfx_queuePaletteWrite"
+    },
+    {
+      "address": "0x08016df8",
+      "mode": "thumb",
+      "name": "gfx_flushPaletteWrites"
+    },
+    {
+      "address": "0x08016fd8",
+      "mode": "thumb",
+      "name": "gfx_stepPaletteCycle"
+    },
+    {
+      "address": "0x08017130",
+      "mode": "thumb",
+      "name": "gfx_unknown08017130"
+    },
+    {
+      "address": "0x080172c0",
+      "mode": "thumb",
+      "name": "gfx_commitPaletteFade"
+    },
+    {
+      "address": "0x080197dc",
+      "mode": "thumb",
+      "name": "scene_credits_enter"
+    },
+    {
+      "address": "0x080199d4",
+      "mode": "thumb",
+      "name": "scene_credits_tick"
+    },
+    {
+      "address": "0x08019bb4",
+      "mode": "thumb",
+      "name": "scene_credits_exit"
+    },
+    {
+      "address": "0x08019d54",
+      "mode": "thumb",
+      "name": "decompress_chunk"
+    },
+    {
+      "address": "0x0801a7b0",
+      "mode": "thumb",
+      "name": "scene_griptoniteLogo_tick"
+    },
+    {
+      "address": "0x0801a938",
+      "mode": "thumb",
+      "name": "scene_inGameDialog_enter"
+    },
+    {
+      "address": "0x0801aa44",
+      "mode": "thumb",
+      "name": "scene_inGameDialog_exit"
+    },
+    {
+      "address": "0x0801ac78",
+      "mode": "thumb",
+      "name": "scene_inGameDialog_unknown0801ac78"
+    },
+    {
+      "address": "0x0801ad9c",
+      "mode": "thumb",
+      "name": "scene_requestInGameDialog"
+    },
+    {
+      "address": "0x0801b0b0",
+      "mode": "thumb",
+      "name": "actor_gatePanel_createFromMission"
+    },
+    {
+      "address": "0x0801b1c4",
+      "mode": "thumb",
+      "name": "actor_gatePanel_tick"
+    },
+    {
+      "address": "0x0801c53c",
+      "mode": "thumb",
+      "name": "skill_active_eowynForthEorlingas"
+    },
+    {
+      "address": "0x0801c6ac",
+      "mode": "thumb",
+      "name": "skill_active_eowynRohanSprint"
+    },
+    {
+      "address": "0x0801c810",
+      "mode": "thumb",
+      "name": "skill_active_eowynShieldmaidenOfRohan"
+    },
+    {
+      "address": "0x0801cce0",
+      "mode": "thumb",
+      "name": "mission_script_allocTimer"
+    },
+    {
+      "address": "0x0801cebc",
+      "mode": "thumb",
+      "name": "actor_gatePanel_writeTileBlock"
+    },
+    {
+      "address": "0x0801dfa4",
+      "mode": "thumb",
+      "name": "scene_shop_purchaseService"
+    },
+    {
+      "address": "0x0801e338",
+      "mode": "thumb",
+      "name": "scene_shop_sellItem"
+    },
+    {
+      "address": "0x0801e448",
+      "mode": "thumb",
+      "name": "scene_shop_storeItemInHollow"
+    },
+    {
+      "address": "0x0801e568",
+      "mode": "thumb",
+      "name": "scene_shop_drawInfoPanel"
+    },
+    {
+      "address": "0x0801ec8c",
+      "mode": "thumb",
+      "name": "scene_shop_onConfirm"
+    },
+    {
+      "address": "0x0801f13c",
+      "mode": "thumb",
+      "name": "scene_shop_moveCursor"
+    },
+    {
+      "address": "0x0801f5a4",
+      "mode": "thumb",
+      "name": "scene_shop_spawnBackpackSlotSprite"
+    },
+    {
+      "address": "0x0801f680",
+      "mode": "thumb",
+      "name": "scene_shop_drawHollowSlotItem"
+    },
+    {
+      "address": "0x0801f7d4",
+      "mode": "thumb",
+      "name": "scene_shop_adjustGems"
+    },
+    {
+      "address": "0x0801f8c4",
+      "mode": "thumb",
+      "name": "scene_shop_drawUpgradeOffer"
+    },
+    {
+      "address": "0x0801f9bc",
+      "mode": "thumb",
+      "name": "scene_shop_computeGemValue"
+    },
+    {
+      "address": "0x0801fc34",
+      "mode": "thumb",
+      "name": "scene_shop_exit"
+    },
+    {
+      "address": "0x0801fe9c",
+      "mode": "thumb",
+      "name": "scene_shop_clearHollowSlotItem"
+    },
+    {
+      "address": "0x0801ffb0",
+      "mode": "thumb",
+      "name": "scene_shop_itemCursorAnimation"
+    },
+    {
+      "address": "0x080203bc",
+      "mode": "thumb",
+      "name": "skill_active_frodoKnifeToss"
+    },
+    {
+      "address": "0x080204a4",
+      "mode": "thumb",
+      "name": "skill_active_frodoTheOneRing"
+    },
+    {
+      "address": "0x080205c4",
+      "mode": "thumb",
+      "name": "actor_oneRing_tick"
+    },
+    {
+      "address": "0x0802070c",
+      "mode": "thumb",
+      "name": "skill_active_frodoRingsPersuasion"
+    },
+    {
+      "address": "0x08020888",
+      "mode": "thumb",
+      "name": "scene_victory_enter"
+    },
+    {
+      "address": "0x08020b04",
+      "mode": "thumb",
+      "name": "skill_active_gandalfBlindingAura"
+    },
+    {
+      "address": "0x08020ca0",
+      "mode": "thumb",
+      "name": "skill_active_gandalfShield"
+    },
+    {
+      "address": "0x0802166c",
+      "mode": "thumb",
+      "name": "scene_gcnLinkMenu_enter"
+    },
+    {
+      "address": "0x080217bc",
+      "mode": "thumb",
+      "name": "scene_gcnLinkMenu_tick"
+    },
+    {
+      "address": "0x08021c38",
+      "mode": "thumb",
+      "name": "actor_enemySpawner_createFromMission"
+    },
+    {
+      "address": "0x08021d64",
+      "mode": "thumb",
+      "name": "actor_enemySpawner_tick"
+    },
+    {
+      "address": "0x08021e30",
+      "mode": "thumb",
+      "name": "actor_enemySpawner_trySpawn"
+    },
+    {
+      "address": "0x08021ed0",
+      "mode": "thumb",
+      "name": "actor_enemySpawner_spawnChild"
+    },
+    {
+      "address": "0x080220e8",
+      "mode": "thumb",
+      "name": "skill_active_gimliAxeThrow"
+    },
+    {
+      "address": "0x08022404",
+      "mode": "thumb",
+      "name": "skill_active_gimliEarthShatter"
+    },
+    {
+      "address": "0x08022500",
+      "mode": "thumb",
+      "name": "skill_active_gimliStoicism"
+    },
+    {
+      "address": "0x08022ea0",
+      "mode": "thumb",
+      "name": "skill_active_smeagolGollum"
+    },
+    {
+      "address": "0x08022ff0",
+      "mode": "thumb",
+      "name": "skill_active_smeagolPitifulWail"
+    },
+    {
+      "address": "0x08023134",
+      "mode": "thumb",
+      "name": "skill_active_smeagolRockThrow"
+    },
+    {
+      "address": "0x08023484",
+      "mode": "thumb",
+      "name": "actor_player_create"
+    },
+    {
+      "address": "0x080236b8",
+      "mode": "thumb",
+      "name": "actor_player_tick"
+    },
+    {
+      "address": "0x0802536a",
+      "mode": "thumb",
+      "name": "actor_player_tickTail"
+    },
+    {
+      "address": "0x08025740",
+      "mode": "thumb",
+      "name": "player_applyFrodoSamSwap"
+    },
+    {
+      "address": "0x080257d0",
+      "mode": "thumb",
+      "name": "actor_resetActionState"
+    },
+    {
+      "address": "0x08025c2c",
+      "mode": "thumb",
+      "name": "actor_player_initState"
+    },
+    {
+      "address": "0x08025d6c",
+      "mode": "thumb",
+      "name": "player_initHeroStats"
+    },
+    {
+      "address": "0x08025fdc",
+      "mode": "thumb",
+      "name": "save_loadSlotState"
+    },
+    {
+      "address": "0x080260bc",
+      "mode": "thumb",
+      "name": "player_clampCurrentHpSpirit"
+    },
+    {
+      "address": "0x08026370",
+      "mode": "thumb",
+      "name": "actor_player_tickPoisonFear"
+    },
+    {
+      "address": "0x08026424",
+      "mode": "thumb",
+      "name": "player_initItemsAndHollow"
+    },
+    {
+      "address": "0x08026670",
+      "mode": "thumb",
+      "name": "actor_player_updateHandSprites"
+    },
+    {
+      "address": "0x08026b28",
+      "mode": "thumb",
+      "name": "player_setHandFx"
+    },
+    {
+      "address": "0x08027230",
+      "mode": "thumb",
+      "name": "player_updateHandFxFacing"
+    },
+    {
+      "address": "0x08027348",
+      "mode": "thumb",
+      "name": "player_computeMaxHp"
+    },
+    {
+      "address": "0x080273e4",
+      "mode": "thumb",
+      "name": "actor_player_selectAnimationBank"
+    },
+    {
+      "address": "0x080274f4",
+      "mode": "thumb",
+      "name": "scene_characterStats_enter"
+    },
+    {
+      "address": "0x080276f0",
+      "mode": "thumb",
+      "name": "scene_characterStats_tick"
+    },
+    {
+      "address": "0x08027828",
+      "mode": "thumb",
+      "name": "scene_characterStats_exit"
+    },
+    {
+      "address": "0x08028aec",
+      "mode": "thumb",
+      "name": "player_tickHud"
+    },
+    {
+      "address": "0x0802939c",
+      "mode": "thumb",
+      "name": "player_updateHudSkillPalette"
+    },
+    {
+      "address": "0x08029804",
+      "mode": "thumb",
+      "name": "player_resetHuds"
+    },
+    {
+      "address": "0x0802a4dc",
+      "mode": "thumb",
+      "name": "scene_backpack_enter"
+    },
+    {
+      "address": "0x0802a798",
+      "mode": "thumb",
+      "name": "scene_backpack_tick"
+    },
+    {
+      "address": "0x0802ace8",
+      "mode": "thumb",
+      "name": "player_addItemToInventory"
+    },
+    {
+      "address": "0x0802b5c4",
+      "mode": "thumb",
+      "name": "item_affix_accumulateStats"
+    },
+    {
+      "address": "0x0802c34c",
+      "mode": "thumb",
+      "name": "item_carveRune"
+    },
+    {
+      "address": "0x0802d2f8",
+      "mode": "thumb",
+      "name": "item_getMinLevel"
+    },
+    {
+      "address": "0x0802d46c",
+      "mode": "thumb",
+      "name": "scene_backpack_updateRuneSprites"
+    },
+    {
+      "address": "0x0802d578",
+      "mode": "thumb",
+      "name": "scene_backpack_unknown0802d578"
+    },
+    {
+      "address": "0x0802d634",
+      "mode": "thumb",
+      "name": "item_getEquipSlot"
+    },
+    {
+      "address": "0x0802e028",
+      "mode": "thumb",
+      "name": "player_getMaxSpiritBonus"
+    },
+    {
+      "address": "0x0802e600",
+      "mode": "thumb",
+      "name": "scene_backpack_setCursorAnimation"
+    },
+    {
+      "address": "0x0802e804",
+      "mode": "thumb",
+      "name": "scene_backpack_clearSlotRect"
+    },
+    {
+      "address": "0x0802e874",
+      "mode": "thumb",
+      "name": "scene_backpack_exit"
+    },
+    {
+      "address": "0x0802eb8c",
+      "mode": "thumb",
+      "name": "item_applyRuneStats"
+    },
+    {
+      "address": "0x0802ff74",
+      "mode": "thumb",
+      "name": "skill_active_legolasForaging"
+    },
+    {
+      "address": "0x080300e0",
+      "mode": "thumb",
+      "name": "skill_active_legolasFriendOfMirkwood"
+    },
+    {
+      "address": "0x080301f0",
+      "mode": "thumb",
+      "name": "skill_active_legolasSilentStride"
+    },
+    {
+      "address": "0x080302e8",
+      "mode": "thumb",
+      "name": "player_spawnLevelUpFx"
+    },
+    {
+      "address": "0x08031548",
+      "mode": "thumb",
+      "name": "rotk_main"
+    },
+    {
+      "address": "0x08031634",
+      "mode": "thumb",
+      "name": "scene_gameplay_enter"
+    },
+    {
+      "address": "0x08031e44",
+      "mode": "thumb",
+      "name": "scene_gameplay_tick"
+    },
+    {
+      "address": "0x080323c8",
+      "mode": "thumb",
+      "name": "scene_gameplay_discardParkedWorld"
+    },
+    {
+      "address": "0x080325d8",
+      "mode": "thumb",
+      "name": "actor_missionWarp_createFromMission"
+    },
+    {
+      "address": "0x080337c8",
+      "mode": "thumb",
+      "name": "actor_projectile_create"
+    },
+    {
+      "address": "0x08033e64",
+      "mode": "thumb",
+      "name": "actor_unknown08033e64"
+    },
+    {
+      "address": "0x080341a8",
+      "mode": "thumb",
+      "name": "actor_resolveTileCollision"
+    },
+    {
+      "address": "0x08034770",
+      "mode": "thumb",
+      "name": "terrain_getCollisionAt"
+    },
+    {
+      "address": "0x08034c08",
+      "mode": "thumb",
+      "name": "scene_multiplayerLevelSelect_enter"
+    },
+    {
+      "address": "0x08034d24",
+      "mode": "thumb",
+      "name": "scene_multiplayerLevelSelect_tick"
+    },
+    {
+      "address": "0x080352fc",
+      "mode": "thumb",
+      "name": "scene_multiplayerLevelSelect_exit"
+    },
+    {
+      "address": "0x080356e0",
+      "mode": "thumb",
+      "name": "actor_npc_createFromMission"
+    },
+    {
+      "address": "0x08035940",
+      "mode": "thumb",
+      "name": "actor_npc_setup"
+    },
+    {
+      "address": "0x08035bac",
+      "mode": "thumb",
+      "name": "actor_npc_tickPassive"
+    },
+    {
+      "address": "0x08035f84",
+      "mode": "thumb",
+      "name": "actor_npc_tick"
+    },
+    {
+      "address": "0x080366ec",
+      "mode": "thumb",
+      "name": "sprite_resetOam"
+    },
+    {
+      "address": "0x08037ab0",
+      "mode": "thumb",
+      "name": "actor_applyTypeDefaults"
+    },
+    {
+      "address": "0x08038694",
+      "mode": "thumb",
+      "name": "fx_allocEmitter"
+    },
+    {
+      "address": "0x08038728",
+      "mode": "thumb",
+      "name": "fx_buildRenderQueues"
+    },
+    {
+      "address": "0x080387c4",
+      "mode": "thumb",
+      "name": "fx_tickAndRenderParticle"
+    },
+    {
+      "address": "0x08038a14",
+      "mode": "thumb",
+      "name": "fx_spawnScatter"
+    },
+    {
+      "address": "0x080391c4",
+      "mode": "thumb",
+      "name": "fx_tickEmitters"
+    },
+    {
+      "address": "0x080395ac",
+      "mode": "thumb",
+      "name": "scene_pauseMenu_enter"
+    },
+    {
+      "address": "0x080397fc",
+      "mode": "thumb",
+      "name": "scene_pauseMenu_tick"
+    },
+    {
+      "address": "0x08039de4",
+      "mode": "thumb",
+      "name": "scene_introLogo_tick"
+    },
+    {
+      "address": "0x08039fa0",
+      "mode": "thumb",
+      "name": "scene_introLogo_exit"
+    },
+    {
+      "address": "0x0803a310",
+      "mode": "thumb",
+      "name": "rng_refillGameplay"
+    },
+    {
+      "address": "0x0803b4ac",
+      "mode": "thumb",
+      "name": "skill_active_samSamwiseTheStrong"
+    },
+    {
+      "address": "0x0803c294",
+      "mode": "thumb",
+      "name": "save_deserializePlayer"
+    },
+    {
+      "address": "0x0803c6cc",
+      "mode": "thumb",
+      "name": "save_serializePlayer"
+    },
+    {
+      "address": "0x0803d05c",
+      "mode": "thumb",
+      "name": "gfx_fadeInFromBlackCoop"
+    },
+    {
+      "address": "0x0803d160",
+      "mode": "thumb",
+      "name": "gfx_fadeOutToBlackCoop"
+    },
+    {
+      "address": "0x0803e838",
+      "mode": "thumb",
+      "name": "gfx_updatePlayerCameraScroll"
+    },
+    {
+      "address": "0x0803fdf0",
+      "mode": "thumb",
+      "name": "multiplayer_queueMessage"
+    },
+    {
+      "address": "0x080407a8",
+      "mode": "thumb",
+      "name": "player_spawnInvulnerabilityBubble"
+    },
+    {
+      "address": "0x08040878",
+      "mode": "thumb",
+      "name": "skill_active_gandalfSummonGwaihir"
+    },
+    {
+      "address": "0x080412fc",
+      "mode": "thumb",
+      "name": "skill_active_herbalHealing"
+    },
+    {
+      "address": "0x080414b0",
+      "mode": "thumb",
+      "name": "scene_skillTree_enter"
+    },
+    {
+      "address": "0x080416b4",
+      "mode": "thumb",
+      "name": "scene_skillTree_tick"
+    },
+    {
+      "address": "0x080418fc",
+      "mode": "thumb",
+      "name": "scene_skillTree_handleSelect"
+    },
+    {
+      "address": "0x08041a24",
+      "mode": "thumb",
+      "name": "scene_skillTree_handleDpad"
+    },
+    {
+      "address": "0x08041c84",
+      "mode": "thumb",
+      "name": "scene_skillTree_drawPassiveTile"
+    },
+    {
+      "address": "0x08041da0",
+      "mode": "thumb",
+      "name": "scene_skillTree_drawActiveTile"
+    },
+    {
+      "address": "0x08041f78",
+      "mode": "thumb",
+      "name": "scene_skillTree_buySkill"
+    },
+    {
+      "address": "0x080421f8",
+      "mode": "thumb",
+      "name": "scene_skillTree_drawDescription"
+    },
+    {
+      "address": "0x080422f0",
+      "mode": "thumb",
+      "name": "scene_skillTree_getRequiredLevel"
+    },
+    {
+      "address": "0x08042474",
+      "mode": "thumb",
+      "name": "scene_skillTree_createQuickSelectMarkers"
+    },
+    {
+      "address": "0x08042548",
+      "mode": "thumb",
+      "name": "scene_skillTree_assignQuickSelect"
+    },
+    {
+      "address": "0x08042704",
+      "mode": "thumb",
+      "name": "scene_skillTree_drawSkillPoints"
+    },
+    {
+      "address": "0x080427c4",
+      "mode": "thumb",
+      "name": "scene_skillTree_drawPassiveTilesAtLevel"
+    },
+    {
+      "address": "0x080428b0",
+      "mode": "thumb",
+      "name": "player_resetActiveSkills"
+    },
+    {
+      "address": "0x0804296c",
+      "mode": "thumb",
+      "name": "player_initHeroLoadout"
+    },
+    {
+      "address": "0x08043838",
+      "mode": "thumb",
+      "name": "fx_spawnTimedOnActor"
+    },
+    {
+      "address": "0x08043948",
+      "mode": "thumb",
+      "name": "fx_tickTimedAttachment"
+    },
+    {
+      "address": "0x08043c8c",
+      "mode": "thumb",
+      "name": "fx_tickAttachment"
+    },
+    {
+      "address": "0x08044000",
+      "mode": "thumb",
+      "name": "fx_unknown08044000"
+    },
+    {
+      "address": "0x08044958",
+      "mode": "thumb",
+      "name": "skill_active_legolasSpreadFire"
+    },
+    {
+      "address": "0x080455c0",
+      "mode": "thumb",
+      "name": "skill_active_frodoSnare"
+    },
+    {
+      "address": "0x080457c4",
+      "mode": "thumb",
+      "name": "scene_cutscene_enter"
+    },
+    {
+      "address": "0x08045a34",
+      "mode": "thumb",
+      "name": "scene_cutscene_tick"
+    },
+    {
+      "address": "0x08045ee4",
+      "mode": "thumb",
+      "name": "player_spawnTripleDamageBubble"
+    },
+    {
+      "address": "0x08046124",
+      "mode": "thumb",
+      "name": "actor_onDeathDropLoot"
+    },
+    {
+      "address": "0x0804639c",
+      "mode": "thumb",
+      "name": "multiplayer_resetLink"
+    },
+    {
+      "address": "0x08046500",
+      "mode": "thumb",
+      "name": "multiplayer_startSession"
+    },
+    {
+      "address": "0x08046600",
+      "mode": "thumb",
+      "name": "multiplayer_tick"
+    },
+    {
+      "address": "0x08046dd0",
+      "mode": "thumb",
+      "name": "multiplayer_allPlayersConnected"
+    },
+    {
+      "address": "0x08047320",
+      "mode": "thumb",
+      "name": "sfx_isPlaying"
+    },
+    {
+      "address": "0x08047374",
+      "mode": "thumb",
+      "name": "sfx_unknown08047374"
+    },
+    {
+      "address": "0x08047adc",
+      "mode": "thumb",
+      "name": "text_objFromString"
+    },
+    {
+      "address": "0x08047be4",
+      "mode": "thumb",
+      "name": "text_objRasterizeString"
+    },
+    {
+      "address": "0x08047db4",
+      "mode": "thumb",
+      "name": "input_isPlayerPresent"
+    },
+    {
+      "address": "0x08047e5c",
+      "mode": "thumb",
+      "name": "system_unknown08047e5c"
+    },
+    {
+      "address": "0x08048798",
+      "mode": "thumb",
+      "name": "fx_spawnTriggerFx"
+    },
+    {
+      "address": "0x08048b5c",
+      "mode": "thumb",
+      "name": "actor_switch_createFromMission"
+    },
+    {
+      "address": "0x08048c94",
+      "mode": "thumb",
+      "name": "actor_switch_tick"
+    },
+    {
+      "address": "0x080497c4",
+      "mode": "thumb",
+      "name": "sfx_vBlankTick"
+    },
+    {
+      "address": "0x08049ab8",
+      "mode": "thumb",
+      "name": "sprite_allocObjTiles"
+    },
+    {
+      "address": "0x08049d24",
+      "mode": "thumb",
+      "name": "sprite_setObjTileBitsDeferred"
+    },
+    {
+      "address": "0x0804a48c",
+      "mode": "thumb",
+      "name": "scene_unknown0804a48c"
+    },
+    {
+      "address": "0x0804a618",
+      "mode": "thumb",
+      "name": "transition_stopSfx"
+    },
+    {
+      "address": "0x0804aa80",
+      "mode": "thumb",
+      "name": "sfx_unknown0804aa80"
+    },
+    {
+      "address": "0x0804abf8",
+      "mode": "thumb",
+      "name": "sfx_libEnable"
+    },
+    {
+      "address": "0x0804ac28",
+      "mode": "thumb",
+      "name": "sfx_libDisable"
+    },
+    {
+      "address": "0x0804ac68",
+      "mode": "thumb",
+      "name": "sfx_unknown0804ac68"
+    },
+    {
+      "address": "0x0804acd0",
+      "mode": "thumb",
+      "name": "sfx_driverSetVolume"
+    },
+    {
+      "address": "0x0804acf0",
+      "mode": "thumb",
+      "name": "sfx_unknown0804acf0"
+    },
+    {
+      "address": "0x0804ad6c",
+      "mode": "thumb",
+      "name": "sfx_driverStopAll"
+    },
+    {
+      "address": "0x0804ad98",
+      "mode": "thumb",
+      "name": "sfx_isHandleActive"
+    },
+    {
+      "address": "0x0804bb90",
+      "mode": "thumb",
+      "name": "sfx_driverPlaySong"
+    },
+    {
+      "address": "0x0804ce94",
+      "mode": "thumb",
+      "name": "sfx_driverStopMusic"
+    },
+    {
+      "address": "0x0804cefc",
+      "mode": "thumb",
+      "name": "sfx_unknown0804cefc"
+    },
+    {
+      "address": "0x0804cf08",
+      "mode": "thumb",
+      "name": "sfx_driverResumeMusic"
+    },
+    {
+      "address": "0x0804cf3c",
+      "mode": "thumb",
+      "name": "sfx_driverPauseMusic"
+    },
+    {
+      "address": "0x0804cf74",
+      "mode": "thumb",
+      "name": "sfx_driverIsMusicPlaying"
+    },
+    {
+      "address": "0x0804cf8c",
+      "mode": "thumb",
+      "name": "sfx_driverSetMusicVolume"
+    },
+    {
+      "address": "0x0804dbfc",
+      "mode": "thumb",
+      "name": "sfx_libVBlank"
+    },
+    {
+      "address": "0x0804dc00",
+      "mode": "thumb",
+      "name": "sfx_driverPlay"
+    },
+    {
+      "address": "0x0804dc10",
+      "mode": "thumb",
+      "name": "sfx_driverStopHandle"
+    },
+    {
+      "address": "0x0804dc14",
+      "mode": "thumb",
+      "name": "sfx_driverUnknown0804dc14"
+    },
+    {
+      "address": "0x0804dc44",
+      "mode": "thumb",
+      "name": "bios_arcTan2"
+    },
+    {
+      "address": "0x0804dc48",
+      "mode": "thumb",
+      "name": "bios_cpuFastSet"
+    },
+    {
+      "address": "0x0804dc4c",
+      "mode": "thumb",
+      "name": "bios_cpuSet"
+    },
+    {
+      "address": "0x0804dc50",
+      "mode": "thumb",
+      "name": "bios_div"
+    },
+    {
+      "address": "0x0804dc54",
+      "mode": "thumb",
+      "name": "bios_divMod"
+    },
+    {
+      "address": "0x0804dc68",
+      "mode": "thumb",
+      "name": "bios_objAffineSet"
+    },
+    {
+      "address": "0x0804dd20",
+      "mode": "thumb",
+      "name": "eeprom_startTimeoutTimer"
+    },
+    {
+      "address": "0x0804ddec",
+      "mode": "thumb",
+      "name": "eeprom_dmaBits"
+    },
+    {
+      "address": "0x0804de6c",
+      "mode": "thumb",
+      "name": "eeprom_readBlock"
+    },
+    {
+      "address": "0x0804df1c",
+      "mode": "thumb",
+      "name": "eeprom_writeBlock"
+    },
+    {
+      "address": "0x0804e090",
+      "mode": "thumb",
+      "name": "_call_via_r0"
+    },
+    {
+      "address": "0x0804e094",
+      "mode": "thumb",
+      "name": "_call_via_r1"
+    },
+    {
+      "address": "0x0804e098",
+      "mode": "thumb",
+      "name": "_call_via_r2"
+    },
+    {
+      "address": "0x0804e09c",
+      "mode": "thumb",
+      "name": "_call_via_r3"
+    },
+    {
+      "address": "0x0804e0a0",
+      "mode": "thumb",
+      "name": "_call_via_r4"
+    },
+    {
+      "address": "0x0804e0a4",
+      "mode": "thumb",
+      "name": "_call_via_r5"
+    },
+    {
+      "address": "0x0804e0a8",
+      "mode": "thumb",
+      "name": "_call_via_r6"
+    },
+    {
+      "address": "0x0804e0ac",
+      "mode": "thumb",
+      "name": "_call_via_r7"
+    },
+    {
+      "address": "0x0804e0b0",
+      "mode": "thumb",
+      "name": "_call_via_r8"
+    },
+    {
+      "address": "0x0804e0b4",
+      "mode": "thumb",
+      "name": "_call_via_r9"
+    },
+    {
+      "address": "0x0804e0b8",
+      "mode": "thumb",
+      "name": "_call_via_sl"
+    },
+    {
+      "address": "0x0804e0bc",
+      "mode": "thumb",
+      "name": "_call_via_fp"
+    },
+    {
+      "address": "0x0804e0c0",
+      "mode": "thumb",
+      "name": "_call_via_ip"
+    },
+    {
+      "address": "0x0804e0c4",
+      "mode": "thumb",
+      "name": "_call_via_sp"
+    },
+    {
+      "address": "0x0804e0c8",
+      "mode": "thumb",
+      "name": "_call_via_lr"
+    },
+    {
+      "address": "0x0804e0cc",
+      "mode": "thumb",
+      "name": "__divsi3"
+    },
+    {
+      "address": "0x0804e160",
+      "mode": "thumb",
+      "name": "__div0"
+    },
+    {
+      "address": "0x0804e164",
+      "mode": "thumb",
+      "name": "__modsi3"
+    },
+    {
+      "address": "0x0804e234",
+      "mode": "thumb",
+      "name": "__udivsi3"
+    },
+    {
+      "address": "0x0804e2ac",
+      "mode": "thumb",
+      "name": "__umodsi3"
+    },
+    {
+      "address": "0x0804e36c",
+      "mode": "thumb",
+      "name": "__pack_d"
+    },
+    {
+      "address": "0x0804e4b4",
+      "mode": "thumb",
+      "name": "__unpack_d"
+    },
+    {
+      "address": "0x0804e58c",
+      "mode": "thumb",
+      "name": "_fpadd_parts_d"
+    },
+    {
+      "address": "0x0804e7f8",
+      "mode": "thumb",
+      "name": "__adddf3"
+    },
+    {
+      "address": "0x0804e828",
+      "mode": "thumb",
+      "name": "__subdf3"
+    },
+    {
+      "address": "0x0804e860",
+      "mode": "thumb",
+      "name": "__muldf3"
+    },
+    {
+      "address": "0x0804eb08",
+      "mode": "thumb",
+      "name": "__divdf3"
+    },
+    {
+      "address": "0x0804ec90",
+      "mode": "thumb",
+      "name": "__fpcmp_parts_d"
+    },
+    {
+      "address": "0x0804ed90",
+      "mode": "thumb",
+      "name": "__cmpdf2"
+    },
+    {
+      "address": "0x0804edbc",
+      "mode": "thumb",
+      "name": "__eqdf2"
+    },
+    {
+      "address": "0x0804ee08",
+      "mode": "thumb",
+      "name": "__nedf2"
+    },
+    {
+      "address": "0x0804ee54",
+      "mode": "thumb",
+      "name": "__gtdf2"
+    },
+    {
+      "address": "0x0804eea0",
+      "mode": "thumb",
+      "name": "__gedf2"
+    },
+    {
+      "address": "0x0804eeec",
+      "mode": "thumb",
+      "name": "__ltdf2"
+    },
+    {
+      "address": "0x0804ef38",
+      "mode": "thumb",
+      "name": "__ledf2"
+    },
+    {
+      "address": "0x0804ef84",
+      "mode": "thumb",
+      "name": "__floatsidf"
+    },
+    {
+      "address": "0x0804f000",
+      "mode": "thumb",
+      "name": "__fixdfsi"
+    },
+    {
+      "address": "0x0804f074",
+      "mode": "thumb",
+      "name": "__negdf2"
+    },
+    {
+      "address": "0x0804f09c",
+      "mode": "thumb",
+      "name": "__make_dp"
+    },
+    {
+      "address": "0x0804f0c4",
+      "mode": "thumb",
+      "name": "__truncdfsf2"
+    },
+    {
+      "address": "0x0804f108",
+      "mode": "thumb",
+      "name": "__pack_f"
+    },
+    {
+      "address": "0x0804f1c0",
+      "mode": "thumb",
+      "name": "__unpack_f"
+    },
+    {
+      "address": "0x0804f23c",
+      "mode": "thumb",
+      "name": "_fpadd_parts_f"
+    },
+    {
+      "address": "0x0804f3b8",
+      "mode": "thumb",
+      "name": "__addsf3"
+    },
+    {
+      "address": "0x0804f3e4",
+      "mode": "thumb",
+      "name": "__subsf3"
+    },
+    {
+      "address": "0x0804f418",
+      "mode": "thumb",
+      "name": "__mulsf3"
+    },
+    {
+      "address": "0x0804f57c",
+      "mode": "thumb",
+      "name": "__divsf3"
+    },
+    {
+      "address": "0x0804f668",
+      "mode": "thumb",
+      "name": "__fpcmp_parts_f"
+    },
+    {
+      "address": "0x0804f74c",
+      "mode": "thumb",
+      "name": "__cmpsf2"
+    },
+    {
+      "address": "0x0804f774",
+      "mode": "thumb",
+      "name": "__eqsf2"
+    },
+    {
+      "address": "0x0804f7bc",
+      "mode": "thumb",
+      "name": "__nesf2"
+    },
+    {
+      "address": "0x0804f804",
+      "mode": "thumb",
+      "name": "__gtsf2"
+    },
+    {
+      "address": "0x0804f84c",
+      "mode": "thumb",
+      "name": "__gesf2"
+    },
+    {
+      "address": "0x0804f894",
+      "mode": "thumb",
+      "name": "__ltsf2"
+    },
+    {
+      "address": "0x0804f8dc",
+      "mode": "thumb",
+      "name": "__lesf2"
+    },
+    {
+      "address": "0x0804f924",
+      "mode": "thumb",
+      "name": "__floatsisf"
+    },
+    {
+      "address": "0x0804f984",
+      "mode": "thumb",
+      "name": "__fixsfsi"
+    },
+    {
+      "address": "0x0804f9ec",
+      "mode": "thumb",
+      "name": "__negsf2"
+    },
+    {
+      "address": "0x0804fa10",
+      "mode": "thumb",
+      "name": "__make_fp"
+    },
+    {
+      "address": "0x0804fa28",
+      "mode": "thumb",
+      "name": "__extendsfdf2"
+    },
+    {
+      "address": "0x0804fa54",
+      "mode": "thumb",
+      "name": "__lshrdi3"
+    },
+    {
+      "address": "0x0804fa88",
+      "mode": "thumb",
+      "name": "__muldi3"
+    },
+    {
+      "address": "0x0804faf8",
+      "mode": "thumb",
+      "name": "__negdi2"
+    },
+    {
+      "address": "0x0804fb10",
+      "mode": "thumb",
+      "name": "bzero"
+    },
+    {
+      "address": "0x0804fb2c",
+      "mode": "thumb",
+      "name": "memcpy"
+    },
+    {
+      "address": "0x0804fb8c",
+      "mode": "thumb",
+      "name": "memset"
+    }
+  ]
+}

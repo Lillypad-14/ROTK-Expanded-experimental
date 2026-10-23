@@ -1,0 +1,11 @@
+insn 203: alloc r0 (reload 0, pass 1, last_spill -1, n_spills 2)
+insn 26: alloc r1 (reload 0, pass 1, last_spill 0, n_spills 2)
+insn 190: alloc r0 (reload 0, pass 1, last_spill 1, n_spills 2)
+insn 194: alloc r1 (reload 0, pass 1, last_spill 0, n_spills 2)
+insn 66: skip r1 (reload 0, pass 0): busy: RELOAD_OTHER/inherited
+insn 66: alloc r0 (reload 0, pass 1, last_spill 1, n_spills 2)
+insn 96: skip r1 (reload 0, pass 0): busy: RELOAD_OTHER/inherited
+insn 96: skip r1 (reload 0, pass 1): busy: RELOAD_OTHER/inherited
+insn 96: alloc r0 (reload 0, pass 1, last_spill 0, n_spills 2)
+insn 143: skip r0 (reload 0, pass 0): busy: RELOAD_OTHER/inherited
+insn 143: alloc r1 (reload 0, pass 1, last_spill 0, n_spills 2)

@@ -11,6 +11,9 @@ Everything that is not decompiled yet is included from the original ROM using `.
 Matched C is built with [a fork of `agbcc`](https://github.com/lotr-gba-re/agbcc), the compiler the Pokemon GBA decomps use.
 The fork only adds debugging output, mostly useful to LLMs (or humans familiar with gcc internals).
 
+For new hack abilities, read [shared ability support](ability-support.md) for damage results, stun rules, summon behavior and regression checks.
+For effect artwork, importing sprite sheets and visual previews, read [skill effect graphics](skill-effects.md).
+
 ## Config Files for Function and Data Names
 
 `config/` is the single source of truth for what function or data lives where in the original ROM.
@@ -43,6 +46,10 @@ Naming rules are in [conventions.md](conventions.md).
 
 Run `make check` after every change.
 It runs the Python tests, checks store consistency, compiles the bugfix arms, and verifies the ROM reconstruction when the original ROM is available.
+
+For mod changes, run `make check-mod`.
+It also builds the selected hack, validates linked ability content, and runs all authoring-tool and host runtime regressions, including the effect editor.
+Use `make check-hacks` separately to compile every patch selection together.
 
 ## Ghidra
 
@@ -123,3 +130,9 @@ gdb -x build/debug/rotk.gdb -x gdb-scripts/scenes.gdb
 
 You can also task LLM agents to write `gdb` scripts.
 A relevant LLM agent skill is included at `.agents/skills/gdb-scripts/SKILL.md`.
+
+Cast timing and in-game moveset tests: [Ability Bench](ability-bench.md).
+
+Projectile and ground-effect authoring: [Skill delivery recipes](skill-deliveries.md).
+
+Local graphical effect authoring: [Effect Studio](effect-editor.md), launched with `make effect-editor`.

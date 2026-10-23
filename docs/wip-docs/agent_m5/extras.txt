@@ -1,0 +1,3 @@
+fx_unknown08044000 08044000 f
+GandalfLightstrikeFxVariants 08282810 d
+AragornSweepSlotPalettes 08287da8 d

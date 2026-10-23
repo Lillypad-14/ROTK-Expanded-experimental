@@ -15,8 +15,20 @@
 
 #include "mod_scenes.h"
 #include "patches/mod_save/save_state.h"
+#if HACK_test_arena
+#include "patches/test_arena/test_arena.h"
+#endif
 #if HACK_loot_qol
 #include "patches/loot_qol/loot_qol.h"
+#endif
+#if HACK_debug_cheats
+#include "patches/debug_cheats/debug_cheats.h"
+#endif
+#if HACK_twists
+#include "patches/twists/twists.h"
+#endif
+#if HACK_fast_waitstates
+#include "patches/fast_waitstates/fast_waitstates.h"
 #endif
 
 /**
@@ -33,6 +45,15 @@ static void runTasks(void)
 {
 #if HACK_loot_qol
     lootQol_loadState();
+#endif
+#if HACK_debug_cheats
+    debugCheats_loadState();
+#endif
+#if HACK_twists
+    twists_loadState();
+#endif
+#if HACK_fast_waitstates
+    fastWaitstates_apply();
 #endif
 }
 
@@ -61,6 +82,7 @@ void modStartup_resumeBoot(void)
     requestTitleScene();
 }
 
+#if !HACK_test_arena
 static void requestFirstScene(void)
 {
     if (modSave_isUpToDate())
@@ -75,6 +97,8 @@ static void requestFirstScene(void)
     }
 }
 
+#endif
+
 /**
  * Boot scene entry: the stock body with its first-scene decision delegated to
  * requestFirstScene.
@@ -87,7 +111,11 @@ void modStartup_initBoot(void)
     g_SceneNext = g_SceneCurrent;
     g_ScenePrevious = g_SceneCurrent;
     scene_gameplay_resetMissionState();
+#if HACK_test_arena
+    testArena_boot();
+#else
     requestFirstScene();
+#endif
 }
 
 /**

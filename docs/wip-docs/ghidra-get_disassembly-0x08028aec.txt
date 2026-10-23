@@ -1,0 +1,67 @@
+[Context] Operating on: rotk
+
+Disassembly of function: player_tickHud
+Entry Point: 08028aec
+
+08028aec: push {r4,r5,r6,r7,lr}
+08028aee: add r4, r0, #0x0
+08028af0: ldr r7, [0x08028b74]
+08028af2: lsl r0, r4, #0x5
+08028af4: sub r0, r0, r4
+08028af6: lsl r6, r0, #0x2
+08028af8: add r0, r7, #0x0
+08028afa: add r0, #0x70
+08028afc: add r5, r6, r0
+08028afe: ldr r0, [r5,#0x0]
+08028b00: mov r1, #0x8
+08028b02: and r0, r1
+08028b04: cmp r0, #0x0
+08028b06: beq 0x08028b0e
+08028b08: add r0, r4, #0x0
+08028b0a: bl 0x08029828
+08028b0e: ldr r0, [r5,#0x0]
+08028b10: mov r1, #0x10
+08028b12: and r0, r1
+08028b14: cmp r0, #0x0
+08028b16: beq 0x08028b1e
+08028b18: add r0, r4, #0x0
+08028b1a: bl 0x080298b8
+08028b1e: ldr r0, [r5,#0x0]
+08028b20: mov r1, #0x20
+08028b22: and r0, r1
+08028b24: cmp r0, #0x0
+08028b26: beq 0x08028b2e
+08028b28: add r0, r4, #0x0
+08028b2a: bl 0x08028b7c
+08028b2e: add r0, r4, #0x0
+08028b30: bl 0x08028c18
+08028b34: add r0, r6, r7
+08028b36: add r0, #0x76
+08028b38: ldrb r0, [r0,#0x0]
+08028b3a: cmp r0, #0x0
+08028b3c: beq 0x08028b44
+08028b3e: add r0, r4, #0x0
+08028b40: bl 0x08028ec0
+08028b44: add r0, r4, #0x0
+08028b46: bl 0x0802939c
+08028b4a: ldr r0, [r5,#0x0]
+08028b4c: mov r1, #0x80
+08028b4e: lsl r1, r1, #0x5
+08028b50: and r0, r1
+08028b52: cmp r0, #0x0
+08028b54: beq 0x08028b5c
+08028b56: add r0, r4, #0x0
+08028b58: bl 0x0802948c
+08028b5c: ldr r0, [0x08028b78]
+08028b5e: ldr r0, [r0,#0x0]
+08028b60: mov r1, #0x1
+08028b62: and r0, r1
+08028b64: cmp r0, #0x0
+08028b66: bne 0x08028b6e
+08028b68: add r0, r4, #0x0
+08028b6a: bl 0x0802951c
+08028b6e: pop {r4,r5,r6,r7}
+08028b70: pop {r0}
+08028b72: bx r0
+
+Total instructions: 60

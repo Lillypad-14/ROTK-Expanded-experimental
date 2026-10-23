@@ -1,0 +1,617 @@
+build gfx: items: 45 categories, 603 encoded
+build gfx: loot_piles: 1 categories, 83 encoded
+build gfx: level_icons: 2 categories, 9 encoded
+build gfx: skills/icons: 2 categories, 81 encoded
+build gfx: hero_portraits, dialog_portraits, cutscenes: 3 categories, 96 encoded
+build gfx: enemy: 51 categories, 12993 encoded
+uv run rotkit check stores
+check-stores: OK - 809 functions, 4396 data symbols, 342 decompiled (each non-static one declared in a hand-written include/ header), 259 sources in the split manifest, no conflicts
+  CC   src\c\actor_tickAll.c                    @0x080016f8  112 B
+  CC   src\c\actor_flags.c                      @0x08001874  76 B
+  CC   src\c\scene\bonusMapMenu.c               @0x08012f90  1680 B
+  CC   src\c\player_awardXp.c                   @0x08010538  736 B
+  CC   src\c\combat_resolve.c                   @0x0800f168  5072 B
+  CC   src\c\actor\chest.c                      @0x08014978  966 B
+  CC   src\c\combat.c                           @0x08010818  5032 B
+  CC   src\c\combat_resolvePlayerAttackOnActor.c @0x08015220  516 B
+  CC   src\c\font.c                             @0x0801cf74  2812 B
+  CC   src\c\scene\shop.c                       @0x0801da70  1332 B
+  CC   src\c\scene\shop_skillPointCost.c        @0x0801ff5c  36 B
+  CC   src\c\skill_active\gimli.c               @0x080222a4  352 B
+  CC   src\c\scene\shop_onBack.c                @0x0801fe4c  80 B
+  CC   src\c\player_tickOverdrawCharge.c        @0x08025cbc  174 B
+  CC   src\c\player_addCorruption.c             @0x0802623c  308 B
+  CC   src\c\menu_createLrButtonIndicators.c    @0x08027af0  148 B
+  CC   src\c\combat_damageCalc.c                @0x08027904  492 B
+  CC   src\c\combat_damageRange.c               @0x080287dc  70 B
+  CC   src\c\text_huffman.c                     @0x0802997c  224 B
+  CC   src\c\input.c                            @0x08029a5c  948 B
+  CC   src\c\item_affix_formatName.c            @0x0802b064  1376 B
+  CC   src\c\menu.c                             @0x08029e10  726 B
+  CC   src\c\system.c                           @0x0802a0e8  1010 B
+  CC   src\c\item_equipment.c                   @0x0802bdb4  1212 B
+  CC   src\c\item_drawInfo.c                    @0x0802c47c  318 B
+  CC   src\c\item_statModifiers.c               @0x0802d8e0  1780 B
+  CC   src\c\item_swapSlots.c                   @0x0802e940  176 B
+  CC   src\c\scene\languageSelect.c             @0x0802fae0  724 B
+  CC   src\c\actor\lootPile.c                   @0x0802ee0c  3284 B
+  CC   src\c\math.c                             @0x08032754  852 B
+  CC   src\c\scene\gameplay.c                   @0x08032098  756 B
+  CC   src\c\memory.c                           @0x08032aa8  1366 B
+  CC   src\c\scene\saveLoadMenu.c               @0x080305c4  3848 B
+  CC   src\c\scene\optionsMenu.c                @0x080368b0  1724 B
+  CC   src\c\system_clearRam.c                  @0x0803a170  272 B
+  CC   src\c\game.c                             @0x08033000  654 B
+  CC   src\c\combat_shieldAbsorbsHit.c          @0x0803b9b8  90 B
+  CC   src\c\loot.c                             @0x0803a6e8  2252 B
+  CC   src\c\gfx_fadeIn.c                       @0x0803e0f8  260 B
+  CC   src\c\save.c                             @0x0803cc8c  748 B
+  CC   src\c\gfx_mosaic.c                       @0x0803d264  708 B
+  CC   src\c\gfx_windowFadeInFromBlack.c        @0x0803e2fc  120 B
+  CC   src\c\gfx_windowFadeOutToBlack.c         @0x0803e640  72 B
+uv run rotkit build symbols
+wrote build\game_symbols.inc: 809 functions, 4396 data
+wrote build\game_symbols.ld: 809 functions, 4396 data
+  CC   src\c\gfx_fadeOut.c                      @0x0803e374  192 B
+  CC   src\c\gfx_alphaBlend.c                   @0x0803df60  240 B
+  CC   src\c\player_resetActiveSkillControls.c  @0x0804189c  96 B
+  CC   src\c\multiplayer_getMessageMask.c       @0x08046dc4  12 B
+  CC   src\c\skill.c                            @0x08042bc4  3188 B
+  CC   src\c\skill_levels.c                     @0x08045020  1136 B
+  CC   src\c\sfx_init.c                         @0x08047064  76 B
+  CC   src\c\sfx.c                              @0x08047140  424 B
+  CC   src\c\scene\mainMenu.c                   @0x08047ef4  1672 B
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_73_EnemyTypeGondorSoldier_ExtraPoses18_20.c
+  CC   src\c\text.c                             @0x080477f0  748 B
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_41_EnemyTypeSpider.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_44_EnemyTypeSpiderSmall.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_55_EnemyTypeCrebain.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_56_EnemyTypeBat.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_48_EnemyTypeWarg.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_59_EnemyTypeFlySwarm.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_61_EnemyTypeGrond.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_60_EnemyTypeShelob.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_66_EnemyTypeMumakil.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_69_EnemyTypeFlyingNazgul.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_63_EnemyTypeDenethor.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_64_EnemyTypeWitchKing.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_67_EnemyTypeKingOfTheDead.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_65_EnemyTypeGollum.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_45_EnemyTypeCorsair.c
+  CC   carved/data/items/KnifeHollowIcons.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_52_EnemyTypeEasterlingHeavy.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_57_EnemyTypeGhost.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_03_EnemyTypeGoblinArcher.c
+  CC   carved/data/items/Sword1HHollowIcons.c
+  CC   carved/data/items/Sword2HHollowIcons.c
+  CC   carved/data/items/AxeHollowIcons.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_05_EnemyTypeOrcDrummer_AdditionalPose.c
+  CC   carved/data/items/MaceHollowIcons.c
+  CC   carved/data/items/StaffHollowIcons.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_00_EnemyTypeGoblinScout.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_50_EnemyTypeHaradrimArcher.c
+  CC   carved/data/items/BowHollowIcons.c
+  CC   carved/data/items/ArrowHollowIcons.c
+  CC   carved/data/items/ArmorHollowIcons.c
+  CC   carved/data/items/ShieldHollowIcons.c
+  CC   carved/data/items/AccessoryHollowIcons.c
+  CC   carved/data/items/CloakHollowIcons.c
+  CC   carved/data/items/GloveHollowIcons.c
+  CC   carved/data/items/ShoeHollowIcons.c
+  CC   carved/data/items/UniqueHollowIcons.c
+  CC   carved/data/items/KnifeBackpackIcons.c
+  CC   carved/data/skills/SkillIcons.c
+  CC   carved/data/items/Sword1HBackpackIcons.c
+  CC   carved/data/items/Sword2HBackpackIcons.c
+  CC   carved/data/items/AxeBackpackIcons.c
+  CC   carved/data/items/MaceBackpackIcons.c
+  CC   carved/data/items/StaffBackpackIcons.c
+  CC   carved/data/items/BowBackpackIcons.c
+  CC   carved/data/items/ArrowBackpackIcons.c
+  CC   carved/data/items/ArmorBackpackIcons.c
+  CC   carved/data/items/ShieldBackpackIcons.c
+  CC   carved/data/items/AccessoryBackpackIcons.c
+  CC   carved/data/items/CloakBackpackIcons.c
+  CC   carved/data/items/GloveBackpackIcons.c
+  CC   carved/data/items/ShoeBackpackIcons.c
+  CC   carved/data/items/UniqueBackpackIcons.c
+  CC   carved/data/items/KnifeEquipIcons.c
+  CC   carved/data/items/Sword1HEquipIcons.c
+  CC   carved/data/items/Sword2HEquipIcons.c
+  CC   carved/data/items/AxeEquipIcons.c
+  CC   carved/data/items/MaceEquipIcons.c
+  CC   carved/data/items/StaffEquipIcons.c
+  CC   carved/data/items/BowEquipIcons.c
+  CC   carved/data/items/ArrowEquipIcons.c
+  CC   carved/data/items/ArmorEquipIcons.c
+  CC   carved/data/items/ShieldEquipIcons.c
+  CC   carved/data/items/AccessoryEquipIcons.c
+  CC   carved/data/items/CloakEquipIcons.c
+  CC   carved/data/items/GloveEquipIcons.c
+  CC   carved/data/items/ShoeEquipIcons.c
+  CC   carved/data/items/UniqueEquipIcons.c
+  CC   carved/data/level_icons/BonusIcons.c
+  CC   carved/data/level_icons/MultiplayerIcons.c
+  CC   carved/data/hero_portraits/HeroPortraits.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_58_EnemyTypeNazgul.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_73_EnemyTypeGondorSoldier_ExtraPoses00_10.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_73_EnemyTypeGondorSoldier_Primary.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_73_EnemyTypeGondorSoldier_ExtraPoses11_17.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_20_EnemyTypeOrcArcher.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_06_EnemyTypeOrcPitchfork1.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_18_EnemyTypeOrcCaptainArmored.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_26_EnemyTypeOrcAxeThrower.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_29_EnemyTypeOrcHoplite.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_05_EnemyTypeOrcDrummer_Main.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_10_EnemyTypeOrcWarriorAxe_Body.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_28_EnemyTypeOrcFlagbearer.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_10_EnemyTypeOrcWarriorAxe_Part1.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_10_EnemyTypeOrcWarriorAxe_Part2.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_10_EnemyTypeOrcWarriorAxe_Part3.c
+  CC   carved/data/dialog_portraits/DialogPortraits.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_10_EnemyTypeOrcWarriorAxe_Part5.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_10_EnemyTypeOrcWarriorAxe_Part4.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_62_EnemyTypeSaruman_Main.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_68_EnemyTypeMouthOfSauron.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_62_EnemyTypeSaruman_AdditionalPoses.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_71_EnemyTypeSkeletonWarrior.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_70_EnemyTypeGroundSkeleton.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_39_EnemyTypeMountainTroll.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_40_EnemyTypeHalfTroll.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_31_EnemyTypeUruk_Core.c
+  CC   carved/data/loot_piles/LootPiles.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_31_EnemyTypeUruk_AdditionalPoses.c
+  CC   carved/data/level_icons/BonusMapMenuEntries.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBankMatrix_63_EnemyTypeDenethor_Parts.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_33_EnemyTypeUrukCrossbowman_AdditionalPoses.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_33_EnemyTypeUrukCrossbowman_Primary.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBankMatrix_52_EnemyTypeEasterlingHeavy_Parts.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_73_EnemyTypeGondorSoldier.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_45_EnemyTypeCorsair.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_52_EnemyTypeEasterlingHeavy.c
+  generated build/generated/data/enemy_graphics/EnemyAnimationAssets_37_EnemyTypeWildman.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_10_EnemyTypeOrcWarriorAxe.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_20_EnemyTypeOrcArcher.c
+uv run rotkit build clangd
+wrote compile_commands.json
+hacks\compile_flags.txt unchanged
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_06_EnemyTypeOrcPitchfork1.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_18_EnemyTypeOrcCaptainArmored.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_26_EnemyTypeOrcAxeThrower.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_29_EnemyTypeOrcHoplite.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_28_EnemyTypeOrcFlagbearer.c
+  CC   carved/data/cutscenes/CutscenePictures.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_03_EnemyTypeGoblinArcher.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_00_EnemyTypeGoblinScout.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_05_EnemyTypeOrcDrummer.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_31_EnemyTypeUruk.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_33_EnemyTypeUrukCrossbowman.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_37_EnemyTypeWildman.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_58_EnemyTypeNazgul.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_41_EnemyTypeSpider.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_44_EnemyTypeSpiderSmall.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_55_EnemyTypeCrebain.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_56_EnemyTypeBat.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_48_EnemyTypeWarg.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_39_EnemyTypeMountainTroll.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_68_EnemyTypeMouthOfSauron.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_62_EnemyTypeSaruman.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_40_EnemyTypeHalfTroll.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_61_EnemyTypeGrond.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_60_EnemyTypeShelob.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_66_EnemyTypeMumakil.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_69_EnemyTypeFlyingNazgul.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_57_EnemyTypeGhost.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_50_EnemyTypeHaradrimArcher.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_63_EnemyTypeDenethor.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_64_EnemyTypeWitchKing.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_59_EnemyTypeFlySwarm.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_70_EnemyTypeGroundSkeleton.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_71_EnemyTypeSkeletonWarrior.c
+  CC   carved/data/enemy_tables/EnemyTables.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_67_EnemyTypeKingOfTheDead.c
+  CC   carved/data/player_tables/XpThresholds.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBanks_65_EnemyTypeGollum.c
+  CC   carved/data/item_tables/KnifeTables.c
+  CC   carved/data/item_tables/Sword1HTables.c
+  CC   carved/data/item_tables/Sword2HTables.c
+  CC   carved/data/item_tables/AxeTables.c
+  CC   carved/data/item_tables/StaffTables.c
+  CC   carved/data/item_tables/MaceTables.c
+  CC   carved/data/item_tables/BowTables.c
+  CC   carved/data/item_tables/ArrowTables.c
+  CC   carved/data/item_tables/ArmorTables.c
+  CC   carved/data/item_tables/ShieldTables.c
+  CC   carved/data/item_tables/AccessoryTables.c
+  CC   carved/data/item_tables/CloakTables.c
+  CC   carved/data/item_tables/GloveTables.c
+  CC   carved/data/item_tables/ShoeTables.c
+  CC   carved/data/loot_tables/WeaponPrefixRegionRanges.c
+  CC   carved/data/affix_tables/WeaponPrefixTables.c
+  CC   carved/data/item_tables/UniqueTables.c
+  CC   carved/data/loot_tables/StaffBowPrefixRegionRanges.c
+  CC   carved/data/affix_tables/StaffBowPrefixTables.c
+  CC   carved/data/loot_tables/ArmorPrefixRegionRanges.c
+  CC   carved/data/affix_tables/ArmorPrefixTables.c
+  CC   carved/data/loot_tables/AccessoryPrefixRegionRanges.c
+  CC   carved/data/affix_tables/AccessoryPrefixTables.c
+  CC   carved/data/loot_tables/CloakPrefixRegionRanges.c
+  CC   carved/data/affix_tables/CloakPrefixTables.c
+  CC   carved/data/loot_tables/GloveShoePrefixRegionRanges.c
+  CC   carved/data/affix_tables/GloveShoePrefixTables.c
+  CC   carved/data/loot_tables/SuffixTierRanges.c
+  CC   carved/data/affix_tables/ItemSuffixTables.c
+  CC   carved/data/item_tables/Runes.c
+  CC   carved/data/item_tables/ItemTypeInfos.c
+  CC   carved/data/scene/SceneHandlers.c
+  CC   carved/data/loot_piles/LootPileAnimations.c
+  CC   carved/data/actor_tables/NpcSfxSets.c
+  CC   carved/data/level_icons/MultiplayerLevelSelectEntries.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBankMatrix_28_EnemyTypeOrcFlagbearer_FlagBearer.c
+  CC   carved/data/mission_tables/RegionMissionRanges.c
+  CC   carved/data/loot_tables/LootTables.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBankMatrix_10_EnemyTypeOrcWarriorAxe_Composite.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBankMatrix_10_EnemyTypeOrcWarriorAxe_CompositeAttack.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBankMatrix_68_EnemyTypeMouthOfSauron_Parts.c
+  CC   carved/data/skills/PassiveSkills.c
+  CC   carved/data/skills/HeroSkills.c
+carved/data/skills/HeroSkills.c:784:21: warning: cast between incompatible function types from 'Actor * (*)(Actor *)' to 'void (*)(Actor *)' [-Wcast-function-type]
+  784 |         .callback = (ActiveSkillCallback)skill_active_gimliDwarvenRage,
+      |                     ^
+  CC   carved/data/cutscenes/CutsceneBgCnts.c
+  CC   carved/data/cutscenes/CutscenePages.c
+  CC   carved/data/enemy_graphics/EnemyAnimationBankMatrix_31_EnemyTypeUruk_Parts.c
+  CC   carved/data/hero_portraits/HeroPortraitBgAssets.c
+  CC   carved/data/dialog_portraits/DialogLineInfos.c
+  CC   carved/data/loot_tables/LootHeroRegionProgressions.c
+  CC   carved/data/skills/ActiveSkillDescriptionBaseTextIds.c
+  CC   carved/data/skills/PassiveSkillRequiredLevels.c
+  CC   carved/data/skills/ActiveSkillRequiredLevels.c
+  CC   carved/data/sfx_tables/Songs.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_73_EnemyTypeGondorSoldier_ExtraPoses18_20.c
+  CC   carved/data/skills/SkillIconAssets.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_41_EnemyTypeSpider.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_44_EnemyTypeSpiderSmall.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_56_EnemyTypeBat.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_55_EnemyTypeCrebain.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_59_EnemyTypeFlySwarm.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_61_EnemyTypeGrond.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_48_EnemyTypeWarg.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_69_EnemyTypeFlyingNazgul.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_66_EnemyTypeMumakil.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_60_EnemyTypeShelob.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_67_EnemyTypeKingOfTheDead.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_65_EnemyTypeGollum.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_05_EnemyTypeOrcDrummer_AdditionalPose.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_63_EnemyTypeDenethor.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_45_EnemyTypeCorsair.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_57_EnemyTypeGhost.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_03_EnemyTypeGoblinArcher.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_00_EnemyTypeGoblinScout.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_64_EnemyTypeWitchKing.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_52_EnemyTypeEasterlingHeavy.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_50_EnemyTypeHaradrimArcher.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_58_EnemyTypeNazgul.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_73_EnemyTypeGondorSoldier_ExtraPoses11_17.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_73_EnemyTypeGondorSoldier_Primary.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_73_EnemyTypeGondorSoldier_ExtraPoses00_10.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_20_EnemyTypeOrcArcher.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_06_EnemyTypeOrcPitchfork1.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_05_EnemyTypeOrcDrummer_Main.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_29_EnemyTypeOrcHoplite.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_10_EnemyTypeOrcWarriorAxe_Part1.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_18_EnemyTypeOrcCaptainArmored.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_26_EnemyTypeOrcAxeThrower.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_10_EnemyTypeOrcWarriorAxe_Part3.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_10_EnemyTypeOrcWarriorAxe_Part2.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_10_EnemyTypeOrcWarriorAxe_Part5.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_10_EnemyTypeOrcWarriorAxe_Part4.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_62_EnemyTypeSaruman_AdditionalPoses.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_10_EnemyTypeOrcWarriorAxe_Body.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_28_EnemyTypeOrcFlagbearer.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_70_EnemyTypeGroundSkeleton.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_68_EnemyTypeMouthOfSauron.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_62_EnemyTypeSaruman_Main.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_71_EnemyTypeSkeletonWarrior.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_31_EnemyTypeUruk_AdditionalPoses.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_33_EnemyTypeUrukCrossbowman_AdditionalPoses.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_40_EnemyTypeHalfTroll.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_37_EnemyTypeWildman.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_31_EnemyTypeUruk_Core.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_33_EnemyTypeUrukCrossbowman_Primary.c
+  CC   build/generated/data/enemy_graphics/EnemyAnimationAssets_39_EnemyTypeMountainTroll.c
+check-bugfixes: every src/c fix arm compiles with -DBUGFIX
+region byte-match vs base ROM - 259 TUs, 6177463 B carved:
+
+  OK    0x080016f8     0x70  src\c\actor_tickAll.c
+  OK    0x08001810     0x28  src\c\actor_parkMainList.c
+  OK    0x08001874     0x4c  src\c\actor_flags.c
+  OK    0x08001918     0x48  src\c\actor_allocOverlay.c
+  OK    0x0800f168   0x13d0  src\c\combat_resolve.c
+  OK    0x08010538    0x2e0  src\c\player_awardXp.c
+  OK    0x08010818   0x13a8  src\c\combat.c
+  OK    0x08012f90    0x690  src\c\scene\bonusMapMenu.c
+  OK    0x08014978    0x3c6  src\c\actor\chest.c
+  OK    0x08015220    0x204  src\c\combat_resolvePlayerAttackOnActor.c
+  OK    0x0801cf74    0xafc  src\c\font.c
+  OK    0x0801da70    0x534  src\c\scene\shop.c
+  OK    0x0801fe4c     0x50  src\c\scene\shop_onBack.c
+  OK    0x0801ff5c     0x24  src\c\scene\shop_skillPointCost.c
+  OK    0x080222a4    0x160  src\c\skill_active\gimli.c
+  OK    0x08025cbc     0xae  src\c\player_tickOverdrawCharge.c
+  OK    0x0802623c    0x134  src\c\player_addCorruption.c
+  OK    0x08027904    0x1ec  src\c\combat_damageCalc.c
+  OK    0x08027af0     0x94  src\c\menu_createLrButtonIndicators.c
+  OK    0x080287dc     0x46  src\c\combat_damageRange.c
+  OK    0x0802997c     0xe0  src\c\text_huffman.c
+  OK    0x08029a5c    0x3b4  src\c\input.c
+  OK    0x08029e10    0x2d6  src\c\menu.c
+  OK    0x0802a0e8    0x3f2  src\c\system.c
+  OK    0x0802b064    0x560  src\c\item_affix_formatName.c
+  OK    0x0802bdb4    0x4bc  src\c\item_equipment.c
+  OK    0x0802c47c    0x13e  src\c\item_drawInfo.c
+  OK    0x0802d8e0    0x6f4  src\c\item_statModifiers.c
+  OK    0x0802e940     0xb0  src\c\item_swapSlots.c
+  OK    0x0802ee0c    0xcd4  src\c\actor\lootPile.c
+  OK    0x0802fae0    0x2d4  src\c\scene\languageSelect.c
+  OK    0x08030518     0x32  src\c\pool_alloc.c
+  OK    0x08030568     0x30  src\c\pool_list.c
+  OK    0x080305c4    0xf08  src\c\scene\saveLoadMenu.c
+  OK    0x08032098    0x2f4  src\c\scene\gameplay.c
+  OK    0x08032754    0x354  src\c\math.c
+  OK    0x08032aa8    0x556  src\c\memory.c
+  OK    0x08033000    0x28e  src\c\game.c
+  OK    0x080368b0    0x6bc  src\c\scene\optionsMenu.c
+  OK    0x0803a170    0x110  src\c\system_clearRam.c
+  OK    0x0803a6e8    0x8cc  src\c\loot.c
+  OK    0x0803b9b8     0x5a  src\c\combat_shieldAbsorbsHit.c
+  OK    0x0803cc8c    0x2ec  src\c\save.c
+  OK    0x0803d264    0x2c4  src\c\gfx_mosaic.c
+  OK    0x0803df60     0xf0  src\c\gfx_alphaBlend.c
+  OK    0x0803e0f8    0x104  src\c\gfx_fadeIn.c
+  OK    0x0803e2fc     0x78  src\c\gfx_windowFadeInFromBlack.c
+  OK    0x0803e374     0xc0  src\c\gfx_fadeOut.c
+  OK    0x0803e640     0x48  src\c\gfx_windowFadeOutToBlack.c
+  OK    0x0804189c     0x60  src\c\player_resetActiveSkillControls.c
+  OK    0x08042bc4    0xc74  src\c\skill.c
+  OK    0x08045020    0x470  src\c\skill_levels.c
+  OK    0x08046dc4      0xc  src\c\multiplayer_getMessageMask.c
+  OK    0x08047064     0x4c  src\c\sfx_init.c
+  OK    0x08047140    0x1a8  src\c\sfx.c
+  OK    0x080477f0    0x2ec  src\c\text.c
+  OK    0x08047ef4    0x688  src\c\scene\mainMenu.c
+  OK    0x0804fbec    0x820  carved\data\enemy_graphics\EnemyAnimationBanks_73_EnemyTypeGondorSoldier.c
+  OK    0x08050634     0x8c  carved\data\level_icons\BonusMapMenuEntries.c
+  OK    0x0805104c     0xa8  carved\data\enemy_graphics\EnemyAnimationBankMatrix_63_EnemyTypeDenethor_Parts.c
+  OK    0x080511d4     0xa8  carved\data\enemy_graphics\EnemyAnimationBankMatrix_52_EnemyTypeEasterlingHeavy_Parts.c
+  OK    0x080512d0    0x320  carved\data\enemy_graphics\EnemyAnimationBanks_52_EnemyTypeEasterlingHeavy.c
+  OK    0x080515f0    0x190  carved\data\enemy_graphics\EnemyAnimationBanks_45_EnemyTypeCorsair.c
+  OK    0x08051780    0xf00  carved\data\enemy_graphics\EnemyAnimationBanks_10_EnemyTypeOrcWarriorAxe.c
+  OK    0x08052680    0x1e0  carved\data\enemy_graphics\EnemyAnimationBanks_20_EnemyTypeOrcArcher.c
+  OK    0x08052860    0x1e0  carved\data\enemy_graphics\EnemyAnimationBanks_06_EnemyTypeOrcPitchfork1.c
+  OK    0x08052a40    0x3c0  carved\data\enemy_graphics\EnemyAnimationBanks_18_EnemyTypeOrcCaptainArmored.c
+  OK    0x08052e00    0x230  carved\data\enemy_graphics\EnemyAnimationBanks_26_EnemyTypeOrcAxeThrower.c
+  OK    0x08053030    0x140  carved\data\enemy_graphics\EnemyAnimationBanks_29_EnemyTypeOrcHoplite.c
+  OK    0x08053170    0x3c0  carved\data\enemy_graphics\EnemyAnimationBanks_28_EnemyTypeOrcFlagbearer.c
+  OK    0x08053530    0x1e0  carved\data\enemy_graphics\EnemyAnimationBanks_03_EnemyTypeGoblinArcher.c
+  OK    0x08053710    0x230  carved\data\enemy_graphics\EnemyAnimationBanks_00_EnemyTypeGoblinScout.c
+  OK    0x08053940    0x1e0  carved\data\enemy_graphics\EnemyAnimationBanks_05_EnemyTypeOrcDrummer.c
+  OK    0x08053b20    0x500  carved\data\enemy_graphics\EnemyAnimationBanks_31_EnemyTypeUruk.c
+  OK    0x08054020    0x4b0  carved\data\enemy_graphics\EnemyAnimationBanks_33_EnemyTypeUrukCrossbowman.c
+  OK    0x080544d0    0x1e0  carved\data\enemy_graphics\EnemyAnimationBanks_37_EnemyTypeWildman.c
+  OK    0x080546b0    0x190  carved\data\enemy_graphics\EnemyAnimationBanks_58_EnemyTypeNazgul.c
+  OK    0x08054840    0x190  carved\data\enemy_graphics\EnemyAnimationBanks_41_EnemyTypeSpider.c
+  OK    0x080549d0    0x190  carved\data\enemy_graphics\EnemyAnimationBanks_44_EnemyTypeSpiderSmall.c
+  OK    0x08054b60    0x140  carved\data\enemy_graphics\EnemyAnimationBanks_55_EnemyTypeCrebain.c
+  OK    0x08054ca0    0x140  carved\data\enemy_graphics\EnemyAnimationBanks_56_EnemyTypeBat.c
+  OK    0x08054de0    0x190  carved\data\enemy_graphics\EnemyAnimationBanks_48_EnemyTypeWarg.c
+  OK    0x08054f70    0x280  carved\data\enemy_graphics\EnemyAnimationBanks_68_EnemyTypeMouthOfSauron.c
+  OK    0x080551f0    0x2d0  carved\data\enemy_graphics\EnemyAnimationBanks_62_EnemyTypeSaruman.c
+  OK    0x080554c0    0x140  carved\data\enemy_graphics\EnemyAnimationBanks_39_EnemyTypeMountainTroll.c
+  OK    0x08055600    0x140  carved\data\enemy_graphics\EnemyAnimationBanks_40_EnemyTypeHalfTroll.c
+  OK    0x08055740     0xa0  carved\data\enemy_graphics\EnemyAnimationBanks_61_EnemyTypeGrond.c
+  OK    0x080557e0    0x190  carved\data\enemy_graphics\EnemyAnimationBanks_60_EnemyTypeShelob.c
+  OK    0x08055970    0x190  carved\data\enemy_graphics\EnemyAnimationBanks_66_EnemyTypeMumakil.c
+  OK    0x08055b00     0xf0  carved\data\enemy_graphics\EnemyAnimationBanks_69_EnemyTypeFlyingNazgul.c
+  OK    0x08055bf0    0x190  carved\data\enemy_graphics\EnemyAnimationBanks_57_EnemyTypeGhost.c
+  OK    0x08055d80    0x140  carved\data\enemy_graphics\EnemyAnimationBanks_50_EnemyTypeHaradrimArcher.c
+  OK    0x08055ec0    0x320  carved\data\enemy_graphics\EnemyAnimationBanks_63_EnemyTypeDenethor.c
+  OK    0x080561e0    0x280  carved\data\enemy_graphics\EnemyAnimationBanks_64_EnemyTypeWitchKing.c
+  OK    0x08056460     0x50  carved\data\enemy_graphics\EnemyAnimationBanks_59_EnemyTypeFlySwarm.c
+  OK    0x080564b0    0x140  carved\data\enemy_graphics\EnemyAnimationBanks_70_EnemyTypeGroundSkeleton.c
+  OK    0x080565f0    0x190  carved\data\enemy_graphics\EnemyAnimationBanks_71_EnemyTypeSkeletonWarrior.c
+  OK    0x08056780     0xa0  carved\data\enemy_graphics\EnemyAnimationBanks_67_EnemyTypeKingOfTheDead.c
+  OK    0x08056820    0x7c8  carved\data\enemy_graphics\EnemyAnimationBanks.c
+  OK    0x08057518    0xcf8  carved\data\enemy_tables\EnemyTables.c
+  OK    0x08058754    0x190  carved\data\enemy_graphics\EnemyAnimationBanks_65_EnemyTypeGollum.c
+  OK    0x080628d0     0xc8  carved\data\player_tables\XpThresholds.c
+  OK    0x08062e7c    0x360  carved\data\item_tables\KnifeTables.c
+  OK    0x080631dc    0x210  carved\data\item_tables\Sword1HTables.c
+  OK    0x080633ec    0x1b0  carved\data\item_tables\Sword2HTables.c
+  OK    0x0806359c    0x210  carved\data\item_tables\AxeTables.c
+  OK    0x080637ac    0x1e0  carved\data\item_tables\MaceTables.c
+  OK    0x0806398c     0xc0  carved\data\item_tables\StaffTables.c
+  OK    0x08063a4c    0x270  carved\data\item_tables\BowTables.c
+  OK    0x08063cbc    0x208  carved\data\item_tables\ArrowTables.c
+  OK    0x08063ec4    0x480  carved\data\item_tables\ArmorTables.c
+  OK    0x08064344    0x180  carved\data\item_tables\ShieldTables.c
+  OK    0x080644c4    0x240  carved\data\item_tables\AccessoryTables.c
+  OK    0x08064704    0x1b0  carved\data\item_tables\CloakTables.c
+  OK    0x080648b4    0x180  carved\data\item_tables\GloveTables.c
+  OK    0x08064a34    0x150  carved\data\item_tables\ShoeTables.c
+  OK    0x08064b84    0x9f0  carved\data\item_tables\UniqueTables.c
+  OK    0x08065648     0x70  carved\data\loot_tables\WeaponPrefixRegionRanges.c
+  OK    0x080656b8    0x9c0  carved\data\affix_tables\WeaponPrefixTables.c
+  OK    0x08066078     0x70  carved\data\loot_tables\StaffBowPrefixRegionRanges.c
+  OK    0x080660e8    0x6c0  carved\data\affix_tables\StaffBowPrefixTables.c
+  OK    0x080667a8     0x70  carved\data\loot_tables\ArmorPrefixRegionRanges.c
+  OK    0x08066818    0x9c0  carved\data\affix_tables\ArmorPrefixTables.c
+  OK    0x080671d8     0x70  carved\data\loot_tables\AccessoryPrefixRegionRanges.c
+  OK    0x08067248    0x9c0  carved\data\affix_tables\AccessoryPrefixTables.c
+  OK    0x08067c08     0x70  carved\data\loot_tables\CloakPrefixRegionRanges.c
+  OK    0x08067c78    0x240  carved\data\affix_tables\CloakPrefixTables.c
+  OK    0x08067eb8     0x70  carved\data\loot_tables\GloveShoePrefixRegionRanges.c
+  OK    0x08067f28    0x600  carved\data\affix_tables\GloveShoePrefixTables.c
+  OK    0x08068528     0x28  carved\data\loot_tables\SuffixTierRanges.c
+  OK    0x08068550    0xa00  carved\data\affix_tables\ItemSuffixTables.c
+  OK    0x08068f50    0x258  carved\data\item_tables\ItemTypeInfos.c
+  OK    0x080691a8     0x3c  carved\data\item_tables\Runes.c
+  OK    0x080691e4    0x590  carved\data\loot_piles\LootPileAnimations.c
+  OK    0x0806c828    0x138  carved\data\scene\SceneHandlers.c
+  OK    0x0806c9e4     0xf0  carved\data\level_icons\MultiplayerLevelSelectEntries.c
+  OK    0x0806cddc     0xd8  carved\data\actor_tables\NpcSfxSets.c
+  OK    0x0806cee8     0xa8  carved\data\enemy_graphics\EnemyAnimationBankMatrix_28_EnemyTypeOrcFlagbearer_FlagBearer.c
+  OK    0x0806cfe4     0xa8  carved\data\enemy_graphics\EnemyAnimationBankMatrix_10_EnemyTypeOrcWarriorAxe_Composite.c
+  OK    0x0806d0e0     0xa8  carved\data\enemy_graphics\EnemyAnimationBankMatrix_10_EnemyTypeOrcWarriorAxe_CompositeAttack.c
+  OK    0x0806d20c     0x70  carved\data\mission_tables\RegionMissionRanges.c
+  OK    0x0806db94    0x1e8  carved\data\loot_tables\LootTables.c
+  OK    0x0806dfbc     0xa8  carved\data\enemy_graphics\EnemyAnimationBankMatrix_68_EnemyTypeMouthOfSauron_Parts.c
+  OK    0x0806e3d4    0x578  carved\data\skills\PassiveSkills.c
+  OK    0x0806e94c    0x7dd  carved\data\skills\HeroSkills.c
+  OK    0x0806f684      0x8  carved\data\cutscenes\CutsceneBgCnts.c
+  OK    0x0806f68c    0xc34  carved\data\cutscenes\CutscenePages.c
+  OK    0x0807050c     0xa8  carved\data\enemy_graphics\EnemyAnimationBankMatrix_31_EnemyTypeUruk_Parts.c
+  OK    0x08282978     0x20  carved\data\hero_portraits\HeroPortraitBgAssets.c
+  OK    0x082833d8   0x3f30  carved\data\dialog_portraits\DialogLineInfos.c
+  OK    0x08287310     0x20  carved\data\loot_tables\LootHeroRegionProgressions.c
+  OK    0x082874a4     0x10  carved\data\skills\ActiveSkillDescriptionBaseTextIds.c
+  OK    0x082874bc     0xd2  carved\data\skills\PassiveSkillRequiredLevels.c
+  OK    0x0828758e    0x120  carved\data\skills\ActiveSkillRequiredLevels.c
+  OK    0x082876b0    0x14c  carved\data\skills\SkillIconAssets.c
+  OK    0x082898f0    0x110  carved\data\sfx_tables\Songs.c
+  OK    0x082abc44   0x3cbc  build\generated\data\enemy_graphics\EnemyAnimationAssets_73_EnemyTypeGondorSoldier_ExtraPoses18_20.c
+  OK    0x082b1660   0x9940  build\generated\data\enemy_graphics\EnemyAnimationAssets_41_EnemyTypeSpider.c
+  OK    0x082bafa0   0x40a4  build\generated\data\enemy_graphics\EnemyAnimationAssets_44_EnemyTypeSpiderSmall.c
+  OK    0x082bf044   0x3f28  build\generated\data\enemy_graphics\EnemyAnimationAssets_55_EnemyTypeCrebain.c
+  OK    0x082c2f6c   0x1f3c  build\generated\data\enemy_graphics\EnemyAnimationAssets_56_EnemyTypeBat.c
+  OK    0x082c4ea8  0x17910  build\generated\data\enemy_graphics\EnemyAnimationAssets_48_EnemyTypeWarg.c
+  OK    0x082dc7b8    0x98c  build\generated\data\enemy_graphics\EnemyAnimationAssets_59_EnemyTypeFlySwarm.c
+  OK    0x083cc8ec   0xe43c  build\generated\data\enemy_graphics\EnemyAnimationAssets_61_EnemyTypeGrond.c
+  OK    0x083dad28  0x25128  build\generated\data\enemy_graphics\EnemyAnimationAssets_60_EnemyTypeShelob.c
+  OK    0x083ffe50  0x1fd44  build\generated\data\enemy_graphics\EnemyAnimationAssets_66_EnemyTypeMumakil.c
+  OK    0x0841fb94  0x15610  build\generated\data\enemy_graphics\EnemyAnimationAssets_69_EnemyTypeFlyingNazgul.c
+  OK    0x084351a4  0x2cfe8  build\generated\data\enemy_graphics\EnemyAnimationAssets_63_EnemyTypeDenethor.c
+  OK    0x0846218c  0x3f0cc  build\generated\data\enemy_graphics\EnemyAnimationAssets_64_EnemyTypeWitchKing.c
+  OK    0x084a1258   0xc5a8  build\generated\data\enemy_graphics\EnemyAnimationAssets_67_EnemyTypeKingOfTheDead.c
+  OK    0x084b6df8  0x1511c  build\generated\data\enemy_graphics\EnemyAnimationAssets_65_EnemyTypeGollum.c
+  OK    0x084dce94  0x1c4a8  build\generated\data\enemy_graphics\EnemyAnimationAssets_45_EnemyTypeCorsair.c
+  OK    0x084f939c  0x2dc74  build\generated\data\enemy_graphics\EnemyAnimationAssets_52_EnemyTypeEasterlingHeavy.c
+  OK    0x0868c2e0  0x1d93c  build\generated\data\enemy_graphics\EnemyAnimationAssets_57_EnemyTypeGhost.c
+  OK    0x08725700  0x148e8  build\generated\data\enemy_graphics\EnemyAnimationAssets_03_EnemyTypeGoblinArcher.c
+  OK    0x08739fe8  0x17034  build\generated\data\enemy_graphics\EnemyAnimationAssets_00_EnemyTypeGoblinScout.c
+  OK    0x0875101c   0x1008  build\generated\data\enemy_graphics\EnemyAnimationAssets_05_EnemyTypeOrcDrummer_AdditionalPose.c
+  OK    0x087520c4  0x1a860  build\generated\data\enemy_graphics\EnemyAnimationAssets_50_EnemyTypeHaradrimArcher.c
+  OK    0x0876c964    0xef4  carved\data\items\KnifeHollowIcons.c
+  OK    0x0876d858    0x9d0  carved\data\items\Sword1HHollowIcons.c
+  OK    0x0876e228    0x7c0  carved\data\items\Sword2HHollowIcons.c
+  OK    0x0876e9e8    0x980  carved\data\items\AxeHollowIcons.c
+  OK    0x0876f368    0x8d0  carved\data\items\MaceHollowIcons.c
+  OK    0x0876fc38    0x330  carved\data\items\StaffHollowIcons.c
+  OK    0x0876ff68    0xa6c  carved\data\items\BowHollowIcons.c
+  OK    0x087709d4    0xb00  carved\data\items\ArrowHollowIcons.c
+  OK    0x087714d4   0x1904  carved\data\items\ArmorHollowIcons.c
+  OK    0x08772dd8    0x88c  carved\data\items\ShieldHollowIcons.c
+  OK    0x08773664    0xc54  carved\data\items\AccessoryHollowIcons.c
+  OK    0x087742b8    0x9e4  carved\data\items\CloakHollowIcons.c
+  OK    0x08774c9c    0x88c  carved\data\items\GloveHollowIcons.c
+  OK    0x08775528    0x748  carved\data\items\ShoeHollowIcons.c
+  OK    0x08775c70   0x31dc  carved\data\items\UniqueHollowIcons.c
+  OK    0x0878271c   0x7ac4  carved\data\skills\SkillIcons.c
+  OK    0x0878a918   0x105c  carved\data\items\KnifeBackpackIcons.c
+  OK    0x0878b974    0xa9c  carved\data\items\Sword1HBackpackIcons.c
+  OK    0x0878c410    0x888  carved\data\items\Sword2HBackpackIcons.c
+  OK    0x0878cc98    0xa70  carved\data\items\AxeBackpackIcons.c
+  OK    0x0878d708    0x994  carved\data\items\MaceBackpackIcons.c
+  OK    0x0878e09c    0x384  carved\data\items\StaffBackpackIcons.c
+  OK    0x0878e420    0xcc8  carved\data\items\BowBackpackIcons.c
+  OK    0x0878f0e8    0xbb8  carved\data\items\ArrowBackpackIcons.c
+  OK    0x0878fca0   0x1bec  carved\data\items\ArmorBackpackIcons.c
+  OK    0x0879188c    0x964  carved\data\items\ShieldBackpackIcons.c
+  OK    0x087921f0    0xdcc  carved\data\items\AccessoryBackpackIcons.c
+  OK    0x08792fbc    0xadc  carved\data\items\CloakBackpackIcons.c
+  OK    0x08793a98    0x980  carved\data\items\GloveBackpackIcons.c
+  OK    0x08794418    0x814  carved\data\items\ShoeBackpackIcons.c
+  OK    0x08794c2c   0x3764  carved\data\items\UniqueBackpackIcons.c
+  OK    0x08798390   0x14d4  carved\data\items\KnifeEquipIcons.c
+  OK    0x08799864    0xdc4  carved\data\items\Sword1HEquipIcons.c
+  OK    0x0879a628    0xaa0  carved\data\items\Sword2HEquipIcons.c
+  OK    0x0879b0c8    0xe40  carved\data\items\AxeEquipIcons.c
+  OK    0x0879bf08    0xd08  carved\data\items\MaceEquipIcons.c
+  OK    0x0879cc10    0x4e0  carved\data\items\StaffEquipIcons.c
+  OK    0x0879d0f0   0x101c  carved\data\items\BowEquipIcons.c
+  OK    0x0879e10c   0x1848  carved\data\items\ArrowEquipIcons.c
+  OK    0x0879f954   0x2af8  carved\data\items\ArmorEquipIcons.c
+  OK    0x087a244c    0xfd0  carved\data\items\ShieldEquipIcons.c
+  OK    0x087a341c   0x1054  carved\data\items\AccessoryEquipIcons.c
+  OK    0x087a4470    0xd6c  carved\data\items\CloakEquipIcons.c
+  OK    0x087a51dc    0xc78  carved\data\items\GloveEquipIcons.c
+  OK    0x087a5e54    0x9d4  carved\data\items\ShoeEquipIcons.c
+  OK    0x087a6828   0x3298  carved\data\items\UniqueEquipIcons.c
+  OK    0x08b55350   0x1488  carved\data\level_icons\BonusIcons.c
+  OK    0x08b610c8    0xe7c  carved\data\level_icons\MultiplayerIcons.c
+  OK    0x08b91fd4   0x4910  carved\data\hero_portraits\HeroPortraits.c
+  OK    0x08bb5ef0  0x1265c  build\generated\data\enemy_graphics\EnemyAnimationAssets_58_EnemyTypeNazgul.c
+  OK    0x08bc856c  0x1fad0  build\generated\data\enemy_graphics\EnemyAnimationAssets_73_EnemyTypeGondorSoldier_ExtraPoses00_10.c
+  OK    0x08be803c  0x1b750  build\generated\data\enemy_graphics\EnemyAnimationAssets_73_EnemyTypeGondorSoldier_Primary.c
+  OK    0x08c0378c   0xb6c0  build\generated\data\enemy_graphics\EnemyAnimationAssets_73_EnemyTypeGondorSoldier_ExtraPoses11_17.c
+  OK    0x08c0efcc  0x15b04  build\generated\data\enemy_graphics\EnemyAnimationAssets_20_EnemyTypeOrcArcher.c
+  OK    0x08c24ad0  0x1f148  build\generated\data\enemy_graphics\EnemyAnimationAssets_06_EnemyTypeOrcPitchfork1.c
+  OK    0x08c43c18  0x29f88  build\generated\data\enemy_graphics\EnemyAnimationAssets_18_EnemyTypeOrcCaptainArmored.c
+  OK    0x08c6dba0  0x274c8  build\generated\data\enemy_graphics\EnemyAnimationAssets_26_EnemyTypeOrcAxeThrower.c
+  OK    0x08c95068  0x1df3c  build\generated\data\enemy_graphics\EnemyAnimationAssets_29_EnemyTypeOrcHoplite.c
+  OK    0x08cb2fa4  0x12f7c  build\generated\data\enemy_graphics\EnemyAnimationAssets_05_EnemyTypeOrcDrummer_Main.c
+  OK    0x08cc60c0  0x270dc  build\generated\data\enemy_graphics\EnemyAnimationAssets_10_EnemyTypeOrcWarriorAxe_Body.c
+  OK    0x08ced19c  0x2e600  build\generated\data\enemy_graphics\EnemyAnimationAssets_28_EnemyTypeOrcFlagbearer.c
+  OK    0x08d1b7fc   0x5cdc  build\generated\data\enemy_graphics\EnemyAnimationAssets_10_EnemyTypeOrcWarriorAxe_Part1.c
+  OK    0x08d214d8   0x5a14  build\generated\data\enemy_graphics\EnemyAnimationAssets_10_EnemyTypeOrcWarriorAxe_Part2.c
+  OK    0x08d26eec   0x6288  build\generated\data\enemy_graphics\EnemyAnimationAssets_10_EnemyTypeOrcWarriorAxe_Part3.c
+  OK    0x08d2d174   0x823c  build\generated\data\enemy_graphics\EnemyAnimationAssets_10_EnemyTypeOrcWarriorAxe_Part5.c
+  OK    0x08d353b0   0x814c  build\generated\data\enemy_graphics\EnemyAnimationAssets_10_EnemyTypeOrcWarriorAxe_Part4.c
+  OK    0x08d3dce0   0x9944  carved\data\dialog_portraits\DialogPortraits.c
+  OK    0x08d79474  0x3d190  build\generated\data\enemy_graphics\EnemyAnimationAssets_62_EnemyTypeSaruman_Main.c
+  OK    0x08db83e8  0x2ea34  build\generated\data\enemy_graphics\EnemyAnimationAssets_68_EnemyTypeMouthOfSauron.c
+  OK    0x08de6e1c   0x27d4  build\generated\data\enemy_graphics\EnemyAnimationAssets_62_EnemyTypeSaruman_AdditionalPoses.c
+  OK    0x08de9610   0x6b78  build\generated\data\enemy_graphics\EnemyAnimationAssets_70_EnemyTypeGroundSkeleton.c
+  OK    0x08df0188  0x19f78  build\generated\data\enemy_graphics\EnemyAnimationAssets_71_EnemyTypeSkeletonWarrior.c
+  OK    0x08e27234  0x93fc4  carved\data\cutscenes\CutscenePictures.c
+  OK    0x08ebddec  0x54940  build\generated\data\enemy_graphics\EnemyAnimationAssets_39_EnemyTypeMountainTroll.c
+  OK    0x08f1272c  0x29f88  build\generated\data\enemy_graphics\EnemyAnimationAssets_40_EnemyTypeHalfTroll.c
+  OK    0x08f3c6f4  0x25634  build\generated\data\enemy_graphics\EnemyAnimationAssets_31_EnemyTypeUruk_Core.c
+  OK    0x08f61d28   0xd12c  build\generated\data\enemy_graphics\EnemyAnimationAssets_31_EnemyTypeUruk_AdditionalPoses.c
+  OK    0x08f6ee54  0x11afc  build\generated\data\enemy_graphics\EnemyAnimationAssets_33_EnemyTypeUrukCrossbowman_AdditionalPoses.c
+  OK    0x08f80950  0x1f43c  build\generated\data\enemy_graphics\EnemyAnimationAssets_33_EnemyTypeUrukCrossbowman_Primary.c
+  OK    0x08fc2698  0x1bc20  build\generated\data\enemy_graphics\EnemyAnimationAssets_37_EnemyTypeWildman.c
+  OK    0x08febd84   0x36b0  carved\data\loot_piles\LootPiles.c
+
+259 regions: 259 OK, 0 DIFF/MISS.
+verify: whole-ROM SHA-1 OK (ec3d126d37ea6e2ad7030d8a99cf87c6e46c03fd) == base
+uv run --group dev pytest
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-9.1.1, pluggy-1.6.0
+rootdir: ~\Desktop\lotr\rotk
+configfile: pyproject.toml
+testpaths: tools/rotkit
+collected 300 items
+
+tools\rotkit\analysis\test_decode_text.py ...........................    [  9%]
+tools\rotkit\build\test_enemy_graphics.py ..........                     [ 12%]
+tools\rotkit\carve\test_enemy_graphics.py ......                         [ 14%]
+tools\rotkit\compression\test_bios.py .......................            [ 22%]
+tools\rotkit\compression\test_lz77.py ...........                        [ 25%]
+tools\rotkit\ghidra_build\test_apply_symbols.py ...............s         [ 31%]
+tools\rotkit\ghidra_build\test_parse_headers.py ss                       [ 31%]
+tools\rotkit\hack\test_text_override_config.py ......................... [ 40%]
+.......                                                                  [ 42%]
+tools\rotkit\hack\test_text_override_sources.py ....................     [ 49%]
+tools\rotkit\hack\test_text_overrides.py .................               [ 54%]
+tools\rotkit\test_cheaders.py ...                                        [ 55%]
+tools\rotkit\test_png.py ............................................... [ 71%]
+.................                                                        [ 77%]
+tools\rotkit\test_spritegfx.py ......................................... [ 90%]
+......................                                                   [ 98%]
+tools\rotkit\test_text_encoding.py ......                                [100%]
+
+=========================== short test summary info ===========================
+SKIPPED [3] tools\rotkit\ghidra_build\test_parse_headers.py:18: Ghidra and Java are required for the header import test
+======================= 297 passed, 3 skipped in 42.35s =======================

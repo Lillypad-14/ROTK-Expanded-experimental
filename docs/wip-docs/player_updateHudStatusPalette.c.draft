@@ -1,0 +1,19 @@
+#include "game.h"
+#include "gfx.h"
+#include "player.h"
+#include "skill.h"
+#include "variables.h"
+
+void player_updateHudStatusPalette(u32 playerIndex)
+{
+    if (playerIndex == ACTIVE_PLAYER_INDEX)
+    {
+        u32 flags = g_PlayerHuds[playerIndex].flags.p;
+
+        gfx_loadPalette((flags & PLAYERHUD_FLAG_POISON)
+                            ? (!(flags & PLAYERHUD_FLAG_FEAR) ? HudStatusPalettePoison : HudStatusPalettePoisonFear)
+                            : ((flags & PLAYERHUD_FLAG_FEAR) ? HudStatusPaletteFear : HudStatusPaletteNormal),
+                        0);
+    }
+    g_PlayerHuds[playerIndex].flags.p &= ~PLAYERHUD_FLAG_12;
+}

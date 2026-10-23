@@ -91,13 +91,17 @@ verify: $(VERIFY_SPLITS) clangd
 # from rotting. Bytes are not compared.
 AGBCC ?= tools/agbcc/bin/agbcc
 check-bugfixes: build/include/variables.h
-	@fail=0; for f in $$(find src/c -name '*.c' | sort); do \
+	@mkdir -p build
+	@bugfix_input=$$(mktemp build/bugfix.XXXXXX.i) || exit 1; \
+	 trap 'rm -f "$$bugfix_input"' 0; \
+	 trap 'exit 1' 1 2 15; \
+	 fail=0; for f in $$(find src/c -name '*.c' | sort); do \
 	   arm-none-eabi-cpp -nostdinc -DBUGFIX -DAGBCC \
 	     -Iinclude -Icarved/include -Ibuild/include \
-	     -Itools/agbcc/include $$f -o build/bugfix.i \
-	   && $(AGBCC) build/bugfix.i -o /dev/null -O2 -mthumb-interwork -Wall -W -Wmissing-prototypes -Werror \
+	     -Itools/agbcc/include $$f -o "$$bugfix_input" \
+	   && $(AGBCC) "$$bugfix_input" -o /dev/null -O2 -mthumb-interwork -Wall -W -Wmissing-prototypes -Werror \
 	   || { echo "check-bugfixes: $$f fails with -DBUGFIX"; fail=1; }; done; \
-	 rm -f build/bugfix.i; [ $$fail = 0 ] && echo "check-bugfixes: every src/c fix arm compiles with -DBUGFIX"
+	 [ $$fail = 0 ] && echo "check-bugfixes: every src/c fix arm compiles with -DBUGFIX"
 
 # Per-region (per-function) byte-match report vs the base ROM. `make diff` for the full table;
 # `make diff FUNC=<substr>` adds a hex window around the first diff for that region.

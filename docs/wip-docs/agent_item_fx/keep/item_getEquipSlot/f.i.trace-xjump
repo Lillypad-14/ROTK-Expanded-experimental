@@ -1,0 +1,289 @@
+[xjump] insn 52: no merge: no opposing jump-back before target
+[xjump] insn 65: no merge: no opposing jump-back before target
+[xjump] insn 130: no merge: no opposing jump-back before target
+[xjump] insn 139: no merge: no opposing jump-back before target
+[xjump] insn 145: no merge: no opposing jump-back before target
+[xjump] insn 145 vs label 757: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 145 vs insn 345: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 145 vs insn 309: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 145: tail merged into label 862
+[xjump] insn 145: no merge: no opposing jump-back before target
+[xjump] insn 145 vs label 862: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 181: no merge: no opposing jump-back before target
+[xjump] insn 187: no merge: no opposing jump-back before target
+[xjump] insn 187 vs label 757: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 187 vs insn 345: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 187 vs insn 309: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 226: no merge: no opposing jump-back before target
+[xjump] insn 240: no merge: no opposing jump-back before target
+[xjump] insn 254: no merge: no opposing jump-back before target
+[xjump] insn 286: no merge: no opposing jump-back before target
+[xjump] insn 303: no merge: no opposing jump-back before target
+[xjump] insn 309: no merge: no opposing jump-back before target
+[xjump] insn 309 vs label 757: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 309 vs insn 345: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 309 vs insn 187: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 334: no merge: no opposing jump-back before target
+[xjump] insn 345: no merge: no opposing jump-back before target
+[xjump] insn 345: tail merged into label 743
+[xjump] insn 345: no merge: no opposing jump-back before target
+[xjump] insn 345 vs label 743: no merge: label inside tail
+[xjump] insn 345 vs insn 728: no merge: label inside tail
+[xjump] insn 345 vs insn 619: no merge: label inside tail
+[xjump] insn 345 vs insn 580: no merge: label inside tail
+[xjump] insn 345 vs insn 541: no merge: label inside tail
+[xjump] insn 345 vs insn 502: no merge: label inside tail
+[xjump] insn 345 vs insn 463: no merge: label inside tail
+[xjump] insn 345 vs insn 424: no merge: label inside tail
+[xjump] insn 345 vs insn 385: no merge: label inside tail
+[xjump] insn 381: no merge: no opposing jump-back before target
+[xjump] insn 385: no merge: no opposing jump-back before target
+[xjump] insn 385 vs label 743: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 385 vs insn 345: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 385 vs insn 728: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 385 vs insn 619: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 385 vs insn 580: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 385 vs insn 541: no merge: match too short to be profitable
+[xjump] insn 385 vs insn 502: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 385 vs insn 463: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 385 vs insn 424: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 420: no merge: no opposing jump-back before target
+[xjump] insn 424: no merge: no opposing jump-back before target
+[xjump] insn 424 vs label 743: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 424 vs insn 345: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 424 vs insn 728: no merge: match too short to be profitable
+[xjump] insn 424 vs insn 619: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 424 vs insn 580: no merge: match too short to be profitable
+[xjump] insn 424 vs insn 541: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 424 vs insn 502: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 424 vs insn 463: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 424 vs insn 385: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 459: no merge: no opposing jump-back before target
+[xjump] insn 463: no merge: no opposing jump-back before target
+[xjump] insn 463: tail merged into label 863
+[xjump] insn 463: no merge: no opposing jump-back before target
+[xjump] insn 463 vs label 863: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 498: no merge: no opposing jump-back before target
+[xjump] insn 502: no merge: no opposing jump-back before target
+[xjump] insn 502 vs label 743: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 502 vs insn 345: no merge: match too short to be profitable
+[xjump] insn 502 vs insn 728: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 502 vs insn 619: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 502 vs insn 580: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 502 vs insn 541: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 502 vs insn 424: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 502 vs insn 385: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 537: no merge: no opposing jump-back before target
+[xjump] insn 541: no merge: no opposing jump-back before target
+[xjump] insn 541 vs label 743: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 541 vs insn 345: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 541 vs insn 728: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 541 vs insn 619: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 541 vs insn 580: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 541 vs insn 502: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 541 vs insn 424: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 541 vs insn 385: no merge: match too short to be profitable
+[xjump] insn 576: no merge: no opposing jump-back before target
+[xjump] insn 580: no merge: no opposing jump-back before target
+[xjump] insn 580 vs label 743: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 580 vs insn 345: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 580 vs insn 728: no merge: match too short to be profitable
+[xjump] insn 580 vs insn 619: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 580 vs insn 541: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 580 vs insn 502: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 580 vs insn 424: no merge: match too short to be profitable
+[xjump] insn 580 vs insn 385: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 615: no merge: no opposing jump-back before target
+[xjump] insn 619: no merge: no opposing jump-back before target
+[xjump] insn 619: tail merged into label 863
+[xjump] insn 619: no merge: no opposing jump-back before target
+[xjump] insn 619 vs label 863: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 654: no merge: no opposing jump-back before target
+[xjump] insn 673: no merge: no opposing jump-back before target
+[xjump] insn 691: no merge: no opposing jump-back before target
+[xjump] insn 722: no merge: no opposing jump-back before target
+[xjump] insn 728: no merge: no opposing jump-back before target
+[xjump] insn 728 vs label 743: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 728 vs insn 345: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 728 vs insn 580: no merge: match too short to be profitable
+[xjump] insn 728 vs insn 541: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 728 vs insn 502: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 728 vs insn 424: no merge: match too short to be profitable
+[xjump] insn 728 vs insn 385: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 52: no merge: no opposing jump-back before target
+[xjump] insn 65: no merge: no opposing jump-back before target
+[xjump] insn 130: no merge: no opposing jump-back before target
+[xjump] insn 139: no merge: no opposing jump-back before target
+[xjump] insn 181: no merge: no opposing jump-back before target
+[xjump] insn 187: no merge: no opposing jump-back before target
+[xjump] insn 187 vs label 757: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 187 vs insn 309: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 226: no merge: no opposing jump-back before target
+[xjump] insn 240: no merge: no opposing jump-back before target
+[xjump] insn 254: no merge: no opposing jump-back before target
+[xjump] insn 286: no merge: no opposing jump-back before target
+[xjump] insn 303: no merge: no opposing jump-back before target
+[xjump] insn 309: no merge: no opposing jump-back before target
+[xjump] insn 309 vs label 757: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 309 vs insn 187: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 334: no merge: no opposing jump-back before target
+[xjump] insn 334: no merge: no opposing jump-back before target
+[xjump] insn 345: no merge: no opposing jump-back before target
+[xjump] insn 345 vs label 743: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 345 vs insn 728: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 345 vs insn 580: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 345 vs insn 541: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 345 vs insn 502: no merge: match too short to be profitable
+[xjump] insn 345 vs insn 424: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 345 vs insn 385: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 381: no merge: no opposing jump-back before target
+[xjump] insn 385: no merge: no opposing jump-back before target
+[xjump] insn 385 vs label 743: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 385 vs insn 345: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 385 vs insn 728: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 385 vs insn 580: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 385 vs insn 541: no merge: match too short to be profitable
+[xjump] insn 385 vs insn 502: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 385 vs insn 424: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 420: no merge: no opposing jump-back before target
+[xjump] insn 424: no merge: no opposing jump-back before target
+[xjump] insn 424 vs label 743: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 424 vs insn 345: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 424 vs insn 728: no merge: match too short to be profitable
+[xjump] insn 424 vs insn 580: no merge: match too short to be profitable
+[xjump] insn 424 vs insn 541: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 424 vs insn 502: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 424 vs insn 385: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 459: no merge: no opposing jump-back before target
+[xjump] insn 463: no merge: no opposing jump-back before target
+[xjump] insn 463 vs label 863: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 498: no merge: no opposing jump-back before target
+[xjump] insn 502: no merge: no opposing jump-back before target
+[xjump] insn 502 vs label 743: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 502 vs insn 345: no merge: match too short to be profitable
+[xjump] insn 502 vs insn 728: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 502 vs insn 580: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 502 vs insn 541: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 502 vs insn 424: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 502 vs insn 385: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 537: no merge: no opposing jump-back before target
+[xjump] insn 541: no merge: no opposing jump-back before target
+[xjump] insn 541 vs label 743: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 541 vs insn 345: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 541 vs insn 728: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 541 vs insn 580: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 541 vs insn 502: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 541 vs insn 424: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 541 vs insn 385: no merge: match too short to be profitable
+[xjump] insn 576: no merge: no opposing jump-back before target
+[xjump] insn 580: no merge: no opposing jump-back before target
+[xjump] insn 580 vs label 743: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 580 vs insn 345: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 580 vs insn 728: no merge: match too short to be profitable
+[xjump] insn 580 vs insn 541: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 580 vs insn 502: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 580 vs insn 424: no merge: match too short to be profitable
+[xjump] insn 580 vs insn 385: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 615: no merge: no opposing jump-back before target
+[xjump] insn 619: no merge: no opposing jump-back before target
+[xjump] insn 619 vs label 863: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 654: no merge: no opposing jump-back before target
+[xjump] insn 673: no merge: no opposing jump-back before target
+[xjump] insn 691: no merge: no opposing jump-back before target
+[xjump] insn 722: no merge: no opposing jump-back before target
+[xjump] insn 728: no merge: no opposing jump-back before target
+[xjump] insn 728 vs label 743: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 728 vs insn 345: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 728 vs insn 580: no merge: match too short to be profitable
+[xjump] insn 728 vs insn 541: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 728 vs insn 502: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 728 vs insn 424: no merge: match too short to be profitable
+[xjump] insn 728 vs insn 385: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 52: no merge: no opposing jump-back before target
+[xjump] insn 65: no merge: no opposing jump-back before target
+[xjump] insn 130: no merge: no opposing jump-back before target
+[xjump] insn 139: no merge: no opposing jump-back before target
+[xjump] insn 181: no merge: no opposing jump-back before target
+[xjump] insn 187: no merge: no opposing jump-back before target
+[xjump] insn 187 vs label 757: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 187 vs insn 309: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 226: no merge: no opposing jump-back before target
+[xjump] insn 240: no merge: no opposing jump-back before target
+[xjump] insn 254: no merge: no opposing jump-back before target
+[xjump] insn 286: no merge: no opposing jump-back before target
+[xjump] insn 303: no merge: no opposing jump-back before target
+[xjump] insn 309: no merge: no opposing jump-back before target
+[xjump] insn 309 vs label 757: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 309 vs insn 187: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 334: no merge: no opposing jump-back before target
+[xjump] insn 345: no merge: no opposing jump-back before target
+[xjump] insn 345 vs label 743: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 345 vs insn 728: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 345 vs insn 580: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 345 vs insn 541: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 345 vs insn 502: no merge: match too short to be profitable
+[xjump] insn 345 vs insn 424: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 345 vs insn 385: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 381: no merge: no opposing jump-back before target
+[xjump] insn 385: no merge: no opposing jump-back before target
+[xjump] insn 385 vs label 743: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 385 vs insn 345: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 385 vs insn 728: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 385 vs insn 580: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 385 vs insn 541: no merge: match too short to be profitable
+[xjump] insn 385 vs insn 502: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 385 vs insn 424: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 420: no merge: no opposing jump-back before target
+[xjump] insn 424: no merge: no opposing jump-back before target
+[xjump] insn 424 vs label 743: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 424 vs insn 345: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 424 vs insn 728: no merge: match too short to be profitable
+[xjump] insn 424 vs insn 580: no merge: match too short to be profitable
+[xjump] insn 424 vs insn 541: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 424 vs insn 502: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 424 vs insn 385: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 459: no merge: no opposing jump-back before target
+[xjump] insn 463: no merge: no opposing jump-back before target
+[xjump] insn 463 vs label 863: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 498: no merge: no opposing jump-back before target
+[xjump] insn 502: no merge: no opposing jump-back before target
+[xjump] insn 502 vs label 743: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 502 vs insn 345: no merge: match too short to be profitable
+[xjump] insn 502 vs insn 728: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 502 vs insn 580: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 502 vs insn 541: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 502 vs insn 424: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 502 vs insn 385: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 537: no merge: no opposing jump-back before target
+[xjump] insn 541: no merge: no opposing jump-back before target
+[xjump] insn 541 vs label 743: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 541 vs insn 345: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 541 vs insn 728: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 541 vs insn 580: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 541 vs insn 502: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 541 vs insn 424: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 541 vs insn 385: no merge: match too short to be profitable
+[xjump] insn 576: no merge: no opposing jump-back before target
+[xjump] insn 580: no merge: no opposing jump-back before target
+[xjump] insn 580 vs label 743: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 580 vs insn 345: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 580 vs insn 728: no merge: match too short to be profitable
+[xjump] insn 580 vs insn 541: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 580 vs insn 502: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 580 vs insn 424: no merge: match too short to be profitable
+[xjump] insn 580 vs insn 385: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 615: no merge: no opposing jump-back before target
+[xjump] insn 619: no merge: no opposing jump-back before target
+[xjump] insn 619 vs label 863: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 654: no merge: no opposing jump-back before target
+[xjump] insn 673: no merge: no opposing jump-back before target
+[xjump] insn 691: no merge: no opposing jump-back before target
+[xjump] insn 722: no merge: no opposing jump-back before target
+[xjump] insn 728: no merge: no opposing jump-back before target
+[xjump] insn 728 vs label 743: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 728 vs insn 345: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 728 vs insn 580: no merge: match too short to be profitable
+[xjump] insn 728 vs insn 541: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 728 vs insn 502: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 728 vs insn 424: no merge: match too short to be profitable
+[xjump] insn 728 vs insn 385: no merge: insns differ (no REG_EQUAL rescue)

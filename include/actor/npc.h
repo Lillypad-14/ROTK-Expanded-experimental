@@ -3,6 +3,8 @@
 #include "mission.h"
 #include "types.h"
 
+void actor_npcGhost_trigger(Actor *ghost, Actor *victim);
+
 /** ACTOR_TYPE_NPC payload (12 bytes total). */
 typedef struct ActorNpcMissionParams
 {
@@ -61,3 +63,4 @@ Actor *actor_npc_createFromMission(u8 groupIndex, u8 actorIndex);
 void actor_npc_setup(Actor *actor);
 void actor_npc_tick(Actor *actor);
 void actor_npc_tickPassive(Actor *actor);
+void actor_npc_initBehavior(Actor *actor);

@@ -1,0 +1,11 @@
+((u16 *)g_MissionWaypointPaths)[i + 1] = dest - g_MissionWaypointPaths;|||*(u16 *)(g_MissionWaypointPaths + i * 2 + 2) = dest - g_MissionWaypointPaths;
+;;;
+((u16 *)g_MissionWaypointPaths)[i + count + 1] = dest - g_MissionWaypointPaths;|||*(u16 *)(g_MissionWaypointPaths + (i + count) * 2 + 2) = dest - g_MissionWaypointPaths;
+====
+((u16 *)g_MissionWaypointPaths)[i + 1] = dest - g_MissionWaypointPaths;|||*(u16 *)((u16 *)g_MissionWaypointPaths + i + 1) = dest - g_MissionWaypointPaths;
+;;;
+((u16 *)g_MissionWaypointPaths)[i + count + 1] = dest - g_MissionWaypointPaths;|||*(u16 *)((u16 *)g_MissionWaypointPaths + i + count + 1) = dest - g_MissionWaypointPaths;
+====
+((u16 *)g_MissionWaypointPaths)[i + 1] = dest - g_MissionWaypointPaths;|||*(u16 *)(g_MissionWaypointPaths + 2 + i * 2) = dest - g_MissionWaypointPaths;
+;;;
+((u16 *)g_MissionWaypointPaths)[i + count + 1] = dest - g_MissionWaypointPaths;|||*(u16 *)(g_MissionWaypointPaths + 2 + (i + count) * 2) = dest - g_MissionWaypointPaths;

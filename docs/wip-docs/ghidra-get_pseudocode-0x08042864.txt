@@ -1,0 +1,45 @@
+[Context] Operating on: rotk
+
+Decompiled function scene_skillTree_drawActiveTiles:
+
+
+
+void scene_skillTree_drawActiveTiles(byte param_1,u8 param_2)
+
+
+
+{
+
+  uint uVar1;
+
+  code *UNRECOVERED_JUMPTABLE;
+
+  
+
+  uVar1 = 0;
+
+  do {
+
+    scene_skillTree_drawActiveTile
+
+              (param_1,(u8)uVar1,param_2,g_PlayerGlobals.players[param_1].activeSkillLevels[uVar1]);
+
+    param_2 = param_2 + '\x01';
+
+    uVar1 = uVar1 + 1 & 0xff;
+
+  } while (uVar1 < 6);
+
+                    /* WARNING: Could not recover jumptable at 0x080428aa. Too many branches */
+
+                    /* WARNING: Treating indirect jump as call */
+
+  (*UNRECOVERED_JUMPTABLE)(param_2);
+
+  return;
+
+}
+
+
+
+

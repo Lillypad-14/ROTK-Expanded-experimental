@@ -5,6 +5,20 @@
 // Sprite animation assets: the descriptor sprite_setAnimation takes and the frame set,
 // OAM templates and trigger boxes it points at.
 
+typedef enum SpriteAnimationOpcode
+{
+    SPRITE_ANIMATION_SIGNAL = 0xfd,
+    SPRITE_ANIMATION_JUMP = 0xfe,
+    SPRITE_ANIMATION_END = 0xff,
+} SpriteAnimationOpcode;
+
+typedef struct SpriteAnimationCommand
+{
+    u8 frame;
+    u8 argument;
+    u8 unknown[2];
+} SpriteAnimationCommand;
+
 /**
  * One sprite-relative trigger box (Actor.triggerBoxes slot): the collision
  * pass pairwise-tests enabled boxes of colliding actors and fires

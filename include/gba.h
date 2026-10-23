@@ -62,10 +62,21 @@ typedef struct OamEntry
     u16 affineParam; // the slot's rotation/scaling parameter, unrelated to this OBJ
 } OamEntry;
 
+typedef union OamEntryWords {
+    OamEntry entry;
+    u16 halfwords[4];
+    u32 words[2];
+} OamEntryWords;
+
+#define OAM_ENTRY_COUNT 128
+#define OAM_MATRIX_COUNT 32
+
 /** swi 0x0c wrapper: CpuFastSet (src, dst, control word: count<<2 | mode bits). */
 void bios_cpuFastSet(const void *src, void *dst, u32 control);
 /** swi 0x0b wrapper: CpuSet (src, dst, control word: count<<2 | mode bits). */
 void bios_cpuSet(const void *src, void *dst, u32 control);
+/** Build OBJ affine matrices, spacing each output halfword by stride bytes. */
+void bios_objAffineSet(const void *src, void *dst, u32 count, u32 stride);
 // bios_cpuSet / bios_cpuFastSet control-word mode bits (count occupies the low bits).
 #define CPU_SET_SRC_FIXED (1 << 24)
 #define CPU_SET_32BIT (1 << 26)

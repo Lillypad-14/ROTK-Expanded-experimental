@@ -54,23 +54,13 @@ void multiplayer_queueMessage(u8 msgId, MpMessageArgs args);
 void multiplayer_resetLink(void);
 /** Start/poll a link session for playerCount players. Returns 5 = busy, 7 = aborted/timeout. */
 s32 multiplayer_startSession(u32 playerCount);
-/** Poll link progress/timeout. 0 = no session pending, 6 = timed out, else link state. */
 s32 multiplayer_pollSession(void);
-/** Abort the link session (SIO off, state bytes reset). */
 void multiplayer_abortSession(void);
-/** Sync barrier: wait up to 0x14 vblanks for the SIO transfer-done bit. */
 void multiplayer_syncBarrier(void);
-/** Link teardown; clears the co-op-active flag. */
 void multiplayer_endSession(void);
-/**
- * SIOCNT multi-player ID of this GBA (0 = parent/host), stored once a multi-player probe
- * transfer completes without error; -1 from multiplayer_resetLink (main menu entry), after
- * every session end or abort, and when multiplayer_pollSession rejects the player count.
- */
 s32 multiplayer_getMultiPlayerId(void);
-/** Scene the multiplayer abort path returns to. */
 void multiplayer_setAbortScene(u32 sceneId);
-void multiplayer_clearSessionFlag(u32 mask);
+void multiplayer_clearSessionFlag(u8 clear);
 /** Bitmask of received link messages. */
 u32 multiplayer_getMessageMask(void);
 /** Whether all expected players have connected. */

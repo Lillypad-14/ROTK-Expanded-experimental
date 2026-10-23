@@ -1,0 +1,93 @@
+[Context] Operating on: rotk
+
+Decompiled function save_loadSlotState:
+
+
+
+void save_loadSlotState(u32 playerIndex)
+
+
+
+{
+
+  s16 sVar1;
+
+  s16 sVar2;
+
+  short sVar3;
+
+  uint playerIndex_00;
+
+  s16 *psVar4;
+
+  s16 *psVar5;
+
+  code *UNRECOVERED_JUMPTABLE;
+
+  
+
+  playerIndex_00 = playerIndex & 0xff;
+
+  psVar4 = &g_PlayerGlobals.players[playerIndex_00].currentSpirit;
+
+  sVar1 = *psVar4;
+
+  psVar5 = &g_PlayerGlobals.players[playerIndex_00].currentHp;
+
+  sVar2 = *psVar5;
+
+  func_0x0802ac24(playerIndex_00,0);
+
+  player_initHeroLoadout((uint)g_PlayerGlobals.players[playerIndex_00].heroId,playerIndex_00);
+
+  *psVar4 = sVar1;
+
+  *psVar5 = sVar2;
+
+  psVar5 = g_PlayerGlobals.players[playerIndex_00].stats + 0x17;
+
+  sVar3 = *psVar5;
+
+  if ((sVar3 < *psVar4) && (0 < sVar3)) {
+
+    *psVar4 = *psVar5;
+
+  }
+
+  psVar4 = &g_PlayerGlobals.players[playerIndex_00].currentHp;
+
+  psVar5 = g_PlayerGlobals.players[playerIndex_00].stats + 0x16;
+
+  sVar3 = *psVar5;
+
+  if (sVar3 < *psVar4) {
+
+    if (-1 < sVar3) {
+
+      *psVar4 = *psVar5;
+
+      goto LAB_080260ae;
+
+    }
+
+  }
+
+  else if (0 < sVar3) goto LAB_080260ae;
+
+  g_PlayerGlobals.players[playerIndex_00].currentHp = 1;
+
+LAB_080260ae:
+
+                    /* WARNING: Could not recover jumptable at 0x080260ba. Too many branches */
+
+                    /* WARNING: Treating indirect jump as call */
+
+  (*UNRECOVERED_JUMPTABLE)();
+
+  return;
+
+}
+
+
+
+

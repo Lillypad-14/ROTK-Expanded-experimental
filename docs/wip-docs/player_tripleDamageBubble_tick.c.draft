@@ -1,0 +1,40 @@
+#include "actor.h"
+#include "fx.h"
+#include "player.h"
+#include "sfx.h"
+#include "variables.h"
+
+Actor *player_spawnTripleDamageBubble(Actor *playerActor)
+{
+    u8 playerIndex = playerActor->as.combat.playerIndex;
+    Actor *fx = fx_spawnTimedOnActor(playerActor, 300, 4, 7, 0);
+
+    if (fx != NULL)
+    {
+        PLAYER(playerIndex).shieldBubble = fx;
+        fx->spriteFlags |= 0x20;
+        fx->type = 0x68;
+        fx->tickCallback = player_tripleDamageBubble_tick;
+        fx->triggerCallbacks[0] = NULL;
+        fx->parentActor = playerActor;
+        PLAYER(playerIndex).combatFlags.p |= PLAYER_COMBAT_FLAG_TRIPLE_DAMAGE;
+        sfx_play(15);
+    }
+    return fx;
+}
+
+void player_tripleDamageBubble_tick(Actor *fx)
+{
+    u8 playerIndex = fx->parentActor->as.combat.playerIndex;
+    Player *player;
+
+    if (fx->parentActor->actionState == 45)
+        fx->actionState = 4;
+    if (fx_tickTimedAttachment(fx) == TRUE)
+    {
+        player = &PLAYER(playerIndex);
+        fx->flags.p |= ACTOR_FLAG_ANIMATION_FRAME_CHANGED | ACTOR_FLAG_PENDING_REMOVE;
+        player->combatFlags.p &= ~PLAYER_COMBAT_FLAG_TRIPLE_DAMAGE;
+        player->shieldBubble = NULL;
+    }
+}

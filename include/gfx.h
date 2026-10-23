@@ -49,12 +49,102 @@ void gfx_alphaBlendIn(u16 targets, u16 secondTargets, s32 steps, s32 framesPerSt
 void gfx_alphaBlendOut(u16 targets, u16 secondTargets, s32 steps, s32 framesPerStep);
 void gfx_mosaicInFromBlack(u16 targets);
 void gfx_mosaicOutToBlack(u16 targets);
-void gfx_fillBgRect(s32 layer, s32 col, s32 row, s32 width, s32 height, s32 param6);
+/** Runtime state of one of the four BG layers. */
+typedef struct PaletteCycleSlot
+{
+    u8 flags;
+    u8 stepDelay; // frames between color steps
+    u8 delayLeft;
+    u8 firstColor;
+    u8 currentColor;
+    u8 lastColor;
+    u8 field_0x06;
+    u8 field_0x07;
+} PaletteCycleSlot;
+
+/** BgLayer.flags bits: which parts of the layer's transform need work next tick. */
+typedef enum BgLayerFlags
+{
+    BG_LAYER_FLAG_SCROLL = 1 << 0,
+    BG_LAYER_FLAG_ROTATE = 1 << 1,
+    BG_LAYER_FLAG_ZOOM_ANIM = 1 << 2,
+    BG_LAYER_FLAG_COLOR_FX = 1 << 3,
+    BG_LAYER_FLAG_MATRIX_DIRTY = 1 << 14,
+    BG_LAYER_FLAG_COMMIT = 1 << 15,
+} BgLayerFlags;
+
+typedef struct BgLayer
+{
+    // BGxCNT value
+    u32 control;
+    u32 field_0x04;
+    // RAM copy of the screenblock
+    u16 *tilemapBuffer;
+    // 32-entry-wide screenblock in VRAM the layer draws from
+    u16 *tilemap;
+    // charblock the layer's tiles live in
+    void *tileBase;
+    u32 flags;
+    // scroll offset committed to the hardware registers
+    Vector2Fp16 scroll;
+    Vector2Fp16 position;
+    Vector2Fp16 speed;
+    Vector2Fp16 field_0x30;
+    // position scrollFrames steps from now
+    Vector2Fp16 scrollTarget;
+    u16 scrollFrames;
+    // rotation/scaling divisor, stepped by zoomStep and bounced between zoomMin and zoomMax
+    s16 zoom;
+    s16 zoomStep;
+    s16 zoomMin;
+    s16 zoomMax;
+    // angle in 8.8, turned by rotationSpeed each tick
+    u16 rotation;
+    u16 rotationSpeed;
+    s16 pivotX;
+    s16 pivotY;
+    // affine matrix registers
+    s16 pa;
+    s16 pb;
+    s16 pc;
+    s16 pd;
+    u8 field_0x5a[2];
+    // affine reference point
+    s32 refX;
+    s32 refY;
+    u16 colorFx[6];
+} BgLayer;
+
+typedef struct BgColorFx
+{
+    u32 words[3];
+} BgColorFx;
+
+typedef struct BgState
+{
+    u32 flags;
+    BgLayer layers[4];
+} BgState;
+
+void gfx_fillBgRect(s32 layer, s32 col, s32 row, s32 width, s32 height, u16 tile);
+void gfx_fillTilemapRect(u16 *tilemap, s32 col, s32 row, s32 width, s32 height, u16 tile);
 
 void gfx_initDisplay(u16 mode);
 void gfx_enableDisplayFlags(u16 mask);
+void gfx_clearPaletteCycle(void *cycle);
+void gfx_stepPaletteCycle(PaletteCycleSlot *cycle);
+void gfx_clearPaletteFade(void *fade);
+void gfx_unknown08016f74(void);
+void gfx_unknown080170e8(void);
+void gfx_unknown08016fac(void);
+void gfx_setBgControl(u32 layer, u32 bgcnt);
+void gfx_commitPaletteFade(u8 *fade);
+void gfx_commitPaletteCycle(PaletteCycleSlot *cycle);
+void gfx_unknown08017130(void);
+void gfx_disableDisplayFlags(u16 mask);
 void gfx_setupBg(u32 layer, u32 bgcnt);
 void gfx_disableBg(u32 layer);
+u32 gfx_getVideoMode(void);
 void gfx_setBgOffset(u32 layer, u32 offset);
 /*
  * BG asset layout: u8 flags, u8 flags2, then the parts the flags select, in this order:
@@ -117,16 +207,34 @@ void gfx_setBgOffset(u32 layer, u32 offset);
         u8 tiles[name##_TILES_SIZE];                                                               \
     } name = {.flags = flags_, .tilesSize = name##_TILES_SIZE, .tiles = {name##_TILES}}
 
-void gfx_loadBgAsset(u32 layer, const void *asset, u16 arg3, u16 arg4, u32 arg5, u32 arg6);
+/** Copy the ARM decompressors into IWRAM. */
+void decompress_loadIwramFunctions(void);
+
+void *gfx_unknown08011c8c(u32 layer, const void *asset, u16 arg3);
+void *gfx_unknown08011bc0(u32 layer, const void *asset, u16 arg3, u16 arg4);
+void gfx_unknown08011d78(u32 layer, void *loaded, u16 arg3, u16 arg4, u32 arg5, u32 arg6);
+void *gfx_loadBgAsset(u32 layer, const void *asset, u16 arg3, u16 arg4, u32 arg5, u32 arg6);
+void *gfx_unknown080127d0(u32 layer, const void *asset, u16 arg3, u16 arg4, u32 arg5, u32 arg6);
+const void *gfx_unknown08012808(u32 layer, const u8 *asset, u16 arg3, u16 arg4, u32 arg5, u32 arg6);
 /**
  * Upload a palette asset: a 256-color asset fills palette RAM, a 16-color one lands at
  * (asset's own palette number + paletteNumber) * 16 colors.
  */
-void gfx_loadPalette(const void *paletteAsset, u32 paletteNumber);
+u32 gfx_loadPalette(const void *paletteAsset, u32 paletteNumber);
 /**
  * Copy colorCount raw colors into a palette shadow buffer at firstColor and upload them
  * to palette RAM (the BG or OBJ half).
  */
+typedef struct PaletteBank
+{
+    // palette buffer the cycles rotate
+    const u16 *shadow;
+    // palette RAM the buffer is copied to
+    u16 *ram;
+} PaletteBank;
+
+void gfx_loadPaletteColors(const u16 *colors, u32 first, u32 count, PaletteBank *bank);
+void gfx_startPaletteFade(u8 first, u8 count, u8 frames, u8 mode, u32 color);
 void gfx_loadBgPaletteColors(const u16 *colors, u32 firstColor, u32 colorCount);
 void gfx_loadObjPaletteColors(const u16 *colors, u32 firstColor, u32 colorCount);
 /**
@@ -135,8 +243,8 @@ void gfx_loadObjPaletteColors(const u16 *colors, u32 firstColor, u32 colorCount)
  */
 void gfx_queuePaletteWrite(const u16 *colors, u32 firstColor, u32 colorCount);
 void gfx_commitBgs(void);
-void gfx_setBlendControl(u32 arg1, u32 arg2);
-void gfx_setBlendAlpha(u32 arg1, u32 arg2);
+void gfx_setBlendControl(u16 arg1, u16 arg2);
+void gfx_setBlendAlpha(u16 eva, u16 evb);
 
 /**
  * One BLDALPHA coefficient (EVA or EVB) as an 8.8 value ping-ponging between min and max by
@@ -210,7 +318,6 @@ typedef struct PaletteCycleList
 
 /** Register every cycle of a PaletteCycleList into the palette-cycle slots. */
 void gfx_registerPaletteCycles(const void *table);
-/** Stop every palette cycle and fade and drop the queued palette writes. */
 void gfx_clearPaletteAnims(void);
 // Vblank-side commits run by system_vBlankIrqHandler: push the shadow BG scroll and
 // rotation/scaling state to BGxHOFS/VOFS and BG2/3 PA..Y, apply the stepped palette
@@ -229,17 +336,49 @@ void gfx_fadeOutToBlackCoop(s32 targets);
 /** Fade-in counterpart of gfx_fadeOutToBlackCoop, used by the co-op overlay scenes. */
 void gfx_fadeInFromBlackCoop(s32 targets);
 
-/** Set a BG layer's scroll velocity, in px per frame. */
 void gfx_setBgScrollSpeed(u32 layer, Vector2Fp16 speed);
 
 /** Horizontal-only gfx_setBgScrollSpeed. */
 void gfx_setBgScrollSpeedX(u32 layer, fp16_16 speedX);
 
-/** Unnamed BG/tilemap helpers (roles not yet reversed). */
-void gfx_unknown08012444(s32 a);
+void gfx_unknown08012444(s32 layer);
+
+void gfx_setBgPosition(u32 layer, fp16_16 x, fp16_16 y);
+void gfx_setBgPositionX(u32 layer, fp16_16 x);
+void gfx_setBgPositionY(u32 layer, fp16_16 y);
+void gfx_setBgRotationAnim(u32 layer, u16 rotation, u16 speed);
+void gfx_setBgRotation(u32 layer, u16 rotation);
+void gfx_setBgRotationSpeed(u32 layer, u16 speed);
+void gfx_setBgPivot(u32 layer, s16 x, s16 y);
+void gfx_setBgZoomRange(u32 layer, s16 min, s16 max);
+void gfx_setBgZoomStep(u32 layer, s16 step);
+void gfx_setBgZoom(u32 layer, s16 zoom);
+void gfx_setBgScrollSpeedY(u32 layer, fp16_16 speedY);
+void gfx_flushBgTilemap(u32 layer);
+void gfx_clearBgColorFx(u32 layer);
+void gfx_clearBgColorFxEven(u32 layer);
+void gfx_clearBgColorFxOdd(u32 layer);
+void gfx_setBgColorFx(u32 layer, const BgColorFx *values);
+void gfx_setBgColorFxEven(u32 layer, u8 a, u16 b, u16 c);
+void gfx_setBgColorFxOdd(u32 layer, u8 a, u16 b, u16 c);
+void gfx_setBgColorFxPair0(u32 layer, u16 a, u16 b);
+void gfx_setBgColorFxPair1(u32 layer, u16 a, u16 b);
+void gfx_setBgColorFxPair2(u32 layer, u16 a, u16 b);
+void gfx_clearBgFlags0(void);
+void gfx_setBgFlags0(void);
+u32 gfx_getBgFlags(u32 mask);
+void gfx_clearBgFlags(u32 mask);
+void gfx_setBgFlags(u32 mask);
+
 
 /** Per-player camera scroll update, clamped to the level bounds. */
 void gfx_updatePlayerCameraScroll(u8 playerIndex);
+
+/** Copy a player's camera position (top-left world pixel of the viewport) to out. */
+void gfx_getCameraPosition(Vector2Int *out, u8 playerIndex);
+
+/** Set a player's camera position (top-left world pixel of the viewport). */
+void gfx_setCameraPosition(const Vector2Int *position, u8 playerIndex);
 
 /**
  * Per-frame BG transform tick: advances all 4 BG slots (position interpolation,
@@ -248,5 +387,4 @@ void gfx_updatePlayerCameraScroll(u8 playerIndex);
  */
 void gfx_tickBgTransforms(void);
 
-/** Per-frame step of every active palette cycle and palette fade. */
 void gfx_tickPaletteAnims(void);

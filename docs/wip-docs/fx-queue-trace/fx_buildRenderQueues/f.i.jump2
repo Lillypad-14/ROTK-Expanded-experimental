@@ -1,0 +1,408 @@
+
+;; Function fx_buildRenderQueues
+
+(note 2 0 240 "" NOTE_INSN_DELETED)
+
+;; Start of basic block 0, registers live: 7 [r7] 13 [sp]
+(insn 240 2 238 (unspec_volatile[ 
+            (const_int 0)
+        ]  0) -1 (nil)
+    (nil))
+
+(note 238 240 3 "" NOTE_INSN_PROLOGUE_END)
+
+(note 3 238 4 "" NOTE_INSN_FUNCTION_BEG)
+
+(note 4 3 6 "" NOTE_INSN_DELETED)
+
+(note 6 4 9 0 NOTE_INSN_BLOCK_BEG)
+
+(insn 9 6 188 (set (reg/v:SI 4 r4)
+        (const_int 0)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(note 188 9 189 "" NOTE_INSN_DELETED)
+
+(note 189 188 177 "" NOTE_INSN_DELETED)
+
+(note 177 189 178 "" NOTE_INSN_DELETED)
+
+(note 178 177 213 "" NOTE_INSN_DELETED)
+
+(insn 213 178 203 (set (reg:SI 0 r0)
+        (mem/u:SI (symbol_ref/u:SI ("*.LC1")) 0)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 203 213 10 (set (reg:SI 10 sl)
+        (reg:SI 0 r0)) 1 {*movsi_insn} (insn_list 213 (nil))
+    (expr_list:REG_DEAD (reg:SI 0 r0)
+        (expr_list:REG_EQUIV (symbol_ref:SI ("g_FxRenderQueues"))
+            (nil))))
+;; End of basic block 0
+
+(note 10 203 17 "" NOTE_INSN_LOOP_BEG)
+
+;; Start of basic block 1, registers live: 4 [r4] 7 [r7] 10 [sl] 13 [sp]
+(code_label 17 10 19 15 "")
+
+(note 19 17 21 0 NOTE_INSN_BLOCK_BEG)
+
+(insn 21 19 24 (set (reg/v:SI 5 r5)
+        (const_int 0)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(note 24 21 216 "" NOTE_INSN_DELETED)
+
+(insn 216 24 26 (set (reg:SI 1 r1)
+        (mem/u:SI (symbol_ref/u:SI ("*.LC0")) 0)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 26 216 190 (set (reg/v:SI 2 r2)
+        (mem/s:SI (reg:SI 1 r1) 2)) 1 {*movsi_insn} (insn_list 216 (nil))
+    (expr_list:REG_DEAD (reg:SI 1 r1)
+        (nil)))
+
+(insn 190 26 219 (set (reg:SI 0 r0)
+        (plus:SI (reg/v:SI 4 r4)
+            (const_int 1))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 219 190 182 (set (reg:SI 8 r8)
+        (reg:SI 0 r0)) 1 {*movsi_insn} (insn_list 190 (nil))
+    (expr_list:REG_DEAD (reg:SI 0 r0)
+        (nil)))
+
+(insn 182 219 183 (set (cc0)
+        (reg/v:SI 2 r2)) 45 {tstsi} (insn_list 26 (insn_list 26 (nil)))
+    (nil))
+
+(jump_insn 183 182 192 (set (pc)
+        (if_then_else (eq (cc0)
+                (const_int 0))
+            (label_ref 139)
+            (pc))) 58 {*cond_branch} (nil)
+    (nil))
+;; End of basic block 1
+
+;; Start of basic block 2, registers live: 2 [r2] 4 [r4] 5 [r5] 7 [r7] 8 [r8] 10 [sl] 13 [sp]
+(insn 192 183 222 (set (reg/v:SI 7 r7)
+        (const_int 32768)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUIV (const_int 32768)
+        (nil)))
+
+(insn 222 192 194 (set (reg:SI 1 r1)
+        (const_int 16384)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 194 222 197 (set (reg/v:SI 9 r9)
+        (reg:SI 1 r1)) 1 {*movsi_insn} (insn_list 222 (nil))
+    (expr_list:REG_DEAD (reg:SI 1 r1)
+        (expr_list:REG_EQUIV (const_int 16384)
+            (nil))))
+
+(insn 197 194 198 (set (reg:SI 0 r0)
+        (ashift:SI (reg/v:SI 4 r4)
+            (const_int 2))) 39 {ashlsi3} (nil)
+    (expr_list:REG_EQUAL (mult:SI (reg/v:SI 4 r4)
+            (const_int 4))
+        (nil)))
+
+(insn 198 197 225 (set (reg:SI 0 r0)
+        (plus:SI (reg:SI 0 r0)
+            (reg:SI 10 sl))) 27 {addsi3} (insn_list 197 (insn_list 197 (nil)))
+    (nil))
+
+(insn 225 198 28 (set (reg:SI 12 ip)
+        (reg:SI 0 r0)) 1 {*movsi_insn} (insn_list 198 (nil))
+    (expr_list:REG_DEAD (reg:SI 0 r0)
+        (nil)))
+;; End of basic block 2
+
+(note 28 225 34 "" NOTE_INSN_LOOP_BEG)
+
+;; Start of basic block 3, registers live: 2 [r2] 4 [r4] 5 [r5] 7 [r7] 8 [r8] 9 [r9] 10 [sl] 12 [ip] 13 [sp]
+(code_label 34 28 36 18 "")
+
+(note 36 34 38 0 NOTE_INSN_BLOCK_BEG)
+
+(insn 38 36 41 (set (reg/v:SI 6 r6)
+        (mem/s:SI (reg/v:SI 2 r2) 32)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 41 38 209 (set (reg/v:SI 1 r1)
+        (zero_extend:SI (mem/s:HI (plus:SI (reg/v:SI 2 r2)
+                    (const_int 62)) 0))) 15 {*zero_extendhisi2_insn} (nil)
+    (nil))
+
+(insn 209 41 50 (set (reg:SI 0 r0)
+        (reg/v:SI 1 r1)) 1 {*movsi_insn} (insn_list 41 (nil))
+    (nil))
+
+(insn 50 209 51 (set (reg:SI 0 r0)
+        (and:SI (reg:SI 0 r0)
+            (reg/v:SI 7 r7))) 34 {*andsi3_insn} (insn_list 209 (insn_list 41 (nil)))
+    (nil))
+
+(insn 51 50 52 (set (cc0)
+        (reg:SI 0 r0)) 45 {tstsi} (insn_list 50 (insn_list 50 (nil)))
+    (expr_list:REG_DEAD (reg:SI 0 r0)
+        (nil)))
+
+(jump_insn 52 51 228 (set (pc)
+        (if_then_else (ne (cc0)
+                (const_int 0))
+            (label_ref 126)
+            (pc))) 58 {*cond_branch} (nil)
+    (nil))
+;; End of basic block 3
+
+;; Start of basic block 4, registers live: 1 [r1] 2 [r2] 4 [r4] 5 [r5] 6 [r6] 7 [r7] 8 [r8] 9 [r9] 10 [sl] 12 [ip] 13 [sp]
+(insn 228 52 55 (set (reg:SI 0 r0)
+        (reg/v:SI 2 r2)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 55 228 57 (set (reg:SI 0 r0)
+        (plus:SI (reg:SI 0 r0)
+            (const_int 45))) 27 {addsi3} (insn_list 228 (nil))
+    (nil))
+
+(insn 57 55 58 (set (reg:QI 0 r0)
+        (mem/s:QI (reg:SI 0 r0) 0)) 7 {*movqi_insn} (insn_list 55 (insn_list 55 (nil)))
+    (nil))
+
+(insn 58 57 59 (set (reg:SI 3 r3)
+        (ashift:SI (reg:SI 0 r0)
+            (const_int 28))) 39 {ashlsi3} (insn_list 57 (insn_list 57 (nil)))
+    (expr_list:REG_DEAD (reg:SI 0 r0)
+        (nil)))
+
+(note 59 58 60 "" NOTE_INSN_DELETED)
+
+(note 60 59 61 "" NOTE_INSN_DELETED)
+
+(insn 61 60 63 (set (reg:SI 0 r0)
+        (lshiftrt:SI (reg:SI 3 r3)
+            (const_int 30))) 41 {lshrsi3} (insn_list 58 (insn_list 58 (nil)))
+    (nil))
+
+(insn 63 61 64 (set (cc0)
+        (compare (reg:SI 0 r0)
+            (reg/v:SI 4 r4))) 44 {*cmpsi_insn} (insn_list 61 (insn_list 61 (nil)))
+    (expr_list:REG_DEAD (reg:SI 0 r0)
+        (nil)))
+
+(jump_insn 64 63 231 (set (pc)
+        (if_then_else (eq (cc0)
+                (const_int 0))
+            (label_ref 84)
+            (pc))) 58 {*cond_branch} (nil)
+    (nil))
+;; End of basic block 4
+
+;; Start of basic block 5, registers live: 1 [r1] 2 [r2] 3 [r3] 4 [r4] 5 [r5] 6 [r6] 7 [r7] 8 [r8] 9 [r9] 10 [sl] 12 [ip] 13 [sp]
+(insn 231 64 66 (set (reg:SI 0 r0)
+        (reg/v:SI 9 r9)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 66 231 67 (set (reg/v:SI 1 r1)
+        (and:SI (reg/v:SI 1 r1)
+            (reg:SI 0 r0))) 34 {*andsi3_insn} (insn_list 231 (nil))
+    (expr_list:REG_DEAD (reg:SI 0 r0)
+        (nil)))
+
+(insn 67 66 68 (set (cc0)
+        (reg/v:SI 1 r1)) 45 {tstsi} (insn_list 66 (insn_list 66 (nil)))
+    (expr_list:REG_DEAD (reg/v:SI 1 r1)
+        (nil)))
+
+(jump_insn 68 67 75 (set (pc)
+        (if_then_else (eq (cc0)
+                (const_int 0))
+            (label_ref 126)
+            (pc))) 58 {*cond_branch} (nil)
+    (nil))
+;; End of basic block 5
+
+(note 75 68 76 "" NOTE_INSN_DELETED)
+
+(note 76 75 77 "" NOTE_INSN_DELETED)
+
+;; Start of basic block 6, registers live: 2 [r2] 3 [r3] 4 [r4] 5 [r5] 6 [r6] 7 [r7] 8 [r8] 9 [r9] 10 [sl] 12 [ip] 13 [sp]
+(insn 77 76 78 (set (reg:SI 0 r0)
+        (lshiftrt:SI (reg:SI 3 r3)
+            (const_int 30))) 41 {lshrsi3} (nil)
+    (expr_list:REG_DEAD (reg:SI 3 r3)
+        (nil)))
+
+(insn 78 77 80 (set (reg:SI 0 r0)
+        (plus:SI (reg:SI 0 r0)
+            (const_int -1))) 27 {addsi3} (insn_list 77 (insn_list 77 (nil)))
+    (nil))
+
+(insn 80 78 81 (set (cc0)
+        (compare (reg:SI 0 r0)
+            (reg/v:SI 4 r4))) 44 {*cmpsi_insn} (insn_list 78 (insn_list 78 (nil)))
+    (expr_list:REG_DEAD (reg:SI 0 r0)
+        (nil)))
+
+(jump_insn 81 80 84 (set (pc)
+        (if_then_else (ne (cc0)
+                (const_int 0))
+            (label_ref 126)
+            (pc))) 58 {*cond_branch} (nil)
+    (nil))
+;; End of basic block 6
+
+;; Start of basic block 7, registers live: 2 [r2] 4 [r4] 5 [r5] 6 [r6] 7 [r7] 8 [r8] 9 [r9] 10 [sl] 12 [ip] 13 [sp]
+(code_label 84 81 86 20 "")
+
+(note 86 84 234 "" NOTE_INSN_DELETED)
+
+(insn 234 86 96 (set (reg:SI 0 r0)
+        (reg:SI 12 ip)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 96 234 99 (set (reg:SI 1 r1)
+        (mem/s:SI (reg:SI 0 r0) 31)) 1 {*movsi_insn} (insn_list 234 (nil))
+    (expr_list:REG_DEAD (reg:SI 0 r0)
+        (expr_list:REG_EQUIV (mem/s:SI (reg:SI 0 r0) 31)
+            (nil))))
+
+(insn 99 96 100 (set (reg:SI 0 r0)
+        (ashift:SI (reg/v:SI 5 r5)
+            (const_int 2))) 39 {ashlsi3} (nil)
+    (expr_list:REG_EQUAL (mult:SI (reg/v:SI 5 r5)
+            (const_int 4))
+        (nil)))
+
+(insn 100 99 102 (set (reg:SI 0 r0)
+        (plus:SI (reg:SI 0 r0)
+            (reg:SI 1 r1))) 27 {addsi3} (insn_list 96 (insn_list 99 (insn_list 96 (insn_list 99 (nil)))))
+    (expr_list:REG_DEAD (reg:SI 1 r1)
+        (nil)))
+
+(insn 102 100 103 (set (mem/s:SI (reg:SI 0 r0) 33)
+        (reg/v:SI 2 r2)) 1 {*movsi_insn} (insn_list 100 (insn_list 100 (nil)))
+    (expr_list:REG_DEAD (reg:SI 0 r0)
+        (nil)))
+
+(insn 103 102 106 (set (reg/v:SI 5 r5)
+        (plus:SI (reg/v:SI 5 r5)
+            (const_int 1))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 106 103 206 (set (reg:HI 1 r1)
+        (mem/s:HI (plus:SI (reg/v:SI 2 r2)
+                (const_int 62)) 0)) 5 {*movhi_insn} (nil)
+    (expr_list:REG_EQUIV (mem/s:HI (plus:SI (reg/v:SI 2 r2)
+                (const_int 62)) 0)
+        (nil)))
+
+(insn 206 106 109 (set (reg:SI 0 r0)
+        (reg/v:SI 7 r7)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 109 206 124 (set (reg:SI 0 r0)
+        (ior:SI (reg:SI 0 r0)
+            (reg:SI 1 r1))) 36 {iorsi3} (insn_list 106 (insn_list 206 (insn_list 106 (nil))))
+    (expr_list:REG_DEAD (reg:SI 1 r1)
+        (nil)))
+
+(insn 124 109 126 (set (mem/s:HI (plus:SI (reg/v:SI 2 r2)
+                (const_int 62)) 0)
+        (reg:HI 0 r0)) 5 {*movhi_insn} (insn_list 109 (insn_list 109 (nil)))
+    (expr_list:REG_DEAD (reg:HI 0 r0)
+        (expr_list:REG_DEAD (reg/v:SI 2 r2)
+            (nil))))
+;; End of basic block 7
+
+;; Start of basic block 8, registers live: 4 [r4] 5 [r5] 6 [r6] 7 [r7] 8 [r8] 9 [r9] 10 [sl] 12 [ip] 13 [sp]
+(code_label 126 124 129 19 "")
+
+(insn 129 126 131 (set (reg/v:SI 2 r2)
+        (reg/v:SI 6 r6)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_DEAD (reg/v:SI 6 r6)
+        (nil)))
+
+(note 131 129 132 0 NOTE_INSN_BLOCK_END)
+
+(note 132 131 186 "" NOTE_INSN_LOOP_CONT)
+
+(note 186 132 30 "" NOTE_INSN_LOOP_VTOP)
+
+(insn 30 186 31 (set (cc0)
+        (reg/v:SI 2 r2)) 45 {tstsi} (insn_list 129 (insn_list 129 (nil)))
+    (nil))
+
+(jump_insn 31 30 138 (set (pc)
+        (if_then_else (ne (cc0)
+                (const_int 0))
+            (label_ref 34)
+            (pc))) 58 {*cond_branch} (nil)
+    (nil))
+;; End of basic block 8
+
+(note 138 31 139 "" NOTE_INSN_LOOP_END)
+
+;; Start of basic block 9, registers live: 4 [r4] 5 [r5] 7 [r7] 8 [r8] 10 [sl] 13 [sp]
+(code_label 139 138 142 17 "")
+
+(note 142 139 237 "" NOTE_INSN_DELETED)
+
+(insn 237 142 143 (set (reg:SI 1 r1)
+        (mem/u:SI (symbol_ref/u:SI ("*.LC2")) 0)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 143 237 158 (set (reg:SI 0 r0)
+        (plus:SI (reg/v:SI 4 r4)
+            (reg:SI 1 r1))) 27 {addsi3} (insn_list 237 (nil))
+    (expr_list:REG_DEAD (reg/v:SI 4 r4)
+        (expr_list:REG_DEAD (reg:SI 1 r1)
+            (nil))))
+
+(insn 158 143 160 (set (mem/s:QI (reg:SI 0 r0) 0)
+        (reg:QI 5 r5)) 7 {*movqi_insn} (insn_list 143 (insn_list 143 (nil)))
+    (expr_list:REG_DEAD (reg:QI 5 r5)
+        (expr_list:REG_DEAD (reg:SI 0 r0)
+            (nil))))
+
+(note 160 158 162 0 NOTE_INSN_BLOCK_END)
+
+(note 162 160 164 "" NOTE_INSN_LOOP_CONT)
+
+(insn 164 162 181 (set (reg/v:SI 4 r4)
+        (reg:SI 8 r8)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_DEAD (reg:SI 8 r8)
+        (nil)))
+
+(note 181 164 13 "" NOTE_INSN_LOOP_VTOP)
+
+(insn 13 181 14 (set (cc0)
+        (compare (reg/v:SI 4 r4)
+            (const_int 3))) 44 {*cmpsi_insn} (insn_list 164 (insn_list 164 (nil)))
+    (nil))
+
+(jump_insn 14 13 170 (set (pc)
+        (if_then_else (le (cc0)
+                (const_int 0))
+            (label_ref 17)
+            (pc))) 58 {*cond_branch} (nil)
+    (nil))
+;; End of basic block 9
+
+(note 170 14 173 "" NOTE_INSN_LOOP_END)
+
+(note 173 170 210 0 NOTE_INSN_BLOCK_END)
+
+(note 210 173 244 "" NOTE_INSN_DELETED)
+
+(note 244 210 243 "" NOTE_INSN_EPILOGUE_BEG)
+
+;; Insn is not within a basic block
+(jump_insn 243 244 241 (unspec_volatile[ 
+            (const_int 0)
+        ]  1) -1 (nil)
+    (nil))
+
+(barrier 241 243 0)
+

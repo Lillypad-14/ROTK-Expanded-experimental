@@ -1,0 +1,329 @@
+[Context] Operating on: rotk
+
+Decompiled function actor_runBehaviorState:
+
+
+
+void actor_runBehaviorState(Actor *actor)
+
+
+
+{
+
+  int iVar1;
+
+  s16 *psVar2;
+
+  uint uVar3;
+
+  code *UNRECOVERED_JUMPTABLE;
+
+  
+
+  psVar2 = &actor->hitStunTimer;
+
+  if (0 < *psVar2) {
+
+    *psVar2 = *psVar2 + -1;
+
+  }
+
+  switch(actor->behaviorState) {
+
+  case '\x01':
+
+    uVar3 = (actor->flags).p;
+
+    if ((uVar3 & 2) != 0) {
+
+      (actor->flags).p = uVar3 & 0xfffffffe | 0x82;
+
+    }
+
+    break;
+
+  case '\x06':
+
+    iVar1 = (ushort)actor->recoveryCooldown - 1;
+
+    actor->recoveryCooldown = (s16)iVar1;
+
+    if (iVar1 * 0x10000 >> 0x10 == -1) {
+
+      actor->behaviorState = actor->field_0x73;
+
+      actor->field_0x64[0] = actor->field_0x64[0] | 2;
+
+    }
+
+    break;
+
+  case '\a':
+
+    func_0x0800a790(actor);
+
+    break;
+
+  case '\b':
+
+    func_0x0800aa24(actor);
+
+    break;
+
+  case '\t':
+
+    func_0x0800a8bc(actor);
+
+    break;
+
+  case '\n':
+
+    func_0x0800a790(actor);
+
+    func_0x0800b248(actor);
+
+    break;
+
+  case '\v':
+
+    func_0x0800aa24(actor);
+
+    func_0x0800b248(actor);
+
+    break;
+
+  case '\f':
+
+    func_0x0800a8bc(actor);
+
+    func_0x0800b248(actor);
+
+    break;
+
+  case '\r':
+
+    func_0x0800ae14(actor);
+
+    break;
+
+  case '\x0e':
+
+    func_0x0800ad0c(actor);
+
+    break;
+
+  case '\x0f':
+
+  case '\x10':
+
+  case '%':
+
+    func_0x08005584(actor);
+
+    break;
+
+  case '\x11':
+
+    func_0x0800a64c(actor);
+
+    break;
+
+  case '\x12':
+
+    func_0x0800a134(actor);
+
+    break;
+
+  case '\x13':
+
+    func_0x0800a1d8(actor);
+
+    break;
+
+  case '\x14':
+
+  case '\x1d':
+
+  case '\x1f':
+
+  case '+':
+
+    func_0x080060d4(actor);
+
+    break;
+
+  case '\x16':
+
+    func_0x08003ff8(actor);
+
+    break;
+
+  case '\x17':
+
+    func_0x08004380(actor);
+
+    break;
+
+  case '\x18':
+
+    func_0x0800afa0(actor);
+
+    break;
+
+  case '\x1a':
+
+    func_0x0800b2f0(actor);
+
+    break;
+
+  case '\x1b':
+
+  case '#':
+
+    func_0x08003c64(actor);
+
+    break;
+
+  case ' ':
+
+    func_0x0800512c(actor);
+
+    break;
+
+  case '!':
+
+    func_0x08003854(actor);
+
+    break;
+
+  case '\"':
+
+    func_0x08003b18(actor);
+
+    break;
+
+  case '$':
+
+    func_0x08004d50(actor);
+
+    break;
+
+  case '&':
+
+    func_0x080091d4(actor);
+
+    break;
+
+  case ')':
+
+    func_0x0800b144(actor);
+
+    break;
+
+  case '*':
+
+    func_0x0800499c(actor);
+
+    break;
+
+  case ',':
+
+    func_0x080094dc(actor);
+
+    break;
+
+  case '-':
+
+    func_0x08004ef0(actor);
+
+    break;
+
+  case '.':
+
+    func_0x08005af4(actor);
+
+    break;
+
+  case '/':
+
+    func_0x0800b050(actor);
+
+    break;
+
+  case '0':
+
+    func_0x08006544(actor);
+
+    break;
+
+  case '1':
+
+    func_0x08007a5c(actor);
+
+    break;
+
+  case '2':
+
+    func_0x08007dac(actor);
+
+    break;
+
+  case '3':
+
+    func_0x0800980c(actor);
+
+    break;
+
+  case '4':
+
+    func_0x080067a4(actor);
+
+    break;
+
+  case '5':
+
+    func_0x08006888(actor);
+
+    break;
+
+  case '6':
+
+    func_0x08006e24(actor);
+
+    break;
+
+  case '7':
+
+    func_0x080072fc(actor);
+
+    break;
+
+  case '8':
+
+    func_0x08007790(actor);
+
+  }
+
+  if ((((actor->flags).p & 0x820000) == 0) &&
+
+     (((((actor->flags).p & 0x10040400) != 0 ||
+
+       ((actor->type & ACTOR_TYPE_NPC) != ACTOR_TYPE_UNKNOWN_00)) && (actor->currentHp < 1)))) {
+
+    actor_checkDeath(actor);
+
+  }
+
+                    /* WARNING: Could not recover jumptable at 0x0800a12e. Too many branches */
+
+                    /* WARNING: Treating indirect jump as call */
+
+  (*UNRECOVERED_JUMPTABLE)();
+
+  return;
+
+}
+
+
+
+

@@ -1,0 +1,63 @@
+[Context] Operating on: rotk
+
+Decompiled function skill_active_gandalfSwordOfPower:
+
+
+
+void skill_active_gandalfSwordOfPower(Actor *playerActor)
+
+
+
+{
+
+  byte playerIndex;
+
+  u8 levelCount;
+
+  u8 *puVar1;
+
+  HeroId *pHVar2;
+
+  code *UNRECOVERED_JUMPTABLE;
+
+  
+
+  playerIndex = (playerActor->as).combat.playerIndex;
+
+  levelCount = g_PlayerGlobals.players[playerIndex].activeSkillLevels[0];
+
+  pHVar2 = &g_PlayerGlobals.players[playerIndex].heroId;
+
+  (playerActor->as).lootPile.item = *(Item *)(HeroCastAnimationBanks + *pHVar2);
+
+  puVar1 = &g_PlayerGlobals.players[playerIndex].castingActiveSkill;
+
+  (playerActor->as).combat.requestedPose = *puVar1 + '\x01';
+
+  sprite_selectAnimation
+
+            (playerActor,HeroCastAnimationBanks[*pHVar2],*puVar1 + '\x01',""[playerActor->facing]);
+
+  playerActor->actionState = ACTOR_STATE_SHIELD_SPENT|ACTOR_STATE_HURT;
+
+  (playerActor->flags).p = (playerActor->flags).p & 0xffbfffff;
+
+  skill_active_getLeveledValue(playerIndex,'\0','\0',levelCount);
+
+  puVar1 = &(playerActor->as).combat.actionStateFlags;
+
+  *puVar1 = *puVar1 | 1;
+
+                    /* WARNING: Could not recover jumptable at 0x08044d26. Too many branches */
+
+                    /* WARNING: Treating indirect jump as call */
+
+  (*UNRECOVERED_JUMPTABLE)(0);
+
+  return;
+
+}
+
+
+
+

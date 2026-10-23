@@ -1,5 +1,8 @@
 #include "text.h"
 #include "variables.h"
+#if HACK_ringwraith && HACK_skill_expansion
+#include "patches/ringwraith/wraith_gear.h"
+#endif
 
 #define TEXT_OVERRIDE_KEY(language, textId) (((u32)(language) << 16) | (u32)(textId))
 
@@ -16,6 +19,12 @@ static const u8 *findString(s32 textId)
     {
         return NULL;
     }
+#if HACK_ringwraith && HACK_skill_expansion
+    if (wraithGear_findString(textId) != NULL)
+    {
+        return (const u8 *)wraithGear_findString(textId);
+    }
+#endif
     switch (TEXT_OVERRIDE_KEY(text_getLanguage(), textId))
     {
 #define TEXT_OVERRIDE(language, textId, replacement)                                               \

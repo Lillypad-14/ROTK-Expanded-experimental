@@ -1,0 +1,72 @@
+#include "scene/characterStats.h"
+#include "game.h"
+#include "gba_io.h"
+#include "gfx.h"
+#include "input.h"
+#include "mission.h"
+#include "multiplayer.h"
+#include "player.h"
+#include "scene.h"
+#include "sfx.h"
+#include "sprite.h"
+#include "variables.h"
+
+void scene_characterStats_tick(void)
+{
+    volatile u32 messageMask = multiplayer_getMessageMask();
+    u32 keys;
+
+    if (messageMask & 4)
+    {
+        u32 i;
+
+        for (i = 0; i < g_PlayerGlobals.activePlayerCount; i++)
+        {
+            mission_tickCameraPan(i);
+            gfx_updatePlayerCameraScroll(i);
+        }
+    }
+
+    keys = ACTIVE_MENU_KEYS_PRESSED;
+    if (!(A_BUTTON & keys))
+    {
+        if (keys & (DPAD_UP | DPAD_DOWN))
+        {
+            if (g_SceneCurrent.args[2] != 0)
+                player_unknown08028824();
+        }
+        else if (ACTIVE_MENU_KEYS_CURRENT & (DPAD_LEFT | DPAD_RIGHT))
+        {
+            if (g_SceneCurrent.args[2] != 0)
+            {
+                g_SceneCurrent.args[4]--;
+                if (g_SceneCurrent.args[4] == -1)
+                {
+                    player_unknown080282ec();
+                    g_SceneCurrent.args[4] = 3;
+                }
+            }
+        }
+        else if (L_BUTTON & keys)
+        {
+            g_GameFlags.p |= GAME_FLAG_REQUEST_OVERLAY;
+            game_requestSceneChange(SCENE_ID_SKILL_TREE);
+            sfx_play(2);
+        }
+        else if (R_BUTTON & keys)
+        {
+            g_GameFlags.p |= GAME_FLAG_REQUEST_OVERLAY;
+            game_requestSceneChange(SCENE_ID_BACKPACK);
+            sfx_play(2);
+        }
+        else if ((B_BUTTON | SELECT_BUTTON | START_BUTTON) & keys)
+        {
+            game_requestSceneChangeWithArgs(SCENE_ID_GAMEPLAY, 2, g_CurrentMissionId);
+            sfx_play(4);
+        }
+    }
+    actor_tickAll();
+    if (messageMask & 4)
+        game_tickFxAndHuds();
+    sprite_endFrame();
+}

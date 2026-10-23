@@ -17,6 +17,7 @@
 #include "save.h"
 #include "save_layout.h"
 #include "types.h"
+#include <stdint.h>
 
 /** Last byte of the 32 KiB SRAM area used for poke checks to verify SRAM is available. */
 #define SRAM_POKE_CELL ((u8 *)0x0E007FFFu)
@@ -57,6 +58,17 @@ extern const u32 ModSaveCopyArmEnd[];
  */
 void modSave_copy(u8 *dst, const u8 *src, u32 numBytes)
 {
+#if HACK_test_arena
+    if ((uintptr_t)dst - (uintptr_t)SRAM_BASE < SRAM_SIZE)
+    {
+        return;
+    }
+    if ((uintptr_t)src - (uintptr_t)SRAM_BASE < SRAM_SIZE)
+    {
+        memory_memset(dst, SRAM_BLANK, numBytes);
+        return;
+    }
+#endif
     // Stack VLA sized from the linked _End - _Start, so editing the routine above needs no
     // change here. The stack lives in IWRAM, satisfying the execute-from-WRAM rule.
     u32 code[(u32)(ModSaveCopyArmEnd - ModSaveCopyArm)];

@@ -1,0 +1,44 @@
+#include "actor.h"
+#include "match_hacks.h"
+#include "math.h"
+
+/**
+ * Walk a scripted enemy to its target position, then hand over to its type behavior.
+ *
+ * @romaddress 0x0800afa0
+ */
+void actor_unknown0800afa0(Actor *self)
+{
+    Vector2Fp16 pos;
+    MATCH_PIN(s32, destX, "r4");
+    MATCH_PIN(s32, destY, "r5");
+    u8 dir;
+    u8 state = self->actionState;
+    Direction8 *facingPtr = &self->facing;
+
+    switch (state)
+    {
+    case 0x1c:
+        math_vector2_copy(&self->coords, &pos);
+        destX = ((s32 *)&self->field_0xbc[8])[0];
+        destY = ((s32 *)&self->field_0xbc[8])[1];
+        dir = actor_direction8TowardPoint(pos.x, pos.y, destX, destY, self->moveSpeed);
+        if (dir == 8)
+        {
+            self->flags.p = (self->flags.p | 0x204) & ~8;
+            actor_initBehaviorByType(self);
+        }
+        else if (*facingPtr != dir)
+        {
+            *facingPtr = dir;
+            self->field_0x64[0] |= 1;
+        }
+        break;
+    case 0x12:
+        self->actionState = 0x1c;
+        self->field_0x64[0] |= 2;
+        *(s32 *)&self->field_0xbc[8] = self->as.combat.head.scripted.targetX << 16;
+        *(s32 *)&self->field_0xbc[12] = self->as.combat.head.scripted.targetY << 16;
+        break;
+    }
+}

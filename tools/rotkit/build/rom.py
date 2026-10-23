@@ -14,6 +14,7 @@ sha1(build/rom.gba) == base. Reads config/split.cfg.
 
 import os
 import sys
+from pathlib import Path
 
 from rotkit.paths import BUILD, ROOT
 from rotkit.rom import ROM, ROMBASE, regions
@@ -45,7 +46,7 @@ def run() -> None:
         if offset > cursor:
             lines.append(f'    .incbin "rotk.gba", 0x{cursor:x}, 0x{offset - cursor:x}')
         lines.append(
-            f'    .incbin "{os.path.relpath(r.bin_path, ROOT)}"   @ {os.path.relpath(r.src, ROOT)}'
+            f'    .incbin "{Path(os.path.relpath(r.bin_path, ROOT)).as_posix()}"   @ {os.path.relpath(r.src, ROOT)}'
         )
         cursor = offset + os.path.getsize(r.bin_path)
     if cursor < romsize:

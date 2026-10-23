@@ -1,0 +1,231 @@
+[Context] Operating on: rotk
+
+Decompiled function item_getEquipSlot:
+
+
+
+u32 item_getEquipSlot(u32 itemHandle,u8 playerIndex)
+
+
+
+{
+
+  PlayerGlobals *pPVar1;
+
+  u32 uVar2;
+
+  PlayerGlobals *pPVar3;
+
+  uint uVar4;
+
+  undefined4 unaff_r8;
+
+  undefined4 uVar5;
+
+  code *UNRECOVERED_JUMPTABLE;
+
+  
+
+  pPVar1 = *(PlayerGlobals **)((int)&g_PlayerGlobals.players[playerIndex].inventory + 4);
+
+  uVar5 = 8;
+
+  pPVar3 = &g_PlayerGlobals;
+
+  uVar4 = (uint)g_PlayerGlobals.players[playerIndex].heroId;
+
+  if (uVar4 != 7) {
+
+    if (uVar4 == 6) {
+
+      uVar4 = 0;
+
+    }
+
+    uVar4 = 0x4000000 << uVar4 &
+
+            ItemTypeInfos[itemHandle & 0xf].baseMetadata[(itemHandle & 0xffff) >> 8].flags.p &
+
+            0xfc000000;
+
+    uVar2 = item_getMinLevel(itemHandle);
+
+    pPVar3 = (PlayerGlobals *)0x8068f70;
+
+    if (g_PlayerGlobals.players[playerIndex].level + 1 < (uVar2 & 0xff)) {
+
+      uVar4 = 0;
+
+    }
+
+    if ((uVar4 != 0) &&
+
+       ((ItemTypeInfos[itemHandle & 0xf].baseMetadata[(itemHandle & 0xffff) >> 8].flags.p & 0x10000)
+
+        == 0)) {
+
+      if ((ItemTypeInfos[itemHandle & 0xf].baseMetadata[(itemHandle & 0xffff) >> 8].flags.p &
+
+          0x180000) == 0x180000) {
+
+        if ((((g_PlayerGlobals.players[playerIndex].heroId == HERO_ID_ARAGORN) &&
+
+             (((uint)pPVar1 & 0xf) != 0xf)) &&
+
+            ((ItemTypeInfos[(uint)pPVar1 & 0xf].baseMetadata[(uint)pPVar1 >> 8 & 0xff].flags.p &
+
+             0x20000) == 0)) &&
+
+           ((*(byte *)((int)&g_PlayerGlobals.players[playerIndex].inventory + 8) & 0xf) == 0xf)) {
+
+          uVar5 = 2;
+
+          pPVar3 = pPVar1;
+
+        }
+
+        else {
+
+          pPVar3 = (PlayerGlobals *)0x1;
+
+          uVar5 = 1;
+
+          if (g_PlayerGlobals.players[playerIndex].heroId == HERO_ID_LEGOLAS) {
+
+            uVar5 = 2;
+
+          }
+
+        }
+
+      }
+
+      else if ((ItemTypeInfos[itemHandle & 0xf].baseMetadata[(itemHandle & 0xffff) >> 8].flags.p &
+
+               0x80000) == 0) {
+
+        if ((ItemTypeInfos[itemHandle & 0xf].baseMetadata[(itemHandle & 0xffff) >> 8].flags.p &
+
+            0x100000) == 0) {
+
+          if ((ItemTypeInfos[itemHandle & 0xf].baseMetadata[(itemHandle & 0xffff) >> 8].flags.p &
+
+              0x40000) == 0) {
+
+            if ((ItemTypeInfos[itemHandle & 0xf].baseMetadata[(itemHandle & 0xffff) >> 8].flags.p &
+
+                0x200000) == 0) {
+
+              if ((ItemTypeInfos[itemHandle & 0xf].baseMetadata[(itemHandle & 0xffff) >> 8].flags.p
+
+                  & 0x400000) == 0) {
+
+                if ((ItemTypeInfos[itemHandle & 0xf].baseMetadata[(itemHandle & 0xffff) >> 8].flags.
+
+                     p & 0x800000) == 0) {
+
+                  if ((ItemTypeInfos[itemHandle & 0xf].baseMetadata[(itemHandle & 0xffff) >> 8].
+
+                       flags.p & 0x1000000) == 0) {
+
+                    if ((ItemTypeInfos[itemHandle & 0xf].baseMetadata[(itemHandle & 0xffff) >> 8].
+
+                         flags.p & 0x2000000) != 0) {
+
+                      pPVar3 = (PlayerGlobals *)(uint)g_PlayerGlobals.players[playerIndex].heroId;
+
+                      if ((pPVar3 == (PlayerGlobals *)0x0) || (pPVar3 == (PlayerGlobals *)0x6)) {
+
+                        pPVar3 = (PlayerGlobals *)0x6;
+
+                        uVar5 = 6;
+
+                        if ((*(byte *)((int)&g_PlayerGlobals.players[playerIndex].inventory + 0x1c)
+
+                            & 0xf) != 0xf) goto LAB_0802d8ca;
+
+                      }
+
+                      uVar5 = 7;
+
+                    }
+
+                  }
+
+                  else {
+
+                    uVar5 = 6;
+
+                  }
+
+                }
+
+                else {
+
+                  uVar5 = 5;
+
+                }
+
+              }
+
+              else {
+
+                uVar5 = 4;
+
+                pPVar3 = (PlayerGlobals *)0x4;
+
+              }
+
+            }
+
+            else {
+
+              uVar5 = 3;
+
+            }
+
+          }
+
+          else {
+
+            uVar5 = 0;
+
+          }
+
+        }
+
+        else {
+
+          uVar5 = 2;
+
+          pPVar3 = (PlayerGlobals *)0x2;
+
+        }
+
+      }
+
+      else {
+
+        uVar5 = 1;
+
+      }
+
+    }
+
+  }
+
+LAB_0802d8ca:
+
+                    /* WARNING: Could not recover jumptable at 0x0802d8da. Too many branches */
+
+                    /* WARNING: Treating indirect jump as call */
+
+  uVar2 = (*UNRECOVERED_JUMPTABLE)(uVar5,UNRECOVERED_JUMPTABLE,pPVar3,unaff_r8);
+
+  return uVar2;
+
+}
+
+
+
+

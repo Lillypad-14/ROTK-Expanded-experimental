@@ -1,0 +1,19 @@
+#include "terrain.h"
+#include "variables.h"
+
+/**
+ * @romaddress 0x08034770
+ */
+u8 terrain_getCollisionAt(s32 x, s32 y)
+{
+    Vector2Int size;
+    u32 block;
+    u32 index;
+
+    terrain_getWorldSize(&size);
+    if (x > size.x || x < 0 || y > size.y || y < 0)
+        return 0;
+    block = (u32)g_TerrainCollisionBlocks[(x >> 5) + (y >> 5) * (size.x >> 5)] << 20;
+    index = (block >> 16) | ((x >> 3) & 3 | (y >> 1) & 12);
+    return g_TerrainCollisionCells[index];
+}

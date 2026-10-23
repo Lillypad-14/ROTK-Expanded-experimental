@@ -1,0 +1,136 @@
+#include "actor.h"
+#include "actor/npc.h"
+#include "match_hacks.h"
+#include "mission.h"
+#include "sprite.h"
+#include "variables.h"
+
+/**
+ * Tick for hero-bodied NPCs. Handles despawn when the lifetime timer runs out, then derives
+ * the pose from the action state.
+ *
+ * @romaddress 0x08035f84
+ */
+void actor_npc_tick(Actor *actor)
+{
+    u32 facing;
+    u32 flags;
+    u32 state;
+    u8 *bs;
+
+    if ((s32)actor->flags.p >= 0)
+    {
+        u16 *timer = (u16 *)actor->as.combat.field_0x8c;
+        u16 t = *timer;
+        *timer = t - 1;
+        if ((s16)t <= 0)
+            actor->behaviorState = 1;
+    }
+    bs = &actor->behaviorState;
+    if (*bs == 1)
+    {
+        actor->flags.p = (actor->flags.p & ~1) | 0x82;
+        if (g_CompanionActors[0] == actor)
+            g_CompanionActors[0] = 0;
+        else if (g_CompanionActors[1] == actor)
+            g_CompanionActors[1] = 0;
+        if ((s32)actor->flags.p < 0)
+            mission_script_spawnGroupAndStartStream(actor->linkGroup, actor->linkStream);
+        return;
+    }
+    if (*bs < 2)
+    {
+        if (*bs != 0)
+            actor_runBehaviorState(actor);
+    }
+    else if (*bs == 4)
+    {
+        sprite_selectAnimation(actor, (void *)HeroMoveAnimationBanks[actor->variant], 1,
+                               (s8)FacingVariants[actor->facing]);
+        actor->flags.p = (actor->flags.p | (ACTOR_FLAG_19 | ACTOR_FLAG_ANIMATION_PLAYING)) &
+                         ~(ACTOR_FLAG_COLLISION_CHECK | ACTOR_FLAG_TILE_COLLISION);
+        actor->oam.bgPriority = 3;
+        *bs = 5;
+        actor->field_0x64[0] = 0;
+    }
+    else if (*bs != 5)
+        actor_runBehaviorState(actor);
+    else if (actor->flags.p & ACTOR_FLAG_ANIMATION_END)
+    {
+        actor->flags.p &= ~ACTOR_FLAG_ANIMATION_PLAYING;
+        *bs = 0;
+        actor_clearVelocity(actor);
+    }
+    actor_updateMoveFlags(actor);
+    facing = actor->field_0x66[1];
+    flags = actor->field_0x64[0];
+    if ((flags & 4) && actor->recoveryCooldown == 0)
+        actor_setVelocityFromDirection8(&actor->velocity, actor->flags.p, actor->facing,
+                                        actor->moveSpeed);
+    if (flags & 8)
+        sprite_selectAnimation(actor, (void *)HeroMoveAnimationBanks[actor->variant], 4,
+                               (s8)FacingVariants[facing]);
+    if (!(flags & 1) && !(flags & 2))
+        return;
+    state = actor->actionState;
+    if (state == 2 || state == 8 || state == 14 || state == 24 || state == 9)
+    {
+        sprite_selectAnimation(actor, (void *)HeroMoveAnimationBanks[actor->variant], 6,
+                               (s8)FacingVariants[facing]);
+        actor->flags.p |= ACTOR_FLAG_ANIMATION_PLAYING;
+        actor_applyFacingVelocity(actor);
+    }
+    else
+    {
+        if (state == 17)
+            sprite_selectAnimation(actor, (void *)HeroMoveAnimationBanks[actor->variant], 1,
+                                   (s8)FacingVariants[facing]);
+        else if (state == 6)
+            sprite_selectAnimation(actor, (void *)HeroMoveAnimationBanks[actor->variant], 3,
+                                   (s8)FacingVariants[facing]);
+        else if (state == 49)
+        {
+            sprite_selectAnimation(actor, (void *)HeroMoveAnimationBanks[actor->variant], 5,
+                                   (s8)FacingVariants[facing]);
+            actor->flags.p |= ACTOR_FLAG_ANIMATION_PLAYING;
+            goto tail;
+        }
+        else if (state == 48)
+            sprite_selectAnimation(actor, (void *)HeroMoveAnimationBanks[actor->variant], 0,
+                                   (s8)FacingVariants[facing]);
+        else if (state == 34)
+            sprite_selectAnimation(actor, (void *)HeroMoveAnimationBanks[actor->variant], 2,
+                                   (s8)FacingVariants[facing]);
+        else if (state == 3)
+            sprite_selectAnimation(actor, (void *)HeroMeleeAnimationBanks[actor->variant], 0,
+                                   (s8)FacingVariants[facing]);
+        else if (state == 94)
+            sprite_selectAnimation(actor, (void *)HeroMeleeAnimationBanks[actor->variant], 2,
+                                   (s8)FacingVariants[facing]);
+        else if (state == 95)
+            sprite_selectAnimation(actor, (void *)HeroMeleeAnimationBanks[actor->variant], 4,
+                                   (s8)FacingVariants[facing]);
+        else
+        {
+            sprite_selectAnimation(actor, (void *)HeroMoveAnimationBanks[actor->variant], 4,
+                                   (s8)FacingVariants[facing]);
+            actor->flags.p |= ACTOR_FLAG_ANIMATION_PLAYING;
+            actor_clearVelocity(actor);
+            goto tail;
+        }
+        actor->flags.p |= ACTOR_FLAG_ANIMATION_PLAYING;
+        actor_clearVelocity(actor);
+    }
+tail:
+    if (facing > 4)
+        ((u8 *)&actor->oam)[3] |= 0x10;
+    else
+    {
+        u8 *p = (u8 *)&actor->oam + 3;
+        u32 v = *p;
+        u32 m = ~0x10;
+        MATCH_BARRIER(m);
+        *p = m & v;
+    }
+    actor->field_0x64[0] = 0;
+}

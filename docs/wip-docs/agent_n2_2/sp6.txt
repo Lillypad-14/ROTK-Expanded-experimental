@@ -1,0 +1,15 @@
+        u16 baseTextId = TEXT_ID_PASSIVE_SKILL_DESCRIPTION_BASE;|||        u32 baseTextId = TEXT_ID_PASSIVE_SKILL_DESCRIPTION_BASE;
+====
+        u16 baseTextId = TEXT_ID_PASSIVE_SKILL_DESCRIPTION_BASE;
+        u8 skillId = g_SkillTreePassiveTileSkillIds[SCENE_ARG_SKILL_TREE_CURSOR];|||        u8 skillId = g_SkillTreePassiveTileSkillIds[SCENE_ARG_SKILL_TREE_CURSOR];
+        u16 baseTextId = TEXT_ID_PASSIVE_SKILL_DESCRIPTION_BASE;
+====
+        text = text_getString(baseTextId + skillId);|||        text = text_getString(skillId + baseTextId);
+====
+    u32 playerIndex = ACTIVE_PLAYER_INDEX;|||    u32 playerIndex = ACTIVE_PLAYER_INDEX;
+    u16 passiveBase = TEXT_ID_PASSIVE_SKILL_DESCRIPTION_BASE;
+;;;
+        u16 baseTextId = TEXT_ID_PASSIVE_SKILL_DESCRIPTION_BASE;
+|||
+;;;
+baseTextId + skillId|||passiveBase + skillId

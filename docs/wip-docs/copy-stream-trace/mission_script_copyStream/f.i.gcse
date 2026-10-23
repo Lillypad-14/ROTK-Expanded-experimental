@@ -1,0 +1,292 @@
+
+;; Function mission_script_copyStream
+
+BB data
+
+BB 0, start 4, end 33
+  preds: entry
+  succs: 1
+BB 1, start 36, end 115
+  preds: 3 0
+  succs: 2 3
+BB 2, start 59, end 56
+  preds: 2 1
+  succs: 3 2
+BB 3, start 87, end 91
+  preds: 2 1
+  succs: 4 1
+BB 4, start 104, end 113
+  preds: 3
+  succs: exit
+
+GCSE pass 1
+
+SET hash table (11 buckets, 2 entries)
+Index 0 (hash value 3)
+  (set (reg/v:SI 36)
+    (reg/v:SI 33))
+Index 1 (hash value 6)
+  (set (reg/v:SI 39)
+    (const_int 0))
+
+cprop avail expr computation: 2 passes
+
+CPROP of mission_script_copyStream, pass 1: 3172 bytes needed, 0 const props, 0 copy props
+
+Expression hash table (17 buckets, 17 entries)
+Index 0 (hash value 12)
+  (ashift:SI (reg:SI 25)
+    (const_int 24))
+Index 1 (hash value 0)
+  (lshiftrt:SI (reg:SI 27)
+    (const_int 24))
+Index 2 (hash value 7)
+  (ashift:SI (reg:SI 26)
+    (const_int 1))
+Index 3 (hash value 9)
+  (plus:SI (reg/v:SI 22)
+    (const_int 2))
+Index 4 (hash value 8)
+  (plus:SI (reg/v:SI 32)
+    (reg:SI 31))
+Index 5 (hash value 16)
+  (zero_extend:SI (mem:HI (reg:SI 34) 5))
+Index 6 (hash value 2)
+  (plus:SI (reg/v:SI 22)
+    (reg:SI 35))
+Index 7 (hash value 15)
+  (mem/u:SI (symbol_ref/u:SI ("*.LC0")) 0)
+Index 8 (hash value 6)
+  (mem:SI (reg/v:SI 36) 1)
+Index 9 (hash value 5)
+  (plus:SI (reg:SI 40)
+    (reg/v:SI 37))
+Index 10 (hash value 6)
+  (zero_extend:SI (mem:QI (reg:SI 41) 0))
+Index 11 (hash value 3)
+  (mem:QI (reg/v:SI 33) 0)
+Index 12 (hash value 2)
+  (plus:SI (reg/v:SI 33)
+    (const_int 1))
+Index 13 (hash value 9)
+  (plus:SI (reg/v:SI 23)
+    (const_int 1))
+Index 14 (hash value 8)
+  (plus:SI (reg/v:SI 39)
+    (const_int 1))
+Index 15 (hash value 15)
+  (ashift:SI (reg:SI 45)
+    (const_int 24))
+Index 16 (hash value 3)
+  (lshiftrt:SI (reg:SI 47)
+    (const_int 24))
+
+
+PRE GCSE of mission_script_copyStream, pass 1: 5012 bytes needed, 0 substs, 0 insns created
+
+SET hash table (11 buckets, 2 entries)
+Index 0 (hash value 3)
+  (set (reg/v:SI 36)
+    (reg/v:SI 33))
+Index 1 (hash value 6)
+  (set (reg/v:SI 39)
+    (const_int 0))
+
+cprop avail expr computation: 2 passes
+
+CPROP of mission_script_copyStream, pass 2: 6448 bytes needed, 0 const props, 0 copy props
+
+GCSE of mission_script_copyStream: 5 basic blocks, 1 pass, 5012 bytes
+
+(note 2 0 4 "" NOTE_INSN_DELETED)
+
+(insn 4 2 6 (set (reg/v:SI 22)
+        (reg:SI 0 r0)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 6 4 8 (set (reg/v:SI 23)
+        (reg:SI 1 r1)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 8 6 11 (set (reg:SI 25)
+        (reg:SI 2 r2)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 11 8 12 (set (reg:SI 27)
+        (ashift:SI (reg:SI 25)
+            (const_int 24))) 39 {ashlsi3} (nil)
+    (nil))
+
+(insn 12 11 15 (set (reg:SI 26)
+        (lshiftrt:SI (reg:SI 27)
+            (const_int 24))) 41 {lshrsi3} (nil)
+    (expr_list:REG_EQUAL (zero_extend:SI (subreg:QI (reg:SI 25) 0))
+        (nil)))
+
+(note 15 12 16 "" NOTE_INSN_FUNCTION_BEG)
+
+(note 16 15 18 "" NOTE_INSN_DELETED)
+
+(note 18 16 21 0 NOTE_INSN_BLOCK_BEG)
+
+(insn 21 18 25 (set (reg:SI 31)
+        (ashift:SI (reg:SI 26)
+            (const_int 1))) 39 {ashlsi3} (nil)
+    (expr_list:REG_EQUAL (mult:SI (reg:SI 26)
+            (const_int 2))
+        (nil)))
+
+(insn 25 21 27 (set (reg/v:SI 32)
+        (plus:SI (reg/v:SI 22)
+            (const_int 2))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 27 25 29 (set (reg:SI 34)
+        (plus:SI (reg/v:SI 32)
+            (reg:SI 31))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 29 27 30 (set (reg:SI 35)
+        (zero_extend:SI (mem:HI (reg:SI 34) 5))) 15 {*zero_extendhisi2_insn} (nil)
+    (nil))
+
+(insn 30 29 33 (set (reg/v:SI 33)
+        (plus:SI (reg/v:SI 22)
+            (reg:SI 35))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 33 30 35 (set (reg/v:SI 37)
+        (mem/u:SI (symbol_ref/u:SI ("*.LC0")) 0)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (symbol_ref:SI ("MissionScriptOpcodeLengths"))
+        (nil)))
+
+(note 35 33 36 "" NOTE_INSN_LOOP_BEG)
+
+(code_label 36 35 38 12 "")
+
+(note 38 36 40 "" NOTE_INSN_DELETED)
+
+(insn 40 38 43 (set (reg/v:SI 36)
+        (reg/v:SI 33)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 43 40 44 (set (reg:SI 40)
+        (mem:SI (reg/v:SI 36) 1)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 44 43 46 (set (reg:SI 41)
+        (plus:SI (reg:SI 40)
+            (reg/v:SI 37))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 46 44 51 (set (reg/v:SI 38)
+        (zero_extend:SI (mem:QI (reg:SI 41) 0))) 17 {*zero_extendqisi2_insn} (nil)
+    (nil))
+
+(insn 51 46 114 (set (reg/v:SI 39)
+        (const_int 0)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (const_int 0)
+        (nil)))
+
+(insn 114 51 115 (set (cc0)
+        (compare (reg/v:SI 39)
+            (reg/v:SI 38))) 44 {*cmpsi_insn} (nil)
+    (nil))
+
+(jump_insn 115 114 52 (set (pc)
+        (if_then_else (geu (cc0)
+                (const_int 0))
+            (label_ref 87)
+            (pc))) 58 {*cond_branch} (nil)
+    (nil))
+
+(note 52 115 59 "" NOTE_INSN_LOOP_BEG)
+
+(code_label 59 52 61 18 "")
+
+(note 61 59 63 "" NOTE_INSN_DELETED)
+
+(insn 63 61 64 (set (reg:QI 44)
+        (mem:QI (reg/v:SI 33) 0)) 7 {*movqi_insn} (nil)
+    (nil))
+
+(insn 64 63 65 (set (mem:QI (reg/v:SI 23) 0)
+        (reg:QI 44)) 7 {*movqi_insn} (nil)
+    (nil))
+
+(insn 65 64 66 (set (reg/v:SI 33)
+        (plus:SI (reg/v:SI 33)
+            (const_int 1))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 66 65 69 (set (reg/v:SI 23)
+        (plus:SI (reg/v:SI 23)
+            (const_int 1))) 27 {addsi3} (nil)
+    (nil))
+
+(note 69 66 71 "" NOTE_INSN_LOOP_CONT)
+
+(insn 71 69 74 (set (reg:SI 45)
+        (plus:SI (reg/v:SI 39)
+            (const_int 1))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 74 71 75 (set (reg:SI 47)
+        (ashift:SI (reg:SI 45)
+            (const_int 24))) 39 {ashlsi3} (nil)
+    (nil))
+
+(insn 75 74 118 (set (reg/v:SI 39)
+        (lshiftrt:SI (reg:SI 47)
+            (const_int 24))) 41 {lshrsi3} (nil)
+    (expr_list:REG_EQUAL (zero_extend:SI (subreg:QI (reg:SI 45) 0))
+        (nil)))
+
+(note 118 75 55 "" NOTE_INSN_LOOP_VTOP)
+
+(insn 55 118 56 (set (cc0)
+        (compare (reg/v:SI 39)
+            (reg/v:SI 38))) 44 {*cmpsi_insn} (nil)
+    (nil))
+
+(jump_insn 56 55 83 (set (pc)
+        (if_then_else (ltu (cc0)
+                (const_int 0))
+            (label_ref 59)
+            (pc))) 58 {*cond_branch} (nil)
+    (nil))
+
+(note 83 56 86 "" NOTE_INSN_LOOP_END)
+
+(note 86 83 87 "" NOTE_INSN_LOOP_CONT)
+
+(code_label 87 86 89 14 "")
+
+(insn 89 87 90 (set (reg:SI 49)
+        (mem:SI (reg/v:SI 36) 1)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 90 89 91 (set (cc0)
+        (reg:SI 49)) 45 {tstsi} (nil)
+    (nil))
+
+(jump_insn 91 90 100 (set (pc)
+        (if_then_else (ne (cc0)
+                (const_int 0))
+            (label_ref 36)
+            (pc))) 58 {*cond_branch} (nil)
+    (nil))
+
+(note 100 91 104 "" NOTE_INSN_LOOP_END)
+
+(insn 104 100 105 (set (reg/i:SI 0 r0)
+        (reg/v:SI 23)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 105 104 109 (use (reg/i:SI 0 r0)) -1 (nil)
+    (nil))
+
+(note 109 105 113 0 NOTE_INSN_BLOCK_END)
+
+(insn 113 109 0 (use (reg/i:SI 0 r0)) -1 (nil)
+    (nil))

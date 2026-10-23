@@ -1,0 +1,51 @@
+insn 22: skip r0 (reload 0, pass 0): busy: RELOAD_OTHER/inherited
+insn 22: skip r1 (reload 0, pass 0): busy: RELOAD_OTHER/inherited
+insn 22: skip r2 (reload 0, pass 0): busy: RELOAD_OTHER/inherited
+insn 22: skip r0 (reload 0, pass 1): busy: RELOAD_OTHER/inherited
+insn 22: skip r1 (reload 0, pass 1): busy: RELOAD_OTHER/inherited
+insn 22: skip r2 (reload 0, pass 1): busy: RELOAD_OTHER/inherited
+insn 22: alloc r3 (reload 0, pass 1, last_spill -1, n_spills 4)
+insn 30: skip r1 (reload 0, pass 0): busy: RELOAD_OTHER/inherited
+insn 30: skip r2 (reload 0, pass 0): busy: RELOAD_OTHER/inherited
+insn 30: alloc r0 (reload 0, pass 1, last_spill 3, n_spills 4)
+insn 43: alloc r1 (reload 0, pass 1, last_spill 0, n_spills 4)
+insn 237: skip r2 (reload 0, pass 0): busy: RELOAD_OTHER/inherited
+insn 237: skip r0 (reload 0, pass 0): busy: RELOAD_OTHER/inherited
+insn 237: skip r2 (reload 0, pass 1): busy: RELOAD_OTHER/inherited
+insn 237: alloc r3 (reload 0, pass 1, last_spill 1, n_spills 4)
+insn 257: skip r0 (reload 0, pass 0): busy: RELOAD_OTHER/inherited
+insn 257: skip r2 (reload 0, pass 0): busy: RELOAD_OTHER/inherited
+insn 257: skip r0 (reload 0, pass 1): busy: RELOAD_OTHER/inherited
+insn 257: alloc r1 (reload 0, pass 1, last_spill 3, n_spills 4)
+insn 270: skip r0 (reload 0, pass 0): busy: RELOAD_OTHER/inherited
+insn 270: skip r1 (reload 0, pass 0): busy: RELOAD_OTHER/inherited
+insn 270: alloc r2 (reload 0, pass 1, last_spill 1, n_spills 4)
+insn 315: alloc r3 (reload 0, pass 1, last_spill 2, n_spills 4)
+insn 321: skip r0 (reload 0, pass 0): busy: RELOAD_OTHER/inherited
+insn 321: skip r1 (reload 0, pass 0): busy: RELOAD_OTHER/inherited
+insn 321: skip r0 (reload 0, pass 1): busy: RELOAD_OTHER/inherited
+insn 321: skip r1 (reload 0, pass 1): busy: RELOAD_OTHER/inherited
+insn 321: alloc r2 (reload 0, pass 1, last_spill 3, n_spills 4)
+insn 327: skip r0 (reload 0, pass 0): busy: RELOAD_OTHER/inherited
+insn 327: alloc r3 (reload 0, pass 1, last_spill 2, n_spills 4)
+insn 338: alloc r0 (reload 0, pass 1, last_spill 3, n_spills 4)
+insn 384: alloc r1 (reload 0, pass 1, last_spill 0, n_spills 4)
+insn 423: alloc r2 (reload 0, pass 1, last_spill 1, n_spills 4)
+insn 462: alloc r3 (reload 0, pass 1, last_spill 2, n_spills 4)
+insn 501: alloc r0 (reload 0, pass 1, last_spill 3, n_spills 4)
+insn 540: alloc r1 (reload 0, pass 1, last_spill 0, n_spills 4)
+insn 579: alloc r2 (reload 0, pass 1, last_spill 1, n_spills 4)
+insn 618: alloc r3 (reload 0, pass 1, last_spill 2, n_spills 4)
+insn 661: skip r0 (reload 0, pass 0): busy: RELOAD_OTHER/inherited
+insn 661: skip r1 (reload 0, pass 0): busy: RELOAD_OTHER/inherited
+insn 661: skip r0 (reload 0, pass 1): busy: RELOAD_OTHER/inherited
+insn 661: skip r1 (reload 0, pass 1): busy: RELOAD_OTHER/inherited
+insn 661: alloc r2 (reload 0, pass 1, last_spill 3, n_spills 4)
+insn 667: skip r0 (reload 0, pass 0): busy: RELOAD_OTHER/inherited
+insn 667: skip r2 (reload 0, pass 0): busy: RELOAD_OTHER/inherited
+insn 667: alloc r3 (reload 0, pass 1, last_spill 2, n_spills 4)
+insn 698: skip r0 (reload 0, pass 0): busy: RELOAD_OTHER/inherited
+insn 698: skip r0 (reload 0, pass 1): busy: RELOAD_OTHER/inherited
+insn 698: alloc r1 (reload 0, pass 1, last_spill 3, n_spills 4)
+insn 725: alloc r2 (reload 0, pass 1, last_spill 1, n_spills 4)
+insn 733: alloc r3 (reload 0, pass 1, last_spill 2, n_spills 4)

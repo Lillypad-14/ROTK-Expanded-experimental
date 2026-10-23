@@ -1,0 +1,40 @@
+#include "game.h"
+#include "player.h"
+#include "skill.h"
+#include "variables.h"
+
+void player_resetActiveSkills(void)
+{
+    s32 i;
+    s32 j;
+    s8 *passive;
+    u8 *active;
+    s32 level;
+
+    for (i = 0; i < 2; i++)
+    {
+        passive = PLAYER(i).passiveSkillLevelsPurchased;
+        for (j = 8; j >= 0; j--)
+        {
+            level = g_GameFlags.p & GAME_FLAG_2;
+            if (level != 0)
+                level = 5;
+            passive[HERO_PASSIVE_SKILL_COUNT] = level;
+            passive[0] = level;
+            passive++;
+        }
+        active = PLAYER(i).activeSkillLevelsPurchased;
+        for (j = 5; j >= 0; j--)
+        {
+            level = g_GameFlags.p & GAME_FLAG_2;
+            if (level != 0)
+                level = 5;
+            active[6] = level;
+            active[0] = level;
+            active++;
+        }
+        PLAYER(i).activeSkillLevelsPurchased[ACTIVE_SKILL_HERBAL_HEALING] = 1;
+        PLAYER(i).activeSkillLevels[ACTIVE_SKILL_HERBAL_HEALING] = 1;
+    }
+    player_resetActiveSkillControls();
+}

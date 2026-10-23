@@ -1,0 +1,42 @@
+build gfx: items: 45 categories, 0 encoded
+build gfx: loot_piles: 1 categories, 0 encoded
+build gfx: level_icons: 2 categories, 0 encoded
+build gfx: skills/icons: 2 categories, 0 encoded
+build gfx: hero_portraits, dialog_portraits, cutscenes: 3 categories, 0 encoded
+build gfx: enemy: 51 categories, 0 encoded
+uv run rotkit check stores
+  ERROR: address 0x080223a0: two names - 'skill_active_tickGimliDwarvenRage' (config\functions.cfg:406) vs 'skill_active_gimliDwarvenRage_tick' (config\functions.cfg:405)
+
+check-stores: FAIL - 1 error(s) [1020 funcs, 4498 data]
+make: *** [Makefile:104: check-stores] Error 1
+make: *** Waiting for unfinished jobs....
+uv run --group dev pytest
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-9.1.1, pluggy-1.6.0
+rootdir: ~\Desktop\lotr\rotk
+configfile: pyproject.toml
+testpaths: tools/rotkit
+collected 300 items
+
+tools\rotkit\analysis\test_decode_text.py ...........................    [  9%]
+tools\rotkit\build\test_enemy_graphics.py ..........                     [ 12%]
+tools\rotkit\carve\test_enemy_graphics.py ......                         [ 14%]
+tools\rotkit\compression\test_bios.py .......................            [ 22%]
+tools\rotkit\compression\test_lz77.py ...........                        [ 25%]
+tools\rotkit\ghidra_build\test_apply_symbols.py ...............s         [ 31%]
+tools\rotkit\ghidra_build\test_parse_headers.py ss                       [ 31%]
+tools\rotkit\hack\test_text_override_config.py ......................... [ 40%]
+.......                                                                  [ 42%]
+tools\rotkit\hack\test_text_override_sources.py ....................     [ 49%]
+tools\rotkit\hack\test_text_overrides.py .................               [ 54%]
+tools\rotkit\test_cheaders.py ...                                        [ 55%]
+tools\rotkit\test_png.py ............................................... [ 71%]
+.................                                                        [ 77%]
+tools\rotkit\test_spritegfx.py ......................................... [ 90%]
+......................                                                   [ 98%]
+tools\rotkit\test_text_encoding.py ......                                [100%]
+
+=========================== short test summary info ===========================
+SKIPPED [3] tools\rotkit\ghidra_build\test_parse_headers.py:18: Ghidra and Java are required for the header import test
+======================= 297 passed, 3 skipped in 30.49s =======================
+check-bugfixes: every src/c fix arm compiles with -DBUGFIX

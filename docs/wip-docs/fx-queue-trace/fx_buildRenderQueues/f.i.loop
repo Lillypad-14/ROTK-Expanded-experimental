@@ -1,0 +1,368 @@
+
+;; Function fx_buildRenderQueues
+
+
+Loop from 28 to 138: 38 real insns.
+Continue at insn 132.
+Insn 44: regno 28 (life 33), move-insn savings 1  moved to 192
+Insn 47: regno 29 (life 12), move-insn savings 1  moved to 194
+Insn 88: regno 47 (life 3), move-insn savings 2  moved to 196
+Insn 91: regno 49 (life 2), savings 2  moved to 197
+Insn 92: regno 50 (life 1), cond forces 91 savings 1  moved to 198
+Hoisted regno 80 r/o from (mem/u:SI (symbol_ref/u:SI ("*.LC1")) 0)
+Insn 103: possible biv, reg 23, const =1
+Reg 23: biv verified
+Biv 23 initialized at insn 21: initial value 0
+Insn 99: giv reg 54 src reg 23 benefit 2 lifetime 1 replaceable ncav mult 4 add 0
+Loop unrolling: Not basic or general induction var.
+Cannot eliminate biv 23.
+First use: insn 21, last use: insn 158.
+Sorted combine statistics:
+ {99, 3}
+giv of insn 99 not worth while, 0 vs 33.
+
+
+Loop from 10 to 170: 51 real insns.
+Continue at insn 162.
+Insn 24: regno 25 (life 1), move-insn savings 1 not desirable
+Insn 142: regno 67 (life 1), move-insn savings 1 not desirable
+
+Loop from 28 to 138: 33 real insns.
+Continue at insn 132.
+Insn 103: possible biv, reg 23, const =1
+Reg 23: biv verified
+Biv 23 initialized at insn 21: initial value 0
+Insn 99: giv reg 54 src reg 23 benefit 2 lifetime 1 replaceable ncav mult 4 add 0
+Loop unrolling: Not basic or general induction var.
+Cannot eliminate biv 23.
+First use: insn 21, last use: insn 158.
+Sorted combine statistics:
+ {99, 3}
+giv of insn 99 not worth while, 0 vs 33.
+
+
+Loop from 10 to 170: 50 real insns.
+Continue at insn 162.
+Insn 24: regno 25 (life 1), move-insn savings 1 not desirable
+Insn 196: regno 47 (life 2), move-insn savings 1  moved to 203
+Insn 142: regno 67 (life 1), move-insn savings 1 not desirable
+(note 2 0 3 "" NOTE_INSN_DELETED)
+
+(note 3 2 4 "" NOTE_INSN_FUNCTION_BEG)
+
+(note 4 3 6 "" NOTE_INSN_DELETED)
+
+(note 6 4 9 0 NOTE_INSN_BLOCK_BEG)
+
+(insn 9 6 188 (set (reg/v:SI 22)
+        (const_int 0)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (const_int 0)
+        (nil)))
+
+(insn 188 9 189 (set (reg:SI 77)
+        (mem/u:SI (symbol_ref/u:SI ("*.LC0")) 0)) -1 (nil)
+    (nil))
+
+(insn 189 188 177 (set (reg:SI 78)
+        (mem/u:SI (symbol_ref/u:SI ("*.LC2")) 0)) -1 (nil)
+    (nil))
+
+(note 177 189 178 "" NOTE_INSN_DELETED)
+
+(note 178 177 203 "" NOTE_INSN_DELETED)
+
+(insn 203 178 10 (set (reg:SI 47)
+        (mem/u:SI (symbol_ref/u:SI ("*.LC1")) 0)) -1 (nil)
+    (expr_list:REG_EQUAL (symbol_ref:SI ("g_FxRenderQueues"))
+        (nil)))
+
+(note 10 203 17 "" NOTE_INSN_LOOP_BEG)
+
+(code_label 17 10 19 15 "")
+
+(note 19 17 21 0 NOTE_INSN_BLOCK_BEG)
+
+(insn 21 19 24 (set (reg/v:SI 23)
+        (const_int 0)) -1 (nil)
+    (expr_list:REG_EQUAL (const_int 0)
+        (nil)))
+
+(insn 24 21 26 (set (reg:SI 25)
+        (reg:SI 77)) -1 (nil)
+    (expr_list:REG_EQUAL (symbol_ref:SI ("g_FxParticleList"))
+        (nil)))
+
+(insn 26 24 190 (set (reg/v:SI 24)
+        (mem/s:SI (reg:SI 25) 2)) -1 (nil)
+    (nil))
+
+(insn 190 26 182 (set (reg:SI 79)
+        (plus:SI (reg/v:SI 22)
+            (const_int 1))) -1 (nil)
+    (nil))
+
+(insn 182 190 183 (set (cc0)
+        (reg/v:SI 24)) -1 (nil)
+    (nil))
+
+(jump_insn 183 182 192 (set (pc)
+        (if_then_else (eq (cc0)
+                (const_int 0))
+            (label_ref 139)
+            (pc))) -1 (nil)
+    (nil))
+
+(insn 192 183 194 (set (reg/v:SI 28)
+        (const_int 32768)) -1 (nil)
+    (expr_list:REG_EQUAL (const_int 32768)
+        (nil)))
+
+(insn 194 192 197 (set (reg/v:SI 29)
+        (const_int 16384)) -1 (nil)
+    (expr_list:REG_EQUAL (const_int 16384)
+        (nil)))
+
+(insn 197 194 198 (set (reg:SI 49)
+        (ashift:SI (reg/v:SI 22)
+            (const_int 2))) -1 (nil)
+    (expr_list:REG_EQUAL (mult:SI (reg/v:SI 22)
+            (const_int 4))
+        (nil)))
+
+(insn 198 197 28 (set (reg:SI 50)
+        (plus:SI (reg:SI 49)
+            (reg:SI 47))) -1 (nil)
+    (nil))
+
+(note 28 198 34 "" NOTE_INSN_LOOP_BEG)
+
+(code_label 34 28 36 18 "")
+
+(note 36 34 38 0 NOTE_INSN_BLOCK_BEG)
+
+(insn 38 36 41 (set (reg/v:SI 26)
+        (mem/s:SI (reg/v:SI 24) 32)) -1 (nil)
+    (nil))
+
+(insn 41 38 50 (set (reg/v:SI 27)
+        (zero_extend:SI (mem/s:HI (plus:SI (reg/v:SI 24)
+                    (const_int 62)) 0))) -1 (nil)
+    (nil))
+
+(insn 50 41 51 (set (reg:SI 30)
+        (and:SI (reg/v:SI 27)
+            (reg/v:SI 28))) -1 (nil)
+    (nil))
+
+(insn 51 50 52 (set (cc0)
+        (reg:SI 30)) -1 (nil)
+    (nil))
+
+(jump_insn 52 51 55 (set (pc)
+        (if_then_else (ne (cc0)
+                (const_int 0))
+            (label_ref 126)
+            (pc))) -1 (nil)
+    (nil))
+
+(insn 55 52 57 (set (reg:SI 32)
+        (plus:SI (reg/v:SI 24)
+            (const_int 45))) -1 (nil)
+    (nil))
+
+(insn 57 55 58 (set (reg:QI 33)
+        (mem/s:QI (reg:SI 32) 0)) -1 (nil)
+    (nil))
+
+(insn 58 57 59 (set (reg:SI 35)
+        (ashift:SI (subreg:SI (reg:QI 33) 0)
+            (const_int 28))) -1 (nil)
+    (nil))
+
+(insn 59 58 60 (set (subreg:SI (reg:HI 34) 0)
+        (lshiftrt:SI (reg:SI 35)
+            (const_int 30))) -1 (nil)
+    (nil))
+
+(insn 60 59 61 (set (reg:SI 37)
+        (ashift:SI (subreg:SI (reg:HI 34) 0)
+            (const_int 16))) -1 (nil)
+    (nil))
+
+(insn 61 60 63 (set (reg:SI 36)
+        (lshiftrt:SI (reg:SI 37)
+            (const_int 16))) -1 (nil)
+    (expr_list:REG_EQUAL (zero_extend:SI (reg:HI 34))
+        (nil)))
+
+(insn 63 61 64 (set (cc0)
+        (compare (reg:SI 36)
+            (reg/v:SI 22))) -1 (nil)
+    (nil))
+
+(jump_insn 64 63 66 (set (pc)
+        (if_then_else (eq (cc0)
+                (const_int 0))
+            (label_ref 84)
+            (pc))) -1 (nil)
+    (nil))
+
+(insn 66 64 67 (set (reg:SI 38)
+        (and:SI (reg/v:SI 27)
+            (reg/v:SI 29))) -1 (nil)
+    (nil))
+
+(insn 67 66 68 (set (cc0)
+        (reg:SI 38)) -1 (nil)
+    (nil))
+
+(jump_insn 68 67 75 (set (pc)
+        (if_then_else (eq (cc0)
+                (const_int 0))
+            (label_ref 126)
+            (pc))) -1 (nil)
+    (nil))
+
+(insn 75 68 76 (set (subreg:SI (reg:HI 42) 0)
+        (lshiftrt:SI (reg:SI 35)
+            (const_int 30))) -1 (nil)
+    (nil))
+
+(insn 76 75 77 (set (reg:SI 45)
+        (ashift:SI (subreg:SI (reg:HI 42) 0)
+            (const_int 16))) -1 (nil)
+    (nil))
+
+(insn 77 76 78 (set (reg:SI 44)
+        (lshiftrt:SI (reg:SI 45)
+            (const_int 16))) -1 (nil)
+    (expr_list:REG_EQUAL (zero_extend:SI (reg:HI 42))
+        (nil)))
+
+(insn 78 77 80 (set (reg:SI 46)
+        (plus:SI (reg:SI 44)
+            (const_int -1))) -1 (nil)
+    (nil))
+
+(insn 80 78 81 (set (cc0)
+        (compare (reg:SI 46)
+            (reg/v:SI 22))) -1 (nil)
+    (nil))
+
+(jump_insn 81 80 84 (set (pc)
+        (if_then_else (ne (cc0)
+                (const_int 0))
+            (label_ref 126)
+            (pc))) -1 (nil)
+    (nil))
+
+(code_label 84 81 86 20 "")
+
+(note 86 84 96 "" NOTE_INSN_DELETED)
+
+(insn 96 86 99 (set (reg:SI 52)
+        (mem/s:SI (reg:SI 50) 31)) -1 (nil)
+    (nil))
+
+(insn 99 96 100 (set (reg:SI 54)
+        (ashift:SI (reg/v:SI 23)
+            (const_int 2))) -1 (nil)
+    (expr_list:REG_EQUAL (mult:SI (reg/v:SI 23)
+            (const_int 4))
+        (nil)))
+
+(insn 100 99 102 (set (reg:SI 55)
+        (plus:SI (reg:SI 54)
+            (reg:SI 52))) -1 (nil)
+    (nil))
+
+(insn 102 100 103 (set (mem/s:SI (reg:SI 55) 33)
+        (reg/v:SI 24)) -1 (nil)
+    (nil))
+
+(insn 103 102 106 (set (reg/v:SI 23)
+        (plus:SI (reg/v:SI 23)
+            (const_int 1))) -1 (nil)
+    (nil))
+
+(insn 106 103 109 (set (reg:HI 56)
+        (mem/s:HI (plus:SI (reg/v:SI 24)
+                (const_int 62)) 0)) -1 (nil)
+    (nil))
+
+(insn 109 106 124 (set (reg:SI 58)
+        (ior:SI (subreg:SI (reg:HI 56) 0)
+            (reg/v:SI 28))) -1 (nil)
+    (nil))
+
+(insn 124 109 126 (set (mem/s:HI (plus:SI (reg/v:SI 24)
+                (const_int 62)) 0)
+        (subreg:HI (reg:SI 58) 0)) -1 (nil)
+    (nil))
+
+(code_label 126 124 129 19 "")
+
+(insn 129 126 131 (set (reg/v:SI 24)
+        (reg/v:SI 26)) -1 (nil)
+    (nil))
+
+(note 131 129 132 0 NOTE_INSN_BLOCK_END)
+
+(note 132 131 186 "" NOTE_INSN_LOOP_CONT)
+
+(note 186 132 30 "" NOTE_INSN_LOOP_VTOP)
+
+(insn 30 186 31 (set (cc0)
+        (reg/v:SI 24)) -1 (nil)
+    (nil))
+
+(jump_insn 31 30 138 (set (pc)
+        (if_then_else (ne (cc0)
+                (const_int 0))
+            (label_ref 34)
+            (pc))) -1 (nil)
+    (nil))
+
+(note 138 31 139 "" NOTE_INSN_LOOP_END)
+
+(code_label 139 138 142 17 "")
+
+(insn 142 139 143 (set (reg:SI 67)
+        (reg:SI 78)) -1 (nil)
+    (expr_list:REG_EQUAL (symbol_ref:SI ("g_FxRenderQueueCounts"))
+        (nil)))
+
+(insn 143 142 158 (set (reg:SI 68)
+        (plus:SI (reg/v:SI 22)
+            (reg:SI 67))) -1 (nil)
+    (nil))
+
+(insn 158 143 160 (set (mem/s:QI (reg:SI 68) 0)
+        (subreg:QI (reg/v:SI 23) 0)) -1 (nil)
+    (nil))
+
+(note 160 158 162 0 NOTE_INSN_BLOCK_END)
+
+(note 162 160 164 "" NOTE_INSN_LOOP_CONT)
+
+(insn 164 162 181 (set (reg/v:SI 22)
+        (reg:SI 79)) -1 (nil)
+    (nil))
+
+(note 181 164 13 "" NOTE_INSN_LOOP_VTOP)
+
+(insn 13 181 14 (set (cc0)
+        (compare (reg/v:SI 22)
+            (const_int 3))) -1 (nil)
+    (nil))
+
+(jump_insn 14 13 170 (set (pc)
+        (if_then_else (le (cc0)
+                (const_int 0))
+            (label_ref 17)
+            (pc))) -1 (nil)
+    (nil))
+
+(note 170 14 173 "" NOTE_INSN_LOOP_END)
+
+(note 173 170 0 0 NOTE_INSN_BLOCK_END)

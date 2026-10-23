@@ -348,15 +348,11 @@ bool save_validateHeader(void);
 void save_formatHeader(void);
 
 void save_readSlot(void *dst, u8 slotIndex);
+void save_init(void);
 void save_initEmptySlot(SaveSlot *slot);
 
 void save_eeprom_readBlocks(u32 startBlock, s32 count, void *dst);
 void save_eeprom_writeBlocks(u32 startBlock, s32 count, void *src);
 
-/**
- * Enter an EEPROM access window: snapshot DISPSTAT, silence H-blank IRQs, select the chip type
- * (via eeprom_selectType), and arm the write-timeout timer. Pairs with save_eeprom_readEnd.
- */
 void save_eeprom_readBegin(void);
-/** Leave the EEPROM access window: restore DISPSTAT and the H-blank IRQ mask. */
 void save_eeprom_readEnd(void);

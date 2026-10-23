@@ -1,0 +1,345 @@
+
+;; Function mission_script_copyStream
+
+
+Registers to be allocated in sorted order:
+Register 45, refs = 6, live_length = 2, size = 1
+Register 47, refs = 6, live_length = 2, size = 1
+Register 41, refs = 4, live_length = 2, size = 1
+Register 49, refs = 4, live_length = 2, size = 1
+Register 44, refs = 6, live_length = 4, size = 1
+Register 40, refs = 4, live_length = 4, size = 1
+Register 39, refs = 13, live_length = 22, size = 1
+Register 33, refs = 12, live_length = 22, size = 1
+Register 38, refs = 7, live_length = 13, size = 1
+Register 23, refs = 11, live_length = 31, size = 1
+Register 27, refs = 2, live_length = 2, size = 1
+Register 32, refs = 2, live_length = 2, size = 1
+Register 34, refs = 2, live_length = 2, size = 1
+Register 35, refs = 2, live_length = 2, size = 1
+Register 36, refs = 6, live_length = 17, size = 1
+Register 31, refs = 2, live_length = 3, size = 1
+Register 22, refs = 3, live_length = 10, size = 1
+Register 37, refs = 3, live_length = 40, size = 1
+
+;; 6 regs to allocate: 39 33 38 23 36 37
+;; 22 conflicts: 22 23 27 31 32 34 35 0 1 2 13
+;; 23 conflicts: 22 23 27 31 32 33 34 35 36 37 38 39 40 41 44 45 47 49 0 1 2 13
+;; 27 conflicts: 22 23 27 0 2 13
+;; 31 conflicts: 22 23 31 32 0 1 2 13
+;; 32 conflicts: 22 23 31 32 0 1 2 13
+;; 33 conflicts: 23 33 36 37 38 39 40 41 44 45 47 49 0 13
+;; 34 conflicts: 22 23 34 0 1 13
+;; 35 conflicts: 22 23 35 0 1 13
+;; 36 conflicts: 23 33 36 37 38 39 40 41 44 45 47 0 13
+;; 37 conflicts: 23 33 36 37 38 39 40 41 44 45 47 49 0 13
+;; 38 conflicts: 23 33 36 37 38 39 44 45 47 0 13
+;; 39 conflicts: 23 33 36 37 38 39 44 0 13
+;; 40 conflicts: 23 33 36 37 40 0 13
+;; 41 conflicts: 23 33 36 37 41 0 13
+;; 44 conflicts: 23 33 36 37 38 39 44 0 13
+;; 45 conflicts: 23 33 36 37 38 45 0 13
+;; 47 conflicts: 23 33 36 37 38 47 0 13
+;; 49 conflicts: 23 33 37 49 0 13
+
+Spilling for insn 64.
+55 registers.
+
+Register 22 used 3 times across 10 insns in block 0; user var; pref LO_REGS; pointer.
+
+Register 23 used 11 times across 31 insns; user var; pref LO_REGS; pointer.
+
+Register 27 used 2 times across 2 insns in block 0; pref LO_REGS.
+
+Register 31 used 2 times across 3 insns in block 0; pref LO_REGS.
+
+Register 32 used 2 times across 2 insns in block 0; user var; pref LO_REGS; pointer.
+
+Register 33 used 12 times across 22 insns; user var; dies in 0 places; pref LO_REGS; pointer.
+
+Register 34 used 2 times across 2 insns in block 0; pref LO_REGS; pointer.
+
+Register 35 used 2 times across 2 insns in block 0; pref LO_REGS.
+
+Register 36 used 6 times across 17 insns; user var; pref LO_REGS; pointer.
+
+Register 37 used 3 times across 40 insns; user var; dies in 0 places; pref LO_REGS; pointer.
+
+Register 38 used 7 times across 13 insns; user var; dies in 0 places; pref LO_REGS.
+
+Register 39 used 13 times across 22 insns; user var; pref LO_REGS.
+
+Register 40 used 4 times across 4 insns in block 1; pref LO_REGS.
+
+Register 41 used 4 times across 2 insns in block 1; pref LO_REGS; pointer.
+
+Register 44 used 6 times across 4 insns in block 2; 1 bytes; pref LO_REGS.
+
+Register 45 used 6 times across 2 insns in block 2; pref LO_REGS.
+
+Register 47 used 6 times across 2 insns in block 2; pref LO_REGS.
+
+Register 49 used 4 times across 2 insns in block 3; pref LO_REGS.
+
+5 basic blocks.
+BB data
+
+BB 0, start 6, end 33
+  preds:
+  succs: 1
+Registers live at start: 0 1 2 7 13
+
+BB 1, start 36, end 115
+  preds: 3 0
+  succs: 3 2
+Registers live at start: 2 4 6 7 13
+
+BB 2, start 59, end 56
+  preds: 2 1
+  succs: 2 3
+Registers live at start: 1 2 3 4 5 6 7 13
+
+BB 3, start 87, end 91
+  preds: 2 1
+  succs: 1 4
+Registers live at start: 2 4 5 6 7 13
+
+BB 4, start 104, end 113
+  preds: 3
+  succs:
+Registers live at start: 4 7 13
+
+
+;; Register dispositions:
+22 in 0  23 in 4  27 in 2  31 in 2  32 in 1  33 in 2  
+34 in 1  35 in 1  36 in 5  37 in 6  38 in 3  39 in 1  
+40 in 0  41 in 0  44 in 0  45 in 0  47 in 0  49 in 0  
+
+
+;; Hard regs used:  0 1 2 3 4 5 6
+
+(note 2 0 123 "" NOTE_INSN_DELETED)
+
+;; Start of basic block 0, registers live: 0 [r0] 1 [r1] 2 [r2] 7 [r7] 13 [sp]
+(insn 123 2 121 (unspec_volatile[ 
+            (const_int 0)
+        ]  0) -1 (nil)
+    (nil))
+
+(note 121 123 4 "" NOTE_INSN_PROLOGUE_END)
+
+(note 4 121 6 "" NOTE_INSN_DELETED)
+
+(insn 6 4 8 (set (reg/v:SI 4 r4)
+        (reg:SI 1 r1)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_DEAD (reg:SI 1 r1)
+        (nil)))
+
+(note 8 6 11 "" NOTE_INSN_DELETED)
+
+(insn 11 8 12 (set (reg:SI 2 r2)
+        (ashift:SI (reg:SI 2 r2)
+            (const_int 24))) 39 {ashlsi3} (nil)
+    (nil))
+
+(note 12 11 15 "" NOTE_INSN_DELETED)
+
+(note 15 12 16 "" NOTE_INSN_FUNCTION_BEG)
+
+(note 16 15 18 "" NOTE_INSN_DELETED)
+
+(note 18 16 21 0 NOTE_INSN_BLOCK_BEG)
+
+(insn 21 18 25 (set (reg:SI 2 r2)
+        (lshiftrt:SI (reg:SI 2 r2)
+            (const_int 23))) 41 {lshrsi3} (insn_list 11 (insn_list 11 (nil)))
+    (nil))
+
+(insn 25 21 27 (set (reg/v:SI 1 r1)
+        (plus:SI (reg/v:SI 0 r0)
+            (const_int 2))) 27 {addsi3} (insn_list 4 (nil))
+    (nil))
+
+(insn 27 25 29 (set (reg:SI 1 r1)
+        (plus:SI (reg/v:SI 1 r1)
+            (reg:SI 2 r2))) 27 {addsi3} (insn_list 21 (insn_list 25 (insn_list 21 (insn_list 25 (nil)))))
+    (expr_list:REG_DEAD (reg:SI 2 r2)
+        (nil)))
+
+(insn 29 27 30 (set (reg:SI 1 r1)
+        (zero_extend:SI (mem:HI (reg:SI 1 r1) 5))) 15 {*zero_extendhisi2_insn} (insn_list 27 (insn_list 27 (nil)))
+    (nil))
+
+(insn 30 29 33 (set (reg/v:SI 2 r2)
+        (plus:SI (reg/v:SI 0 r0)
+            (reg:SI 1 r1))) 27 {addsi3} (insn_list 29 (insn_list 29 (nil)))
+    (expr_list:REG_DEAD (reg/v:SI 0 r0)
+        (expr_list:REG_DEAD (reg:SI 1 r1)
+            (nil))))
+
+(insn 33 30 35 (set (reg/v:SI 6 r6)
+        (mem/u:SI (symbol_ref/u:SI ("*.LC0")) 0)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUIV (symbol_ref:SI ("MissionScriptOpcodeLengths"))
+        (nil)))
+;; End of basic block 0
+
+(note 35 33 36 "" NOTE_INSN_LOOP_BEG)
+
+;; Start of basic block 1, registers live: 2 [r2] 4 [r4] 6 [r6] 7 [r7] 13 [sp]
+(code_label 36 35 38 12 "")
+
+(note 38 36 40 "" NOTE_INSN_DELETED)
+
+(insn 40 38 43 (set (reg/v:SI 5 r5)
+        (reg/v:SI 2 r2)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 43 40 44 (set (reg:SI 0 r0)
+        (mem:SI (reg/v:SI 5 r5) 1)) 1 {*movsi_insn} (insn_list 40 (insn_list 40 (nil)))
+    (expr_list:REG_EQUIV (mem:SI (reg/v:SI 5 r5) 1)
+        (nil)))
+
+(insn 44 43 46 (set (reg:SI 0 r0)
+        (plus:SI (reg:SI 0 r0)
+            (reg/v:SI 6 r6))) 27 {addsi3} (insn_list 43 (insn_list 43 (nil)))
+    (nil))
+
+(insn 46 44 51 (set (reg/v:SI 3 r3)
+        (zero_extend:SI (mem:QI (reg:SI 0 r0) 0))) 17 {*zero_extendqisi2_insn} (insn_list 44 (insn_list 44 (nil)))
+    (expr_list:REG_DEAD (reg:SI 0 r0)
+        (nil)))
+
+(insn 51 46 114 (set (reg/v:SI 1 r1)
+        (const_int 0)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 114 51 115 (set (cc0)
+        (compare (reg/v:SI 1 r1)
+            (reg/v:SI 3 r3))) 44 {*cmpsi_insn} (insn_list 46 (insn_list 51 (insn_list 46 (insn_list 51 (nil)))))
+    (nil))
+
+(jump_insn 115 114 52 (set (pc)
+        (if_then_else (geu (cc0)
+                (const_int 0))
+            (label_ref 87)
+            (pc))) 58 {*cond_branch} (nil)
+    (nil))
+;; End of basic block 1
+
+(note 52 115 59 "" NOTE_INSN_LOOP_BEG)
+
+;; Start of basic block 2, registers live: 1 [r1] 2 [r2] 3 [r3] 4 [r4] 5 [r5] 6 [r6] 7 [r7] 13 [sp]
+(code_label 59 52 61 18 "")
+
+(note 61 59 63 "" NOTE_INSN_DELETED)
+
+(insn 63 61 64 (set (reg:QI 0 r0)
+        (mem:QI (reg/v:SI 2 r2) 0)) 7 {*movqi_insn} (nil)
+    (expr_list:REG_EQUIV (mem:QI (reg/v:SI 4 r4) 0)
+        (expr_list:REG_EQUIV (mem:QI (reg/v:SI 2 r2) 0)
+            (nil))))
+
+(insn 64 63 65 (set (mem:QI (reg/v:SI 4 r4) 0)
+        (reg:QI 0 r0)) 7 {*movqi_insn} (insn_list 63 (insn_list 63 (nil)))
+    (expr_list:REG_DEAD (reg:QI 0 r0)
+        (nil)))
+
+(insn 65 64 66 (set (reg/v:SI 2 r2)
+        (plus:SI (reg/v:SI 2 r2)
+            (const_int 1))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 66 65 69 (set (reg/v:SI 4 r4)
+        (plus:SI (reg/v:SI 4 r4)
+            (const_int 1))) 27 {addsi3} (nil)
+    (nil))
+
+(note 69 66 71 "" NOTE_INSN_LOOP_CONT)
+
+(insn 71 69 74 (set (reg:SI 0 r0)
+        (plus:SI (reg/v:SI 1 r1)
+            (const_int 1))) 27 {addsi3} (nil)
+    (expr_list:REG_DEAD (reg/v:SI 1 r1)
+        (nil)))
+
+(insn 74 71 75 (set (reg:SI 0 r0)
+        (ashift:SI (reg:SI 0 r0)
+            (const_int 24))) 39 {ashlsi3} (insn_list 71 (insn_list 71 (nil)))
+    (nil))
+
+(insn 75 74 118 (set (reg/v:SI 1 r1)
+        (lshiftrt:SI (reg:SI 0 r0)
+            (const_int 24))) 41 {lshrsi3} (insn_list 74 (insn_list 74 (nil)))
+    (expr_list:REG_DEAD (reg:SI 0 r0)
+        (expr_list:REG_EQUAL (zero_extend:SI (subreg:QI (reg:SI 0 r0) 0))
+            (nil))))
+
+(note 118 75 55 "" NOTE_INSN_LOOP_VTOP)
+
+(insn 55 118 56 (set (cc0)
+        (compare (reg/v:SI 1 r1)
+            (reg/v:SI 3 r3))) 44 {*cmpsi_insn} (insn_list 75 (insn_list 75 (nil)))
+    (nil))
+
+(jump_insn 56 55 83 (set (pc)
+        (if_then_else (ltu (cc0)
+                (const_int 0))
+            (label_ref 59)
+            (pc))) 58 {*cond_branch} (nil)
+    (nil))
+;; End of basic block 2
+
+(note 83 56 86 "" NOTE_INSN_LOOP_END)
+
+(note 86 83 87 "" NOTE_INSN_LOOP_CONT)
+
+;; Start of basic block 3, registers live: 2 [r2] 4 [r4] 5 [r5] 6 [r6] 7 [r7] 13 [sp]
+(code_label 87 86 89 14 "")
+
+(insn 89 87 90 (set (reg:SI 0 r0)
+        (mem:SI (reg/v:SI 5 r5) 1)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_DEAD (reg/v:SI 5 r5)
+        (nil)))
+
+(insn 90 89 91 (set (cc0)
+        (reg:SI 0 r0)) 45 {tstsi} (insn_list 89 (insn_list 89 (nil)))
+    (expr_list:REG_DEAD (reg:SI 0 r0)
+        (nil)))
+
+(jump_insn 91 90 100 (set (pc)
+        (if_then_else (ne (cc0)
+                (const_int 0))
+            (label_ref 36)
+            (pc))) 58 {*cond_branch} (nil)
+    (nil))
+;; End of basic block 3
+
+(note 100 91 104 "" NOTE_INSN_LOOP_END)
+
+;; Start of basic block 4, registers live: 4 [r4] 7 [r7] 13 [sp]
+(insn 104 100 109 (set (reg/i:SI 0 r0)
+        (reg/v:SI 4 r4)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_DEAD (reg/v:SI 4 r4)
+        (nil)))
+
+(note 109 104 120 0 NOTE_INSN_BLOCK_END)
+
+(note 120 109 127 "" NOTE_INSN_DELETED)
+
+(note 127 120 105 "" NOTE_INSN_EPILOGUE_BEG)
+
+(insn 105 127 113 (use (reg/i:SI 0 r0)) -1 (insn_list 104 (insn_list 104 (nil)))
+    (nil))
+
+(insn 113 105 126 (use (reg/i:SI 0 r0)) -1 (nil)
+    (expr_list:REG_DEAD (reg/i:SI 0 r0)
+        (nil)))
+
+(jump_insn 126 113 124 (unspec_volatile[ 
+            (const_int 0)
+        ]  1) -1 (nil)
+    (nil))
+;; End of basic block 4
+
+(barrier 124 126 0)
+

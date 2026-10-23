@@ -1,0 +1,105 @@
+[Context] Operating on: rotk
+
+Decompiled function memory_zalloc:
+
+
+
+/* memory_malloc plus a zero fill. */
+
+
+
+void * memory_zalloc(size_t size)
+
+
+
+{
+
+  uint uVar1;
+
+  void *pvVar2;
+
+  uint count;
+
+  int iVar3;
+
+  HeapBlock *pHVar4;
+
+  HeapBlock *pHVar5;
+
+  HeapBlock **ppHVar6;
+
+  code *UNRECOVERED_JUMPTABLE;
+
+  
+
+  count = size + 0xf & 0xfffffff0;
+
+  pHVar5 = (HeapBlock *)0x0;
+
+  if (g_HeapCount != 0) {
+
+    ppHVar6 = &g_Heaps[0].freeList;
+
+    do {
+
+      for (pHVar4 = *ppHVar6; pHVar4 != (HeapBlock *)0x0; pHVar4 = (pHVar4->link).freeNext) {
+
+        uVar1 = usableSize(pHVar4,pHVar5);
+
+        if (count <= uVar1) {
+
+          if (count < uVar1) {
+
+            iVar3 = (int)&pHVar4[1].next + count;
+
+            linkBlock(pHVar4,iVar3);
+
+            linkFreeBlock(pHVar4,iVar3);
+
+          }
+
+          unlinkFreeBlock(pHVar4,pHVar5);
+
+          (pHVar4->link).freeNext = pHVar5;
+
+          pHVar4->freePrev = (HeapBlock *)0xffffffff;
+
+          pHVar4 = pHVar4 + 1;
+
+          goto LAB_08032cc2;
+
+        }
+
+      }
+
+      ppHVar6 = ppHVar6 + 4;
+
+      pHVar5 = (HeapBlock *)((int)&pHVar5->next + 1);
+
+    } while (pHVar5 < g_HeapCount);
+
+  }
+
+  pHVar4 = (HeapBlock *)0x0;
+
+LAB_08032cc2:
+
+  if (pHVar4 != (HeapBlock *)0x0) {
+
+    memory_memset(pHVar4,0,count);
+
+  }
+
+                    /* WARNING: Could not recover jumptable at 0x08032cda. Too many branches */
+
+                    /* WARNING: Treating indirect jump as call */
+
+  pvVar2 = (void *)(*UNRECOVERED_JUMPTABLE)(pHVar4);
+
+  return pvVar2;
+
+}
+
+
+
+

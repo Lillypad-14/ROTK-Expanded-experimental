@@ -1,0 +1,36 @@
+#include "actor.h"
+#include "math.h"
+#include "mission.h"
+
+/**
+ * Script op 35: send a stunnable actor into behavior state 23 with a patrol range.
+ *
+ * @romaddress 0x08017bac
+ */
+void mission_script_op35(const u8 *command)
+{
+    Actor *actor = mission_script_getGroupActor(command[4], command[5]);
+
+    if (actor && actor_isStunnable(actor))
+    {
+        s32 lo;
+        u16 hi;
+        Vector2Fp16 *coords;
+
+        actor->behaviorState = 23;
+        actor->actionStateTimer = 0;
+        actor->actionState = (ActorActionState)0x12;
+        actor->field_0x64[0] |= 2;
+        lo = *(const u16 *)(command + 6);
+        actor->as.combat.head.scripted.targetY = lo;
+        hi = *(const u16 *)(command + 8);
+        if ((u16)lo < hi)
+            actor->as.combat.head.scripted.targetX = hi;
+        else
+            actor->as.combat.head.scripted.targetX = lo + 20;
+        coords = &actor->coords;
+        math_vector2_copy(coords, (Vector2Fp16 *)&actor->field_0xbc[8]);
+        math_vector2_copy(coords, (Vector2Fp16 *)&actor->as.combat.field_0xa1[3]);
+        actor->flags.p |= 0x20c;
+    }
+}

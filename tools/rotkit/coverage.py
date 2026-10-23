@@ -10,6 +10,8 @@ import sys
 
 from rotkit.paths import ROOT
 from rotkit.rom import ROM, ROMBASE, regions
+from rotkit.decomp import defined_in_c
+from rotkit.stores import func_symbols
 
 
 def run() -> None:
@@ -24,6 +26,19 @@ def run() -> None:
     romsize = os.path.getsize(ROM) if os.path.isfile(ROM) else 0x1000000
     romend = ROMBASE + romsize
     carved = sum(size for _addr, size, _src in rows)
+    code_rows = [
+        (addr, size, src)
+        for addr, size, src in rows
+        if os.path.relpath(src, ROOT).replace("\\", "/").startswith("src/c/")
+    ]
+    print(
+        f"Decompiled C: {len(defined_in_c())} function definitions in "
+        f"{len(code_rows)} source regions, {sum(size for _, size, _ in code_rows)} compiled bytes."
+    )
+    print(
+        f"Mapped functions: {len(func_symbols())} (includes functions without C). "
+        "Total game-code coverage is not yet established; ROM coverage includes assets.\n"
+    )
     print(
         f"split.cfg coverage - {len(rows)} TUs, {carved} B carved "
         f"({100.0 * carved / romsize:.3f}% of ROM), address order:\n"

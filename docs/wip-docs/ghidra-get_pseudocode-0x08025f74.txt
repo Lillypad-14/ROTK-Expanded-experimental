@@ -1,0 +1,83 @@
+[Context] Operating on: rotk
+
+Decompiled function player_applyBaseStats:
+
+
+
+void player_applyBaseStats(u8 playerIndex)
+
+
+
+{
+
+  HeroBaseStats baseStats;
+
+  HeroBaseStats baseStats_00;
+
+  s16 sVar1;
+
+  undefined4 unaff_r4;
+
+  undefined4 unaff_r5;
+
+  code *UNRECOVERED_JUMPTABLE;
+
+  
+
+  g_PlayerGlobals.players[playerIndex].stats[0x15] =
+
+       g_PlayerGlobals.players[playerIndex].baseStats.courage;
+
+  g_PlayerGlobals.players[playerIndex].stats[0x14] =
+
+       g_PlayerGlobals.players[playerIndex].baseStats.defense;
+
+  g_PlayerGlobals.players[playerIndex].stats[0x13] =
+
+       g_PlayerGlobals.players[playerIndex].baseStats.health;
+
+  g_PlayerGlobals.players[playerIndex].stats[0x12] =
+
+       g_PlayerGlobals.players[playerIndex].baseStats.accuracy;
+
+  g_PlayerGlobals.players[playerIndex].stats[0x11] =
+
+       g_PlayerGlobals.players[playerIndex].baseStats.strength;
+
+  baseStats._4_4_ = unaff_r5;
+
+  baseStats._0_4_ = unaff_r4;
+
+  baseStats._8_4_ = UNRECOVERED_JUMPTABLE;
+
+  sVar1 = player_computeMaxHp(playerIndex,baseStats);
+
+  g_PlayerGlobals.players[playerIndex].stats[0x16] = sVar1;
+
+  baseStats_00.defense = (short)unaff_r5;
+
+  baseStats_00.health = (short)((uint)unaff_r5 >> 0x10);
+
+  baseStats_00.maxHp = (short)unaff_r4;
+
+  baseStats_00.courage = (short)((uint)unaff_r4 >> 0x10);
+
+  baseStats_00._8_4_ = UNRECOVERED_JUMPTABLE;
+
+  sVar1 = player_computeMaxSpirit(playerIndex,baseStats_00);
+
+  g_PlayerGlobals.players[playerIndex].stats[0x17] = sVar1;
+
+                    /* WARNING: Could not recover jumptable at 0x08025fd6. Too many branches */
+
+                    /* WARNING: Treating indirect jump as call */
+
+  (*UNRECOVERED_JUMPTABLE)();
+
+  return;
+
+}
+
+
+
+

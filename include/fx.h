@@ -4,6 +4,61 @@
 #include "types.h"
 #include "vector2.h"
 
+enum FxParticleFlag
+{
+    FX_PARTICLE_FLAG_LOOP_ANIMATION = 1 << 2,
+    FX_PARTICLE_FLAG_DIRECTIONAL_OSCILLATION = 1 << 3,
+    FX_PARTICLE_FLAG_ORBIT = 1 << 5,
+    FX_PARTICLE_FLAG_ALWAYS_VISIBLE = 1 << 7,
+    FX_PARTICLE_FLAG_QUEUE_EARLIER = 1 << 14,
+    FX_PARTICLE_FLAG_RENDER_QUEUED = 1 << 15,
+};
+
+/** Decoded prefix of a pooled particle record. */
+typedef struct FxParticle
+{
+    struct FxParticle *next;
+    struct FxParticle *previous;
+    u32 field_0x8;
+    const SpriteAnimation *animation;
+    Vector2Fp16 position;
+    Vector2Fp16 renderPosition;
+    Vector2Fp16 velocity;
+    OamEntry oam;
+    u8 field_0x30[12];
+    s16 lifetime;
+    u16 flags;
+    u16 field_0x40;
+    s16 animationElapsed;
+    s8 animationFrameDuration;
+    s8 animationFrame;
+    u8 updateMode;
+    Direction8 direction;
+    Angle8 phase;
+    u8 amplitude;
+    u8 phaseStep;
+    u8 field_0x4b;
+} FxParticle;
+
+void fx_buildRenderQueues(void);
+s32 fx_renderLayer(u8 priority);
+s32 fx_tickAndRenderParticle(FxParticle *particle);
+void fx_particle_tickMode0(FxParticle *particle);
+void fx_particle_tickMode1(FxParticle *particle);
+void fx_particle_tickMode2(FxParticle *particle);
+s32 fx_drawParticle(FxParticle *particle);
+u8 fx_classifyParticleVisibility(FxParticle *particle);
+
+/** One row of the FX descriptor table. */
+typedef struct FxDesc
+{
+    u8 anim[0x10]; // SpriteAnimation
+    u8 flags;      // bit 1 anchors via actor_getOffsetPosition, bit 2 anchors on the animation frame
+    s8 offX;
+    u8 offY;
+    u8 pad;
+} FxDesc;
+
 /** fx_spawnOnActor type ids - rows of the FX descriptor table @0x08287b7c (stride 0x14). */
 #define FX_TYPE_HIT_BURST 0x16
 
@@ -33,11 +88,6 @@ enum FxBurstVariant
  */
 #define FX_BURST_UNK_PARAM 0x68
 
-/**
- * Spawn an FX actor attached to parent (copies its position, actionState =
- * ACTOR_STATE_FX_ATTACHED). variant selects the sprite/palette; alt flips a
- * display flag. Returns the FX actor (0 if the pool is full).
- */
 Actor *fx_spawnOnActor(Actor *parent, u8 fxType, u8 variant, u8 alt);
 
 /** Spawn attached FX with a timed animation sequence. */
@@ -115,15 +165,19 @@ static inline void fx_setEmitterPosition(FxEmitter *emitter, Actor *actor, Vecto
  * The two extra args index the particle descriptor tables.
  */
 FxEmitter *fx_allocEmitter(u8 kind, u32 group, u32 variant);
+void fx_freeEmitter(FxEmitter *emitter);
+void fx_freeParticle(Actor *particle);
+void mission_unknown08039198(void);
 
 /** Tick every live emitter in the pool, freeing the ones that expired. */
 void fx_tickEmitters(void);
 
-/**
- * Attach a timed status-effect FX to target (e.g. the Sunburst stun visual), tagging
- * target->field_0x100 with flagBit so it is applied at most once. parent is stored on the
- * new FX actor as its parentActor (the attacker at the combat call sites); NULL for none.
- * Meaning of the remaining args unverified.
- */
 Actor *fx_attachStatusEffect(Actor *parent, Actor *target, u16 duration, u8 kind, u8 arg4, u8 arg5,
                              u8 flagBit);
+
+void fx_statusEffect_tick(Actor *fx);
+
+void fx_resetStunSfxCooldown(void);
+void fx_tickStunSfxCooldown(void);
+Actor *fx_unknown08044000(Actor *parent, u32 a, u8 variant, u8 facing, u32 b, u32 c);
+Actor *fx_unknown08043d74(Actor *parent, u32 a, u32 b, u32 c, u32 d, s32 e);

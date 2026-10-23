@@ -1,0 +1,35 @@
+#include "player.h"
+#include "scene/skillTree.h"
+#include "skill.h"
+#include "variables.h"
+
+s32 scene_skillTree_getRequiredLevel(s32 playerIndex, s32 skill)
+{
+    s32 result = 0;
+    s32 level;
+    const s8 *table;
+
+    if (SCENE_ARG_SKILL_TREE_GRID == SKILL_TREE_GRID_ACTIVE)
+    {
+        level = (s8)PLAYER(playerIndex).activeSkillLevelsPurchased[skill];
+        switch (PLAYER(playerIndex).heroId)
+        {
+        case 0: table = ActiveSkillRequiredLevels[0][0]; break;
+        case 1: table = ActiveSkillRequiredLevels[3][0]; break;
+        case 2: table = ActiveSkillRequiredLevels[4][0]; break;
+        case 3: table = ActiveSkillRequiredLevels[5][0]; break;
+        case 4: table = ActiveSkillRequiredLevels[6][0]; break;
+        case 5: table = ActiveSkillRequiredLevels[7][0]; break;
+        case 6: table = ActiveSkillRequiredLevels[1][0]; break;
+        case 7: table = ActiveSkillRequiredLevels[2][0]; break;
+        default: return result;
+        }
+        result = table[skill * 6 + level];
+    }
+    else
+    {
+        level = (s8)PLAYER(playerIndex).passiveSkillLevelsPurchased[skill_passive_findSlot(playerIndex, skill)];
+        result = PassiveSkillRequiredLevels[skill][level];
+    }
+    return result;
+}

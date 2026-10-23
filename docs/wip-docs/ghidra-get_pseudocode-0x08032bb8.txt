@@ -1,0 +1,103 @@
+[Context] Operating on: rotk
+
+Decompiled function memory_malloc:
+
+
+
+/* Allocate size bytes from the game heap, uninitialized.
+
+   
+
+   @return the block, or NULL when no heap has room */
+
+
+
+void * memory_malloc(size_t size)
+
+
+
+{
+
+  uint uVar1;
+
+  void *pvVar2;
+
+  uint uVar3;
+
+  int iVar4;
+
+  HeapBlock *pHVar5;
+
+  HeapBlock *pHVar6;
+
+  HeapBlock **ppHVar7;
+
+  code *UNRECOVERED_JUMPTABLE;
+
+  
+
+  uVar3 = size + 0xf & 0xfffffff0;
+
+  pHVar6 = (HeapBlock *)0x0;
+
+  if (g_HeapCount != 0) {
+
+    ppHVar7 = &g_Heaps[0].freeList;
+
+    do {
+
+      for (pHVar5 = *ppHVar7; pHVar5 != (HeapBlock *)0x0; pHVar5 = (pHVar5->link).freeNext) {
+
+        uVar1 = usableSize(pHVar5,pHVar6);
+
+        if (uVar3 <= uVar1) {
+
+          if (uVar3 < uVar1) {
+
+            iVar4 = (int)&pHVar5[1].next + uVar3;
+
+            linkBlock(pHVar5,iVar4);
+
+            linkFreeBlock(pHVar5,iVar4);
+
+          }
+
+          unlinkFreeBlock(pHVar5,pHVar6);
+
+          (pHVar5->link).freeNext = pHVar6;
+
+          pHVar5->freePrev = (HeapBlock *)0xffffffff;
+
+          pHVar5 = pHVar5 + 1;
+
+          goto LAB_08032c32;
+
+        }
+
+      }
+
+      ppHVar7 = ppHVar7 + 4;
+
+      pHVar6 = (HeapBlock *)((int)&pHVar6->next + 1);
+
+    } while (pHVar6 < g_HeapCount);
+
+  }
+
+  pHVar5 = (HeapBlock *)0x0;
+
+LAB_08032c32:
+
+                    /* WARNING: Could not recover jumptable at 0x08032c36. Too many branches */
+
+                    /* WARNING: Treating indirect jump as call */
+
+  pvVar2 = (void *)(*UNRECOVERED_JUMPTABLE)(pHVar5);
+
+  return pvVar2;
+
+}
+
+
+
+

@@ -1,0 +1,238 @@
+i3 7 <- i2 4: rejected: can_combine_p
+i3 8 <- i2 7: rejected: not recognized
+(set (reg/v:SI 22)
+    (zero_extend:SI (subreg:QI (reg:SI 23) 0)))
+i3 8 <- i2 7 + i1 4: rejected: can_combine_p
+i3 20 <- i2 8: rejected: not recognized
+(parallel[ 
+        (set (reg:SI 30)
+            (plus:SI (lshiftrt:SI (reg:SI 25)
+                    (const_int 24))
+                (reg:SI 29)))
+        (set (reg/v:SI 22)
+            (lshiftrt:SI (reg:SI 25)
+                (const_int 24)))
+    ] )
+i3 20 <- i2 19: rejected: not recognized
+(set (reg:SI 30)
+    (plus:SI (reg/v:SI 22)
+        (mem/u:SI (symbol_ref/u:SI ("*.LC0")) 0)))
+i3 20 <- i2 8 + i1 7: rejected: not recognized
+(set (reg:SI 30)
+    (plus:SI (zero_extend:SI (subreg:QI (reg:SI 23) 0))
+        (reg:SI 29)))
+i3 20 <- i2 19 + i1 8: rejected: not recognized
+(set (reg:SI 30)
+    (plus:SI (lshiftrt:SI (reg:SI 25)
+            (const_int 24))
+        (mem/u:SI (symbol_ref/u:SI ("*.LC0")) 0)))
+i3 22 <- i2 20: rejected: not recognized
+(parallel[ 
+        (set (reg:QI 31)
+            (mem/s:QI (plus:SI (reg/v:SI 22)
+                    (reg:SI 29)) 0))
+        (set (reg:SI 30)
+            (plus:SI (reg/v:SI 22)
+                (reg:SI 29)))
+    ] )
+i3 22 <- i2 20 + i1 8: rejected: not recognized
+(parallel[ 
+        (set (reg:QI 31)
+            (mem/s:QI (plus:SI (lshiftrt:SI (reg:SI 25)
+                        (const_int 24))
+                    (reg:SI 29)) 0))
+        (set (reg:SI 30)
+            (plus:SI (lshiftrt:SI (reg:SI 25)
+                    (const_int 24))
+                (reg:SI 29)))
+        (set (reg/v:SI 22)
+            (lshiftrt:SI (reg:SI 25)
+                (const_int 24)))
+    ] )
+i3 22 <- i2 20 + i1 19: rejected: not recognized
+(set (reg:QI 31)
+    (mem/s:QI (plus:SI (reg/v:SI 22)
+            (mem/u:SI (symbol_ref/u:SI ("*.LC0")) 0)) 0))
+i3 23 <- i2 22: rejected: not recognized
+(set (reg:SI 33)
+    (ashift:SI (subreg:SI (mem/s:QI (reg:SI 30) 0) 0)
+        (const_int 24)))
+i3 23 <- i2 22 + i1 20: rejected: not recognized
+(set (reg:SI 33)
+    (ashift:SI (subreg:SI (mem/s:QI (plus:SI (reg/v:SI 22)
+                    (reg:SI 29)) 0) 0)
+        (const_int 24)))
+i3 24 <- i2 23: merged
+(set (reg:SI 32)
+    (subreg:SI (reg:QI 31) 0))
+i3 24 <- i2 22: merged
+(set (reg:SI 32)
+    (zero_extend:SI (mem/s:QI (reg:SI 30) 0)))
+i3 24 <- i2 20: rejected: not recognized
+(parallel[ 
+        (set (reg:SI 32)
+            (zero_extend:SI (mem/s:QI (plus:SI (reg/v:SI 22)
+                        (reg:SI 29)) 0)))
+        (set (reg:SI 30)
+            (plus:SI (reg/v:SI 22)
+                (reg:SI 29)))
+    ] )
+i3 24 <- i2 20 + i1 8: rejected: not recognized
+(parallel[ 
+        (set (reg:SI 32)
+            (zero_extend:SI (mem/s:QI (plus:SI (lshiftrt:SI (reg:SI 25)
+                            (const_int 24))
+                        (reg:SI 29)) 0)))
+        (set (reg:SI 30)
+            (plus:SI (lshiftrt:SI (reg:SI 25)
+                    (const_int 24))
+                (reg:SI 29)))
+        (set (reg/v:SI 22)
+            (lshiftrt:SI (reg:SI 25)
+                (const_int 24)))
+    ] )
+i3 24 <- i2 20 + i1 19: rejected: not recognized
+(set (reg:SI 32)
+    (zero_extend:SI (mem/s:QI (plus:SI (reg/v:SI 22)
+                (mem/u:SI (symbol_ref/u:SI ("*.LC0")) 0)) 0)))
+i3 25 <- i2 24: rejected: not recognized
+(set (cc0)
+    (zero_extend:SI (mem/s:QI (reg:SI 30) 0)))
+i3 25 <- i2 24 + i1 20: rejected: not recognized
+(set (cc0)
+    (zero_extend:SI (mem/s:QI (plus:SI (reg/v:SI 22)
+                (reg:SI 29)) 0)))
+i3 26 <- i2 25: rejected: not recognized
+(set (pc)
+    (if_then_else (ne (reg:SI 32)
+            (const_int 0))
+        (label_ref 35)
+        (pc)))
+i3 26 <- i2 25 + i1 24: rejected: not recognized
+(set (pc)
+    (if_then_else (ne (subreg:SI (mem/s:QI (reg:SI 30) 0) 0)
+            (const_int 0))
+        (label_ref 35)
+        (pc)))
+i3 42 <- i2 41: rejected: not recognized
+(set (reg/v:SI 28)
+    (plus:SI (subreg:SI (mem/s:QI (reg:SI 30) 0) 0)
+        (const_int -1)))
+i3 126 <- i2 42: rejected: not recognized
+(parallel[ 
+        (set (cc0)
+            (plus:SI (reg:SI 37)
+                (const_int -1)))
+        (set (reg/v:SI 28)
+            (plus:SI (reg:SI 37)
+                (const_int -1)))
+    ] )
+i3 126 <- i2 42 + i1 41: rejected: not recognized
+(set (cc0)
+    (plus:SI (subreg:SI (mem/s:QI (reg:SI 30) 0) 0)
+        (const_int -1)))
+i3 127 <- i2 126: rejected: not recognized
+(set (pc)
+    (if_then_else (lt (reg/v:SI 28)
+            (const_int 0))
+        (label_ref 111)
+        (pc)))
+i3 127 <- i2 126 + i1 42: rejected: not recognized
+(set (pc)
+    (if_then_else (lt (plus:SI (reg:SI 37)
+                (const_int -1))
+            (const_int 0))
+        (label_ref 111)
+        (pc)))
+i3 135 <- i2 133: rejected: not recognized
+(set (reg:SI 42)
+    (plus:SI (reg:SI 41)
+        (mem/u:SI (symbol_ref/u:SI ("*.LC1")) 0)))
+i3 135 <- i2 134: rejected: not recognized
+(set (reg:SI 42)
+    (plus:SI (mult:SI (reg/v:SI 22)
+            (const_int 4))
+        (reg:SI 39)))
+i3 135 <- i2 134 + i1 133: rejected: not recognized
+(set (reg:SI 42)
+    (plus:SI (reg:SI 41)
+        (mem/u:SI (symbol_ref/u:SI ("*.LC1")) 0)))
+i3 64 <- i2 59: rejected: not recognized
+(set (reg:SI 46)
+    (plus:SI (reg:SI 45)
+        (mem/s:SI (reg:SI 42) 31)))
+i3 64 <- i2 63: rejected: not recognized
+(set (reg:SI 46)
+    (plus:SI (mult:SI (reg/v:SI 28)
+            (const_int 4))
+        (reg/v:SI 38)))
+i3 64 <- i2 63 + i1 59: rejected: not recognized
+(set (reg:SI 46)
+    (plus:SI (reg:SI 45)
+        (mem/s:SI (reg:SI 42) 31)))
+i3 66 <- i2 64: rejected: not recognized
+(set (reg/v:SI 43)
+    (mem/s:SI (plus:SI (reg:SI 45)
+            (reg/v:SI 38)) 32))
+i3 66 <- i2 64 + i1 59: rejected: not recognized
+(set (reg/v:SI 43)
+    (mem/s:SI (plus:SI (reg:SI 45)
+            (mem/s:SI (reg:SI 42) 31)) 32))
+i3 66 <- i2 64 + i1 63: rejected: not recognized
+(set (reg/v:SI 43)
+    (mem/s:SI (plus:SI (mult:SI (reg/v:SI 28)
+                (const_int 4))
+            (reg/v:SI 38)) 32))
+i3 69 <- i2 66: rejected: combinable_i3pat
+i3 69 <- i2 66 + i1 64: rejected: combinable_i3pat
+i3 71 <- i2 69: rejected: can_combine_p
+i3 71 <- i2 69 + i1 66: rejected: can_combine_p
+i3 73 <- i2 71: rejected: can_combine_p
+i3 73 <- i2 71 + i1 69: rejected: can_combine_p
+i3 74 <- i2 73: rejected: can_combine_p
+i3 74 <- i2 73 + i1 71: rejected: can_combine_p
+i3 75 <- i2 74: rejected: not recognized
+(set (reg/v:SI 27)
+    (sign_extend:SI (reg:QI 47)))
+i3 75 <- i2 74 + i1 73: rejected: can_combine_p
+i3 83 <- i2 78: rejected: not recognized
+(set (reg:SI 51)
+    (and:SI (subreg:SI (reg:HI 50) 0)
+        (subreg:SI (mem/s:HI (plus:SI (reg/v:SI 43)
+                    (const_int 62)) 0) 0)))
+i3 98 <- i2 83: rejected: not recognized
+(set (mem/s:HI (plus:SI (reg/v:SI 43)
+            (const_int 62)) 0)
+    (subreg:HI (and:SI (subreg:SI (reg:HI 49) 0)
+            (subreg:SI (reg:HI 50) 0)) 0))
+i3 98 <- i2 83 + i1 78: rejected: not recognized
+(set (mem/s:HI (plus:SI (reg/v:SI 43)
+            (const_int 62)) 0)
+    (subreg:HI (reg:SI 51) 0))
+i3 45 <- i2 104: rejected: not recognized
+(parallel[ 
+        (set (cc0)
+            (plus:SI (reg/v:SI 28)
+                (const_int -1)))
+        (set (reg/v:SI 28)
+            (plus:SI (reg/v:SI 28)
+                (const_int -1)))
+    ] )
+i3 46 <- i2 45: rejected: not recognized
+(set (pc)
+    (if_then_else (ge (reg/v:SI 28)
+            (const_int 0))
+        (label_ref 49)
+        (pc)))
+i3 46 <- i2 45 + i1 104: rejected: not recognized
+(parallel[ 
+        (set (pc)
+            (if_then_else (ge (plus:SI (reg/v:SI 28)
+                        (const_int -1))
+                    (const_int 0))
+                (label_ref 49)
+                (pc)))
+        (set (reg/v:SI 28)
+            (plus:SI (reg/v:SI 28)
+                (const_int -1)))
+    ] )

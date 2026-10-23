@@ -468,9 +468,13 @@ enum PlayerHudFlag
     // The skill panel displays the unspent-points graphic instead of an active skill icon.
     PLAYERHUD_FLAG_UNSPENT_POINTS = 1 << 8,
 
+    // The skill panel shows the unavailable (greyed) palette.
+    PLAYERHUD_FLAG_SKILL_PANEL_DISABLED = 1 << 9,
+
     PLAYERHUD_FLAG_POISON = 1 << 10,
     PLAYERHUD_FLAG_FEAR = 1 << 11,
     PLAYERHUD_FLAG_12 = 1 << 12, // set together with POISON/FEAR on status application
+    PLAYERHUD_FLAG_BOSS_BAR = 1 << 15, // the boss HP bar shows g_BossHpBarActor
 };
 
 /** PlayerHud.flags; matched code tests the PLAYERHUD_FLAG_* masks on the word view instead. */
@@ -578,10 +582,6 @@ enum HudTextColorMenu
     HUD_TEXT_COLOR_MENU_BLUE = 12,
 };
 
-/**
- * Add delta to a player's current HP (clamped to STAT_MAX_HP) and mark the HUD HP display dirty;
- * on damage with flinchOnDamage set, knock the player's actor into the hurt action state.
- */
 void player_addHp(u8 playerIndex, s16 delta, bool flinchOnDamage);
 
 /** Subtract HP for damage application: negates damage and forwards to player_addHp. */
@@ -590,10 +590,6 @@ static inline void player_subtractHp(u8 playerIndex, s32 damage, bool flinchOnDa
     player_addHp(playerIndex, -damage, flinchOnDamage);
 }
 
-/**
- * Add delta to a player's current spirit (clamped to [0, STAT_MAX_SPIRIT]) and mark the HUD spirit
- * display dirty.
- */
 void player_addSpirit(u8 playerIndex, s16 delta);
 
 /** Subtract spirit cost from a player's current spirit. */
@@ -609,10 +605,6 @@ static inline void player_subtractSpirit(u8 playerIndex, s32 cost)
  */
 void player_addCorruption(u8 playerIndex, s8 delta);
 
-/**
- * Re-clamp currentHp to STAT_MAX_HP and currentSpirit to STAT_MAX_SPIRIT after a stat change; a
- * non-positive max floors HP to 1 and spirit to 0.
- */
 void player_clampCurrentHpSpirit(u8 playerIndex);
 
 void player_addStat(u8 inventorySlot, u8 statIndex, u8 playerIndex, s8 value);
@@ -630,13 +622,9 @@ Actor *player_spawnLevelUpFx(Actor *playerActor);
  */
 Actor *player_spawnInvulnerabilityBubble(Actor *playerActor);
 
-/**
- * Spawn a 300-frame triple-damage buff bubble on the player (STAT_TRIPLE_DAMAGE_PROC_PERCENT
- * proc); sets PLAYER_COMBAT_FLAG_TRIPLE_DAMAGE and Player.shieldBubble.
- */
 Actor *player_spawnTripleDamageBubble(Actor *playerActor);
+void player_tripleDamageBubble_tick(Actor *fx);
 
-/** Reset a player's inventory (16 slots) to empty. */
 void player_clearInventory(u32 playerIndex);
 
 /**
@@ -657,6 +645,10 @@ void player_resetHuds(void);
  * dirty, then the always-on parts (bars, text, status icons).
  */
 void player_tickHud(s32 playerIndex);
+void player_unknown080282ec(void);
+void player_unknown08028824(void);
+void player_updateHudSkillPalette(u32 playerIndex);
+void player_updateHudStatusPalette(u32 playerIndex);
 s32 player_tickOverdrawCharge(s32 playerIndex, Actor *actor);
 
 /** Set up a freshly created character: base items and hollow state. */
@@ -671,16 +663,10 @@ void player_applyFrodoSamSwap(u32 playerIndex);
 /** Max HP from the base stats: 4 * health + courage + strength. */
 s16 player_computeMaxHp(u8 playerIndex, HeroBaseStats baseStats);
 
-/**
- * Maximum HP bonus independent of primary stats, including direct passive-skill and equipment
- * bonuses.
- */
 s16 player_getMaxHpBonus(u8 playerIndex);
 
-/** Max spirit from the base stats: 4 * courage + health. */
 s16 player_computeMaxSpirit(u8 playerIndex, HeroBaseStats baseStats);
 
-/** The STAT_MAX_SPIRIT counterpart of player_getMaxHpBonus. */
 s16 player_getMaxSpiritBonus(u8 playerIndex);
 
 // Recompute max HP and spirit while preserving bonuses independent of primary stats.
@@ -695,21 +681,16 @@ s16 player_getMaxSpiritBonus(u8 playerIndex);
             player_computeMaxSpirit(playerIndex, baseStats) + spiritBonus;                         \
     }
 
-/** Copy baseStats into the five primary stats and recompute STAT_MAX_HP / STAT_MAX_SPIRIT. */
 void player_applyBaseStats(u8 playerIndex);
 
-/** Refresh baseStats.maxHp from the primaries, then player_applyBaseStats. */
 void player_recomputeBaseStats(u8 playerIndex);
 
-/** Zero stats[] and the per-mission scratch, apply the base stats, then reload the slot state. */
 void player_rebuildStats(u8 playerIndex);
 
 /** Replace the hand's affix glow emitter (handFxEmitters[hand]) with the one item calls for. */
 void player_setHandFx(u8 playerIndex, u8 hand, Item item);
 
-/** Free the hand's affix glow emitter and detach its sprite. */
-void player_clearHandFx(u8 playerIndex, u8 hand);
+void player_clearHandFx(u32 playerIndex, u32 hand);
 void player_applyOptionFlags(u32 playerIndex);
-/** Write the per-hero base stats for heroId into a player's stat block. */
-void player_initHeroStats(u32 heroId, u32 playerIndex);
-void player_initHeroLoadout(u32 heroId, u32 playerIndex);
+void player_initHeroStats(u8 heroId, u8 playerIndex);
+void player_initHeroLoadout(u8 heroId, u8 playerIndex);

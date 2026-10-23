@@ -522,10 +522,8 @@ typedef struct ItemTypeInfo
 
 bool item_deleteFromInventory(u8 slot, u8 playerIndex);
 
-/** Clear an item handle slot to the empty value (all four bytes 0xff). */
 void item_clearSlot(u32 *slot);
 
-/** Nonzero if the player meets the item's class-restriction bits and minimum level. */
 bool32 item_isUsableByPlayer(u32 itemHandle, u8 playerIndex);
 
 /** The item's minimum equip level (low byte of the return). */

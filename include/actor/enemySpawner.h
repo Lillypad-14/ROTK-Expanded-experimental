@@ -3,6 +3,13 @@
 #include "mission.h"
 #include "types.h"
 
+typedef struct EnemySpawnEntry
+{
+    u16 type;
+    u8 variant;
+    u8 unitType;
+} EnemySpawnEntry;
+
 /**
  * ACTOR_TYPE_ENEMY_SPAWNER payload (16 bytes total; the unused RNG variant rearranges
  * the enemySpawnId tail: three enemy spawn IDs and two probability bytes).
@@ -66,3 +73,6 @@ bool actor_enemySpawner_trySpawn(Actor *actor);
 /** @return first free child slot (0..3), 4 when all are occupied */
 u32 actor_enemySpawner_findFreeChildSlot(Actor *actor);
 Actor *actor_enemySpawner_spawnChild(u16 enemySpawnId, Actor *spawner);
+
+/** Free the child's slot in its parent spawner and restore one spawn credit. */
+void actor_enemySpawner_releaseChild(Actor *child);

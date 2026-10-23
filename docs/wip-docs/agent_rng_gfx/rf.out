@@ -1,0 +1,190 @@
+DIFF   rng_refillGameplay  @ 0x0803a310: 98 instruction(s) differ
+  --- original ---                       --- agbcc candidate ---
+  803a310: push {r4, r5, r6, r7, lr}        803a310: push {r4, r5, r6, r7, lr}
+  803a312: mov r7, sl                       803a312: mov r7, sl
+  803a314: mov r6, r9                       803a314: mov r6, r9
+  803a316: mov r5, r8                       803a316: mov r5, r8
+  803a318: push {r5, r6, r7}                803a318: push {r5, r6, r7}
+  803a31a: ldr r2, [pc, #292] @ (0x803a440)  803a31a: ldr r2, [pc, #292] @ (0x803a440)
+* 803a31c: ldr r4, [r2, #0]                 803a31c: ldr r5, [r2, #0]
+* 803a31e: movs r0, #8                      803a31e: adds r7, r5, #0
+* 803a320: adds r0, r0, r4                  803a320: adds r7, #8
+* 803a322: mov ip, r0                       803a322: ldr r0, [pc, #288] @ (0x803a444)
+* 803a324: ldr r1, [pc, #284] @ (0x803a444)  803a324: adds r6, r5, r0
+* 803a326: adds r7, r4, r1                  803a326: ldr r0, [pc, #288] @ (0x803a448)
+* 803a328: ldr r0, [pc, #284] @ (0x803a448)  
+  803a32a: ldr r3, [r0, #0]                 803a328: ldr r3, [r0, #0]
+  803a32c: movs r1, #1                      803a32a: movs r1, #1
+  803a32e: negs r1, r1                      803a32c: negs r1, r1
+* 803a330: mov sl, r2                       803a32e: mov r8, r0
+* 803a332: adds r2, r0, #0                  803a330: ldr r2, [pc, #280] @ (0x803a44c)
+* 803a334: ldr r6, [pc, #276] @ (0x803a44c)  
+  803a336: cmp r3, r1                       803a332: cmp r3, r1
+* 803a338: bge.n 0x803a358                  803a334: bge.n 0x803a356
+* 803a33a: ldr r0, [pc, #276] @ (0x803a450)  803a336: ldr r0, [pc, #280] @ (0x803a450)
+  803a33c: ldr r1, [r0, #0]                 803a338: ldr r1, [r0, #0]
+  803a33e: movs r0, #1                      803a33a: movs r0, #1
+  803a340: orrs r1, r0                      803a33c: orrs r1, r0
+  803a342: movs r0, #0                      803a33e: movs r0, #0
+* 803a344: str r0, [r2, #0]                 803a340: mov r3, r8
+* 803a346: adds r3, r4, #0                  803a342: str r0, [r3, #0]
+* 803a348: stmia r3!, {r1}                  803a344: adds r0, r5, #0
+* 803a34a: ldr r0, [pc, #264] @ (0x803a454)  803a346: stmia r0!, {r1}
+* 803a34c: ldr r5, [pc, #264] @ (0x803a458)  803a348: ldr r4, [pc, #264] @ (0x803a454)
+* 803a34e: muls r1, r5                      803a34a: ldr r3, [pc, #268] @ (0x803a458)
+* 803a350: stmia r3!, {r1}                  803a34c: muls r1, r3
+* 803a352: subs r0, #1                      803a34e: stmia r0!, {r1}
+* 803a354: cmp r0, #0                       803a350: subs r4, #1
+* 803a356: bne.n 0x803a34e                  803a352: cmp r4, #0
+* 803a358: ldr r0, [pc, #248] @ (0x803a454)  803a354: bne.n 0x803a34c
+* 803a35a: str r0, [r2, #0]                 803a356: ldr r0, [pc, #252] @ (0x803a454)
+* 803a35c: mov r1, sl                       803a358: mov r1, r8
+* 803a35e: ldr r0, [r1, #0]                 803a35a: str r0, [r1, #0]
+*                                           803a35c: ldr r3, [pc, #224] @ (0x803a440)
+*                                           803a35e: ldr r0, [r3, #0]
+  803a360: adds r1, r0, #4                  803a360: adds r1, r0, #4
+* 803a362: str r1, [r6, #0]                 803a362: str r1, [r2, #0]
+  803a364: ldr r3, [r0, #0]                 803a364: ldr r3, [r0, #0]
+  803a366: ldr r2, [r0, #4]                 803a366: ldr r2, [r0, #4]
+* 803a368: movs r5, #227 @ 0xe3             803a368: movs r4, #227 @ 0xe3
+  803a36a: movs r0, #128 @ 0x80             803a36a: movs r0, #128 @ 0x80
+  803a36c: lsls r0, r0, #24                 803a36c: lsls r0, r0, #24
+*                                           803a36e: mov sl, r0
+*                                           803a370: ldr r1, [pc, #232] @ (0x803a45c)
+*                                           803a372: mov r9, r1
+*                                           803a374: movs r0, #1
+  803a36e: mov r8, r0                       803a376: mov r8, r0
+* 803a370: ldr r6, [pc, #232] @ (0x803a45c)  803a378: ldr r1, [pc, #228] @ (0x803a460)
+* 803a372: mov r1, r8                       803a37a: mov ip, r1
+* 803a374: ands r3, r1                      803a37c: mov r0, sl
+*                                           803a37e: ands r3, r0
+  803a376: adds r0, r2, #0                  803a380: adds r0, r2, #0
+* 803a378: ands r0, r6                      803a382: mov r1, r9
+*                                           803a384: ands r0, r1
+  803a37a: orrs r0, r3                      803a386: orrs r0, r3
+* 803a37c: lsrs r0, r0, #1                  803a388: lsrs r1, r0, #1
+* 803a37e: ldmia r7!, {r1}                  803a38a: ldmia r6!, {r0}
+* 803a380: adds r3, r4, #0                  
+* 803a382: adds r4, #4                      
+  803a384: eors r1, r0                      803a38c: eors r1, r0
+* 803a386: movs r0, #1                      803a38e: adds r0, r2, #0
+* 803a388: ands r0, r2                      803a390: mov r3, r8
+*                                           803a392: ands r0, r3
+  803a38a: cmp r0, #0                       803a394: cmp r0, #0
+* 803a38c: beq.n 0x803a392                  803a396: beq.n 0x803a39c
+* 803a38e: ldr r0, [pc, #208] @ (0x803a460)  803a398: mov r0, ip
+  803a390: eors r1, r0                      803a39a: eors r1, r0
+* 803a392: str r1, [r3, #0]                 803a39c: stmia r5!, {r1}
+  803a394: adds r3, r2, #0                  803a39e: adds r3, r2, #0
+* 803a396: mov r0, ip                       803a3a0: ldmia r7!, {r2}
+* 803a398: adds r0, #4                      803a3a2: subs r4, #1
+* 803a39a: mov ip, r0                       803a3a4: cmp r4, #0
+* 803a39c: subs r0, #4                      803a3a6: bne.n 0x803a37c
+* 803a39e: ldmia r0!, {r2}                  803a3a8: ldr r1, [pc, #148] @ (0x803a440)
+* 803a3a0: subs r5, #1                      803a3aa: ldr r6, [r1, #0]
+* 803a3a2: cmp r5, #0                       803a3ac: movs r4, #198 @ 0xc6
+* 803a3a4: bne.n 0x803a372                  803a3ae: lsls r4, r4, #1
+* 803a3a6: mov r1, sl                       
+* 803a3a8: ldr r7, [r1, #0]                 
+* 803a3aa: movs r5, #198 @ 0xc6             
+* 803a3ac: lsls r5, r5, #1                  
+  803a3ae: movs r0, #128 @ 0x80             803a3b0: movs r0, #128 @ 0x80
+  803a3b0: lsls r0, r0, #24                 803a3b2: lsls r0, r0, #24
+* 803a3b2: mov r9, r0                       803a3b4: mov sl, r0
+  803a3b4: ldr r1, [pc, #164] @ (0x803a45c)  803a3b6: ldr r1, [pc, #164] @ (0x803a45c)
+* 803a3b6: mov r8, r1                       803a3b8: mov r9, r1
+* 803a3b8: mov r0, r9                       803a3ba: movs r0, #1
+*                                           803a3bc: mov r8, r0
+*                                           803a3be: ldr r1, [pc, #160] @ (0x803a460)
+*                                           803a3c0: mov ip, r1
+*                                           803a3c2: mov r0, sl
+  803a3ba: ands r3, r0                      803a3c4: ands r3, r0
+  803a3bc: adds r0, r2, #0                  803a3c6: adds r0, r2, #0
+* 803a3be: mov r1, r8                       803a3c8: mov r1, r9
+  803a3c0: ands r0, r1                      803a3ca: ands r0, r1
+  803a3c2: orrs r0, r3                      803a3cc: orrs r0, r3
+* 803a3c4: lsrs r0, r0, #1                  803a3ce: lsrs r1, r0, #1
+* 803a3c6: ldmia r7!, {r1}                  803a3d0: ldmia r6!, {r0}
+* 803a3c8: adds r3, r4, #0                  
+* 803a3ca: adds r4, #4                      
+  803a3cc: eors r1, r0                      803a3d2: eors r1, r0
+* 803a3ce: movs r6, #1                      
+  803a3d0: adds r0, r2, #0                  803a3d4: adds r0, r2, #0
+* 803a3d2: ands r0, r6                      803a3d6: mov r3, r8
+*                                           803a3d8: ands r0, r3
+  803a3d4: cmp r0, #0                       803a3da: cmp r0, #0
+* 803a3d6: beq.n 0x803a3dc                  803a3dc: beq.n 0x803a3e2
+* 803a3d8: ldr r0, [pc, #132] @ (0x803a460)  803a3de: mov r0, ip
+  803a3da: eors r1, r0                      803a3e0: eors r1, r0
+* 803a3dc: str r1, [r3, #0]                 803a3e2: stmia r5!, {r1}
+  803a3de: adds r3, r2, #0                  803a3e4: adds r3, r2, #0
+* 803a3e0: mov r0, ip                       803a3e6: ldmia r7!, {r2}
+* 803a3e2: adds r0, #4                      803a3e8: subs r4, #1
+* 803a3e4: mov ip, r0                       803a3ea: cmp r4, #0
+* 803a3e6: subs r0, #4                      803a3ec: bne.n 0x803a3c2
+* 803a3e8: ldmia r0!, {r2}                  803a3ee: ldr r1, [pc, #80] @ (0x803a440)
+* 803a3ea: subs r5, #1                      
+* 803a3ec: cmp r5, #0                       
+* 803a3ee: bne.n 0x803a3b8                  
+* 803a3f0: mov r1, sl                       
+  803a3f2: ldr r0, [r1, #0]                 803a3f0: ldr r0, [r1, #0]
+  803a3f4: ldr r2, [r0, #0]                 803a3f2: ldr r2, [r0, #0]
+  803a3f6: movs r1, #128 @ 0x80             803a3f4: movs r1, #128 @ 0x80
+  803a3f8: lsls r1, r1, #24                 803a3f6: lsls r1, r1, #24
+  803a3fa: ands r1, r3                      803a3f8: ands r1, r3
+* 803a3fc: ldr r0, [pc, #92] @ (0x803a45c)  803a3fa: ldr r0, [pc, #96] @ (0x803a45c)
+  803a3fe: ands r0, r2                      803a3fc: ands r0, r2
+  803a400: orrs r0, r1                      803a3fe: orrs r0, r1
+* 803a402: lsrs r0, r0, #1                  803a400: lsrs r1, r0, #1
+* 803a404: ldr r1, [r7, #0]                 803a402: ldr r0, [r6, #0]
+  803a406: eors r1, r0                      803a404: eors r1, r0
+* 803a408: str r1, [r4, #0]                 803a406: str r1, [r5, #0]
+* 803a40a: adds r0, r2, #0                  803a408: movs r0, #1
+* 803a40c: ands r0, r6                      803a40a: ands r0, r2
+  803a40e: cmp r0, #0                       803a40c: cmp r0, #0
+* 803a410: beq.n 0x803a418                  803a40e: beq.n 0x803a416
+  803a412: ldr r0, [pc, #76] @ (0x803a460)  803a410: ldr r0, [pc, #76] @ (0x803a460)
+  803a414: eors r1, r0                      803a412: eors r1, r0
+* 803a416: str r1, [r4, #0]                 803a414: str r1, [r5, #0]
+  803a418: lsrs r0, r2, #11                 803a416: lsrs r0, r2, #11
+  803a41a: eors r2, r0                      803a418: eors r2, r0
+  803a41c: lsls r0, r2, #7                  803a41a: lsls r0, r2, #7
+  803a41e: ldr r1, [pc, #68] @ (0x803a464)  803a41c: ldr r1, [pc, #68] @ (0x803a464)
+  803a420: ands r0, r1                      803a41e: ands r0, r1
+  803a422: eors r2, r0                      803a420: eors r2, r0
+  803a424: lsls r0, r2, #15                 803a422: lsls r0, r2, #15
+  803a426: ldr r1, [pc, #64] @ (0x803a468)  803a424: ldr r1, [pc, #64] @ (0x803a468)
+  803a428: ands r0, r1                      803a426: ands r0, r1
+  803a42a: eors r2, r0                      803a428: eors r2, r0
+  803a42c: lsrs r0, r2, #18                 803a42a: lsrs r0, r2, #18
+  803a42e: eors r2, r0                      803a42c: eors r2, r0
+  803a430: adds r0, r2, #0                  803a42e: adds r0, r2, #0
+  803a432: pop {r3, r4, r5}                 803a430: pop {r3, r4, r5}
+  803a434: mov r8, r3                       803a432: mov r8, r3
+  803a436: mov r9, r4                       803a434: mov r9, r4
+  803a438: mov sl, r5                       803a436: mov sl, r5
+  803a43a: pop {r4, r5, r6, r7}             803a438: pop {r4, r5, r6, r7}
+  803a43c: pop {r1}                         803a43a: pop {r1}
+  803a43e: bx r1                            803a43c: bx r1
+*                                           803a43e: movs r0, r0
+  803a440: movs r0, #200 @ 0xc8             803a440: movs r0, #200 @ 0xc8
+  803a442: lsls r0, r0, #12                 803a442: lsls r0, r0, #12
+  803a444: lsls r4, r6, #24                 803a444: lsls r4, r6, #24
+  803a446: movs r0, r0                      803a446: movs r0, r0
+  803a448: movs r0, #208 @ 0xd0             803a448: movs r0, #208 @ 0xd0
+  803a44a: lsls r0, r0, #12                 803a44a: lsls r0, r0, #12
+  803a44c: movs r0, #204 @ 0xcc             803a44c: movs r0, #204 @ 0xcc
+  803a44e: lsls r0, r0, #12                 803a44e: lsls r0, r0, #12
+  803a450: movs r0, #224 @ 0xe0             803a450: movs r0, #224 @ 0xe0
+  803a452: lsls r0, r0, #12                 803a452: lsls r0, r0, #12
+  803a454: lsls r7, r5, #9                  803a454: lsls r7, r5, #9
+  803a456: movs r0, r0                      803a456: movs r0, r0
+  803a458: lsrs r5, r1, #23                 803a458: lsrs r5, r1, #23
+  803a45a: movs r1, r0                      803a45a: movs r1, r0
+  803a45c: @ <UNDEFINED> instruction: 0xffff7fff  803a45c: @ <UNDEFINED> instruction: 0xffff7fff
+  803a460: sub sp, #380 @ 0x17c             803a460: sub sp, #380 @ 0x17c
+  803a462: ldr r1, [sp, #32]                803a462: ldr r1, [sp, #32]
+  803a464: ldrsb r0, [r0, r2]               803a464: ldrsb r0, [r0, r2]
+  803a466: ldr r5, [sp, #176] @ 0xb0        803a466: ldr r5, [sp, #176] @ 0xb0
+  803a468: movs r0, r0                      803a468: movs r0, r0
+  803a46a: Address 0x803a46a is out of bounds.  803a46a: Address 0x803a46a is out of bounds.

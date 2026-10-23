@@ -1,0 +1,49 @@
+[Context] Operating on: rotk
+
+Decompiled function player_recomputeBaseStats:
+
+
+
+void player_recomputeBaseStats(u8 playerIndex)
+
+
+
+{
+
+  HeroBaseStats baseStats;
+
+  u16 uVar1;
+
+  undefined4 unaff_r4;
+
+  undefined4 unaff_r5;
+
+  code *UNRECOVERED_JUMPTABLE;
+
+  
+
+  baseStats._4_4_ = unaff_r5;
+
+  baseStats._0_4_ = unaff_r4;
+
+  baseStats._8_4_ = UNRECOVERED_JUMPTABLE;
+
+  uVar1 = player_computeMaxHp(playerIndex,baseStats);
+
+  g_PlayerGlobals.players[playerIndex].baseStats.maxHp = uVar1;
+
+  player_applyBaseStats(playerIndex);
+
+                    /* WARNING: Could not recover jumptable at 0x08027340. Too many branches */
+
+                    /* WARNING: Treating indirect jump as call */
+
+  (*UNRECOVERED_JUMPTABLE)();
+
+  return;
+
+}
+
+
+
+

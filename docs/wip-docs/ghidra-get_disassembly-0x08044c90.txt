@@ -1,0 +1,81 @@
+[Context] Operating on: rotk
+
+Disassembly of function: skill_active_gandalfSwordOfPower
+Entry Point: 08044c90
+
+08044c90: push {r4,r5,r6,r7,lr}
+08044c92: add r6, r0, #0x0
+08044c94: add r0, #0x96
+08044c96: ldrb r5, [r0,#0x0]
+08044c98: ldr r1, [0x08044d28]
+08044c9a: mov r0, #0xd6
+08044c9c: lsl r0, r0, #0x1
+08044c9e: mul r0, r5
+08044ca0: add r3, r0, r1
+08044ca2: mov r1, #0xb8
+08044ca4: lsl r1, r1, #0x1
+08044ca6: add r0, r3, r1
+08044ca8: mov r4, #0x0
+08044caa: ldrsb r4, [r0,r4]
+08044cac: add r1, r6, #0x0
+08044cae: add r1, #0x88
+08044cb0: ldr r2, [0x08044d2c]
+08044cb2: ldr r7, [0x08044d30]
+08044cb4: add r7, r7, r3
+08044cb6: ldrb r0, [r7,#0x0]
+08044cb8: lsl r0, r0, #0x2
+08044cba: add r0, r0, r2
+08044cbc: ldr r0, [r0,#0x0]
+08044cbe: str r0, [r1,#0x0]
+08044cc0: ldr r0, [0x08044d34]
+08044cc2: add r3, r3, r0
+08044cc4: ldrb r0, [r3,#0x0]
+08044cc6: add r0, #0x1
+08044cc8: add r1, #0xd
+08044cca: strb r0, [r1,#0x0]
+08044ccc: ldrb r0, [r7,#0x0]
+08044cce: lsl r0, r0, #0x2
+08044cd0: add r0, r0, r2
+08044cd2: ldr r1, [r0,#0x0]
+08044cd4: ldrb r2, [r3,#0x0]
+08044cd6: add r2, #0x1
+08044cd8: lsl r2, r2, #0x18
+08044cda: asr r2, r2, #0x18
+08044cdc: ldr r3, [0x08044d38]
+08044cde: add r0, r6, #0x0
+08044ce0: add r0, #0xf8
+08044ce2: ldrb r0, [r0,#0x0]
+08044ce4: add r0, r0, r3
+08044ce6: mov r3, #0x0
+08044ce8: ldrsb r3, [r0,r3]
+08044cea: add r0, r6, #0x0
+08044cec: bl 0x08000d58
+08044cf0: add r1, r6, #0x0
+08044cf2: add r1, #0x62
+08044cf4: mov r0, #0x46
+08044cf6: strb r0, [r1,#0x0]
+08044cf8: add r2, r6, #0x0
+08044cfa: add r2, #0xe8
+08044cfc: ldr r0, [r2,#0x0]
+08044cfe: ldr r1, [0x08044d3c]
+08044d00: and r0, r1
+08044d02: str r0, [r2,#0x0]
+08044d04: lsl r4, r4, #0x18
+08044d06: lsr r4, r4, #0x18
+08044d08: add r0, r5, #0x0
+08044d0a: mov r1, #0x0
+08044d0c: mov r2, #0x0
+08044d0e: add r3, r4, #0x0
+08044d10: bl 0x08043764
+08044d14: add r2, r6, #0x0
+08044d16: add r2, #0x99
+08044d18: ldrb r1, [r2,#0x0]
+08044d1a: mov r0, #0x1
+08044d1c: orr r0, r1
+08044d1e: strb r0, [r2,#0x0]
+08044d20: mov r0, #0x0
+08044d22: pop {r4,r5,r6,r7}
+08044d24: pop {r1}
+08044d26: bx r1
+
+Total instructions: 74

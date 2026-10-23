@@ -1,0 +1,89 @@
+#include "actor.h"
+#include "match_hacks.h"
+#include "mission.h"
+#include "player.h"
+#include "variables.h"
+
+/**
+ * Script op 30: put a stunnable actor into a scripted attack/guard state aimed at another
+ * group actor, or at the first player when the group is empty.
+ *
+ * @romaddress 0x08017530
+ */
+void mission_script_op30(const u8 *command)
+{
+    Actor *actor = mission_script_getGroupActor(command[4], command[5]);
+    u8 behaviorState = command[8];
+    u8 mode;
+    u32 v;
+    u8 *timerA;
+    u8 *timerB;
+    u8 *stateFlags;
+
+    MATCH_FRESH(mode, behaviorState);
+    if (actor && actor_isStunnable(actor))
+    {
+        Actor *target = mission_script_getGroupActor(command[6], command[7]);
+
+        if (target == NULL)
+            target = PLAYER(0).ownerActor;
+        actor->ownerChar = (struct Player *)target;
+        *(Actor **)&actor->as.combat.head.enemyAiParams[4] = target;
+        actor->as.combat.comboState[3] = command[9];
+        MATCH_FRESH(v, command[10]);
+        actor->as.combat.comboState[4] = v;
+        if ((u8)v > actor->as.combat.comboState[3])
+            actor->as.combat.comboState[3] = v + 30;
+
+        switch (behaviorState)
+        {
+        case 0:
+            behaviorState = 37;
+            actor->actionStateTimer = mode;
+            actor->actionState = 5;
+            actor->field_0x64[0] = mode;
+            actor->as.combat.field_0x97[1] = 30;
+            actor->as.combat.actionStateFlags = 7;
+            actor->as.combat.playerIndex = 13;
+            *(u32 *)actor->as.combat.head.enemyAiParams = mode;
+            *(u16 *)&actor->as.combat.appliedPose = 15;
+            if (actor->field_0x64[5] & 1)
+                actor->as.combat.field_0x97[1] = 60;
+            if (actor->type == 20)
+            {
+                if (actor->variant == 1)
+                    actor->as.combat.actionStateFlags = 9;
+                if (actor->type == 20 && actor->variant <= 11)
+                {
+                    behaviorState = 46;
+                    actor->flags.p |= ACTOR_FLAG_COLLISION_CHECK;
+                    actor->as.combat.actionStateFlags = 10;
+                    actor->as.combat.comboState[3] = 105;
+                    actor->as.combat.comboState[4] = 40;
+                    actor->interactionRadius = 8;
+                    actor->triggerCallbacks[0] = actor_resolveTouch;
+                }
+            }
+            actor->flags.p &= ~(ACTOR_FLAG_INVULNERABLE | ACTOR_FLAG_23);
+            break;
+        case 2:
+            actor->actionStateTimer = 0;
+            actor->actionState = 0x12;
+            actor->field_0x64[0] = 0;
+            actor->as.combat.field_0x97[1] = 35;
+            actor->as.combat.actionStateFlags = 10;
+            actor->as.combat.playerIndex = 13;
+            *(u32 *)actor->as.combat.head.enemyAiParams = 0;
+            if (actor->field_0x64[5] & 1)
+                actor->as.combat.field_0x97[1] = 65;
+            behaviorState = 16;
+            break;
+        default:
+            actor->actionState = 5;
+            behaviorState = 15;
+            break;
+        }
+        actor->behaviorState = behaviorState;
+        actor->flags.p |= ACTOR_FLAG_TICK_ALWAYS;
+    }
+}

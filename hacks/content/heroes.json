@@ -1,0 +1,20 @@
+[
+  {"id": 0, "stockHero": 0, "equipmentHero": 0, "skillBlock": 0, "palette": 33},
+  {"id": 1, "stockHero": 1, "equipmentHero": 1, "skillBlock": 3, "palette": 34},
+  {"id": 2, "stockHero": 2, "equipmentHero": 2, "skillBlock": 4, "palette": 35},
+  {"id": 3, "stockHero": 3, "equipmentHero": 3, "skillBlock": 5, "palette": 36},
+  {"id": 4, "stockHero": 4, "equipmentHero": 4, "skillBlock": 6, "palette": 37},
+  {"id": 5, "stockHero": 5, "equipmentHero": 5, "skillBlock": 7, "palette": 38},
+  {"id": 6, "stockHero": 6, "equipmentHero": 0, "skillBlock": 1, "palette": 39},
+  {"id": 7, "stockHero": 7, "equipmentHero": 7, "skillBlock": 2, "palette": 42},
+  {"id": 8, "stockHero": 2, "equipmentHero": 2, "skillBlock": 4, "palette": 6,
+   "name": "Ringwraith", "stats": "RingwraithBaseStats", "kit": "RingwraithHeroKit",
+   "move": "RingwraithMoveAnimationBank", "melee": "RingwraithMeleeAnimationBank",
+   "cast": "RingwraithCastAnimationBank", "menuIdle": "EnemyAnimationBank_EnemyTypeNazgul_StandCopy",
+   "menuSelected": "EnemyAnimationBank_EnemyTypeNazgul_Walk", "detachHands": true},
+  {"id": 9, "stockHero": 3, "equipmentHero": 3, "skillBlock": 5, "palette": 66,
+   "name": "Saruman", "stats": "SarumanBaseStats", "kit": "SarumanHeroKit",
+   "move": "SarumanMoveAnimationBank", "melee": "SarumanMeleeAnimationBank",
+   "cast": "SarumanCastAnimationBank", "menuIdle": "EnemyAnimationBank_EnemyTypeSaruman_Stand",
+   "menuSelected": "EnemyAnimationBank_EnemyTypeSaruman_Walk", "detachHands": true}
+]

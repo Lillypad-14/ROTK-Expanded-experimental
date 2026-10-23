@@ -1,0 +1,37 @@
+#include "player.h"
+#include "variables.h"
+void player_clampCurrentHpSpirit(u8 playerIndex)
+{
+    s16 v;
+    s16 *cur;
+    s16 *mx;
+    Player *p;
+    p = &PLAYER(playerIndex);
+    cur = &p->currentHp;
+    mx = &p->stats[STAT_MAX_HP];
+    if (*mx < *cur)
+    {
+        if (*mx < 0)
+            goto setHp;
+        *cur = *mx;
+    }
+    else if (*mx < 1)
+    {
+    setHp:
+        PLAYER(playerIndex).currentHp = 1;
+    }
+    p = &PLAYER(playerIndex);
+    cur = &p->currentSpirit;
+    mx = &p->stats[STAT_MAX_SPIRIT];
+    if (*mx < *cur)
+    {
+        if (*mx >= 0)
+        {
+            *cur = *mx;
+            return;
+        }
+    }
+    else if (*mx >= 0)
+        return;
+    PLAYER(playerIndex).currentSpirit = 0;
+}

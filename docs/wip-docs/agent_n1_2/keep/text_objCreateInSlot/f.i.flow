@@ -1,0 +1,332 @@
+
+;; Function text_objCreateInSlot
+
+33 registers.
+
+Register 22 used 2 times across 3 insns in block 0; set 1 time; user var; pointer.
+
+Register 23 used 3 times across 10 insns in block 0; set 1 time; user var; crosses 1 call.
+
+Register 24 used 4 times across 8 insns in block 0; set 1 time; user var; pointer.
+
+Register 25 used 2 times across 3 insns in block 0; set 1 time; pointer.
+
+Register 27 used 2 times across 2 insns in block 0; set 1 time.
+
+Register 28 used 2 times across 2 insns in block 0; set 1 time; pointer.
+
+Register 30 used 2 times across 2 insns in block 0; set 1 time; pointer.
+
+1 basic blocks.
+BB data
+
+BB 0, start 4, end 44
+  preds:
+  succs:
+Registers live at start: 0 1 7 13
+
+
+(note 2 0 4 "" NOTE_INSN_DELETED)
+
+;; Start of basic block 0, registers live: 0 [r0] 1 [r1] 7 [r7] 13 [sp]
+(insn 4 2 6 (set (reg/v:SI 22)
+        (reg:SI 0 r0)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_DEAD (reg:SI 0 r0)
+        (nil)))
+
+(insn 6 4 7 (set (reg/v:SI 23)
+        (reg:SI 1 r1)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_DEAD (reg:SI 1 r1)
+        (nil)))
+
+(note 7 6 8 "" NOTE_INSN_FUNCTION_BEG)
+
+(note 8 7 10 "" NOTE_INSN_DELETED)
+
+(note 10 8 12 0 NOTE_INSN_BLOCK_BEG)
+
+(insn 12 10 14 (set (reg:SI 0 r0)
+        (reg/v:SI 22)) 1 {*movsi_insn} (insn_list 4 (nil))
+    (expr_list:REG_DEAD (reg/v:SI 22)
+        (nil)))
+
+(call_insn 14 12 16 (set (reg:SI 0 r0)
+        (call (mem:SI (symbol_ref:SI ("text_objFromString")) 0)
+            (const_int 0))) -1 (insn_list 12 (nil))
+    (nil)
+    (expr_list (use (reg:SI 0 r0))
+        (nil)))
+
+(insn 16 14 19 (set (reg/v:SI 24)
+        (reg:SI 0 r0)) 1 {*movsi_insn} (insn_list 14 (nil))
+    (expr_list:REG_DEAD (reg:SI 0 r0)
+        (nil)))
+
+(insn 19 16 22 (set (reg:SI 25)
+        (mem/u:SI (symbol_ref/u:SI ("*.LC0")) 0)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (symbol_ref:SI ("g_TextObjSlots"))
+        (nil)))
+
+(insn 22 19 23 (set (reg:SI 27)
+        (ashift:SI (reg/v:SI 23)
+            (const_int 2))) 39 {ashlsi3} (insn_list 6 (nil))
+    (expr_list:REG_EQUAL (mult:SI (reg/v:SI 23)
+            (const_int 4))
+        (nil)))
+
+(insn 23 22 25 (set (reg:SI 28)
+        (plus:SI (reg:SI 27)
+            (reg:SI 25))) 27 {addsi3} (insn_list 19 (insn_list 22 (nil)))
+    (expr_list:REG_DEAD (reg:SI 27)
+        (expr_list:REG_DEAD (reg:SI 25)
+            (nil))))
+
+(insn 25 23 29 (set (mem/s:SI (reg:SI 28) 2)
+        (reg/v:SI 24)) 1 {*movsi_insn} (insn_list 16 (insn_list 23 (nil)))
+    (expr_list:REG_DEAD (reg:SI 28)
+        (nil)))
+
+(insn 29 25 32 (set (reg:SI 30)
+        (plus:SI (reg/v:SI 24)
+            (const_int 240))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 32 29 35 (set (mem:HI (reg:SI 30) 5)
+        (subreg:HI (reg/v:SI 23) 0)) 5 {*movhi_insn} (insn_list 29 (nil))
+    (expr_list:REG_DEAD (reg/v:SI 23)
+        (expr_list:REG_DEAD (reg:SI 30)
+            (nil))))
+
+(insn 35 32 36 (set (reg/i:SI 0 r0)
+        (reg/v:SI 24)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_DEAD (reg/v:SI 24)
+        (nil)))
+
+(insn 36 35 40 (use (reg/i:SI 0 r0)) -1 (insn_list 35 (nil))
+    (nil))
+
+(note 40 36 44 0 NOTE_INSN_BLOCK_END)
+
+(insn 44 40 0 (use (reg/i:SI 0 r0)) -1 (nil)
+    (expr_list:REG_DEAD (reg/i:SI 0 r0)
+        (nil)))
+;; End of basic block 0
+
+
+;; Function text_objCreateAllInSlots
+
+45 registers.
+
+Register 22 used 5 times across 23 insns; set 1 time; user var; dies in 0 places; crosses 1 call; pointer.
+
+Register 23 used 8 times across 23 insns; set 2 times; user var; dies in 0 places; crosses 1 call.
+
+Register 24 used 6 times across 21 insns; set 2 times; user var; dies in 2 places; crosses 1 call.
+
+Register 25 used 9 times across 19 insns; set 3 times; user var; dies in 0 places; crosses 1 call; pointer.
+
+Register 27 used 2 times across 3 insns in block 0; set 1 time.
+
+Register 28 used 2 times across 2 insns in block 0; set 1 time; pointer.
+
+Register 29 used 6 times across 4 insns in block 1; set 1 time; user var; pointer.
+
+Register 32 used 4 times across 2 insns in block 1; set 1 time; pointer.
+
+Register 34 used 4 times across 2 insns in block 1; set 1 time.
+
+Register 36 used 4 times across 2 insns in block 1; set 1 time.
+
+Register 38 used 4 times across 2 insns in block 1; set 1 time; pointer.
+
+Register 39 used 4 times across 2 insns in block 1; set 1 time; 1 bytes.
+
+Register 40 used 4 times across 2 insns in block 1; set 1 time.
+
+Register 41 used 4 times across 2 insns in block 1; set 1 time.
+
+3 basic blocks.
+BB data
+
+BB 0, start 4, end 19
+  preds:
+  succs: 1
+Registers live at start: 0 1 7 13
+
+BB 1, start 22, end 63
+  preds: 1 0
+  succs: 1 2
+Registers live at start: 7 13 22 23 24 25
+
+BB 2, start 78, end 87
+  preds: 1
+  succs:
+Registers live at start: 7 13 24
+
+
+(note 2 0 4 "" NOTE_INSN_DELETED)
+
+;; Start of basic block 0, registers live: 0 [r0] 1 [r1] 7 [r7] 13 [sp]
+(insn 4 2 6 (set (reg/v:SI 22)
+        (reg:SI 0 r0)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_DEAD (reg:SI 0 r0)
+        (nil)))
+
+(insn 6 4 7 (set (reg/v:SI 23)
+        (reg:SI 1 r1)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_DEAD (reg:SI 1 r1)
+        (nil)))
+
+(note 7 6 8 "" NOTE_INSN_FUNCTION_BEG)
+
+(note 8 7 10 "" NOTE_INSN_DELETED)
+
+(note 10 8 12 0 NOTE_INSN_BLOCK_BEG)
+
+(insn 12 10 16 (set (reg/v:SI 24)
+        (const_int 0)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (const_int 0)
+        (nil)))
+
+(insn 16 12 18 (set (reg:SI 27)
+        (ashift:SI (reg/v:SI 23)
+            (const_int 2))) 39 {ashlsi3} (insn_list 6 (nil))
+    (expr_list:REG_EQUAL (mult:SI (reg/v:SI 23)
+            (const_int 4))
+        (nil)))
+
+(insn 18 16 19 (set (reg:SI 28)
+        (mem/u:SI (symbol_ref/u:SI ("*.LC1")) 0)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (symbol_ref:SI ("g_TextObjSlots"))
+        (nil)))
+
+(insn 19 18 21 (set (reg/v:SI 25)
+        (plus:SI (reg:SI 27)
+            (reg:SI 28))) 27 {addsi3} (insn_list 16 (insn_list 18 (nil)))
+    (expr_list:REG_DEAD (reg:SI 27)
+        (expr_list:REG_DEAD (reg:SI 28)
+            (nil))))
+;; End of basic block 0
+
+(note 21 19 24 "" NOTE_INSN_LOOP_BEG)
+
+(note 24 21 53 0 NOTE_INSN_BLOCK_BEG)
+
+(note 53 24 22 0 NOTE_INSN_BLOCK_END)
+
+;; Start of basic block 1, registers live: 7 [r7] 13 [sp] 22 23 24 25
+(code_label 22 53 26 15 "")
+
+(insn 26 22 28 (set (reg:SI 0 r0)
+        (reg/v:SI 22)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(call_insn 28 26 30 (set (reg:SI 0 r0)
+        (call (mem:SI (symbol_ref:SI ("text_objFromString")) 0)
+            (const_int 0))) -1 (insn_list 26 (nil))
+    (nil)
+    (expr_list (use (reg:SI 0 r0))
+        (nil)))
+
+(insn 30 28 33 (set (reg/v:SI 29)
+        (reg:SI 0 r0)) 1 {*movsi_insn} (insn_list 28 (nil))
+    (expr_list:REG_DEAD (reg:SI 0 r0)
+        (nil)))
+
+(insn 33 30 34 (set (mem:SI (post_inc:SI (reg/v:SI 25)) 2)
+        (reg/v:SI 29)) 1 {*movsi_insn} (insn_list 30 (nil))
+    (expr_list:REG_INC (reg/v:SI 25)
+        (nil)))
+
+(note 34 33 38 "" NOTE_INSN_DELETED)
+
+(insn 38 34 41 (set (reg:SI 32)
+        (plus:SI (reg/v:SI 29)
+            (const_int 240))) 27 {addsi3} (nil)
+    (expr_list:REG_DEAD (reg/v:SI 29)
+        (nil)))
+
+(insn 41 38 43 (set (mem:HI (reg:SI 32) 5)
+        (subreg:HI (reg/v:SI 23) 0)) 5 {*movhi_insn} (insn_list 38 (nil))
+    (expr_list:REG_DEAD (reg:SI 32)
+        (nil)))
+
+(insn 43 41 46 (set (reg:SI 34)
+        (plus:SI (reg/v:SI 24)
+            (const_int 1))) 27 {addsi3} (nil)
+    (expr_list:REG_DEAD (reg/v:SI 24)
+        (nil)))
+
+(insn 46 43 47 (set (reg:SI 36)
+        (ashift:SI (reg:SI 34)
+            (const_int 24))) 39 {ashlsi3} (insn_list 43 (nil))
+    (expr_list:REG_DEAD (reg:SI 34)
+        (nil)))
+
+(insn 47 46 51 (set (reg/v:SI 24)
+        (lshiftrt:SI (reg:SI 36)
+            (const_int 24))) 41 {lshrsi3} (insn_list 46 (nil))
+    (expr_list:REG_DEAD (reg:SI 36)
+        (expr_list:REG_EQUAL (zero_extend:SI (subreg:QI (reg:SI 34) 0))
+            (nil))))
+
+(insn 51 47 54 (set (reg/v:SI 23)
+        (plus:SI (reg/v:SI 23)
+            (const_int 1))) 27 {addsi3} (nil)
+    (nil))
+
+(note 54 51 57 "" NOTE_INSN_LOOP_CONT)
+
+(insn 57 54 59 (set (reg:SI 38)
+        (mem:SI (reg/v:SI 22) 17)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 59 57 60 (set (reg:QI 39)
+        (mem:QI (reg:SI 38) 0)) 7 {*movqi_insn} (insn_list 57 (nil))
+    (expr_list:REG_DEAD (reg:SI 38)
+        (nil)))
+
+(insn 60 59 61 (set (reg:SI 41)
+        (ashift:SI (subreg:SI (reg:QI 39) 0)
+            (const_int 24))) 39 {ashlsi3} (insn_list 59 (nil))
+    (expr_list:REG_DEAD (reg:QI 39)
+        (nil)))
+
+(insn 61 60 62 (set (reg:SI 40)
+        (lshiftrt:SI (reg:SI 41)
+            (const_int 24))) 41 {lshrsi3} (insn_list 60 (nil))
+    (expr_list:REG_DEAD (reg:SI 41)
+        (expr_list:REG_EQUAL (zero_extend:SI (reg:QI 39))
+            (nil))))
+
+(insn 62 61 63 (set (cc0)
+        (reg:SI 40)) 45 {tstsi} (insn_list 61 (nil))
+    (expr_list:REG_DEAD (reg:SI 40)
+        (nil)))
+
+(jump_insn 63 62 72 (set (pc)
+        (if_then_else (ne (cc0)
+                (const_int 0))
+            (label_ref 22)
+            (pc))) 58 {*cond_branch} (nil)
+    (nil))
+;; End of basic block 1
+
+(note 72 63 78 "" NOTE_INSN_LOOP_END)
+
+;; Start of basic block 2, registers live: 7 [r7] 13 [sp] 24
+(insn 78 72 79 (set (reg/i:SI 0 r0)
+        (reg/v:SI 24)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_DEAD (reg/v:SI 24)
+        (nil)))
+
+(insn 79 78 83 (use (reg/i:SI 0 r0)) -1 (insn_list 78 (nil))
+    (nil))
+
+(note 83 79 87 0 NOTE_INSN_BLOCK_END)
+
+(insn 87 83 0 (use (reg/i:SI 0 r0)) -1 (nil)
+    (expr_list:REG_DEAD (reg/i:SI 0 r0)
+        (nil)))
+;; End of basic block 2
+

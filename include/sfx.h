@@ -28,14 +28,16 @@ typedef enum SfxId
     SFX_COMBAT_HIT_MISSILE = 0x13,         // hit lands from the missile-attacking hero (heroId==1)
     SFX_COMBAT_PLAYER_DODGE = 0x1d,        // player dodges an enemy melee attack
     SFX_COMBAT_PLAYER_DODGE_RANGED = 0x1e, // player dodges an enemy ranged attack
-    SFX_GEM_PICKUP = 0x29,       // gem pile pickup; also special pickups (Ent Water, Dwarf Rune)
-    SFX_PICKUP_DENIED = 0x2a,    // pickup refused (backpack full, duplicate owned)
-    SFX_ITEM_PICKUP = 0x2d,      // item or artifact pickup
-    SFX_HERB_PICKUP = 0x2e,      // kingsfoil herb pickup
-    SFX_EAT_FOOD = 0x2f,         // food drop eaten (actor_lootPile_eatFood, tiered herbs)
-    SFX_COMBAT_INSTAKILL = 0x3f, // Aragorn's instakill melee proc fires
-    SFX_DWARVEN_RAGE = 0x4f,     // Dwarven Rage cast
-    SFX_CHEST_OPEN = 0x10a,      // chest opens
+    SFX_GEM_PICKUP = 0x29,    // gem pile pickup; also special pickups (Ent Water, Dwarf Rune)
+    SFX_PICKUP_DENIED = 0x2a, // pickup refused (backpack full, duplicate owned)
+    SFX_ITEM_PICKUP = 0x2d,   // item or artifact pickup
+    SFX_HERB_PICKUP = 0x2e,   // kingsfoil herb pickup
+    SFX_EAT_FOOD = 0x2f,      // food drop eaten (actor_lootPile_eatFood, tiered herbs)
+    SFX_SKILL_TREE_BUY_PASSIVE = 0x31, // skill tree passive rank bought
+    SFX_SKILL_TREE_BUY_ACTIVE = 0x32,  // skill tree active rank bought
+    SFX_COMBAT_INSTAKILL = 0x3f,       // Aragorn's instakill melee proc fires
+    SFX_DWARVEN_RAGE = 0x4f,           // Dwarven Rage cast
+    SFX_CHEST_OPEN = 0x10a,            // chest opens
     SFX_UNLOCK = 0x119,          // unlock jingle: all 8 artifacts (Weathertop) / 2000 kills (Moria)
     SFX_LEVEL_UP = 0x11a,        // player level-up
     SFX_CORRUPTION_GAIN = 0x11b, // corruption meter gains more than 5 in one step
@@ -48,7 +50,29 @@ typedef enum SfxId
  * Play a sound effect. Returns the handle of the playing instance (0 if none played);
  * menus store it to stop overlap on repeat.
  */
+/** SfxEntry.kind */
+typedef enum SfxEntryKind
+{
+    SFX_ENTRY_SINGLE = 1,  // index selects an SfxSingles entry
+    SFX_ENTRY_VARIANT = 2, // index selects an SfxVariantSets row; one of its 8 variants plays at random
+} SfxEntryKind;
+
+/** One sfx id's table row (SfxEntries, indexed by SfxId). */
+typedef struct SfxEntry
+{
+    u16 kind;  // enum SfxEntryKind
+    u16 index; // row in SfxSingles or SfxVariantSets
+} SfxEntry;
+
+/** A sound and its playback volume. A sound index of 0xff in a variant set means silence. */
+typedef struct SfxVariant
+{
+    u16 sound;  // index into SoundData
+    u16 volume; // 8.8 fixed point passed to the driver
+} SfxVariant;
+
 u32 sfx_play(s32 sfxId);
+u32 sfx_playUnlessPlaying(s32 sfxId, u32 handle);
 
 /** Stop the playing instance behind handle (gated on sfx enabled). */
 void sfx_stop(u32 handle);
@@ -122,6 +146,8 @@ void sfx_resumeMusic(void);
 void sfx_resumeMusicWrapper(void);
 /** Pause the music (gated on music enabled and the playing flag) and clear the flag. */
 void sfx_pauseMusic(void);
+/** Play the song table entry songId directly (gated on music enabled). */
+void sfx_playSongEntry(u8 songId);
 
 /** Song table entry (Songs, indexed by the sfx_requestSong song id). */
 typedef struct SongEntry
@@ -137,22 +163,32 @@ bool sfx_isHandleActive(u32 handle);
 void sfx_driverStopHandle(u32 handle);
 void sfx_driverSetVolume(u8 volume);
 void sfx_driverStopAll(void);
+u32 sfx_driverPlay(const void *data, u32 arg2, u32 arg3);
+void sfx_driverUnknown0804dc14(u32 handle, u32 arg2);
 void sfx_driverPlaySong(const void *data, u32 flags, u32 variant);
 void sfx_driverStopMusic(void);
 void sfx_driverSetMusicVolume(u8 volume, u32 arg2);
-// Music pause/resume driver state (word 0x02001648): 1 = playing, 2 = paused.
+/** Music driver state. */
+typedef struct SfxMusicDriver
+{
+    u32 flags;
+    u32 state; // 0 stopped, 1 playing, 2 paused
+} SfxMusicDriver;
+
 void sfx_driverResumeMusic(u32 arg1);
 void sfx_driverPauseMusic(void);
 bool32 sfx_driverIsMusicPlaying(void);
 
 void sfx_init(void);
 void sfx_initDriver(void);
+void sfx_unknown0804aa80(u32 a);
+void sfx_unknown0804acf0(u32 a);
+void sfx_unknown0804ac68(u32 a);
+void sfx_unknown0804cefc(void (*callback)(void));
+void sfx_unknown08047374(void);
 
-/**
- * Arm the sound engine's mixer timer (Timer 0 source + Timer 1 IRQ) and set
- * the mixer-active flag. Pairs with sfx_disableAudio; the two are called
- * back-to-back on every scene/menu transition to reset the engine.
- */
 void sfx_enableAudio(void);
-/** Disarm the mixer timer and clear the mixer-active flag. */
+void sfx_setMusicFlag(u8 value);
+void sfx_libEnable(void);
+void sfx_libDisable(void);
 void sfx_disableAudio(void);

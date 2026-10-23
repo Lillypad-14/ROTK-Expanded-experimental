@@ -111,19 +111,18 @@ typedef struct TransitionState
  * Request the in-game dialog overlay (SCENE_ID_IN_GAME_DIALOG) showing dialog
  * dialogId (stored to g_InGameDialogId); script op 5's single-player branch.
  */
-void scene_requestInGameDialog(u8 dialogId);
+void scene_requestInGameDialog(u16 dialogId);
+
+/** Begin the screen transition effect numbered effect (0..8). */
+void scene_startTransitionEffect(u8 effect);
+
+/** Clear g_InGameDialogState. */
+void scene_inGameDialog_resetState(void);
 
 /** Stop the transition jingle (g_TransitionState.sfxHandle) and clear its active bit. */
 void transition_stopSfx(void);
-/**
- * Advance the active transition effect one vblank (step sequencer over the effect
- * parameter table); called by system_vBlankIrqHandler.
- */
+void transition_setEffect(u8 effect);
 void transition_tick(void);
-/**
- * Reset g_TransitionState, stop the jingle, and restore the saved music volume; called by
- * scene_gameplay_discardParkedWorld.
- */
 void transition_reset(void);
 /**
  * Scene backdrop (BG1) setup indexed by g_SceneCurrent.args[1]; the g_TransitionEffect == 8
@@ -133,3 +132,4 @@ void scene_unknown0804a48c(void);
 
 // Each scene's handlers and its SceneState.args slot roles live in scene/<Name>.h,
 // named from the SceneId tail.
+

@@ -1,0 +1,5 @@
+[xjump] insn 26: no merge: no opposing jump-back before target
+[xjump] insn 32: no merge: no opposing jump-back before target
+[xjump] insn 32 vs label 125: no merge: insns differ (no REG_EQUAL rescue)
+[xjump] insn 127: no merge: no opposing jump-back before target
+[xjump] insn 46: no merge: no opposing jump-back before target

@@ -18,8 +18,13 @@ SECTIONS
     ASSERT(SIZEOF(.data) == 0, "initialised .data unsupported (no crt0 to copy ROM->RAM)")
 
     /* Mutable globals in the RAM slice mod_ram takes off the game heap (zeroed at boot by system_clearRam). */
-    . = MEM_MODCODE_BSS;
-    .bss (NOLOAD) : { *(.bss .bss.* COMMON) }
+    .bss (MEM_MODCODE_BSS_END + 1 - ((SIZEOF(.bss) + 15) & ~15)) (NOLOAD) :
+    {
+        __modcode_bss_start = .;
+        *(.bss .bss.* COMMON)
+        __modcode_bss_end = .;
+    }
+    ASSERT(__modcode_bss_start >= MEM_MODCODE_BSS, "modcode .bss exceeds its RAM budget")
     ASSERT(. <= MEM_MODCODE_BSS_END + 1, "modcode .bss overflowed MEM_MODCODE_BSS (hacks/layout.cfg)")
 
     /DISCARD/ : { *(.ARM.exidx*) *(.comment) *(.note*) *(.ARM.attributes) }

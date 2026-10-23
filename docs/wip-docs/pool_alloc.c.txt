@@ -1,0 +1,47 @@
+[Context] Operating on: rotk
+
+Decompiled function pool_alloc:
+
+
+
+void pool_alloc(int *param_1,ActorList *param_2,size_t param_3)
+
+
+
+{
+
+  Actor *actor;
+
+  code *UNRECOVERED_JUMPTABLE;
+
+  
+
+  if (*param_1 == 0) {
+
+    actor = (Actor *)0x0;
+
+  }
+
+  else {
+
+    actor = (Actor *)pool_popFree(param_1);
+
+    memory_memset(actor,0,param_3);
+
+    list_pushFront(param_2,actor);
+
+  }
+
+                    /* WARNING: Could not recover jumptable at 0x08030548. Too many branches */
+
+                    /* WARNING: Treating indirect jump as call */
+
+  (*UNRECOVERED_JUMPTABLE)(actor);
+
+  return;
+
+}
+
+
+
+

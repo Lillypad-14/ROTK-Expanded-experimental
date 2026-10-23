@@ -318,7 +318,7 @@ def warp_stream_exit(sub, link: int, edges_of) -> StreamExit | None:
     return StreamExit(trans, writes, ended)
 
 
-# Script variable table 1 (MissionScriptVarTable1): index 0 = g_MissionVariant
+# Script variable table 1 (MissionScriptVarPointers): index 0 = g_MissionVariant
 # (RAM);
 # indices 1-8 point to ROM constants. Only the compare ops (52/57) read through this
 # table; the read-modify-write ops (58-61) address g_MissionScriptVars + index

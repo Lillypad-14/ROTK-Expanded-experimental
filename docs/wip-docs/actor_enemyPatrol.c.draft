@@ -1,0 +1,67 @@
+#include "actor.h"
+#include "math.h"
+#include "mission.h"
+
+/**
+ * Walk a scripted enemy along its waypoint path, pausing at each waypoint.
+ *
+ * @romaddress 0x0800a790
+ */
+void actor_enemyPatrol_tick(Actor *self)
+{
+    u8 pathIndex = ((u8 *)&self->as.combat.storedDamage)[0];
+    u8 *waypointPtr = &((u8 *)&self->as.combat.storedDamage)[1];
+    u8 waypoint = *waypointPtr;
+    u8 waypointCount = mission_script_getWaypointCount(pathIndex);
+    ActorActionState *state = &self->actionState;
+    Direction8 *facingPtr = &self->facing;
+    u8 prevFacing = *facingPtr;
+    Vector2Int waypointA;
+    Vector2Int waypointB;
+    Vector2Fp16 tmp;
+    Vector2Fp16 pos;
+    Direction8 dir;
+
+    switch (*state)
+    {
+    case 5:
+    case 0x12:
+    case 0x16:
+        self->actionState = 2;
+        self->field_0x64[0] |= 2;
+        self->actionStateTimer = 0;
+        waypointA = mission_script_getWaypoint(pathIndex, waypoint);
+        *(Vector2Int *)&tmp = waypointA;
+        math_vector2_toFp16((Vector2Int *)&tmp, (Vector2Fp16 *)&self->field_0xbc[8]);
+        break;
+    case 2:
+        math_vector2_copy(&self->coords, &pos);
+        math_vector2_copy((Vector2Fp16 *)&self->field_0xbc[8], &tmp);
+        dir = actor_direction8TowardPoint(pos.x, pos.y, tmp.x, tmp.y, self->moveSpeed);
+        if (dir == 8)
+        {
+            (*waypointPtr)++;
+            waypoint = *waypointPtr;
+            if (waypoint >= waypointCount)
+            {
+                *waypointPtr = 0;
+                waypoint = 0;
+            }
+            self->actionStateTimer = self->as.combat.head.scripted.targetX;
+            *state = 0xc;
+            self->field_0x64[0] |= 2;
+            waypointB = mission_script_getWaypoint(pathIndex, waypoint);
+            *(Vector2Int *)&tmp = waypointB;
+            math_vector2_toFp16((Vector2Int *)&tmp, (Vector2Fp16 *)&self->field_0xbc[8]);
+        }
+        else if (dir != prevFacing)
+        {
+            *facingPtr = dir;
+            self->field_0x64[0] |= 1;
+        }
+        break;
+    default:
+        actor_unknown0800b5bc(self);
+        break;
+    }
+}

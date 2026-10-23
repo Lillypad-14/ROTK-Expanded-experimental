@@ -1,0 +1,13 @@
+# Mission groups and completed waypoint copier
+
+Promoted mission_script_loadGroups (220 bytes) and mission_script_copyGroup (130 bytes) together as src/c/mission_script_groups.c, a contiguous 350-byte region. Promoted mission_script_copyActorRecord (40 bytes) and mission_script_copyWaypointPath (68 bytes) separately. Four functions, 458 bytes total.
+
+Groups source has a u8 count, a reserved byte and u16 offsets. Each serialized group has a u8 actor count, a reserved byte, then u8 record sizes. The sizes prefix is aligned to four bytes. Runtime groups instead have a u16 count and aligned u16 offsets. Each runtime actor record prefixes serialized actor params with an eight-byte header whose first word holds the live actor pointer.
+
+Group loader matches when chunk is advanced by eight bytes in place, and the section pointer remains a byte view. A separately retained typed header or variant pointer changes allocation. Group copier matches plain C by reusing one u16 size for group offset, aligned input prefix size, output table size and each actor record size. Destination advances by the prior size at the start of each iteration and by the last size at return. Actor-record copier simply skips eight runtime header bytes before copying serialized bytes.
+
+Waypoint copier: libc memcpy emits the required ldmia/stmia, unlike struct assignment. Byte-address arithmetic preserves adds operand order, with typed record casts retaining the known copy alignment. sizeof count fields replaces the fixed four-byte header constant. The final size uses size pinned r1, bytes pinned r0 and MATCH_FRESH on the sum. Exhaustive eight-subset audit found only all three together match. Original two differences were local allocator coalescing multiply and add results into the same register. Natural helper, local width, separate statement and pin-only probes did not resolve them. Every probe remains in local scratch; src/c/mission_script_copyWaypointPath.c is authoritative.
+
+Validation: mission-groups-final-check.log passed all 449 manifest regions with original whole-ROM SHA-1, source/store consistency, BUGFIX compilation and 297 tests with three default skips. mission-groups-ghidra-tests.log passed all18 configured tests against the unchanged current headers.
+
+Inventory: 565 definitions, 247 C regions, 71,912 compiled bytes, 882 mapped symbols. The mapped inventory remains incomplete. The previous external compiler-source path no longer exists; do not claim mechanism changes verified against source there. The installed compiler's --keep diagnostics still work. No generic skill change was made based solely on an unconfirmed mechanism.

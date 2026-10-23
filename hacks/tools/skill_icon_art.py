@@ -1,0 +1,194 @@
+"""Turns skill icon art into hack-ready skill tree icons.
+
+slice: cut the 15 icons out of an upscaled skill screen mockup (3x3 passive grid on the
+left, 3/2/1 active slots on the right) into 32x24 PNGs in the shared skill palette.
+build: convert a folder of those PNGs into a C file (plus .h) of raw tile icon assets.
+
+    uv run python hacks/tools/skill_icon_art.py slice MOCKUP.png OUT_DIR --names a,b,...
+    uv run python hacks/tools/skill_icon_art.py slice SHEET.png OUT_DIR --grid 13,206:94,294:5.69
+    uv run python hacks/tools/skill_icon_art.py build PNG_DIR OUT.c --prefix RingwraithIcon
+
+The frame and transparent corners always come from the stock icon frame, so only the
+circle interior is taken from the art. Grey stone backdrop becomes transparent index 0.
+"""
+
+import argparse
+import glob
+import os
+import sys
+
+import numpy as np
+from PIL import Image
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "tools"))
+
+from rotkit.carve.skill_icons import (  # noqa: E402
+    ICON_HEIGHT,
+    ICON_TILE_BYTES,
+    ICON_WIDTH,
+    SHARED_PALETTE,
+    rebuild_tiles,
+)
+from rotkit.paths import GFX_LOCAL  # noqa: E402
+from rotkit.png import IndexedImage, bgr555_to_rgb, read_indexed, write_indexed  # noqa: E402
+
+PALETTE_RGB = np.array([bgr555_to_rgb(c) for c in SHARED_PALETTE], float)
+# Indices 1..14 are drawable. Index 15 duplicates 14.
+DRAWABLE = range(1, 15)
+LUMA = np.array([0.3, 0.59, 0.11])
+
+# Slot origins in the 1858x846 mockup layout, passives then actives. Other sizes scale.
+MOCKUP_WIDTH = 1858
+MOCKUP_SCALE = 7.5
+MOCKUP_SLOTS = [
+    (55, 61), (301, 61), (547, 61),
+    (55, 305), (301, 305), (547, 305),
+    (55, 549), (301, 550), (547, 549),
+    (1042, 62), (1282, 61), (1534, 61),
+    (1164, 306), (1411, 306),
+    (1287, 550),
+]
+SEARCH = 12
+# Greys darker than this mean brightness are stone backdrop and become transparent.
+BACKDROP = 140
+
+
+def stock_frame():
+    """The stock frame pixels and a mask of the pixels every stock icon shares."""
+    files = sorted(glob.glob(str(GFX_LOCAL / "skills" / "icons" / "*" / "*.png")))
+    if not files:
+        sys.exit("no carved icons: run `make carve` first")
+    icons = np.stack([np.array(Image.open(f)) for f in files])
+    shared = ~(icons != icons[0]).any(0)
+    return icons[0], shared
+
+
+def quantize(block, backdrop=BACKDROP):
+    out = np.zeros((ICON_HEIGHT, ICON_WIDTH), np.uint8)
+    for y in range(ICON_HEIGHT):
+        for x in range(ICON_WIDTH):
+            p = block[y, x]
+            if p.max() - p.min() < 28 and 35 < p.mean() < backdrop:
+                continue
+            dist = (((PALETTE_RGB[1:15] - p) ** 2) * LUMA).sum(1)
+            out[y, x] = DRAWABLE[int(dist.argmin())]
+    return out
+
+
+def sample(src, x0, y0, scale):
+    box = (round(x0), round(y0), round(x0 + ICON_WIDTH * scale), round(y0 + ICON_HEIGHT * scale))
+    return np.array(src.crop(box).resize((ICON_WIDTH, ICON_HEIGHT), Image.BOX)).astype(float)
+
+
+def fit(src, frame, shared, x, y, scale, backdrop):
+    """The offset near (x, y) whose frame best matches the stock frame."""
+
+    def score(dx, dy):
+        q = quantize(sample(src, x + dx, y + dy, scale), backdrop)
+        return (q[shared] != frame[shared]).sum()
+
+    best = min(((score(dx, dy), dx, dy) for dy in range(-SEARCH, SEARCH + 1, 3)
+                for dx in range(-SEARCH, SEARCH + 1, 3)))
+    _, bx, by = best
+    best = min(((score(bx + dx, by + dy), bx + dx, by + dy) for dy in (-1, 0, 1)
+                for dx in (-1, 0, 1)))
+    return x + best[1], y + best[2]
+
+
+def to_image(pixels):
+    return IndexedImage(
+        ICON_WIDTH, ICON_HEIGHT, bytes(pixels.flatten()),
+        [bgr555_to_rgb(c) for c in SHARED_PALETTE], 0,
+    )
+
+
+def grid_slots(spec):
+    """`X,X,...:Y,Y,...:SCALE` frame origins of an icon sheet, slots row by row."""
+    cols, rows, scale = spec.split(":")
+    return [(int(x), int(y)) for y in rows.split(",") for x in cols.split(",")], float(scale)
+
+
+def cmd_slice(args):
+    src = Image.open(args.mockup).convert("RGB")
+    if args.grid:
+        slots, scale = grid_slots(args.grid)
+        ratio = 1.0
+    else:
+        slots, scale = MOCKUP_SLOTS, MOCKUP_SCALE
+        ratio = src.width / MOCKUP_WIDTH
+    names = args.names.split(",") if args.names else [f"{i:02d}" for i in range(len(slots))]
+    frame, shared = stock_frame()
+    os.makedirs(args.out_dir, exist_ok=True)
+    for i, (x, y) in enumerate(slots):
+        if i >= len(names) or names[i] in ("", "-"):
+            continue
+        x, y = fit(src, frame, shared, x * ratio, y * ratio, scale * ratio, args.backdrop)
+        pixels = quantize(sample(src, x, y, scale * ratio), args.backdrop)
+        pixels[shared] = frame[shared]
+        path = os.path.join(args.out_dir, f"{names[i]}.png")
+        write_indexed(path, to_image(pixels))
+        print(f"slot {i:2d} at ({x:.0f}, {y:.0f}) -> {path}")
+
+
+def cmd_build(args):
+    files = sorted(glob.glob(os.path.join(args.png_dir, "*.png")))
+    names = []
+    lines = [
+        "// Generated by hacks/tools/skill_icon_art.py build. Edit the PNGs, not this file.",
+        "",
+        '#include "types.h"',
+        "",
+    ]
+    for f in files:
+        image = read_indexed(f)
+        if (image.width, image.height) != (ICON_WIDTH, ICON_HEIGHT):
+            sys.exit(f"{f}: icons are {ICON_WIDTH}x{ICON_HEIGHT}")
+        tiles = rebuild_tiles(image)
+        assert len(tiles) == ICON_TILE_BYTES
+        name = args.prefix + "".join(w.capitalize() for w in os.path.basename(f)[:-4].split("_"))
+        data = bytes([0x10, 0x00, ICON_TILE_BYTES & 0xFF, ICON_TILE_BYTES >> 8]) + tiles
+        lines.append(f"const u8 {name}[{len(data):#x}] __attribute__((aligned(4))) = {{")
+        for i in range(0, len(data), 16):
+            lines.append("    " + ", ".join(f"{b:#04x}" for b in data[i : i + 16]) + ",")
+        lines.append("};")
+        lines.append("")
+        names.append(name)
+    with open(args.out, "w", newline="\n") as out:
+        out.write("\n".join(lines))
+    header = [
+        "#pragma once",
+        "",
+        "// Generated by hacks/tools/skill_icon_art.py build. Raw tile skill tree icons.",
+        "",
+        '#include "types.h"',
+        "",
+        *[f"extern const u8 {n}[{ICON_TILE_BYTES + 4:#x}];" for n in names],
+        "",
+    ]
+    with open(os.path.splitext(args.out)[0] + ".h", "w", newline="\n") as out:
+        out.write("\n".join(header))
+        print(f"wrote {args.out} and its .h: {len(names)} icons")
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    sub = parser.add_subparsers(required=True)
+    p = sub.add_parser("slice")
+    p.add_argument("mockup")
+    p.add_argument("out_dir")
+    p.add_argument("--names", help="comma list, one per slot in order; '-' skips a slot")
+    p.add_argument("--grid", help="icon sheet instead of a mockup: X,X,..:Y,Y,..:SCALE")
+    p.add_argument("--backdrop", type=float, default=BACKDROP,
+                   help="greys darker than this become transparent (lower it for grey art)")
+    p.set_defaults(func=cmd_slice)
+    p = sub.add_parser("build")
+    p.add_argument("png_dir")
+    p.add_argument("out")
+    p.add_argument("--prefix", required=True)
+    p.set_defaults(func=cmd_build)
+    args = parser.parse_args()
+    args.func(args)
+
+
+if __name__ == "__main__":
+    main()

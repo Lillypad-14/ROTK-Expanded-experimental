@@ -1,0 +1,65 @@
+[Context] Operating on: rotk
+
+Decompiled function player_clearHandFx:
+
+
+
+void player_clearHandFx(u8 playerIndex,u8 hand)
+
+
+
+{
+
+  FxEmitter **ppFVar1;
+
+  Actor *pAVar2;
+
+  code *UNRECOVERED_JUMPTABLE;
+
+  
+
+  pAVar2 = g_PlayerGlobals.players[playerIndex].ownerActor;
+
+  if (hand == '\0') {
+
+    ppFVar1 = g_PlayerGlobals.players[playerIndex].handFxEmitters;
+
+    if (*ppFVar1 != (FxEmitter *)0x0) {
+
+      func_0x08039138();
+
+      *ppFVar1 = (FxEmitter *)0x0;
+
+    }
+
+  }
+
+  else {
+
+    ppFVar1 = g_PlayerGlobals.players[playerIndex].handFxEmitters + 1;
+
+    if (*ppFVar1 != (FxEmitter *)0x0) {
+
+      func_0x08039138();
+
+      *ppFVar1 = (FxEmitter *)0x0;
+
+    }
+
+  }
+
+  func_0x08001bbc(pAVar2,hand);
+
+                    /* WARNING: Could not recover jumptable at 0x080273e2. Too many branches */
+
+                    /* WARNING: Treating indirect jump as call */
+
+  (*UNRECOVERED_JUMPTABLE)();
+
+  return;
+
+}
+
+
+
+

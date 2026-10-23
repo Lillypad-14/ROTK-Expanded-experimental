@@ -48,30 +48,18 @@ typedef struct EepromTimeoutConfig
     /** TMxCNT_H control (prescaler / IRQ enable / start) */
     u16 control;
 } EepromTimeoutConfig;
-/** Select the EEPROM device descriptor (param is Kbit count: 4 or 0x40=64); 0 ok, 1 unknown. */
-u32 eeprom_selectType(s16 typeCode);
-/**
- * Timer-overflow IRQ handler for the post-write Ready poll: counts g_EepromTimeoutCount
- * down; on reaching zero sets g_EepromTimeoutFlag to signal timeout.
- */
+u32 eeprom_selectType(u16 typeCode);
 void eeprom_timeoutIrqHandler(void);
-/**
- * Pick which Timer N (0-3) drives the timeout IRQ; stores the TMxCNT_L register
- * pointer for later Start/Stop, and installs eeprom_timeoutIrqHandler's address at
- * *callbackOut. Returns 1 if channel > 3.
- */
 u32 eeprom_configureTimeoutTimer(u8 channel, void **callbackOut);
 /** Arm the timeout Timer from cfg; enable its IRQ bit in IE and IME; clear the timeout flag. */
 void eeprom_startTimeoutTimer(EepromTimeoutConfig *cfg);
-/** Disarm the timeout Timer: clear the TMxCNT registers and restore IME / the IE bit. */
 void eeprom_stopTimeoutTimer(void);
+void eeprom_dmaBits(const void *source, void *destination, u16 bitCount);
 /**
  * Write one 8-byte block: build the write bitstream ("10" + addr + 64 data + "0" stop),
  * DMA3 it to 0x0D000000, then poll Bit 0 of 0x0D000000 for the chip Ready signal
  * under a ~10 ms timeout. Returns 0 on success, 0xC001 on timeout, 0x80FF out of range.
  */
 u32 eeprom_writeBlock(u16 blockIndex, void *src);
-/** Read one 8-byte block and compare it byte-for-byte with expected. Returns 0 on match. */
 u32 eeprom_verifyBlock(u16 blockIndex, void *expected);
-/** Retry eeprom_writeBlock up to 3x then verify. Returns the verify status. */
 u32 eeprom_writeAndVerifyBlock(u16 blockIndex, void *src);

@@ -1,0 +1,87 @@
+[Context] Operating on: rotk
+
+Decompiled function skill_active_cast:
+
+
+
+/* Pay the active skill's spirit cost and start casting it: Herbal Healing runs its callback at
+
+   once, every other row enters the cast action state with Player.castingActiveSkill set. */
+
+
+
+void skill_active_cast(u8 playerIndex,u8 activeSkillIndex)
+
+
+
+{
+
+  ushort uVar1;
+
+  ActiveSkill *pAVar2;
+
+  u8 *puVar3;
+
+  Actor *pAVar4;
+
+  ActiveSkill **ppAVar5;
+
+  code *UNRECOVERED_JUMPTABLE;
+
+  
+
+  ppAVar5 = &g_PlayerGlobals.players[playerIndex].activeSkills;
+
+  pAVar2 = *ppAVar5 + activeSkillIndex;
+
+  if (pAVar2->callback != (ActiveSkillCallback)0x0) {
+
+    uVar1 = pAVar2->spiritCost;
+
+    if (((int)(uint)uVar1 <= (int)g_PlayerGlobals.players[playerIndex].currentSpirit) ||
+
+       ((g_GameFlags.p & 4) != 0)) {
+
+      pAVar4 = g_PlayerGlobals.players[playerIndex].ownerActor;
+
+      if ((g_GameFlags.p & 4) == 0) {
+
+        player_addSpirit(playerIndex,-uVar1);
+
+      }
+
+      if (activeSkillIndex == 5) {
+
+        _call_via_r1(pAVar4,(*ppAVar5)[5].callback);
+
+      }
+
+      else {
+
+        pAVar4->actionState = ACTOR_STATE_ACTIVE_SKILL_CAST;
+
+        g_PlayerGlobals.players[playerIndex].castingActiveSkill = activeSkillIndex;
+
+        puVar3 = &g_PlayerGlobals.players[playerIndex].activeSkillStateFlags;
+
+        *puVar3 = *puVar3 | 1;
+
+      }
+
+    }
+
+  }
+
+                    /* WARNING: Could not recover jumptable at 0x08043190. Too many branches */
+
+                    /* WARNING: Treating indirect jump as call */
+
+  (*UNRECOVERED_JUMPTABLE)();
+
+  return;
+
+}
+
+
+
+

@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "timelines": [
+    {"key": "quick", "id": 0, "name": "Quick", "releaseTick": 6, "recoveryTicks": 9,
+     "events": [{"tick": 0, "effect": "preview_ward", "anchor": "owner"}, {"tick": 6, "effect": "preview_impact", "anchor": "target"}]},
+    {"key": "heavy", "id": 1, "name": "Heavy", "releaseTick": 24, "recoveryTicks": 18,
+     "events": [{"tick": 0, "effect": "preview_ward", "anchor": "owner"}, {"tick": 24, "effect": "preview_storm", "anchor": "target"}]}
+  ]
+}

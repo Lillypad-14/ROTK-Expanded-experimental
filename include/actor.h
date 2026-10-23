@@ -6,6 +6,7 @@
 #include "actor/gatePanel.h"
 #include "actor/gemRain.h"
 #include "actor/lootPile.h"
+#include "actor/missionTimer.h"
 #include "actor/missionWarp.h"
 #include "actor/npc.h"
 #include "actor/player.h"
@@ -28,6 +29,8 @@ enum ActorCombatFlag
 {
     // evade a melee hit EVASION_CHANCE_PERCENT of the time
     ACTOR_COMBAT_FLAG_EVASIVE = 1 << 3,
+    // fights for the players until its Ring's Persuasion timer (field_0x54) runs out
+    ACTOR_COMBAT_FLAG_PERSUADED = 1 << 6,
 };
 
 /**
@@ -47,7 +50,7 @@ typedef union ActorCombatFlags {
         u8 evasive : 1;     // 1 << 3: evades a melee hit EVASION_CHANCE_PERCENT of the time
         u8 field_bit_4 : 1; // 1 << 4
         u8 field_bit_5 : 1; // 1 << 5
-        u8 field_bit_6 : 1; // 1 << 6
+        u8 persuaded : 1;   // 1 << 6: fights for the players while Ring's Persuasion lasts
         u8 field_bit_7 : 1; // 1 << 7
     } __attribute__((packed)) d;
 } __attribute__((packed)) ActorCombatFlags;
@@ -235,6 +238,14 @@ typedef struct ActorCombatState
         // [5]/[6] as actionStateTimer reloads; patrol kinds read [0]/[2]
         // as a target coordinate
         u8 enemyAiParams[8];
+
+        // enemy driven by a mission script command: u16 target position pair, then byte params
+        struct
+        {
+            u16 targetX;
+            u16 targetY;
+            u8 params[4];
+        } scripted;
     } head;
 
     u8 field_0x8c[2];
@@ -310,6 +321,7 @@ union ActorKindState {
     ActorGemRainState gemRain;
     ActorLootPileState lootPile;
     ActorMissionWarpState missionWarp;
+    ActorMissionTimerState missionTimer;
     ActorSwitchState switch_;
     ActorChestState chest;
     ActorBackpackIconState backpackIcon;
@@ -392,11 +404,14 @@ typedef enum ActorListId
 typedef enum ActorActionState
 {
     ACTOR_STATE_UNKNOWN_00 = 0x00,
+    ACTOR_STATE_UNKNOWN_03 = 0x03,
     ACTOR_STATE_UNKNOWN_04 = 0x04,
     ACTOR_STATE_HURT = 0x06, // set by player_addHp flinch (from states 1/2/5)
     ACTOR_STATE_UNKNOWN_08 = 0x08,
     ACTOR_STATE_ACTIVE_SKILL_CAST_RECOVERY = 0x0a,
     ACTOR_STATE_UNKNOWN_0E = 0x0e,
+    ACTOR_STATE_UNKNOWN_11 = 0x11,
+    ACTOR_STATE_UNKNOWN_15 = 0x15,
     ACTOR_STATE_STUNNED = 0x1a, // victim takes double melee damage; set by Immobilize hits
     ACTOR_STATE_UNKNOWN_22 = 0x22,
     // Start an active skill cast. A nonzero castTriggerFrame defers the callback to
@@ -415,6 +430,7 @@ typedef enum ActorActionState
     ACTOR_STATE_EOWYN_DOUBLE_STRIKE = 0x3a,
     ACTOR_STATE_EOWYN_SHIELD_BASH = 0x3b,
     ACTOR_STATE_SHIELD_SPENT = 0x40, // shield bubble leaves FX_ATTACHED for this on a block
+    ACTOR_STATE_GANDALF_SWORD_OF_POWER = 0x46,
     ACTOR_STATE_UNKNOWN_47 = 0x47,
     ACTOR_STATE_UNKNOWN_48 = 0x48,
     ACTOR_STATE_UNKNOWN_49 = 0x49,
@@ -425,6 +441,12 @@ typedef enum ActorActionState
     // Preserve the full unsigned byte range.
     ACTOR_STATE_STORAGE_MAX = 0xff,
 } __attribute__((packed)) ActorActionState;
+
+enum ActorSpriteFlag
+{
+    ACTOR_SPRITE_FLAG_FOLLOW_DOWN = 1 << 2,
+    ACTOR_SPRITE_FLAG_FOLLOW_UP = 1 << 3,
+};
 
 struct Actor
 {
@@ -449,7 +471,7 @@ struct Actor
     /**
      * render-follow target: while set, the per-frame render glue in
      * actor_tickAllInList (0x08003540) copies the target's render coords and layer
-     * bits into this actor, offset by spriteFlags bits 3/4 (attach FX set both this
+     * bits into this actor, offset by spriteFlags bits 2/3 (attach FX set both this
      * and parentActor)
      */
     struct Actor *renderFollowTarget;
@@ -484,7 +506,7 @@ struct Actor
     u8 currentAnimationFrame;
 
     /** active animation descriptor (sprite_setAnimation / 0x08001bf0) */
-    struct SpriteAnimation *spriteAnimation;
+    const struct SpriteAnimation *spriteAnimation;
 
     /** animation bytecode cursor, advanced by the animation VM (0x080022e4) */
     const u8 *animationScriptCursor;
@@ -702,7 +724,7 @@ struct Actor
     u8 triggerBoxCount;
 
     /**
-     * sprite-engine flag byte; bits 3/4 offset the render-follow glue
+     * sprite-engine flag byte; bits 2/3 offset the render-follow glue
      * (0x08003540), other bits gfx bookkeeping
      */
     u8 spriteFlags;
@@ -735,14 +757,46 @@ typedef struct ActorList
     Actor *head;
     Actor *tail;
 } ActorList;
-/** Prepend actor to the list (new head); does not touch tail. */
-void list_pushFront(ActorList *list, Actor *actor);
 
-/**
- * Park the gameplay world for a non-gameplay scene: suppress every main-list actor's tick
- * (ACTOR_FLAG_TICK_SUPPRESSED) and stash the list into g_ActorListParked, leaving
- * g_ActorListMain empty. actor_restoreParkedMainList reverses it.
- */
+typedef union ActorMovementScratch {
+    Vector2Fp16 acceleration;
+    u8 bytes[16];
+} ActorMovementScratch;
+
+/** Trigger-box storage also used for phase-based render offsets. */
+typedef union ActorTriggerScratch
+{
+    struct
+    {
+        u8 field_0x0[2];
+        struct ActorTriggerBox boxes[4];
+        u8 field_0x1a[2];
+    } triggers;
+    struct
+    {
+        u8 field_0x0[16];
+        u16 phaseX;
+        u16 phaseY;
+        s16 stepX;
+        s16 stepY;
+        s16 amplitudeX;
+        s16 amplitudeY;
+    } oscillation;
+} ActorTriggerScratch;
+
+typedef struct ActorTriggerScratchView
+{
+    u8 field_0x0[0x34];
+    ActorTriggerScratch scratch;
+} ActorTriggerScratchView;
+
+#define ACTOR_TRIGGER_SCRATCH(actor) (&((ActorTriggerScratchView *)(actor))->scratch)
+void list_pushFront(ActorList *list, Actor *actor);
+Actor *pool_alloc(Actor **freeList, ActorList *list, size_t size);
+Actor *pool_popFree(Actor **freeList);
+void pool_free(Actor **freeList, ActorList *list, Actor *actor);
+void list_remove(ActorList *list, Actor *actor);
+
 void actor_parkMainList(void);
 void actor_restoreParkedMainList(void);
 // OR / clear a flag mask on every actor in g_ActorListMain.
@@ -756,17 +810,18 @@ void actor_clearFlagsAll(u32 mask);
 typedef Actor ActorPoolMain[ACTOR_POOL_MAIN_CAPACITY];
 typedef Actor ActorPoolOverlay[ACTOR_POOL_OVERLAY_CAPACITY];
 
-/**
- * Iterate the actors within radius (16.16 fixed world units) of center. Pass 0 as cursor to start,
- * then the previous return each call; returns 0 when the sweep is done.
- */
 Actor *actor_iterateInRadius(Actor *center, Actor *cursor, s32 radius);
 
-/**
- * True when an actor is in a state that a burst/AoE may stun or interrupt - i.e. not already in a
- * protected actionState (0x04/0x11/0x13/0x15/0x1b), not behaviorState 0x2f, and not flagged 0x2.
- */
 bool actor_isStunnable(Actor *actor);
+
+/** Put an actor into its default behavior, chosen by actor type (player, NPC, other). */
+void actor_initBehaviorByType(Actor *actor);
+
+/**
+ * Turn an enemy to the players' side for frames (Ring's Persuasion). On an enemy that is already
+ * persuaded it only resets the timer to frames.
+ */
+void actor_applyPersuasion(Actor *enemy, u16 frames);
 
 // Actor-behavior helpers consumed by the melee-combat path.
 
@@ -775,6 +830,9 @@ bool actor_isStunnable(Actor *actor);
  * into `out` and return the frame's gfx id.
  */
 u16 actor_getAnimationFrame(Actor *actor, u32 *out);
+
+/** Write the actor position plus a (offX, offY) offset to out. */
+void actor_getOffsetPosition(Actor *actor, u8 offY, Vector2Fp16 *out, s8 offX);
 /** Direction8 from actor `from` toward actor `to`. */
 s32 actor_direction8Toward(Actor *from, Actor *to);
 
@@ -787,17 +845,13 @@ static inline s32 actor_distance(Actor *a, Actor *b)
     math_vector2_fromFp16(&b->coords, &posB);
     return math_vector2_distance(posA, posB);
 }
-/**
- * Set a 2-word velocity vector (Actor.velocity) from Direction8MoveVectors[direction] * speed;
- * flags bit 24 (1 << 24) selects Direction8MoveVectorsSteep instead.
- */
+void actor_clearVelocity(Actor *actor);
+void actor_applyFacingVelocity(Actor *actor);
+void actor_updateMoveFlags(Actor *actor);
 void actor_setVelocityFromDirection8(Vector2Fp16 *velocityOut, u32 flags, s32 direction, s32 speed);
+void actor_updateBgPriorityFromTerrain(Actor *actor);
 /** Apply knockback to `victim` away from `attacker` for `duration` frames. */
-void actor_applyKnockback(Actor *victim, Actor *attacker, u32 duration);
-/**
- * Clear the current actionState's leftovers (sprite slots, state flags, per-player busy bit)
- * before a new state is entered.
- */
+void actor_applyKnockback(Actor *victim, Actor *attacker, u8 duration);
 void actor_resetActionState(Actor *actor);
 
 /**
@@ -828,3 +882,47 @@ void actor_alignTouching(Actor *self, Actor *touching);
  * behavior link once (latching behaviorState 6), then align the player.
  */
 void actor_proximityLinkTrigger(Actor *self, Actor *player);
+
+/** Pose-and-facing setters used by script op 43, one per actor family. */
+void actor_unknown08036344(Actor *actor, u8 pose, u8 facingVariant);
+void actor_unknown080378fc(Actor *actor, u8 pose, u8 facingVariant);
+void actor_unknown080379bc(Actor *actor, u8 pose, u8 facingVariant);
+void actor_unknown0804949c(Actor *actor, u8 pose, u8 facingVariant);
+void actor_unknown0801b6f4(Actor *actor, u8 pose, u8 facingVariant);
+void actor_unknown0801a70c(Actor *actor, u8 pose, u8 facingVariant);
+void actor_unknown0803c1f0(Actor *actor, u8 pose, u8 facingVariant);
+void actor_unknown0801c250(Actor *actor, u8 pose, u8 facingVariant);
+u32 actor_unknown08045584(Actor *actor);
+void actor_unknown080169b4(Actor *self, Actor *other);
+void actor_unknown0801653c(Actor *self, Actor *other);
+void actor_unknown080168a4(Actor *self, Actor *other);
+void gfx_startScreenShake(s32 magnitude, s32 frames, u8 flag);
+void actor_unknown08016958(Actor *self, Actor *other);
+bool actor_unknown08009b04(Actor *actor, u8 arg);
+void actor_unknown08008558(Actor *actor, u8 arg, u8 *a, u8 *b, u8 *c);
+/** Stun the actor for duration frames if it can be stunned. */
+void actor_stun(Actor *actor, u16 duration);
+/** True when any enabled trigger box of `self` overlaps the movement collision box of `other`. */
+bool actor_triggerBoxesOverlapMovementBox(Actor *self, Actor *other);
+void actor_spawnGroupOnTouch(Actor *self, Actor *touching);
+void actor_dialogTrigger(Actor *self, Actor *touching);
+void actor_setBehaviorStateOnTouch(Actor *self, Actor *touching);
+/** Enter the death or hurt state once an actor's HP drops to zero. */
+void actor_checkDeath(Actor *actor);
+Actor *actor_unknown08008b74(Actor *self, u32 *outDistance);
+void actor_unknown0800a64c(Actor *self);
+bool actor_unknown0800a68c(Actor *self, u8 radius);
+void actor_unknown0800a6f4(Actor *self);
+void actor_onDeathDropLoot(Actor *self);
+Direction8 actor_direction8TowardPoint(s32 x, s32 y, s32 targetX, s32 targetY, s32 tolerance);
+void actor_unknown0800b5bc(Actor *self);
+bool actor_isFacingActor(Actor *self, Actor *target);
+void actor_unknown0800b248(Actor *self);
+
+void actor_unknown08009dec(Actor *actor);
+void actor_unknown080370a4(Actor *actor);
+void actor_unknown0801b798(Actor *actor);
+void actor_unknown0804955c(Actor *actor);
+void actor_unknown080495b8(Actor *actor);
+void actor_unknown0801b6a0(Actor *actor);
+void actor_unknown080229d8(Actor *actor);

@@ -1,0 +1,53 @@
+[Context] Operating on: rotk
+
+Decompiled function actor_allocMain:
+
+
+
+Actor * actor_allocMain(void)
+
+
+
+{
+
+  Actor *pAVar1;
+
+  code *UNRECOVERED_JUMPTABLE;
+
+  
+
+  pAVar1 = (Actor *)pool_alloc(&g_ActorPoolMainFreeList,&g_ActorListMain,0x148);
+
+  if (pAVar1 != (Actor *)0x0) {
+
+    if (g_ActorListMain.tail == (Actor *)0x0) {
+
+      g_ActorListMain.tail = pAVar1;
+
+    }
+
+    pAVar1->type = ACTOR_TYPE_STORAGE_MAX;
+
+    pAVar1->tileNumber = 0xffff;
+
+    pAVar1->listId = ACTOR_LIST_MAIN;
+
+    (pAVar1->sprite).scaleFramesLeft = 0;
+
+    func_0x080365c0(&pAVar1->oam);
+
+  }
+
+                    /* WARNING: Could not recover jumptable at 0x080016e8. Too many branches */
+
+                    /* WARNING: Treating indirect jump as call */
+
+  pAVar1 = (Actor *)(*UNRECOVERED_JUMPTABLE)(pAVar1);
+
+  return pAVar1;
+
+}
+
+
+
+

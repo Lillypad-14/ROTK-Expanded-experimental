@@ -1,0 +1,7 @@
+[("""    u8 pos = hollowSlot + 1;
+""","""    u8 pos = hollowSlot + 1;
+    const void *frame = ShopHollowSlotFrameAsset;
+"""),
+("gfx_loadBgAsset(3, ShopHollowSlotFrameAsset,","gfx_loadBgAsset(3, frame,"),
+("""    gfx_loadBgAsset(2, ITEM""","""    const void *icon = ITEM_TYPE_INFO(item).baseGfx[item.d.baseIndex].hollowIcon;
+    gfx_loadBgAsset(2, ITEM""")]

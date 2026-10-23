@@ -3,6 +3,9 @@
 #include "player.h" // ACTIVE_PLAYER_INDEX
 #include "types.h"
 
+/** Whether the given player slot (0 or 1) is present. */
+u8 input_isPlayerPresent(u32 playerIndex);
+
 // Per-slot shorthands for the two key-state array sets: the gameplay set (link-synced in
 // co-op) and the menu set.
 #define PLAYER_KEYS_CURRENT(playerIndex) g_PlayerKeysCurrent[playerIndex]

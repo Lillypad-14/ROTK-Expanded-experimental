@@ -1,0 +1,4 @@
+insn 60: alloc r6 (reload 0, pass 1, last_spill -1, n_spills 2)
+insn 68: alloc r7 (reload 0, pass 1, last_spill 0, n_spills 2)
+insn 68: skip r7 (reload 1, pass 0): busy: this insn
+insn 68: alloc r6 (reload 1, pass 1, last_spill 1, n_spills 2)

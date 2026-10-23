@@ -1,0 +1,205 @@
+[Context] Operating on: rotk
+
+Decompiled function scene_skillTree_buySkill:
+
+
+
+void scene_skillTree_buySkill(u8 playerIndex)
+
+
+
+{
+
+  MpMessageArgs args;
+
+  u32 uVar1;
+
+  byte bVar2;
+
+  u8 msgId;
+
+  uint playerIndex_00;
+
+  s32 sVar3;
+
+  char *pcVar4;
+
+  u8 *puVar5;
+
+  code *UNRECOVERED_JUMPTABLE;
+
+  undefined4 in_stack_ffffffb4;
+
+  undefined4 in_stack_ffffffb8;
+
+  byte passiveSkillId;
+
+  undefined1 in_stack_ffffffbf;
+
+  char acStack_38 [16];
+
+  uint uStack_28;
+
+  int iStack_24;
+
+  
+
+  uVar1 = g_SceneCurrent.args[1];
+
+  playerIndex_00 = (uint)playerIndex;
+
+  iStack_24 = playerIndex_00 * 0x1ac;
+
+  puVar5 = &g_PlayerGlobals.players[playerIndex_00].skillPoints;
+
+  if (*puVar5 != '\0') {
+
+    if (g_SceneCurrent.args[3] == 1) {
+
+      sVar3 = scene_skillTree_getRequiredLevel(playerIndex_00,g_SceneCurrent.args[1]);
+
+      if ((sVar3 <= (int)(g_PlayerGlobals.players[playerIndex_00].level + 1)) && (sVar3 != -1)) {
+
+        if ((g_GameFlags.p & 0x20) == 0) {
+
+          skill_active_addLevels(playerIndex,(byte)g_SceneCurrent.args[1],'\x01');
+
+          *puVar5 = *puVar5 + 0xff;
+
+          if (playerIndex_00 == g_PlayerGlobals.activePlayerIndex) {
+
+            gfx_loadBgAsset(2,&UNK_08baf53c,0x2ff,6,0xe,0xb);
+
+            font_setStyle(FONT_STYLE_21PX,3,-1);
+
+            gfx_fillBgRect(3,0xe,0xb,5,4,0);
+
+            pcVar4 = text_formatInt((uint)g_PlayerGlobals.players[playerIndex_00].skillPoints,
+
+                                    acStack_38);
+
+            font_drawString(0xdd,0x82,0x5e,pcVar4,1);
+
+            scene_skillTree_drawActiveTile
+
+                      (playerIndex,(u8)uVar1,(byte)g_SceneCurrent.args[1],
+
+                       g_PlayerGlobals.players[0].activeSkillLevels[uVar1 + iStack_24]);
+
+            scene_skillTree_drawDescription();
+
+            sfx_play(0x32);
+
+          }
+
+          goto LAB_080421de;
+
+        }
+
+        passiveSkillId = 0;
+
+        msgId = '\"';
+
+        bVar2 = (byte)g_SceneCurrent.args[1];
+
+LAB_08042112:
+
+        args.words[1] = in_stack_ffffffb8;
+
+        args.words[0] = in_stack_ffffffb4;
+
+        args.words[2]._0_1_ = (byte)g_SceneCurrent.args[1];
+
+        args.words[2]._1_1_ = passiveSkillId;
+
+        args.words[2]._2_1_ = bVar2;
+
+        args.words[2]._3_1_ = in_stack_ffffffbf;
+
+        multiplayer_queueMessage(msgId,args);
+
+        goto LAB_080421de;
+
+      }
+
+    }
+
+    else if (g_SceneCurrent.args[3] == 2) {
+
+      passiveSkillId = g_SkillTreePassiveTileSkillIds[g_SceneCurrent.args[1]];
+
+      sVar3 = scene_skillTree_getRequiredLevel(playerIndex_00,(uint)passiveSkillId);
+
+      bVar2 = skill_passive_findSlot(playerIndex,passiveSkillId);
+
+      uStack_28 = (uint)bVar2;
+
+      if ((sVar3 <= (int)(g_PlayerGlobals.players[playerIndex_00].level + 1)) && (sVar3 != -1)) {
+
+        if ((g_GameFlags.p & 0x20) == 0) {
+
+          skill_passive_addLevels(playerIndex,passiveSkillId,'\x01');
+
+          *puVar5 = *puVar5 + 0xff;
+
+          if (playerIndex_00 == g_PlayerGlobals.activePlayerIndex) {
+
+            gfx_loadBgAsset(2,&UNK_08baf53c,0x2ff,6,0xe,0xb);
+
+            font_setStyle(FONT_STYLE_21PX,3,-1);
+
+            gfx_fillBgRect(3,0xe,0xb,5,4,0);
+
+            pcVar4 = text_formatInt((uint)g_PlayerGlobals.players[playerIndex_00].skillPoints,
+
+                                    acStack_38);
+
+            font_drawString(0xdd,0x82,0x5e,pcVar4,1);
+
+            scene_skillTree_drawPassiveTile
+
+                      (playerIndex,passiveSkillId,(byte)g_SceneCurrent.args[1],
+
+                       g_PlayerGlobals.players[0].passiveSkillLevelsApplied[uStack_28 + iStack_24]);
+
+            scene_skillTree_drawDescription();
+
+            sfx_play(0x31);
+
+          }
+
+          goto LAB_080421de;
+
+        }
+
+        msgId = '!';
+
+        goto LAB_08042112;
+
+      }
+
+    }
+
+  }
+
+  if (playerIndex_00 == g_PlayerGlobals.activePlayerIndex) {
+
+    sfx_play(5);
+
+  }
+
+LAB_080421de:
+
+                    /* WARNING: Could not recover jumptable at 0x080421ec. Too many branches */
+
+                    /* WARNING: Treating indirect jump as call */
+
+  (*UNRECOVERED_JUMPTABLE)();
+
+  return;
+
+}
+
+
+
+

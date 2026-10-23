@@ -1,0 +1,49 @@
+[Context] Operating on: rotk
+
+Decompiled function actor_allocOverlay:
+
+
+
+Actor * actor_allocOverlay(void)
+
+
+
+{
+
+  Actor *pAVar1;
+
+  code *UNRECOVERED_JUMPTABLE;
+
+  
+
+  pAVar1 = (Actor *)pool_alloc(&g_ActorPoolOverlayFreeList,&g_ActorListOverlay,0x148);
+
+  if (g_ActorListOverlay.tail == (Actor *)0x0) {
+
+    g_ActorListOverlay.tail = pAVar1;
+
+  }
+
+  if (pAVar1 != (Actor *)0x0) {
+
+    pAVar1->type = ACTOR_TYPE_STORAGE_MAX;
+
+    pAVar1->tileNumber = 0xffff;
+
+    pAVar1->listId = ACTOR_LIST_OVERLAY;
+
+  }
+
+                    /* WARNING: Could not recover jumptable at 0x08001952. Too many branches */
+
+                    /* WARNING: Treating indirect jump as call */
+
+  pAVar1 = (Actor *)(*UNRECOVERED_JUMPTABLE)(pAVar1);
+
+  return pAVar1;
+
+}
+
+
+
+

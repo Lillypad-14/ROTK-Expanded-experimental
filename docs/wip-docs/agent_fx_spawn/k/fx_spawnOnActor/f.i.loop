@@ -1,0 +1,852 @@
+
+;; Function fx_spawnOnActor
+
+(note 2 0 4 "" NOTE_INSN_DELETED)
+
+(insn 4 2 6 (set (reg/v:SI 22)
+        (reg:SI 0 r0)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 6 4 14 (set (reg:SI 24)
+        (reg:SI 1 r1)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 14 6 22 (set (reg:SI 29)
+        (reg:SI 2 r2)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 22 14 9 (set (reg:SI 34)
+        (reg:SI 3 r3)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 9 22 10 (set (reg:SI 26)
+        (ashift:SI (reg:SI 24)
+            (const_int 24))) 39 {ashlsi3} (nil)
+    (nil))
+
+(insn 10 9 17 (set (reg/v:SI 23)
+        (lshiftrt:SI (reg:SI 26)
+            (const_int 24))) 41 {lshrsi3} (nil)
+    (expr_list:REG_EQUAL (zero_extend:SI (subreg:QI (reg:SI 24) 0))
+        (nil)))
+
+(insn 17 10 18 (set (reg:SI 31)
+        (ashift:SI (reg:SI 29)
+            (const_int 24))) 39 {ashlsi3} (nil)
+    (nil))
+
+(insn 18 17 25 (set (reg/v:SI 28)
+        (lshiftrt:SI (reg:SI 31)
+            (const_int 24))) 41 {lshrsi3} (nil)
+    (expr_list:REG_EQUAL (zero_extend:SI (subreg:QI (reg:SI 29) 0))
+        (nil)))
+
+(insn 25 18 26 (set (reg:SI 36)
+        (ashift:SI (reg:SI 34)
+            (const_int 24))) 39 {ashlsi3} (nil)
+    (nil))
+
+(insn 26 25 29 (set (reg/v:SI 33)
+        (lshiftrt:SI (reg:SI 36)
+            (const_int 24))) 41 {lshrsi3} (nil)
+    (expr_list:REG_EQUAL (zero_extend:SI (subreg:QI (reg:SI 34) 0))
+        (nil)))
+
+(note 29 26 30 "" NOTE_INSN_FUNCTION_BEG)
+
+(note 30 29 32 "" NOTE_INSN_DELETED)
+
+(note 32 30 35 0 NOTE_INSN_BLOCK_BEG)
+
+(call_insn 35 32 37 (set (reg:SI 0 r0)
+        (call (mem:SI (symbol_ref:SI ("actor_allocMain")) 0)
+            (const_int 0))) -1 (nil)
+    (nil)
+    (nil))
+
+(insn 37 35 39 (set (reg/v:SI 39)
+        (reg:SI 0 r0)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 39 37 40 (set (cc0)
+        (reg/v:SI 39)) 45 {tstsi} (nil)
+    (nil))
+
+(jump_insn 40 39 42 (set (pc)
+        (if_then_else (ne (cc0)
+                (const_int 0))
+            (label_ref 49)
+            (pc))) 58 {*cond_branch} (nil)
+    (nil))
+
+(note 42 40 44 "" NOTE_INSN_DELETED)
+
+(insn 44 42 46 (set (reg/i:SI 0 r0)
+        (const_int 0)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (const_int 0)
+        (nil)))
+
+(jump_insn 46 44 47 (set (pc)
+        (label_ref 475)) -1 (nil)
+    (nil))
+
+(barrier 47 46 49)
+
+(code_label 49 47 53 9 "")
+
+(insn 53 49 54 (set (reg:SI 43)
+        (ashift:SI (reg/v:SI 23)
+            (const_int 2))) 39 {ashlsi3} (nil)
+    (expr_list:REG_EQUAL (mult:SI (reg/v:SI 23)
+            (const_int 4))
+        (nil)))
+
+(insn 54 53 55 (set (reg:SI 44)
+        (plus:SI (reg:SI 43)
+            (reg/v:SI 23))) 27 {addsi3} (nil)
+    (expr_list:REG_EQUAL (mult:SI (reg/v:SI 23)
+            (const_int 5))
+        (nil)))
+
+(insn 55 54 57 (set (reg:SI 45)
+        (ashift:SI (reg:SI 44)
+            (const_int 2))) 39 {ashlsi3} (nil)
+    (expr_list:REG_EQUAL (mult:SI (reg/v:SI 23)
+            (const_int 20))
+        (nil)))
+
+(insn 57 55 58 (set (reg:SI 46)
+        (mem/u:SI (symbol_ref/u:SI ("*.LC0")) 0)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (symbol_ref:SI ("g_FxDescTable"))
+        (nil)))
+
+(insn 58 57 61 (set (reg/v:SI 40)
+        (plus:SI (reg:SI 45)
+            (reg:SI 46))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 61 58 65 (set (reg:QI 47)
+        (mem/s:QI (plus:SI (reg/v:SI 40)
+                (const_int 16)) 0)) 7 {*movqi_insn} (nil)
+    (nil))
+
+(insn 65 61 66 (set (reg:SI 50)
+        (const_int 4)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (const_int 4)
+        (nil)))
+
+(insn 66 65 69 (set (reg:SI 49)
+        (and:SI (subreg:SI (reg:QI 47) 0)
+            (reg:SI 50))) 34 {*andsi3_insn} (nil)
+    (expr_list:REG_EQUAL (and:SI (subreg:SI (reg:QI 47) 0)
+            (const_int 4))
+        (nil)))
+
+(insn 69 66 70 (set (reg:SI 52)
+        (ashift:SI (reg:SI 49)
+            (const_int 24))) 39 {ashlsi3} (nil)
+    (nil))
+
+(insn 70 69 477 (set (reg:SI 51)
+        (lshiftrt:SI (reg:SI 52)
+            (const_int 24))) 41 {lshrsi3} (nil)
+    (expr_list:REG_EQUAL (zero_extend:SI (subreg:QI (reg:SI 49) 0))
+        (nil)))
+
+(insn 477 70 71 (set (reg:SI 215)
+        (ashift:SI (reg/v:SI 23)
+            (const_int 2))) -1 (nil)
+    (nil))
+
+(insn 71 477 72 (set (cc0)
+        (reg:SI 51)) 45 {tstsi} (nil)
+    (nil))
+
+(jump_insn 72 71 74 (set (pc)
+        (if_then_else (eq (cc0)
+                (const_int 0))
+            (label_ref 109)
+            (pc))) 58 {*cond_branch} (nil)
+    (nil))
+
+(note 74 72 76 "" NOTE_INSN_DELETED)
+
+(insn 76 74 78 (set (reg:SI 55)
+        (reg:SI 7 r7)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 78 76 80 (set (reg:SI 0 r0)
+        (reg/v:SI 22)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 80 78 82 (set (reg:SI 1 r1)
+        (reg:SI 55)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (reg:SI 7 r7)
+        (nil)))
+
+(call_insn 82 80 86 (set (reg:HI 0 r0)
+        (call (mem:SI (symbol_ref:SI ("actor_getAnimationFrame")) 0)
+            (const_int 0))) -1 (nil)
+    (nil)
+    (expr_list (use (reg:SI 1 r1))
+        (expr_list (use (reg:SI 0 r0))
+            (nil))))
+
+(insn 86 82 88 (set (reg:SI 57)
+        (plus:SI (reg/v:SI 22)
+            (const_int 172))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 88 86 89 (set (reg:SI 58)
+        (mem/s:SI (reg:SI 57) 1)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 89 88 95 (set (mem/s:SI (reg:SI 7 r7) 1)
+        (reg:SI 58)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 95 89 99 (set (reg:SI 61)
+        (plus:SI (reg/v:SI 22)
+            (const_int 176))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 99 95 100 (set (reg:SI 63)
+        (mem/s:SI (plus:SI (reg:SI 55)
+                (const_int 4)) 1)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 100 99 102 (set (reg:SI 64)
+        (ashift:SI (reg:SI 63)
+            (const_int 15))) 39 {ashlsi3} (nil)
+    (nil))
+
+(insn 102 100 103 (set (reg:SI 65)
+        (mem/s:SI (reg:SI 61) 1)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 103 102 105 (set (reg:SI 66)
+        (minus:SI (reg:SI 65)
+            (reg:SI 64))) 30 {subsi3} (nil)
+    (nil))
+
+(insn 105 103 107 (set (mem/s:SI (plus:SI (reg:SI 55)
+                (const_int 4)) 1)
+        (reg:SI 66)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(jump_insn 107 105 108 (set (pc)
+        (label_ref 165)) -1 (nil)
+    (nil))
+
+(barrier 108 107 109)
+
+(code_label 109 108 116 10 "")
+
+(insn 116 109 117 (set (reg:SI 70)
+        (const_int 2)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (const_int 2)
+        (nil)))
+
+(insn 117 116 120 (set (reg:SI 69)
+        (and:SI (subreg:SI (reg:QI 47) 0)
+            (reg:SI 70))) 34 {*andsi3_insn} (nil)
+    (expr_list:REG_EQUAL (and:SI (subreg:SI (reg:QI 47) 0)
+            (const_int 2))
+        (nil)))
+
+(insn 120 117 121 (set (reg:SI 72)
+        (ashift:SI (reg:SI 69)
+            (const_int 24))) 39 {ashlsi3} (nil)
+    (nil))
+
+(insn 121 120 122 (set (reg:SI 71)
+        (lshiftrt:SI (reg:SI 72)
+            (const_int 24))) 41 {lshrsi3} (nil)
+    (expr_list:REG_EQUAL (zero_extend:SI (subreg:QI (reg:SI 69) 0))
+        (nil)))
+
+(insn 122 121 123 (set (cc0)
+        (reg:SI 71)) 45 {tstsi} (nil)
+    (nil))
+
+(jump_insn 123 122 125 (set (pc)
+        (if_then_else (eq (cc0)
+                (const_int 0))
+            (label_ref 145)
+            (pc))) 58 {*cond_branch} (nil)
+    (nil))
+
+(note 125 123 127 "" NOTE_INSN_DELETED)
+
+(insn 127 125 129 (set (reg:SI 74)
+        (zero_extend:SI (mem/s:QI (plus:SI (reg/v:SI 40)
+                    (const_int 18)) 0))) 17 {*zero_extendqisi2_insn} (nil)
+    (nil))
+
+(insn 129 127 131 (set (reg:SI 75)
+        (reg:SI 7 r7)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 131 129 133 (set (reg:SI 76)
+        (sign_extend:SI (mem/s:QI (plus:SI (reg/v:SI 40)
+                    (const_int 17)) 0))) 21 {*extendqisi2_insn} (nil)
+    (nil))
+
+(insn 133 131 135 (set (reg:SI 0 r0)
+        (reg/v:SI 22)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 135 133 137 (set (reg:SI 1 r1)
+        (reg:SI 74)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 137 135 139 (set (reg:SI 2 r2)
+        (reg:SI 75)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (reg:SI 7 r7)
+        (nil)))
+
+(insn 139 137 141 (set (reg:SI 3 r3)
+        (reg:SI 76)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(call_insn 141 139 143 (call (mem:SI (symbol_ref:SI ("actor_unk0800103c")) 0)
+        (const_int 0)) -1 (nil)
+    (nil)
+    (expr_list (use (reg:SI 3 r3))
+        (expr_list (use (reg:SI 2 r2))
+            (expr_list (use (reg:SI 1 r1))
+                (expr_list (use (reg:SI 0 r0))
+                    (nil))))))
+
+(jump_insn 143 141 144 (set (pc)
+        (label_ref 165)) -1 (nil)
+    (nil))
+
+(barrier 144 143 145)
+
+(code_label 145 144 147 12 "")
+
+(note 147 145 149 "" NOTE_INSN_DELETED)
+
+(insn 149 147 152 (set (reg:SI 77)
+        (reg:SI 7 r7)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 152 149 154 (set (reg:SI 79)
+        (plus:SI (reg/v:SI 22)
+            (const_int 176))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 154 152 155 (set (reg:SI 80)
+        (mem/s:SI (reg:SI 79) 1)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 155 154 159 (set (mem/s:SI (plus:SI (reg:SI 77)
+                (const_int 4)) 1)
+        (reg:SI 80)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 159 155 161 (set (reg:SI 82)
+        (plus:SI (reg/v:SI 22)
+            (const_int 172))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 161 159 162 (set (reg:SI 83)
+        (mem/s:SI (reg:SI 82) 1)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 162 161 165 (set (mem/s:SI (reg:SI 7 r7) 1)
+        (reg:SI 83)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(code_label 165 162 169 11 "")
+
+(insn 169 165 172 (set (reg:SI 85)
+        (plus:SI (reg/v:SI 39)
+            (const_int 204))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 172 169 175 (set (reg:SI 87)
+        (plus:SI (reg/v:SI 39)
+            (const_int 172))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 175 172 177 (set (reg:SI 89)
+        (plus:SI (reg/v:SI 39)
+            (const_int 164))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 177 175 179 (set (reg:SI 90)
+        (mem/s:SI (reg:SI 7 r7) 1)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 179 177 183 (set (mem:SI (reg:SI 89) 1)
+        (reg:SI 90)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 183 179 185 (set (mem/s:SI (reg:SI 87) 1)
+        (reg:SI 90)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 185 183 189 (set (mem/s:SI (reg:SI 85) 1)
+        (reg:SI 90)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 189 185 192 (set (reg:SI 93)
+        (plus:SI (reg/v:SI 39)
+            (const_int 208))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 192 189 195 (set (reg:SI 95)
+        (plus:SI (reg/v:SI 39)
+            (const_int 176))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 195 192 197 (set (reg:SI 97)
+        (plus:SI (reg/v:SI 39)
+            (const_int 168))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 197 195 199 (set (reg:SI 98)
+        (reg:SI 7 r7)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 199 197 201 (set (reg:SI 99)
+        (mem/s:SI (plus:SI (reg:SI 98)
+                (const_int 4)) 1)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 201 199 205 (set (mem:SI (reg:SI 97) 1)
+        (reg:SI 99)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 205 201 207 (set (mem/s:SI (reg:SI 95) 1)
+        (reg:SI 99)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 207 205 211 (set (mem/s:SI (reg:SI 93) 1)
+        (reg:SI 99)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 211 207 213 (set (reg:SI 102)
+        (plus:SI (reg/v:SI 39)
+            (const_int 180))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 213 211 214 (set (reg:SI 103)
+        (const_int 0)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (const_int 0)
+        (nil)))
+
+(insn 214 213 218 (set (mem/s:SI (reg:SI 102) 1)
+        (reg:SI 103)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 218 214 221 (set (reg:SI 105)
+        (plus:SI (reg/v:SI 39)
+            (const_int 184))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 221 218 224 (set (mem/s:SI (reg:SI 105) 1)
+        (reg:SI 103)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 224 221 228 (set (mem/s:SI (plus:SI (reg/v:SI 39)
+                (const_int 12)) 5)
+        (reg/v:SI 22)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 228 224 229 (set (reg:SI 108)
+        (reg:SI 215)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (mult:SI (reg/v:SI 23)
+            (const_int 4))
+        (nil)))
+
+(insn 229 228 230 (set (reg:SI 109)
+        (plus:SI (reg:SI 108)
+            (reg/v:SI 23))) 27 {addsi3} (nil)
+    (expr_list:REG_EQUAL (mult:SI (reg/v:SI 23)
+            (const_int 5))
+        (nil)))
+
+(insn 230 229 232 (set (reg:SI 110)
+        (ashift:SI (reg:SI 109)
+            (const_int 2))) 39 {ashlsi3} (nil)
+    (expr_list:REG_EQUAL (mult:SI (reg/v:SI 23)
+            (const_int 20))
+        (nil)))
+
+(insn 232 230 233 (set (reg:SI 111)
+        (mem/u:SI (symbol_ref/u:SI ("*.LC0")) 0)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (symbol_ref:SI ("g_FxDescTable"))
+        (nil)))
+
+(insn 233 232 236 (set (reg/v:SI 40)
+        (plus:SI (reg:SI 110)
+            (reg:SI 111))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 236 233 238 (set (reg:SI 0 r0)
+        (reg/v:SI 39)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 238 236 240 (set (reg:SI 1 r1)
+        (reg/v:SI 40)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(call_insn 240 238 244 (call (mem:SI (symbol_ref:SI ("sprite_setAnimation")) 0)
+        (const_int 0)) -1 (nil)
+    (nil)
+    (expr_list (use (reg:SI 1 r1))
+        (expr_list (use (reg:SI 0 r0))
+            (nil))))
+
+(insn 244 240 247 (set (reg:SI 113)
+        (plus:SI (reg/v:SI 39)
+            (const_int 225))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 247 244 249 (set (reg:SI 115)
+        (ashift:SI (reg/v:SI 28)
+            (const_int 4))) 39 {ashlsi3} (nil)
+    (nil))
+
+(insn 249 247 253 (set (reg:QI 116)
+        (mem/s:QI (reg:SI 113) 0)) 7 {*movqi_insn} (nil)
+    (nil))
+
+(insn 253 249 254 (set (reg:SI 119)
+        (const_int 15)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (const_int 15)
+        (nil)))
+
+(insn 254 253 259 (set (reg:SI 118)
+        (and:SI (subreg:SI (reg:QI 116) 0)
+            (reg:SI 119))) 34 {*andsi3_insn} (nil)
+    (expr_list:REG_EQUAL (and:SI (subreg:SI (reg:QI 116) 0)
+            (const_int 15))
+        (nil)))
+
+(insn 259 254 262 (set (reg:SI 122)
+        (ior:SI (reg:SI 118)
+            (reg:SI 115))) 36 {iorsi3} (nil)
+    (nil))
+
+(insn 262 259 266 (set (mem/s:QI (reg:SI 113) 0)
+        (subreg:QI (reg:SI 122) 0)) 7 {*movqi_insn} (nil)
+    (nil))
+
+(insn 266 262 268 (set (reg:SI 125)
+        (plus:SI (reg/v:SI 22)
+            (const_int 225))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 268 266 269 (set (reg:QI 126)
+        (mem/s:QI (reg:SI 125) 0)) 7 {*movqi_insn} (nil)
+    (nil))
+
+(insn 269 268 270 (set (reg:SI 128)
+        (ashift:SI (subreg:SI (reg:QI 126) 0)
+            (const_int 28))) 39 {ashlsi3} (nil)
+    (nil))
+
+(insn 270 269 275 (set (subreg:SI (reg:HI 127) 0)
+        (lshiftrt:SI (reg:SI 128)
+            (const_int 30))) 41 {lshrsi3} (nil)
+    (nil))
+
+(insn 275 270 277 (set (reg:QI 131)
+        (const_int 3)) 7 {*movqi_insn} (nil)
+    (expr_list:REG_EQUAL (const_int 3)
+        (nil)))
+
+(insn 277 275 279 (set (reg:QI 132)
+        (subreg:QI (reg:HI 127) 0)) 7 {*movqi_insn} (nil)
+    (nil))
+
+(insn 279 277 280 (set (reg:SI 134)
+        (subreg:SI (reg:QI 132) 0)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 280 279 283 (set (reg:SI 133)
+        (and:SI (reg:SI 134)
+            (subreg:SI (reg:QI 131) 0))) 34 {*andsi3_insn} (nil)
+    (expr_list:REG_EQUAL (and:SI (subreg:SI (reg:QI 132) 0)
+            (const_int 3))
+        (nil)))
+
+(insn 283 280 287 (set (reg:SI 136)
+        (ashift:SI (reg:SI 133)
+            (const_int 2))) 39 {ashlsi3} (nil)
+    (nil))
+
+(insn 287 283 289 (set (reg:QI 138)
+        (const_int -13)) 7 {*movqi_insn} (nil)
+    (expr_list:REG_EQUAL (const_int -13)
+        (nil)))
+
+(insn 289 287 290 (set (reg:SI 140)
+        (subreg:SI (reg:QI 138) 0)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (const_int -13)
+        (nil)))
+
+(insn 290 289 295 (set (reg:SI 139)
+        (and:SI (reg:SI 122)
+            (reg:SI 140))) 34 {*andsi3_insn} (nil)
+    (expr_list:REG_EQUAL (and:SI (reg:SI 122)
+            (subreg:SI (reg:QI 138) 0))
+        (nil)))
+
+(insn 295 290 298 (set (reg:SI 143)
+        (ior:SI (reg:SI 139)
+            (reg:SI 136))) 36 {iorsi3} (nil)
+    (nil))
+
+(insn 298 295 302 (set (mem/s:QI (reg:SI 113) 0)
+        (subreg:QI (reg:SI 143) 0)) 7 {*movqi_insn} (nil)
+    (nil))
+
+(insn 302 298 304 (set (reg:SI 146)
+        (plus:SI (reg/v:SI 39)
+            (const_int 221))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 304 302 309 (set (reg:QI 147)
+        (mem/s:QI (reg:SI 146) 0)) 7 {*movqi_insn} (nil)
+    (nil))
+
+(insn 309 304 312 (set (reg:SI 149)
+        (and:SI (subreg:SI (reg:QI 147) 0)
+            (reg:SI 140))) 34 {*andsi3_insn} (nil)
+    (expr_list:REG_EQUAL (and:SI (subreg:SI (reg:QI 147) 0)
+            (const_int -13))
+        (nil)))
+
+(insn 312 309 320 (set (mem/s:QI (reg:SI 146) 0)
+        (subreg:QI (reg:SI 149) 0)) 7 {*movqi_insn} (nil)
+    (nil))
+
+(insn 320 312 322 (set (reg:QI 155)
+        (const_int -33)) 7 {*movqi_insn} (nil)
+    (expr_list:REG_EQUAL (const_int -33)
+        (nil)))
+
+(insn 322 320 323 (set (reg:SI 157)
+        (subreg:SI (reg:QI 155) 0)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (const_int -33)
+        (nil)))
+
+(insn 323 322 326 (set (reg:SI 156)
+        (and:SI (reg:SI 149)
+            (reg:SI 157))) 34 {*andsi3_insn} (nil)
+    (expr_list:REG_EQUAL (and:SI (reg:SI 149)
+            (subreg:SI (reg:QI 155) 0))
+        (nil)))
+
+(insn 326 323 330 (set (mem/s:QI (reg:SI 146) 0)
+        (subreg:QI (reg:SI 156) 0)) 7 {*movqi_insn} (nil)
+    (nil))
+
+(insn 330 326 332 (set (reg:SI 160)
+        (plus:SI (reg/v:SI 39)
+            (const_int 232))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 332 330 333 (set (reg:SI 161)
+        (const_int 65561)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (const_int 65561)
+        (nil)))
+
+(insn 333 332 336 (set (mem/s:SI (reg:SI 160) 0)
+        (reg:SI 161)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 336 333 340 (set (reg:QI 162)
+        (mem/s:QI (plus:SI (reg/v:SI 40)
+                (const_int 16)) 0)) 7 {*movqi_insn} (nil)
+    (nil))
+
+(insn 340 336 341 (set (reg:SI 165)
+        (const_int 6)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (const_int 6)
+        (nil)))
+
+(insn 341 340 344 (set (reg:SI 164)
+        (and:SI (subreg:SI (reg:QI 162) 0)
+            (reg:SI 165))) 34 {*andsi3_insn} (nil)
+    (expr_list:REG_EQUAL (and:SI (subreg:SI (reg:QI 162) 0)
+            (const_int 6))
+        (nil)))
+
+(insn 344 341 345 (set (reg:SI 167)
+        (ashift:SI (reg:SI 164)
+            (const_int 24))) 39 {ashlsi3} (nil)
+    (nil))
+
+(insn 345 344 346 (set (reg:SI 166)
+        (lshiftrt:SI (reg:SI 167)
+            (const_int 24))) 41 {lshrsi3} (nil)
+    (expr_list:REG_EQUAL (zero_extend:SI (subreg:QI (reg:SI 164) 0))
+        (nil)))
+
+(insn 346 345 347 (set (cc0)
+        (reg:SI 166)) 45 {tstsi} (nil)
+    (nil))
+
+(jump_insn 347 346 349 (set (pc)
+        (if_then_else (ne (cc0)
+                (const_int 0))
+            (label_ref 400)
+            (pc))) 58 {*cond_branch} (nil)
+    (nil))
+
+(note 349 347 350 "" NOTE_INSN_DELETED)
+
+(insn 350 349 351 (set (cc0)
+        (reg/v:SI 33)) 45 {tstsi} (nil)
+    (nil))
+
+(jump_insn 351 350 355 (set (pc)
+        (if_then_else (ne (cc0)
+                (const_int 0))
+            (label_ref 373)
+            (pc))) 58 {*cond_branch} (nil)
+    (nil))
+
+(insn 355 351 367 (set (reg:SI 170)
+        (plus:SI (reg/v:SI 39)
+            (const_int 252))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 367 355 370 (set (reg:SI 177)
+        (const_int 8)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (const_int 8)
+        (nil)))
+
+(insn 370 367 371 (set (mem/s:QI (reg:SI 170) 0)
+        (subreg:QI (reg:SI 177) 0)) 7 {*movqi_insn} (nil)
+    (nil))
+
+(jump_insn 371 370 372 (set (pc)
+        (label_ref 393)) -1 (nil)
+    (nil))
+
+(barrier 372 371 373)
+
+(code_label 373 372 377 15 "")
+
+(insn 377 373 389 (set (reg:SI 180)
+        (plus:SI (reg/v:SI 39)
+            (const_int 252))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 389 377 392 (set (reg:SI 187)
+        (const_int 4)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (const_int 4)
+        (nil)))
+
+(insn 392 389 393 (set (mem/s:QI (reg:SI 180) 0)
+        (subreg:QI (reg:SI 187) 0)) 7 {*movqi_insn} (nil)
+    (nil))
+
+(code_label 393 392 396 16 "")
+
+(insn 396 393 398 (set (mem/s:SI (plus:SI (reg/v:SI 39)
+                (const_int 16)) 5)
+        (reg/v:SI 22)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(jump_insn 398 396 399 (set (pc)
+        (label_ref 419)) -1 (nil)
+    (nil))
+
+(barrier 399 398 400)
+
+(code_label 400 399 402 14 "")
+
+(note 402 400 406 "" NOTE_INSN_DELETED)
+
+(insn 406 402 407 (set (cc0)
+        (reg/v:SI 33)) 45 {tstsi} (nil)
+    (nil))
+
+(jump_insn 407 406 409 (set (pc)
+        (if_then_else (ne (cc0)
+                (const_int 0))
+            (label_ref 413)
+            (pc))) 58 {*cond_branch} (nil)
+    (nil))
+
+(insn 409 407 410 (set (reg:SI 191)
+        (const_int 1114137)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (const_int 1114137)
+        (nil)))
+
+(insn 410 409 411 (set (mem/s:SI (reg:SI 160) 0)
+        (reg:SI 191)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(jump_insn 411 410 412 (set (pc)
+        (label_ref 419)) -1 (nil)
+    (nil))
+
+(barrier 412 411 413)
+
+(code_label 413 412 415 18 "")
+
+(insn 415 413 416 (set (reg:SI 192)
+        (const_int 589849)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (const_int 589849)
+        (nil)))
+
+(insn 416 415 419 (set (mem/s:SI (reg:SI 160) 0)
+        (reg:SI 192)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(code_label 419 416 423 17 "")
+
+(insn 423 419 425 (set (reg:SI 194)
+        (plus:SI (reg/v:SI 39)
+            (const_int 132))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 425 423 429 (set (mem/s:SI (reg:SI 194) 0)
+        (reg/v:SI 22)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 429 425 442 (set (reg:SI 196)
+        (plus:SI (reg/v:SI 39)
+            (const_int 148))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 442 429 446 (set (mem/s:QI (reg:SI 196) 0)
+        (subreg:QI (reg/v:SI 23) 0)) 7 {*movqi_insn} (nil)
+    (nil))
+
+(insn 446 442 458 (set (reg:SI 205)
+        (plus:SI (reg/v:SI 39)
+            (const_int 98))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 458 446 461 (set (reg:SI 212)
+        (const_int 43)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (const_int 43)
+        (nil)))
+
+(insn 461 458 464 (set (mem/s:QI (reg:SI 205) 0)
+        (subreg:QI (reg:SI 212) 0)) 7 {*movqi_insn} (nil)
+    (nil))
+
+(insn 464 461 475 (set (reg/i:SI 0 r0)
+        (reg/v:SI 39)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(code_label 475 464 474 20 "")
+
+(insn 474 475 469 (use (reg/i:SI 0 r0)) -1 (nil)
+    (nil))
+
+(note 469 474 473 0 NOTE_INSN_BLOCK_END)
+
+(insn 473 469 0 (use (reg/i:SI 0 r0)) -1 (nil)
+    (nil))

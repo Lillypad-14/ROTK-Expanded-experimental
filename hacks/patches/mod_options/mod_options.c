@@ -23,12 +23,28 @@
 #if HACK_loot_qol
 #include "patches/loot_qol/loot_qol.h"
 #endif
+#if HACK_unlock_all
+#include "patches/unlock_all/unlock_all.h"
+#endif
+#if HACK_debug_cheats
+#include "patches/debug_cheats/debug_cheats.h"
+#include "patches/debug_cheats/debug_lab.h"
+#include "patches/debug_cheats/ability_bench.h"
+#include "patches/debug_cheats/delivery_preview.h"
+#include "patches/debug_cheats/effect_preview.h"
+#endif
+#if HACK_twists
+#include "patches/twists/twists.h"
+#endif
 #if HACK_demo_pages
 #include "patches/demo_pages/demo_pages.h"
 #endif
 
 /** Stock-page cursor index of the "Mod Options" entry (after Credits). */
 #define MOD_OPTIONS_ROW 8
+
+/** First row that can hold an entry's help text. */
+#define MOD_OPTIONS_DESC_FIRST_ROW 6
 
 // Page modes (g_ModOptionsMode values); anything else reads as stock.
 #define MOD_OPTIONS_MODE_STOCK 0
@@ -54,6 +70,22 @@ static u8 g_ModOptionsPage;
 static const struct ModOptionsPage ModOptionsPages[] = {
 #if HACK_loot_qol
     {"Loot QoL", LootQolOptions, LOOT_QOL_OPTION_COUNT, lootQol_drawPageText},
+#endif
+#if HACK_unlock_all
+    {"Unlocks", UnlockAllOptions, UNLOCK_ALL_OPTION_COUNT, NULL},
+#endif
+#if HACK_twists
+    {"Twists: Combat", TwistsCombatOptions, TWISTS_COMBAT_OPTION_COUNT, NULL},
+    {"Twists: Vigor", TwistsVigorOptions, TWISTS_VIGOR_OPTION_COUNT, NULL},
+    {"Twists: Growth", TwistsGrowthOptions, TWISTS_GROWTH_OPTION_COUNT, NULL},
+    {"Twists: Fate", TwistsFateOptions, TWISTS_FATE_OPTION_COUNT, NULL},
+#endif
+#if HACK_debug_cheats
+    {"Debug", DebugCheatsOptions, DEBUG_CHEATS_OPTION_COUNT, NULL},
+    {"Combat Lab", DebugLabOptions, DEBUG_LAB_OPTION_COUNT, NULL},
+    {"Ability Bench", AbilityBenchOptions, ABILITY_BENCH_OPTION_COUNT, NULL},
+    {"Delivery Test", DeliveryPreviewOptions, DELIVERY_PREVIEW_OPTION_COUNT, NULL},
+    {"Effect Preview", EffectPreviewOptions, EFFECT_PREVIEW_OPTION_COUNT, NULL},
 #endif
 #if HACK_demo_pages
     {"Demo Page A", DemoPagesFirstOptions, DEMO_PAGES_FIRST_OPTION_COUNT, NULL},
@@ -233,6 +265,63 @@ static void drawModRow(s32 row, s32 cursor)
              (char *)entry->valueNames[entry->get()], color);
 }
 
+/** Draw one line of an entry's help text on a free bottom row. */
+static void drawDescLine(const char *desc, s32 line, s32 row)
+{
+    char buf[40];
+    s32 length = 0;
+    s32 skip = line;
+
+    while (skip > 0 && *desc != '\0')
+    {
+        if (*desc++ == '\n')
+        {
+            skip--;
+        }
+    }
+    while (*desc != '\0' && *desc != '\n' && length < (s32)sizeof(buf) - 1)
+    {
+        buf[length++] = *desc++;
+    }
+    buf[length] = '\0';
+    if (length != 0)
+    {
+        modOptions_drawRowText(row, MOD_OPTIONS_LABEL_X, buf, FONT_STYLE_8PX_A, 3);
+    }
+}
+
+/**
+ * Help text of the highlighted entry on the page's free bottom rows (rows 6 and 7 at most).
+ * The rows are cleared by their own redraw, which calls this once cleared.
+ */
+static void drawDescription(s32 row, s32 cursor)
+{
+    const struct ModOptionsPage *page = currentPage();
+    s32 first = page->entryCount < MOD_OPTIONS_DESC_FIRST_ROW ? MOD_OPTIONS_DESC_FIRST_ROW
+                                                              : page->entryCount;
+
+    if (row < first || cursor >= page->entryCount || page->entries[cursor].desc == NULL)
+    {
+        return;
+    }
+    drawDescLine(page->entries[cursor].desc, row - first, row);
+}
+
+/** Redraw the help rows for a new cursor row. */
+static void redrawDescription(s32 cursor)
+{
+    s32 row;
+
+    for (row = MOD_OPTIONS_DESC_FIRST_ROW; row < OPTIONS_ROW_COUNT; row++)
+    {
+        if (row >= currentPage()->entryCount)
+        {
+            clearRow(row);
+            drawDescription(row, cursor);
+        }
+    }
+}
+
 /**
  * scene_optionsMenu_tick hook: on the mod page, intercept L/R (switch page) and B/Select
  * (back to the stock page instead of leaving the scene). Everything else - the whole key
@@ -299,6 +388,10 @@ u32 modOptions_drawRowHook(s32 row, s32 cursor)
         {
             drawModRow(row, cursor);
         }
+        else if (MOD_OPTIONS_PAGE_COUNT > 0)
+        {
+            drawDescription(row, cursor);
+        }
         return TRUE;
     }
     if (row == OPTIONS_ROW_CREDITS)
@@ -341,6 +434,7 @@ u32 modOptions_moveCursorHook(void)
             }
             scene_optionsMenu_drawRow(cursor, SCENE_ARG_OPTIONS_CURSOR);
             scene_optionsMenu_drawRow(SCENE_ARG_OPTIONS_CURSOR, SCENE_ARG_OPTIONS_CURSOR);
+            redrawDescription(SCENE_ARG_OPTIONS_CURSOR);
             playCursorSfx();
         }
         return TRUE;

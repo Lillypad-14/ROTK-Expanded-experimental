@@ -1,0 +1,291 @@
+[Context] Operating on: rotk
+
+Decompiled function save_deserializePlayer:
+
+
+
+void save_deserializePlayer(u32 *slotBuffer,u32 playerIndex)
+
+
+
+{
+
+  u32 uVar1;
+
+  Item IVar2;
+
+  byte *pbVar3;
+
+  Item *pIVar4;
+
+  uint uVar5;
+
+  u32 *puVar6;
+
+  ushort *puVar7;
+
+  Item *pIVar8;
+
+  u8 *puVar9;
+
+  KingsfoilHerbs *pKVar10;
+
+  u32 *puVar11;
+
+  uint uVar12;
+
+  u32 *puVar13;
+
+  code *UNRECOVERED_JUMPTABLE;
+
+  
+
+  uVar12 = playerIndex & 0xff;
+
+  uVar1 = multiplayer_getMessageMask();
+
+  uVar5 = 0;
+
+  pIVar4 = (Item *)&g_PlayerGlobals.players[uVar12].inventory;
+
+  puVar6 = slotBuffer;
+
+  do {
+
+    IVar2.word = *puVar6;
+
+    puVar6 = puVar6 + 1;
+
+    pIVar4->word = (u32)IVar2;
+
+    pIVar4 = pIVar4 + 1;
+
+    uVar5 = uVar5 + 1;
+
+  } while (uVar5 < 0x10);
+
+  uVar5 = 0;
+
+  puVar11 = slotBuffer + 0x11;
+
+  pbVar3 = (byte *)((int)slotBuffer + 0x47);
+
+  puVar13 = slotBuffer + 0x12;
+
+  puVar7 = (ushort *)((int)slotBuffer + 0x4a);
+
+  puVar6 = slotBuffer + 0x1a;
+
+  pIVar8 = (Item *)(g_SaveGlobals.words + 2);
+
+  pIVar4 = g_PlayerGlobals.players[uVar12].rangerHollowItems;
+
+  do {
+
+    IVar2 = *pIVar8;
+
+    pIVar8 = pIVar8 + 1;
+
+    *pIVar4 = IVar2;
+
+    pIVar4 = pIVar4 + 1;
+
+    uVar5 = uVar5 + 1;
+
+  } while (uVar5 < 9);
+
+  g_PlayerGlobals.players[uVar12].passiveSkillLevelsPurchased[0] = (byte)*puVar11 & 7;
+
+  g_PlayerGlobals.players[uVar12].passiveSkillLevelsPurchased[1] =
+
+       (s8)(((byte)*puVar11 & 0x3f) >> 3);
+
+  g_PlayerGlobals.players[uVar12].passiveSkillLevelsPurchased[2] =
+
+       (s8)(((ushort)*puVar11 & 0x1ff) >> 6);
+
+  g_PlayerGlobals.players[uVar12].passiveSkillLevelsPurchased[3] =
+
+       (s8)((*(byte *)((int)slotBuffer + 0x45) & 0xf) >> 1);
+
+  g_PlayerGlobals.players[uVar12].passiveSkillLevelsPurchased[4] =
+
+       (s8)((*(byte *)((int)slotBuffer + 0x45) & 0x7f) >> 4);
+
+  g_PlayerGlobals.players[uVar12].passiveSkillLevelsPurchased[5] =
+
+       (s8)((slotBuffer[0x11] & 0x3ffff) >> 0xf);
+
+  g_PlayerGlobals.players[uVar12].passiveSkillLevelsPurchased[6] =
+
+       (s8)((*(byte *)((int)slotBuffer + 0x46) & 0x1f) >> 2);
+
+  g_PlayerGlobals.players[uVar12].passiveSkillLevelsPurchased[7] =
+
+       *(byte *)((int)slotBuffer + 0x46) >> 5;
+
+  g_PlayerGlobals.players[uVar12].passiveSkillLevelsPurchased[8] = *pbVar3 & 7;
+
+  g_PlayerGlobals.players[uVar12].activeSkillLevelsPurchased[0] =
+
+       ((byte)*puVar13 & 3) << 1 | *pbVar3 >> 7;
+
+  g_PlayerGlobals.players[uVar12].activeSkillLevelsPurchased[1] = (u8)(((byte)*puVar13 & 0x1f) >> 2)
+
+  ;
+
+  g_PlayerGlobals.players[uVar12].activeSkillLevelsPurchased[2] = (byte)*puVar13 >> 5;
+
+  g_PlayerGlobals.players[uVar12].activeSkillLevelsPurchased[3] =
+
+       *(byte *)((int)slotBuffer + 0x49) & 7;
+
+  g_PlayerGlobals.players[uVar12].activeSkillLevelsPurchased[4] =
+
+       (u8)((*(byte *)((int)slotBuffer + 0x49) & 0x3f) >> 3);
+
+  g_PlayerGlobals.players[uVar12].activeSkillLevelsPurchased[5] = '\x01';
+
+  g_PlayerGlobals.players[uVar12].quickSelectActiveSkills[0] =
+
+       (u8)((slotBuffer[0x12] & 0x1ffff) >> 0xe);
+
+  g_PlayerGlobals.players[uVar12].quickSelectActiveSkills[1] = (u8)((*(byte *)puVar7 & 0xf) >> 1);
+
+  g_PlayerGlobals.players[uVar12].quickSelectActiveSkills[2] = (u8)((*(byte *)puVar7 & 0x7f) >> 4);
+
+  uVar5 = 0;
+
+  puVar9 = g_PlayerGlobals.players[uVar12].activeSkillCycleEnabled;
+
+  do {
+
+    if (((int)((*puVar7 & 0x1fff) >> 7) >> (uVar5 & 0xff) & 1U) == 0) {
+
+      *puVar9 = '\0';
+
+    }
+
+    else {
+
+      *puVar9 = '\x01';
+
+    }
+
+    puVar9 = puVar9 + 1;
+
+    uVar5 = uVar5 + 1;
+
+  } while (uVar5 < 6);
+
+  g_PlayerGlobals.players[uVar12].statusFlags = *(PlayerStatusFlags *)((int)slotBuffer + 0x5a);
+
+  g_PlayerGlobals.players[uVar12].selectedActiveSkill.cycleSkillIndex = '\x06';
+
+  g_PlayerGlobals.players[uVar12].experience = slotBuffer[0x10];
+
+  g_PlayerGlobals.players[uVar12].currentHp = (s16)slotBuffer[0x13];
+
+  g_PlayerGlobals.players[uVar12].currentSpirit = *(s16 *)((int)slotBuffer + 0x4e);
+
+  g_PlayerGlobals.players[uVar12].gems = (u16)slotBuffer[0x14];
+
+  g_PlayerGlobals.players[uVar12].killCount = *(u16 *)((int)slotBuffer + 0x52);
+
+  g_PlayerGlobals.players[uVar12].uniqueWeaponsCollected = (u16)slotBuffer[0x15];
+
+  g_PlayerGlobals.players[uVar12].corruption = *(u8 *)((int)slotBuffer + 0x5b);
+
+  g_PlayerGlobals.players[uVar12].uniquePassivesCollected = *(u16 *)((int)slotBuffer + 0x56);
+
+  g_PlayerGlobals.players[uVar12].level = (u8)slotBuffer[0x17];
+
+  g_PlayerGlobals.players[uVar12].attributePoints = *(u8 *)((int)slotBuffer + 0x5d);
+
+  g_PlayerGlobals.players[uVar12].skillPoints = *(u8 *)((int)slotBuffer + 0x5e);
+
+  g_PlayerGlobals.players[uVar12].heroId = *(byte *)((int)slotBuffer + 0x65) >> 4;
+
+  g_PlayerGlobals.players[uVar12].runes = *(RuneFlags *)(slotBuffer + 0x16);
+
+  g_PlayerGlobals.players[uVar12].baseStats.strength = (ushort)*(byte *)((int)slotBuffer + 0x5f);
+
+  g_PlayerGlobals.players[uVar12].baseStats.accuracy = (ushort)(byte)slotBuffer[0x18];
+
+  g_PlayerGlobals.players[uVar12].baseStats.health = (ushort)*(byte *)((int)slotBuffer + 0x61);
+
+  g_PlayerGlobals.players[uVar12].baseStats.defense = (ushort)*(byte *)((int)slotBuffer + 0x62);
+
+  g_PlayerGlobals.players[uVar12].baseStats.courage = (ushort)*(byte *)((int)slotBuffer + 99);
+
+  g_PlayerGlobals.players[uVar12].attributePointsPurchased = (u8)slotBuffer[0x19];
+
+  g_PlayerGlobals.players[uVar12].skillPointsPurchased = (u8)((*pbVar3 & 0x7f) >> 3);
+
+  g_PlayerGlobals.players[uVar12].whetstoneLevel = *(byte *)((int)slotBuffer + 0x65) & 0xf;
+
+  pKVar10 = &g_PlayerGlobals.players[uVar12].kingsfoilHerbs;
+
+  pKVar10->fresh = *(byte *)((int)slotBuffer + 0x66);
+
+  pKVar10->dried = *(byte *)((int)slotBuffer + 0x66) >> 4;
+
+  player_recomputeBaseStats((u8)playerIndex);
+
+  if (((((g_GameFlags.p & 0x20) == 0) && ((uVar1 & 0x8000) == 0)) && ((g_GameFlags.p & 0x80) == 0))
+
+     && (g_PlayerGlobals.activePlayerCount < 2)) {
+
+    g_CurrentMissionId = (u32)(ushort)*puVar6;
+
+    uRam03004170 = (uint)(ushort)*puVar6;
+
+    g_MissionVariant = *(u8 *)((int)slotBuffer + 0x67);
+
+    g_MissionSpawnPoint[uVar12] = *(u8 *)((int)slotBuffer + 0x6a);
+
+    g_MissionCheckpointVars[0] = *(u8 *)((int)slotBuffer + 0x6b);
+
+    g_MissionCheckpointVars[1] = (u8)slotBuffer[0x1b];
+
+    g_MissionCheckpointVars[2] = *(u8 *)((int)slotBuffer + 0x6d);
+
+  }
+
+  else {
+
+    g_SaveParkedProgress[uVar12].mission = (ushort)*puVar6;
+
+    g_SaveParkedProgress[uVar12].variant = *(u8 *)((int)slotBuffer + 0x67);
+
+    g_SaveParkedProgress[uVar12].spawnPoint = *(u8 *)((int)slotBuffer + 0x6a);
+
+    g_SaveParkedProgress[uVar12].checkpointVars[0] = *(u8 *)((int)slotBuffer + 0x6b);
+
+    g_SaveParkedProgress[uVar12].checkpointVars[1] = (u8)slotBuffer[0x1b];
+
+    g_SaveParkedProgress[uVar12].checkpointVars[2] = *(u8 *)((int)slotBuffer + 0x6d);
+
+    g_MissionCheckpointVars[0] = '\0';
+
+    g_MissionCheckpointVars[1] = '\0';
+
+    g_MissionCheckpointVars[2] = '\0';
+
+    g_MissionSpawnPoint[uVar12] = '\0';
+
+  }
+
+                    /* WARNING: Could not recover jumptable at 0x0803c6bc. Too many branches */
+
+                    /* WARNING: Treating indirect jump as call */
+
+  (*UNRECOVERED_JUMPTABLE)();
+
+  return;
+
+}
+
+
+
+

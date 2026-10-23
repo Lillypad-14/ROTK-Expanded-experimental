@@ -1,0 +1,56 @@
+#include "actor.h"
+#include "fx.h"
+#include "player.h"
+#include "sfx.h"
+#include "skill.h"
+#include "match_hacks.h"
+#include "variables.h"
+
+Actor *skill_active_gimliDwarvenRage(Actor *playerActor)
+{
+    u8 playerIndex = playerActor->as.combat.playerIndex;
+    u8 level = PLAYER(playerIndex).activeSkillLevels[ACTIVE_SKILL_GIMLI_DWARVEN_RAGE];
+    s16 duration = level * 15 * 4 + 60;
+    const u8 *variant;
+    s32 index = level - 1;
+    Actor *fx;
+    Actor *fxAura;
+    Actor *fxBurst;
+    Actor *fxLoop;
+
+    MATCH_BARRIER(index);
+    variant = DwarvenRageFxVariants + index;
+    fx = fx_spawnTimedOnActor(playerActor, duration, 3, *variant, 1);
+    fxAura = fx_spawnTimedOnActor(playerActor, duration, 8, *variant, 0);
+    fxAura->tickCallback = fx_tickTimedAttachment;
+    fxAura->type = 0x50;
+    fxBurst = fx_spawnOnActor(playerActor, 7, *variant, 0);
+    fxBurst->tickCallback = fx_tickAttachment;
+    fxBurst->type = 0x4f;
+    fx->type = 0x3e;
+    fx->flags.p |= ACTOR_FLAG_HIT_FLASH;
+    fxAura->flags.p |= ACTOR_FLAG_HIT_FLASH;
+    fxBurst->flags.p |= ACTOR_FLAG_HIT_FLASH;
+    fx->tickCallback = skill_active_gimliDwarvenRage_tick;
+    fx->triggerCallbacks[0] = NULL;
+    PLAYER(playerIndex).combatFlags.p |= PLAYER_COMBAT_FLAG_DWARVEN_RAGE;
+    fx->parentActor = playerActor;
+    playerActor->as.combat.actionStateFlags |= 4;
+    sfx_play(0x4f);
+    return fx;
+}
+
+void skill_active_gimliDwarvenRage_tick(Actor *fx)
+{
+    if (fx->parentActor->actionState == 45)
+        fx->actionState = 4;
+    if (fx_tickTimedAttachment(fx) == TRUE)
+    {
+        u8 playerIndex;
+
+        fx->flags.p |= ACTOR_FLAG_ANIMATION_FRAME_CHANGED | ACTOR_FLAG_PENDING_REMOVE;
+        playerIndex = fx->parentActor->as.combat.playerIndex;
+        fx->parentActor->as.combat.actionStateFlags &= ~4;
+        PLAYER(playerIndex).combatFlags.p &= ~PLAYER_COMBAT_FLAG_DWARVEN_RAGE;
+    }
+}

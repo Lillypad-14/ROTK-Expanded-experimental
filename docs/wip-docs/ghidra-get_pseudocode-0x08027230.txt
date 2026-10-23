@@ -1,0 +1,93 @@
+[Context] Operating on: rotk
+
+Decompiled function player_updateHandFxFacing:
+
+
+
+void player_updateHandFxFacing(int param_1)
+
+
+
+{
+
+  Direction8 DVar1;
+
+  FxEmitter *pFVar2;
+
+  ushort uVar3;
+
+  Actor *pAVar4;
+
+  ushort uVar5;
+
+  code *UNRECOVERED_JUMPTABLE;
+
+  
+
+  pAVar4 = g_PlayerGlobals.players[param_1].ownerActor;
+
+  pFVar2 = g_PlayerGlobals.players[param_1].handFxEmitters[0];
+
+  if (pFVar2 != (FxEmitter *)0x0) {
+
+    DVar1 = pAVar4->facing;
+
+    if ((DVar1 == DIRECTION8_NORTH) || (DVar1 == DIRECTION8_NORTHWEST)) {
+
+      uVar3 = pFVar2->field_0x2e & 0xbfff;
+
+      uVar5 = 0x100;
+
+    }
+
+    else {
+
+      uVar3 = pFVar2->field_0x2e & 0xfeff;
+
+      uVar5 = 0x4000;
+
+    }
+
+    pFVar2->field_0x2e = uVar3 | uVar5;
+
+  }
+
+  pFVar2 = g_PlayerGlobals.players[param_1].handFxEmitters[1];
+
+  if (pFVar2 != (FxEmitter *)0x0) {
+
+    DVar1 = pAVar4->facing;
+
+    if ((DVar1 == DIRECTION8_NORTH) || (DVar1 == DIRECTION8_NORTHWEST)) {
+
+      uVar5 = pFVar2->field_0x2e & 0xbfff;
+
+      uVar3 = 0x100;
+
+    }
+
+    else {
+
+      uVar5 = pFVar2->field_0x2e & 0xfeff;
+
+      uVar3 = 0x4000;
+
+    }
+
+    pFVar2->field_0x2e = uVar5 | uVar3;
+
+  }
+
+                    /* WARNING: Could not recover jumptable at 0x080272d0. Too many branches */
+
+                    /* WARNING: Treating indirect jump as call */
+
+  (*UNRECOVERED_JUMPTABLE)();
+
+  return;
+
+}
+
+
+
+

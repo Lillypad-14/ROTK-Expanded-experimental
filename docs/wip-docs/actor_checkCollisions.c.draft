@@ -1,0 +1,181 @@
+#include "actor.h"
+#include "variables.h"
+
+/**
+ * Pairwise trigger-box and radius overlap pass over the collision queue.
+ *
+ * @romaddress 0x0800cd5c
+ */
+void actor_checkCollisions(void)
+{
+    s32 hi = g_CollisionCheckQueueCount - 1;
+    s32 end = hi;
+    s32 count = g_CollisionCheckQueueCount;
+    u32 a;
+    u32 next;
+
+    if (hi >= 0)
+    {
+        u32 f = g_CollisionCheckQueue[hi]->flags.p;
+
+        while (end = hi, (f & ACTOR_FLAG_COLLISION_PASSIVE) != 0 && (hi--, end = hi, hi >= 0))
+            f = g_CollisionCheckQueue[hi]->flags.p;
+    }
+    for (; hi >= 0; hi--)
+    {
+        Actor *actor = g_CollisionCheckQueue[hi];
+        s32 nextEnd = end;
+
+        if (actor->flags.p & ACTOR_FLAG_COLLISION_PASSIVE)
+        {
+            nextEnd = end - 1;
+            g_CollisionCheckQueue[hi] = g_CollisionCheckQueue[end];
+            count--;
+            g_CollisionCheckQueue[end] = actor;
+        }
+        end = nextEnd;
+    }
+    a = 0;
+    if (count != 1)
+    {
+        do
+        {
+            Actor *self = g_CollisionCheckQueue[a];
+            u32 selfFlags = self->flags.p;
+
+            next = a + 1;
+            if (selfFlags & ACTOR_FLAG_COLLISION_CHECK)
+            {
+                u32 boxIndex = 0;
+                s32 selfX = self->renderCoords.x;
+                s32 selfY = self->renderCoords.y;
+
+                if (self->triggerBoxCount != 0)
+                {
+                    do
+                    {
+                        self = g_CollisionCheckQueue[a];
+                        if (self->triggerBoxes[boxIndex].enable == 1)
+                        {
+                            s8 yMin = self->triggerBoxes[boxIndex].yMin;
+                            s8 yMax = self->triggerBoxes[boxIndex].yMax;
+                            s32 xMax;
+                            s32 xMin;
+                            u32 b;
+
+                            if ((self->oam.matrixIndex & 8) == 0)
+                            {
+                                xMax = self->triggerBoxes[boxIndex].xMax * 0x10000;
+                                xMin = self->triggerBoxes[boxIndex].xMin * 0x10000;
+                            }
+                            else
+                            {
+                                xMax = self->triggerBoxes[boxIndex].xMax * -0x10000;
+                                xMin = self->triggerBoxes[boxIndex].xMin * -0x10000;
+                            }
+                            xMax = selfX + xMax;
+                            xMin = selfX + xMin;
+                            for (b = next; b < (u32)g_CollisionCheckQueueCount; b++)
+                            {
+                                Actor *other = g_CollisionCheckQueue[b];
+                                u32 otherFlags = other->flags.p;
+
+                                if ((otherFlags & ACTOR_FLAG_COLLISION_CHECK) &&
+                                    (!(selfFlags & ACTOR_FLAG_10) || !(otherFlags & ACTOR_FLAG_10)))
+                                {
+                                    u32 otherBox = 0;
+                                    bool called = FALSE;
+                                    s32 otherX = other->renderCoords.x;
+                                    s32 otherY = other->renderCoords.y;
+
+                                    if (other->triggerBoxCount != 0)
+                                    {
+                                        s32 offset = 0;
+
+                                        do
+                                        {
+                                            if (((u8 *)&g_CollisionCheckQueue[b]->triggerBoxes[0].enable)[offset] == 1)
+                                            {
+                                                bool hit;
+
+                                                if (!(otherFlags & ACTOR_FLAG_RADIUS_PROXIMITY) ||
+                                                    !(selfFlags & ACTOR_FLAG_RADIUS_PROXIMITY) ||
+                                                    (boxIndex != 0 || otherBox != 0))
+                                                {
+                                                    s32 oMax;
+                                                    s32 oMin;
+
+                                                    other = g_CollisionCheckQueue[b];
+                                                    if ((other->oam.matrixIndex & 8) == 0)
+                                                    {
+                                                        oMax = (&other->triggerBoxes[0].xMax)[offset] * 0x10000;
+                                                        oMin = (&other->triggerBoxes[0].xMin)[offset] * 0x10000;
+                                                    }
+                                                    else
+                                                    {
+                                                        oMin = (&other->triggerBoxes[0].xMax)[offset] * -0x10000;
+                                                        oMax = (&other->triggerBoxes[0].xMin)[offset] * -0x10000;
+                                                    }
+                                                    hit = TRUE;
+                                                    if (xMax < otherX + oMin || otherX + oMax < xMin ||
+                                                        otherY + (&other->triggerBoxes[0].yMax)[offset] * 0x10000 <
+                                                            selfY + yMin * 0x10000)
+                                                        hit = FALSE;
+                                                    else if (selfY + yMax * 0x10000 <
+                                                             otherY + (&other->triggerBoxes[0].yMin)[offset] * 0x10000)
+                                                        hit = FALSE;
+                                                }
+                                                else
+                                                {
+                                                    s32 dx = selfX - otherX;
+                                                    s32 dy = selfY - otherY;
+                                                    u32 sign;
+                                                    s32 adx;
+                                                    s32 ady;
+                                                    u32 dist;
+                                                    u32 radius;
+
+                                                    sign = dx >> 31;
+                                                    adx = (dx ^ sign) - sign;
+                                                    sign = dy >> 31;
+                                                    ady = (dy ^ sign) - sign;
+                                                    if (ady < adx)
+                                                        dist = adx + ((ady * 3) >> 3);
+                                                    else
+                                                        dist = ady + ((adx * 3) >> 3);
+                                                    radius = g_CollisionCheckQueue[b]->interactionRadius * 0x10000;
+                                                    hit = dist == radius;
+                                                    if (radius <= dist)
+                                                        hit = (u32)g_CollisionCheckQueue[a]->interactionRadius << 16 <= dist;
+                                                    hit = !hit;
+                                                }
+                                                if (hit)
+                                                {
+                                                    ActorTriggerCallback cb =
+                                                        g_CollisionCheckQueue[a]->triggerCallbacks[boxIndex];
+
+                                                    if (cb != NULL && !called)
+                                                    {
+                                                        cb(g_CollisionCheckQueue[a], g_CollisionCheckQueue[b]);
+                                                        called = TRUE;
+                                                    }
+                                                    cb = g_CollisionCheckQueue[b]->triggerCallbacks[otherBox];
+                                                    if (cb != NULL)
+                                                        cb(g_CollisionCheckQueue[b], g_CollisionCheckQueue[a]);
+                                                }
+                                            }
+                                            offset += 6;
+                                            otherBox++;
+                                        } while (otherBox < g_CollisionCheckQueue[b]->triggerBoxCount);
+                                    }
+                                }
+                            }
+                        }
+                        boxIndex++;
+                    } while (boxIndex < g_CollisionCheckQueue[a]->triggerBoxCount);
+                }
+            }
+            a = next;
+        } while (next < (u32)(count - 1));
+    }
+}

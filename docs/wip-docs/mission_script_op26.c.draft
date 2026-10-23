@@ -1,0 +1,66 @@
+#include "actor.h"
+#include "mission.h"
+#include "scene.h"
+#include "variables.h"
+
+/**
+ * Script op 26: start a screen transition effect, or retarget the running one.
+ *
+ * @romaddress 0x08017984
+ */
+void mission_script_op26(const u8 *command)
+{
+    if (g_TransitionState.effect == 1)
+    {
+        if (g_TransitionTimer == NULL)
+        {
+            g_TransitionTimer = mission_script_allocTimer(2);
+            g_TransitionTimer->as.missionTimer.field_0xe = 4;
+            g_TransitionTimer->as.missionTimer.field_0xf = 12;
+            g_TransitionTimer->as.missionTimer.field_0x4 = 0;
+            g_TransitionTimer->as.missionTimer.field_0x0 = 10;
+            g_TransitionTimer->actionStateTimer = 10;
+            g_TransitionTimer->behaviorState = 3;
+        }
+        else
+        {
+            g_TransitionTimer->as.missionTimer.field_0x4 = 0;
+            g_TransitionTimer->behaviorState = 3;
+        }
+        g_TransitionTimer->currentHp = command[4];
+    }
+    else
+    {
+        switch (command[4])
+        {
+        case 0:
+            scene_startTransitionEffect(0);
+            break;
+        case 1:
+            g_TransitionTimer = mission_script_allocTimer(2);
+            g_TransitionTimer->as.missionTimer.field_0xe = 0;
+            g_TransitionTimer->as.missionTimer.field_0xf = 16;
+            g_TransitionTimer->as.missionTimer.field_0x4 = 4;
+            g_TransitionTimer->as.missionTimer.field_0x0 = 10;
+            g_TransitionTimer->actionStateTimer = 10;
+            scene_startTransitionEffect(1);
+            break;
+        case 2:
+        case 5:
+            scene_startTransitionEffect(2);
+            break;
+        case 3:
+            scene_startTransitionEffect(3);
+            break;
+        case 4:
+            scene_startTransitionEffect(4);
+            break;
+        case 6:
+            scene_startTransitionEffect(6);
+            break;
+        case 7:
+            scene_startTransitionEffect(7);
+            break;
+        }
+    }
+}

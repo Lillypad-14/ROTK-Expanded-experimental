@@ -1,0 +1,44 @@
+build gfx: items: 45 categories, 0 encoded
+build gfx: loot_piles: 1 categories, 0 encoded
+build gfx: level_icons: 2 categories, 0 encoded
+build gfx: skills/icons: 2 categories, 0 encoded
+build gfx: hero_portraits, dialog_portraits, cutscenes: 3 categories, 0 encoded
+build gfx: enemy: 51 categories, 0 encoded
+rotk.gba: OK
+  ROM ok
+uv run python hacks/tools/hero_registry.py
+uv run rotkit build symbols
+wrote build\game_symbols.inc: 1022 functions, 4505 data
+wrote build\game_symbols.ld: 1022 functions, 4505 data
+uv run rotkit build clangd
+compile_commands.json unchanged
+hacks\compile_flags.txt unchanged
+uv run rotkit hack text-overrides --patches "chapter_select debug_cheats fast_fade fast_waitstates item_descriptions loot_qol menu_text mod_options mod_ram mod_save mod_scenes mod_startup ranger_hollow_pages ringwraith save_slot_pages skill_expansion text_overrides unlock_all"
+text overrides: 115 strings -> ~\Desktop\lotr\rotk\build\hack_include\text_overrides.inc
+uv run python hacks/tools/skill_fx.py
+Skill FX: 16 sprite sheets, 20 effects validated
+uv run python hacks/tools/cast_timelines.py
+Cast timelines: 2 validated
+uv run python hacks/tools/skill_deliveries.py
+Skill deliveries: 5 validated
+arm-none-eabi-gcc -nostartfiles -nodefaultlibs -mthumb -mthumb-interwork -T hacks/hack.ld \
+  -Wl,-L,build -o build/hack.elf build/hack_obj/hack.o build/hack_obj/chapter_select.o build/hack_obj/ability_bench.o build/hack_obj/combat_lab_stats.o build/hack_obj/debug_cheats.o build/hack_obj/debug_lab.o build/hack_obj/delivery_preview.o build/hack_obj/effect_preview.o build/hack_obj/fast_fade.o build/hack_obj/fast_waitstates.o build/hack_obj/item_descriptions.o build/hack_obj/auto_loot.o build/hack_obj/loot_filter.o build/hack_obj/loot_qol.o build/hack_obj/menu_text.o build/hack_obj/mod_options.o build/hack_obj/actor_lifecycle.o build/hack_obj/graphics_scratch.o build/hack_obj/memory_diagnostics.o build/hack_obj/mod_ram.o build/hack_obj/save_format.o build/hack_obj/save_migrate.o build/hack_obj/save_migrate_scene.o build/hack_obj/save_slots.o build/hack_obj/save_sram.o build/hack_obj/save_state.o build/hack_obj/mod_scenes.o build/hack_obj/mod_startup.o build/hack_obj/ranger_hollow_pages.o build/hack_obj/hero_registry.o build/hack_obj/ringwraith.o build/hack_obj/ringwraith_icons.o build/hack_obj/ringwraith_kit.o build/hack_obj/ringwraith_thralls.o build/hack_obj/saruman.o build/hack_obj/wraith_gear.o build/hack_obj/save_slot_pages.o build/hack_obj/aragorn_icons.o build/hack_obj/frodo_icons.o build/hack_obj/gandalf_icons.o build/hack_obj/gimli_icons.o build/hack_obj/sam_icons.o build/hack_obj/skill_delivery.o build/hack_obj/skill_expansion.o build/hack_obj/skill_expansion_abilities.o build/hack_obj/skill_expansion_active.o build/hack_obj/skill_expansion_content.o build/hack_obj/skill_expansion_elite.o build/hack_obj/skill_expansion_frodo.o build/hack_obj/skill_expansion_gandalf.o build/hack_obj/skill_expansion_gimli.o build/hack_obj/skill_expansion_hud.o build/hack_obj/skill_expansion_passive.o build/hack_obj/skill_expansion_runtime.o build/hack_obj/skill_expansion_sam.o build/hack_obj/skill_expansion_save.o build/hack_obj/skill_expansion_save_format.o build/hack_obj/skill_expansion_smeagol.o build/hack_obj/skill_expansion_timeline.o build/hack_obj/skill_expansion_tree.o build/hack_obj/skill_expansion_validation.o build/hack_obj/skill_expansion_values.o build/hack_obj/smeagol_icons.o build/hack_obj/text_overrides.o build/hack_obj/unlock_all.o build/hack_obj/actor_ref.o build/hack_obj/cast_timeline.o build/hack_obj/combat_event.o build/hack_obj/combat_source.o build/hack_obj/fx_kit.o build/hack_obj/fx_sprites.o build/hack_obj/hex.o build/hack_obj/hud_meter.o build/hack_obj/lr_button_indicators.o build/hack_obj/movement.o build/hack_obj/profile.o build/hack_obj/profile_clock.o build/hack_obj/skill_fx.o build/hack_obj/summon_registry.o build/hack_obj/targeting.o build/hack_obj/timed_effect.o -lgcc
+~/AppData/Local/rotk-tools/arm-gcc/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/ld.exe: warning: ~/AppData/Local/rotk-tools/arm-gcc/bin/../lib/gcc/arm-none-eabi/14.2.1/thumb/nofp\libgcc.a(_muldi3.o) uses variable-size enums yet the output is to use 32-bit enums; use of enum values across objects may fail
+~/AppData/Local/rotk-tools/arm-gcc/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/ld.exe: warning: ~/AppData/Local/rotk-tools/arm-gcc/bin/../lib/gcc/arm-none-eabi/14.2.1/thumb/nofp\libgcc.a(_udivmoddi4.o) uses variable-size enums yet the output is to use 32-bit enums; use of enum values across objects may fail
+uv run python hacks/tools/validate_abilities.py build/hack.elf rotk.gba
+Ability content: 58 active definitions validated
+arm-none-eabi-objcopy -O binary -j .text -j .rodata build/hack.elf build/modcode.bin
+uv run rotkit hack modcode-syms build/hack.elf build/modcode_syms.inc
+wrote build\modcode_syms.inc: 568 modcode symbol(s) (libgcc internals not exported: __aeabi_idiv, __aeabi_idivmod, __aeabi_ldivmod, __aeabi_lmul, __aeabi_uidiv, __aeabi_uidivmod, __divsi3, __muldi3, __udivsi3)
+armips -equ HACK_chapter_select 1 -equ HACK_debug_cheats 1 -equ HACK_demo_pages 0 -equ HACK_demo_table_patch 0 -equ HACK_fast_fade 1 -equ HACK_fast_waitstates 1 -equ HACK_item_descriptions 1 -equ HACK_loot_qol 1 -equ HACK_menu_text 1 -equ HACK_mod_options 1 -equ HACK_mod_ram 1 -equ HACK_mod_save 1 -equ HACK_mod_scenes 1 -equ HACK_mod_startup 1 -equ HACK_ranger_hollow_pages 1 -equ HACK_ringwraith 1 -equ HACK_save_slot_pages 1 -equ HACK_skill_expansion 1 -equ HACK_text_overrides 1 -equ HACK_unlock_all 1 -equ HACK_HAVE_TABLES 0 -strequ HACK_OUTFILE build/rotk_hack.gba hacks/hack.asm
+uv run --group dev pytest hacks/tools -q
+.........................................................                [100%]
+57 passed in 14.06s
+uv run python hacks/tools/test_ability_support.py
+PASS: damage, statuses, summons, safe landing and nested damage sources
+PASS: targeting, effect lifecycle, summon pools and stable save identities
+PASS: legacy save migration, reordered trees, quick bindings and empty slots
+PASS: heap accounting, allocation failures, in-place resizing and shared text scratch
+PASS: Saruman Prism, refractions, discounts, curse, binding, page 1 and Sharkey passives
+uv run python hacks/tools/test_engine_content.py
+PASS: hero manifest, stable IDs, cast policies and native heap headroom

@@ -1,0 +1,243 @@
+[Context] Operating on: rotk
+
+Decompiled function actor_player_tick:
+
+
+
+void actor_player_tick(Actor *actor)
+
+
+
+{
+
+  byte playerIndex;
+
+  HeroId HVar1;
+
+  ActorActionState AVar2;
+
+  ActorActionState AVar3;
+
+  ushort uVar4;
+
+  bool bVar5;
+
+  uint uVar6;
+
+  uint uVar7;
+
+  fp16_16 b;
+
+  s32 sVar8;
+
+  bool32 bVar9;
+
+  u32 uVar10;
+
+  Actor *pAVar11;
+
+  int iVar12;
+
+  Actor **ppAVar13;
+
+  PlayerCombatFlags *pPVar14;
+
+  FxEmitter *pFVar15;
+
+  u8 *puVar16;
+
+  u32 *puVar17;
+
+  uint uStack_48;
+
+  
+
+  playerIndex = (actor->as).combat.playerIndex;
+
+  uVar6 = (uint)playerIndex;
+
+  HVar1 = g_PlayerGlobals.players[uVar6].heroId;
+
+  AVar2 = actor->actionState;
+
+  uVar7 = (actor->flags).p;
+
+  (actor->as).combat.comboState[5] = '\0';
+
+  if ((g_PlayerGlobals.players[uVar6].combatFlags.p & 0x800) != 0) {
+
+    actor_player_updateHandSprites(actor);
+
+  }
+
+  if (HVar1 == HERO_ID_LEGOLAS) {
+
+    ppAVar13 = &g_PlayerGlobals.players[uVar6].aimFxActor;
+
+    pAVar11 = *ppAVar13;
+
+    if ((pAVar11 != (Actor *)0x0) && (AVar2 != ACTOR_STATE_LEGOLAS_OVERDRAW)) {
+
+      pAVar11->actionState = ACTOR_STATE_UNKNOWN_04;
+
+      *ppAVar13 = (Actor *)0x0;
+
+    }
+
+  }
+
+  if (*(char *)(uVar6 * 0x2c + 0x3003454) == '\x01') {
+
+    actor_resetActionState(actor);
+
+    actor->actionState = 1;
+
+    uStack_48 = 1;
+
+  }
+
+  else {
+
+    AVar3 = actor->actionState;
+
+    if (((AVar3 != 0x11) && (AVar3 != ACTOR_STATE_UNKNOWN_04)) && (AVar3 != ACTOR_STATE_UNKNOWN_2D))
+
+    {
+
+      if ((((g_GameFlags.p & 0x400000) == 0) || (g_PlayerGlobals.activePlayerIndex != uVar6)) &&
+
+         ((((actor->as).combat.comboState[3] & 2) == 0 &&
+
+          ((AVar2 != ACTOR_STATE_UNKNOWN_00 && (AVar2 != ACTOR_STATE_LEGOLAS_OVERDRAW)))))) {
+
+        skill_active_handleInput(playerIndex);
+
+      }
+
+      if (((actor->flags).p & 0x40) == 0) {
+
+        actor_player_tickPoisonFear(actor);
+
+      }
+
+    }
+
+    uStack_48 = (uint)actor->actionState;
+
+    pPVar14 = &g_PlayerGlobals.players[uVar6].combatFlags;
+
+    uVar4 = pPVar14->p;
+
+    if ((uVar4 & 0x40) != 0) {
+
+      pPVar14->p = uVar4 & 0xffbf;
+
+      iVar12 = g_PlayerGlobals.players[uVar6].stats[0x18] + 100;
+
+      if (0xaf < iVar12) {
+
+        iVar12 = 0xaf;
+
+      }
+
+      b = math_divideFp16(iVar12 << 0x10,0x640000);
+
+      uVar10 = math_multiplyFp16(0x30000,b);
+
+      actor->moveSpeed = uVar10;
+
+    }
+
+    if (((HVar1 == HERO_ID_LEGOLAS) && (uStack_48 != 1)) && (uStack_48 != 5)) {
+
+      g_PlayerGlobals.players[uVar6].bowHoldFrames = 0;
+
+    }
+
+    if ((((g_PlayerGlobals.players[uVar6].optionFlags.p & 1) != 0) &&
+
+        (iVar12 = (int)g_PlayerGlobals.players[uVar6].currentHp, 0 < iVar12)) &&
+
+       ((sVar8 = math_percentage(iVar12,(int)g_PlayerGlobals.players[uVar6].stats[0x16]),
+
+        sVar8 < 0x21 && (bVar9 = skill_active_canCast(playerIndex,'\x05'), bVar9 == 1)))) {
+
+      _call_via_r1(actor,g_PlayerGlobals.players[uVar6].activeSkills[5].callback);
+
+    }
+
+  }
+
+  if ((((uVar7 & 0x20) != 0) && (uStack_48 != 4)) &&
+
+     ((uStack_48 != 0x11 &&
+
+      (uVar4 = actor->field_0x56, actor->field_0x56 = uVar4 - 1,
+
+      uVar4 == 0 || (int)((uint)uVar4 * 0x10000) < 0)))) {
+
+    (actor->flags).p = (actor->flags).p & 0xffffffdf;
+
+  }
+
+  if ((actor->field_0xf6[1] == '\x03') && (uStack_48 == 2)) {
+
+    pFVar15 = g_PlayerGlobals.players[uVar6].walkFxEmitter;
+
+    pFVar15->field_0x2e = pFVar15->field_0x2e & 0xffbf;
+
+    puVar17 = (u32 *)(uVar6 * 4 + 0x3001ce0);
+
+    bVar5 = sfx_isPlaying(*puVar17);
+
+    if (bVar5 == '\0') {
+
+      uVar10 = sfx_play(0x110);
+
+      *puVar17 = uVar10;
+
+    }
+
+  }
+
+  else {
+
+    pFVar15 = g_PlayerGlobals.players[uVar6].walkFxEmitter;
+
+    pFVar15->field_0x2e = pFVar15->field_0x2e | 0x40;
+
+  }
+
+  if (((g_PlayerGlobals.players[uVar6].currentHp < 1) && (uStack_48 != 4)) && (uStack_48 != 0x2d)) {
+
+    uStack_48 = 6;
+
+  }
+
+  if (uStack_48 != 3) {
+
+    puVar16 = (actor->as).combat.comboState + 3;
+
+    *puVar16 = *puVar16 & 0xfd;
+
+  }
+
+  if (0x60 < uStack_48) {
+
+    actor_player_tickTail();
+
+  }
+
+                    /* WARNING: Could not recover jumptable at 0x080239ea. Too many branches */
+
+                    /* WARNING: Treating indirect jump as call */
+
+  (**(code **)(&UNK_080239f4 + uStack_48 * 4))();
+
+  return;
+
+}
+
+
+
+

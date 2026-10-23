@@ -1,0 +1,83 @@
+#include "actor.h"
+#include "match_hacks.h"
+#include "fx.h"
+#include "player.h"
+#include "skill.h"
+#include "sfx.h"
+#include "variables.h"
+
+/**
+ * Touch callback: a hit on an idle object starts its break sequence.
+ *
+ * @romaddress 0x08046214
+ */
+void actor_unknown08046214(Actor *self, Actor *touching)
+{
+    MATCH_PIN(Player *, player, "r6");
+    MATCH_PIN(u8 *, state, "r7");
+    MATCH_PIN(u8 *, playerIndex, "r3");
+    u32 sfxId;
+
+    if (touching->type == 0x3a)
+        goto hit;
+    if (touching->type != 0)
+        goto other;
+    if ((touching->as.combat.field_0x97[1] & 3) == 0 && touching->actionState == ACTOR_STATE_UNKNOWN_03)
+        goto hit;
+    if (touching->actionState != 0x35 || touching->currentAnimationFrame != 14 ||
+        self->animationFramesLeft != self->animationFrameDuration)
+        goto resolve;
+
+hit:
+    state = &self->behaviorState;
+    if (*state != 0)
+        goto resolve;
+    playerIndex = &touching->as.combat.playerIndex;
+    player = &PLAYER(*playerIndex);
+    if (player->heroId == HERO_ID_LEGOLAS && touching->actionState == ACTOR_STATE_UNKNOWN_03)
+    {
+        skill_active_legolasWhiteKnives(touching);
+        player->activeSkillStateFlags |= 1;
+        self->field_0x100 |= 0x20;
+        return;
+    }
+    self->flags.p |= ACTOR_FLAG_ANIMATION_PLAYING;
+    *state = 3;
+    self->lastHitByPlayerIndex = *playerIndex;
+    switch (self->variant)
+    {
+    case 2:
+        sfxId = 0x115;
+        break;
+    case 3:
+        sfxId = 0x114;
+        break;
+    case 0:
+    case 1:
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+        sfxId = 0x113;
+        break;
+    default:
+        goto done;
+    }
+    g_ObjectHitSfxHandle = sfx_playUnlessPlaying(sfxId, g_ObjectHitSfxHandle);
+done:
+    if (self->as.combat.head.enemyAiParams[0] != 0)
+        fx_spawnTriggerFx(self->coords.x, self->coords.y, self->as.combat.head.enemyAiParams[1]);
+    return;
+
+resolve:
+    if (touching->type == 0)
+    {
+        actor_resolveTouch(self, touching);
+        return;
+    }
+other:
+    if (touching->flags.p & 0x10040400)
+        actor_staggerOnTouch(self, touching);
+    else
+        actor_resolveTouch(self, touching);
+}

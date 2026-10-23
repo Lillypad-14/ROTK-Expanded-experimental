@@ -1,0 +1,121 @@
+[Context] Operating on: rotk
+
+Decompiled function text_objRasterizeString:
+
+
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+
+
+void text_objRasterizeString(void *obj,char **pstr)
+
+
+
+{
+
+  u8 *charbase;
+
+  int iVar1;
+
+  dword dVar2;
+
+  dword dVar3;
+
+  u8 *puVar4;
+
+  int iVar5;
+
+  code *UNRECOVERED_JUMPTABLE;
+
+  u16 auStack_28 [2];
+
+  u16 *puStack_24;
+
+  
+
+  func_0x08047b5c(obj,*pstr);
+
+  puStack_24 = memory_malloc(0x74);
+
+  charbase = memory_zalloc((1 - ((int)((uint)*(byte *)((int)obj + 0xdd) << 0x1a) >> 0x1f)) * 0x740);
+
+  font_setRenderTarget(puStack_24,charbase,(*(byte *)((int)obj + 0xdd) & 0x3f) >> 5);
+
+  font_drawLine(0,0,0,0xe8,pstr,0,auStack_28);
+
+  *(u16 *)((int)obj + 0x20) = auStack_28[0];
+
+  if (*(ushort *)((int)obj + 0x22) < 9) {
+
+    *(byte *)((int)obj + 0xdf) = *(byte *)((int)obj + 0xdf) & 0x3f | 0x40;
+
+    bios_cpuSet(charbase,(void *)((uint)*(ushort *)((int)obj + 0xf2) * 0x20 + 0x6010000),
+
+                (uint)*(ushort *)((int)obj + 0x24) << 5 | 0x4000000);
+
+  }
+
+  else {
+
+    *(byte *)((int)obj + 0xdf) = *(byte *)((int)obj + 0xdf) & 0x3f | 0x80;
+
+    dVar2 = (uint)*(ushort *)((int)obj + 0xf2) * 0x20 + 0x6010000;
+
+    iVar1 = 0;
+
+    puVar4 = charbase;
+
+    if (*(short *)((int)obj + 0x24) != 0) {
+
+      do {
+
+        iVar5 = 4;
+
+        iVar1 = iVar1 + 1;
+
+        do {
+
+          dVar3 = dVar2;
+
+          _DMA3CNT_L = 0x80000010;
+
+          DMA3SAD = (dword)puVar4;
+
+          DMA3DAD = dVar3;
+
+          bios_cpuSet(puVar4 + 0x20,(void *)(dVar3 + 0x80),0x4000008);
+
+          puVar4 = puVar4 + 0x40;
+
+          iVar5 = iVar5 + -1;
+
+          dVar2 = dVar3 + 0x20;
+
+        } while (0 < iVar5);
+
+        dVar2 = dVar3 + 0xa0;
+
+      } while (iVar1 < (int)(uint)*(ushort *)((int)obj + 0x24));
+
+    }
+
+  }
+
+  memory_free(puStack_24);
+
+  memory_free(charbase);
+
+                    /* WARNING: Could not recover jumptable at 0x08047cfc. Too many branches */
+
+                    /* WARNING: Treating indirect jump as call */
+
+  (*UNRECOVERED_JUMPTABLE)();
+
+  return;
+
+}
+
+
+
+

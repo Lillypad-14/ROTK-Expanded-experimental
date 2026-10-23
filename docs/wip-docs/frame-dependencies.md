@@ -1,0 +1,17 @@
+# Actor-frame rendering dependencies
+
+Promoted sprite_buildOamMatrices (0x08036660, 68 bytes) and fx_renderLayer (0x08039268, 92 bytes). Both match plain C. This pass adds two functions and 160 compiled bytes.
+
+The OAM matrix builder checks g_OamMatrixCount, then invokes the BIOS OBJ affine wrapper on g_OamMatrixParams for each of two shadow OAM banks. Destination offsets are offsetof(OamEntry, affineParam) and that plus128 entries times sizeof(OamEntry). Output stride is sizeof(OamEntry). Ghidra bytes at0x0804dc68 are0f df70 47, confirming SWI0x0f then bx lr. bios_objAffineSet is now mapped and declared but its wrapper is not counted as decompiled C.
+
+fx_renderLayer uses the selected u8 count, walks queue entries in reverse, converts the particle routine's status to s8 and widens it into an s32 return value, and clears the queued bit after each call. A retained s8 local caused an unwanted final return conversion. Mutating the local queue pointer with queue += i before loading *queue fixes the two-register address-order difference naturally; a pin becomes unnecessary and was removed.
+
+Added a decoded-prefix FxParticle type: next/previous pointers, OAM at0x28, lifetime at0x3c and flags at0x3e. Do not use sizeof(FxParticle) for pool allocation: its undecoded tail includes at least a kind byte at0x46. Existing generic ActorList and pool APIs are unchanged. Added four queue pointers at0x030020b0 and four byte counts at0x030020c0, proven by the priority loops.
+
+Remaining targets: fx_buildRenderQueues at0x08038728 and fx_tickAndRenderParticle at0x080387c4 are mapped and declared, not decompiled. The latter decrements lifetime, updates particles by kind and renders them, propagating signed status including -1. Ghidra assembly snippets and current queue candidates are in local scratch. fx-queue-shape-2.c is the best measured queue-builder source (24 differing instructions); fx-queue.diff and fx-queue-trace describe an earlier 26-difference variant. fx_buildRenderQueues_candidate.c currently contains a worse unsuccessful count-pointer pin probe. Do not promote it.
+
+Queue builder visits priorities0..3. It skips particles already carrying bit15 and enqueues a particle at its OAM priority, or one earlier when bit14 is set. Marking it queued prevents a second insertion during this traversal. The per-layer renderer clears that mark. Do not describe this as unconditional insertion into two queues. Typed masks at the top of the inner loop hoist into the guarded loop entry. Remaining differences include which array base survives in sl, mask/value register allocation and queue-slot addressing. Width, volatile-pointer and direct-field probes did not match. Preserve --keep artifacts for allocation work instead of continuing blind permutations.
+
+Actor frame dispatcher still calls IWRAM entries0x03002c30 and0x03002d30. Current Ghidra xrefs for those addresses return none, and RAM contents are not present. World render queue starts0x03002830; the first executable entry is exactly0x400 bytes later, suggesting a256-pointer queue followed by code buffers. This is a hypothesis for initialization recovery, not a proven array bound. Existing declaration stays unsized.
+
+Validation: frame-dependencies-check.log passed all453 regions with original whole-ROM SHA1, source/store consistency, BUGFIX compilation and297 tests with three default skips. frame-dependencies-ghidra-tests.log passed18 configured tests. Inventory is569 definitions,251 C regions,72,292 compiled bytes and888 mapped symbols.

@@ -13,6 +13,10 @@
 #include "save_sram.h"
 #include "variables.h"
 
+#if HACK_skill_expansion
+#include "patches/skill_expansion/skill_expansion_save.h"
+#endif
+
 u8 g_SaveSlotPage;
 
 /**
@@ -41,6 +45,9 @@ void modSave_writeSlot(void *src, u8 slotIndex)
     g_GameFlags.d.saveOpInProgress = TRUE;
     save_eeprom_writeBlocks(SAVE_SLOT_EEPROM_BLOCK(g_SaveSlotPage, slotIndex),
                             SAVE_SLOT_BLOCK_COUNT, src);
+#if HACK_skill_expansion
+    skillExpansion_writeSaveRecord(src, g_SaveSlotPage * SAVE_SLOTS_PER_PAGE + slotIndex);
+#endif
     g_GameFlags.d.saveOpInProgress = FALSE;
 }
 

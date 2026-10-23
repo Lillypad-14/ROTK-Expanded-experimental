@@ -1,0 +1,5 @@
+[galloc] pseudo 64 -> r2  (allocno 20, size 1, calls_crossed 0, live_length 34, n_refs 4)
+[galloc] pseudo 68 -> r3  (allocno 21, size 1, calls_crossed 0, live_length 16, n_refs 3)
+[galloc] pseudo 72 -> r2  (allocno 24, size 1, calls_crossed 0, live_length 16, n_refs 3)
+[galloc] pseudo 78 -> r3  (allocno 26, size 1, calls_crossed 0, live_length 16, n_refs 3)
+[galloc] pseudo 29 -> r6  (allocno 4, size 1, calls_crossed 0, live_length 52, n_refs 2)

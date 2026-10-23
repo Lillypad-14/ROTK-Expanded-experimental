@@ -536,6 +536,14 @@ Anything letting cse substitute a constant into one arm breaks the merge and lea
 For an uninitialized-looking value reaching a cross-jump-merged tail: (1) substituting the constant it happens to hold kills the merge (copy-prop makes the tails differ), so a merging ROM with per-arm materialization means one arm assigns a variable; (2) substituting a provably-equal EXPRESSION costs a redundant `movs` (cse rewrites the introduced assignment to a constant); (3) reusing the very same LOCAL introduces no insn and is usually the real answer: the "uninitialized" read is the other arm's variable reaching the tail; (4) an uninitialized local WITHOUT the macro supplies no def for the shared pseudo and the merge dies.
 If a MATCH_DEFINE stays, leave it at its use site; hoisting it blows up the live range.
 
+### Misc Verified Shapes
+
+- `(a & 1) || (a & 2)` on one variable merges to `& 3`; testing two copies of the variable (`b = a;`) keeps two tests.
+- A u8 `&= ~C` compiles to a folded `movs #(0xff ^ C)`; ROM `movs #C; negs; ands` comes from `m = ~C; MATCH_BARRIER(m); *p = m & v;` (operand order matters for registers).
+- A ROM that decrements through one register and then copies it (`adds rN, rM`) has two pointer locals: `tp = ...; *tp -= 1; timer = tp;`.
+- Register-only diffs: pin the two swapped locals with MATCH_PIN, declaring all pins before any statement (C89), then assign.
+- A switch arm that returns can sit out of line after the other arms; the arm source order decides block layout, so permute it.
+
 ## Maintaining This Skill
 
 Add newly discovered quirks here when they are mechanism-level (name the pass and the deciding rule) and verified against the rebuilt compiler.

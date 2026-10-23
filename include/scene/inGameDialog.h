@@ -6,6 +6,7 @@
 void scene_inGameDialog_enter(void);
 void scene_inGameDialog_exit(void);
 void scene_inGameDialog_tick(void);
+void scene_inGameDialog_unknown0801ac78(void);
 
 /** DialogLineInfos[textId]: what a dialog line shows besides its text. */
 typedef struct DialogLineInfo

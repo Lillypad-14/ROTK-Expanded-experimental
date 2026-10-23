@@ -1,0 +1,759 @@
+build gfx: items: 45 categories, 0 encoded
+build gfx: loot_piles: 1 categories, 0 encoded
+build gfx: level_icons: 2 categories, 0 encoded
+build gfx: skills/icons: 2 categories, 0 encoded
+build gfx: hero_portraits, dialog_portraits, cutscenes: 3 categories, 0 encoded
+build gfx: enemy: 51 categories, 0 encoded
+uv run rotkit check stores
+check-stores: OK - 1022 functions, 4505 data symbols, 676 decompiled (each non-static one declared in a hand-written include/ header), 549 sources in the split manifest, no conflicts
+uv run python hacks/tools/hero_registry.py
+rotk.gba: OK
+  ROM ok
+uv run rotkit build clangd
+compile_commands.json unchanged
+hacks\compile_flags.txt unchanged
+uv run rotkit hack text-overrides --patches "chapter_select debug_cheats fast_fade fast_waitstates item_descriptions loot_qol menu_text mod_options mod_ram mod_save mod_scenes mod_startup ranger_hollow_pages ringwraith save_slot_pages skill_expansion text_overrides unlock_all"
+text overrides: 115 strings -> ~\Desktop\lotr\rotk\build\hack_include\text_overrides.inc
+uv run python hacks/tools/skill_fx.py
+Skill FX: 16 sprite sheets, 20 effects validated
+uv run python hacks/tools/cast_timelines.py
+Cast timelines: 2 validated
+uv run python hacks/tools/skill_deliveries.py
+Skill deliveries: 8 validated
+region byte-match vs base ROM - 549 TUs, 6209443 B carved:
+
+  OK    0x080009e4    0x1d8  src\c\sprite_free.c
+  OK    0x08000bbc     0x7c  src\c\sprite_flushList.c
+  OK    0x08000c38    0x120  src\c\actor_updateVisibility.c
+  OK    0x08000d58     0x90  src\c\sprite_selectAnimation.c
+  OK    0x08001250     0xba  src\c\actor_isFacingActor.c
+  OK    0x0800151c     0xd0  src\c\sprite_startScale.c
+  OK    0x080015ec     0x94  src\c\sprite_tickScale.c
+  OK    0x0800169c     0x5c  src\c\actor_allocMain.c
+  OK    0x080016f8     0x70  src\c\actor_tickAll.c
+  OK    0x08001768     0x4c  src\c\system_endFrame.c
+  OK    0x08001810     0x28  src\c\actor_parkMainList.c
+  OK    0x08001838     0x3c  src\c\actor_restoreParkedMainList.c
+  OK    0x08001874     0x4c  src\c\actor_flags.c
+  OK    0x08001918     0x48  src\c\actor_allocOverlay.c
+  OK    0x080019b4     0x78  src\c\sprite_setScale.c
+  OK    0x08001a2c     0x40  src\c\sprite_disableScale.c
+  OK    0x08001a6c     0x3c  src\c\sprite_ensureOamMatrix.c
+  OK    0x08001ac4     0x68  src\c\sprite_setAnimation.c
+  OK    0x08001b2c     0x58  src\c\sprite_initSlots.c
+  OK    0x08001b90     0x60  src\c\sprite_slots.c
+  OK    0x08001bf0     0x24  src\c\sprite_bindAnimation.c
+  OK    0x08001c20     0x14  src\c\sprite_setPosition.c
+  OK    0x08001c40     0x2e  src\c\actor_applyFacingVelocity.c
+  OK    0x08001c70      0xe  src\c\actor_clearVelocity.c
+  OK    0x08001c80     0x40  src\c\actor_setVelocityFromDirection8.c
+  OK    0x08001cd0     0x84  src\c\sprite_slotFlags.c
+  OK    0x08001fc8     0x88  src\c\actor_iterateInRadius.c
+  OK    0x08002050    0x294  src\c\actor_tick.c
+  OK    0x080022e4     0xdc  src\c\actor_tickAnimation.c
+  OK    0x080023c0     0xc4  src\c\actor_integrateMovement.c
+  OK    0x08003540     0x6c  src\c\actor_updateRenderFollow.c
+  OK    0x08003650     0x70  src\c\actor_applyRenderOscillation.c
+  OK    0x08008b74    0x168  src\c\actor_findNearestTarget.c
+  OK    0x08009aac     0xfe  src\c\actor_combat_knockback.c
+  OK    0x08009bac     0x3e  src\c\actor_isStunnable.c
+  OK    0x0800a480     0xca  src\c\actor_updateMoveFlags.c
+  OK    0x0800a54c    0x100  src\c\actor_checkDeath.c
+  OK    0x0800a64c    0x144  src\c\actor_combat_aggro.c
+  OK    0x0800b248     0xa8  src\c\actor_enemyAggroTrigger.c
+  OK    0x0800bfb8     0x1c  src\c\sprite_getAnimationFrameSize.c
+  OK    0x0800c018     0x2c  src\c\sprite_getOamShapeDims.c
+  OK    0x0800c044     0xa8  src\c\mission_script_loadMissionBlock.c
+  OK    0x0800c16c    0x15e  src\c\mission_script_groups.c
+  OK    0x0800c2cc     0xe0  src\c\mission_script_loadWaypointPaths.c
+  OK    0x0800c3ac     0xdc  src\c\mission_script_loadStreams.c
+  OK    0x0800c4ac     0x34  src\c\mission_script_spawnGroupAndStartStream.c
+  OK    0x0800c4e0     0x58  src\c\mission_script_runStream.c
+  OK    0x0800c538     0x2a  src\c\mission_script_slotNeedsLoad.c
+  OK    0x0800c564     0x18  src\c\mission_script_getGroupActorCount.c
+  OK    0x0800c5d0     0x28  src\c\mission_script_getActorParams.c
+  OK    0x0800c5f8     0x50  src\c\mission_script_getGroupActor.c
+  OK    0x0800c648     0x2c  src\c\mission_script_setRecordActor.c
+  OK    0x0800c674     0x18  src\c\mission_script_getWaypointCount.c
+  OK    0x0800c68c     0x30  src\c\mission_script_getWaypoint.c
+  OK    0x0800c6d0     0x10  src\c\scene_clearStateBytes.c
+  OK    0x0800c6e0     0x48  src\c\mission_script_copySpawnRecords.c
+  OK    0x0800c728     0x28  src\c\mission_script_copyActorRecord.c
+  OK    0x0800c750     0x44  src\c\mission_script_copyWaypointPath.c
+  OK    0x0800c794     0x44  src\c\mission_script_copyStream.c
+  OK    0x0800c7d8     0x46  src\c\mission_script_alignment.c
+  OK    0x0800f168   0x13d0  src\c\combat_resolve.c
+  OK    0x08010538    0x2e0  src\c\player_awardXp.c
+  OK    0x08010818   0x13a8  src\c\combat.c
+  OK    0x080123e0     0x1a  src\c\gfx_setupBg.c
+  OK    0x08012444     0x14  src\c\gfx_unknown08012444.c
+  OK    0x08012458     0x14  src\c\gfx_disableBg.c
+  OK    0x080124fc     0x10  src\c\gfx_disableDisplayFlags.c
+  OK    0x0801250c     0x10  src\c\gfx_enableDisplayFlags.c
+  OK    0x08012660     0x66  src\c\gfx_fillBgRect.c
+  OK    0x08012794     0x3a  src\c\gfx_loadBgAsset.c
+  OK    0x080127d0     0x38  src\c\gfx_unknown080127d0.c
+  OK    0x08012808     0x5c  src\c\gfx_unknown08012808.c
+  OK    0x08012b04     0x16  src\c\gfx_commitBgs.c
+  OK    0x08012ce0     0x30  src\c\gfx_setBgScrollSpeed.c
+  OK    0x08012f90    0x690  src\c\scene\bonusMapMenu.c
+  OK    0x08014230     0x74  src\c\scene_newGame_tick.c
+  OK    0x080142a4     0x94  src\c\scene_newGame_unknown080142a4.c
+  OK    0x08014634     0xb8  src\c\scene_newGame_unknown08014634.c
+  OK    0x0801496c      0xa  src\c\scene\unused0c.c
+  OK    0x08014978    0x3c6  src\c\actor\chest.c
+  OK    0x08015220    0x204  src\c\combat_resolvePlayerAttackOnActor.c
+  OK    0x08016290     0xc4  src\c\actor_touchTriggers.c
+  OK    0x08016cbc     0x10  src\c\gfx_loadBgPaletteColors.c
+  OK    0x08016ccc     0x10  src\c\gfx_loadObjPaletteColors.c
+  OK    0x08016d70     0x26  src\c\gfx_paletteAnims.c
+  OK    0x08016d98     0x60  src\c\gfx_commitPaletteAnims.c
+  OK    0x08016f28     0x3a  src\c\gfx_loadPaletteColors.c
+  OK    0x08016f74     0x36  src\c\gfx_paletteCycles.c
+  OK    0x08016fac     0x2c  src\c\gfx_tickPaletteCycles.c
+  OK    0x0801704c     0x8c  src\c\gfx_commitPaletteCycle.c
+  OK    0x080170e8     0x48  src\c\gfx_paletteFades.c
+  OK    0x080173f0     0x84  src\c\mission_script_op33.c
+  OK    0x08017474     0x38  src\c\mission_script_op13.c
+  OK    0x080174ac     0x84  src\c\mission_script_op16.c
+  OK    0x080176c0     0x5e  src\c\mission_script_op17.c
+  OK    0x08017840     0xf4  src\c\mission_script_op21.c
+  OK    0x08017934     0x50  src\c\mission_script_op24.c
+  OK    0x08017a84     0xb6  src\c\mission_script_op36.c
+  OK    0x08017b3c     0x70  src\c\mission_script_op34.c
+  OK    0x08017c34     0x74  src\c\mission_script_op32.c
+  OK    0x08017ca8     0x52  src\c\mission_script_op38.c
+  OK    0x08017cfc     0x5a  src\c\mission_script_op39.c
+  OK    0x08017d58     0x52  src\c\mission_script_op40.c
+  OK    0x08017dac     0x5a  src\c\mission_script_op41.c
+  OK    0x08017e08    0x160  src\c\mission_script_op43.c
+  OK    0x08017f68     0x8c  src\c\mission_script_op27.c
+  OK    0x08017ff4     0xa4  src\c\mission_script_op42.c
+  OK    0x08018098    0x174  src\c\mission_script_op45.c
+  OK    0x0801820c     0x8a  src\c\mission_script_op52.c
+  OK    0x08018298     0x70  src\c\mission_script_op55.c
+  OK    0x08018308     0xa0  src\c\mission_script_op62.c
+  OK    0x080183a8     0x28  src\c\mission_script_op01.c
+  OK    0x080183d0     0x32  src\c\mission_script_op02.c
+  OK    0x08018404     0x26  src\c\mission_script_op03.c
+  OK    0x0801842c     0x26  src\c\mission_script_op04.c
+  OK    0x08018454     0x3e  src\c\mission_script_op05.c
+  OK    0x08018494      0xa  src\c\mission_script_op06.c
+  OK    0x080184a0      0xa  src\c\mission_script_op07.c
+  OK    0x080184ac     0x34  src\c\mission_script_op08.c
+  OK    0x080184e0      0xc  src\c\mission_script_op09.c
+  OK    0x080184ec      0xc  src\c\mission_script_op10.c
+  OK    0x080184f8      0xc  src\c\mission_script_op11.c
+  OK    0x08018504     0x22  src\c\mission_script_op12.c
+  OK    0x08018528     0x2e  src\c\mission_script_op14.c
+  OK    0x08018558     0x28  src\c\mission_script_op15.c
+  OK    0x08018580     0x3c  src\c\mission_script_op19.c
+  OK    0x080185bc     0x10  src\c\mission_script_op20.c
+  OK    0x080185cc     0x58  src\c\mission_script_op22.c
+  OK    0x08018624     0x40  src\c\mission_script_op23.c
+  OK    0x08018664      0xc  src\c\mission_script_op25.c
+  OK    0x08018670     0x64  src\c\mission_script_op28.c
+  OK    0x080186d4     0x18  src\c\mission_script_op29.c
+  OK    0x080186ec     0x3c  src\c\mission_script_op37.c
+  OK    0x08018728     0x48  src\c\mission_script_op44.c
+  OK    0x08018770     0x28  src\c\mission_script_op46.c
+  OK    0x08018798     0x1c  src\c\mission_script_op47.c
+  OK    0x080187b4     0x4e  src\c\mission_script_op48.c
+  OK    0x08018804     0x4e  src\c\mission_script_op49.c
+  OK    0x08018854     0x62  src\c\mission_script_op50.c
+  OK    0x080188b8     0x50  src\c\mission_script_op51.c
+  OK    0x08018908     0x44  src\c\mission_script_op53.c
+  OK    0x0801894c     0x14  src\c\mission_script_op54.c
+  OK    0x08018960     0x48  src\c\mission_script_op56.c
+  OK    0x080189a8     0x30  src\c\mission_script_op57.c
+  OK    0x080189d8     0x10  src\c\mission_script_op58.c
+  OK    0x080189e8     0x14  src\c\mission_script_op59.c
+  OK    0x080189fc     0x14  src\c\mission_script_op60.c
+  OK    0x08018a10     0x20  src\c\mission_script_op61.c
+  OK    0x08018a30     0x10  src\c\mission_script_op63.c
+  OK    0x08018a40     0x14  src\c\mission_script_op64.c
+  OK    0x08018a54     0x14  src\c\mission_script_op65.c
+  OK    0x08018a68     0x20  src\c\mission_script_op66.c
+  OK    0x08018a88      0xc  src\c\mission_script_op67.c
+  OK    0x08018a94     0x2c  src\c\mission_script_op68.c
+  OK    0x08018b18     0x9a  src\c\mission_script_compareAndSpawn.c
+  OK    0x08019d04     0x48  src\c\decompress_loadIwramFunctions.c
+  OK    0x0801a898     0x90  src\c\scene_griptoniteLogo_enter.c
+  OK    0x0801a928     0x10  src\c\scene_griptoniteLogo_exit.c
+  OK    0x0801ad34     0x68  src\c\scene_inGameDialog_tick.c
+  OK    0x0801b078      0xc  src\c\gfx_getVideoMode.c
+  OK    0x0801c33c    0x110  src\c\fx_attachStatusEffect.c
+  OK    0x0801c44c     0xc6  src\c\fx_statusEffect_tick.c
+  OK    0x0801c514      0xc  src\c\fx_resetStunSfxCooldown.c
+  OK    0x0801c520     0x1c  src\c\fx_tickStunSfxCooldown.c
+  OK    0x0801cf74    0xafc  src\c\font.c
+  OK    0x0801da70    0x534  src\c\scene\shop.c
+  OK    0x0801ebc8     0xc4  src\c\scene_shop_refreshSlotSprites.c
+  OK    0x0801f728     0xac  src\c\scene_shop_createCursor.c
+  OK    0x0801fd70     0x30  src\c\scene_shop_clearHollowItems.c
+  OK    0x0801fda0     0xac  src\c\scene_shop_takeItemFromHollow.c
+  OK    0x0801fe4c     0x50  src\c\scene\shop_onBack.c
+  OK    0x0801fefc     0x42  src\c\scene_shop_drawConfirmOption.c
+  OK    0x0801ff40     0x1c  src\c\scene_shop_attributePointCost.c
+  OK    0x0801ff5c     0x24  src\c\scene\shop_skillPointCost.c
+  OK    0x0801ff80     0x30  src\c\scene_shop_bargainCost.c
+  OK    0x080203bc     0xe6  src\c\skill_active_frodoKnifeToss.c
+  OK    0x080204a4    0x266  src\c\skill_active_frodoTheOneRing.c
+  OK    0x08020a70     0x60  src\c\scene_victory_tick.c
+  OK    0x08020ad0     0x34  src\c\scene_victory_exit.c
+  OK    0x08020c44     0x5c  src\c\skill_active_gandalfLightstrike.c
+  OK    0x08021bd8     0x24  src\c\scene_gcnLinkMenu_exit.c
+  OK    0x08021c38    0x1f8  src\c\actor\enemySpawner.c
+  OK    0x08021ed0    0x1b8  src\c\actor\enemySpawner_spawnChild.c
+  OK    0x08022088     0x36  src\c\actor_enemySpawner_releaseChild.c
+  OK    0x080220c0     0x26  src\c\actor_enemySpawner_findFreeChildSlot.c
+  OK    0x080220e8    0x1bc  src\c\skill_active_gimliAxeThrow.c
+  OK    0x080222a4    0x160  src\c\skill_active\gimli.c
+  OK    0x08022404     0xfa  src\c\skill_active_gimliEarthShatter.c
+  OK    0x080257d0    0x28c  src\c\actor_resetActionState.c
+  OK    0x08025a5c    0x1ce  src\c\actor_player_tickScripted.c
+  OK    0x08025c2c     0x90  src\c\actor_player_initState.c
+  OK    0x08025cbc     0xae  src\c\player_tickOverdrawCharge.c
+  OK    0x08025d6c    0x174  src\c\player_initHeroStats.c
+  OK    0x08025ee0     0x94  src\c\player_rebuildStats.c
+  OK    0x08025f74     0x68  src\c\player_applyBaseStats.c
+  OK    0x080260bc     0x8c  src\c\player_clampCurrentHpSpirit.c
+  OK    0x08026148     0x90  src\c\player_addHp.c
+  OK    0x080261d8     0x64  src\c\player_addSpirit.c
+  OK    0x0802623c    0x134  src\c\player_addCorruption.c
+  OK    0x080265c0     0xb0  src\c\player_applyOptionFlags.c
+  OK    0x080272d8     0x3c  src\c\actor_player_initScripted.c
+  OK    0x08027314     0x34  src\c\player_recomputeBaseStats.c
+  OK    0x08027374     0x20  src\c\player_computeMaxSpirit.c
+  OK    0x08027394     0x50  src\c\player_clearHandFx.c
+  OK    0x080273e4     0x50  src\c\actor_player_selectAnimationBank.c
+  OK    0x08027904    0x1ec  src\c\combat_damageCalc.c
+  OK    0x08027af0     0x94  src\c\menu_createLrButtonIndicators.c
+  OK    0x080287dc     0x46  src\c\combat_damageRange.c
+  OK    0x08029804     0x24  src\c\player_resetHuds.c
+  OK    0x0802997c     0xe0  src\c\text_huffman.c
+  OK    0x08029a5c    0x3b4  src\c\input.c
+  OK    0x08029e10    0x2d6  src\c\menu.c
+  OK    0x0802a0e8    0x3f2  src\c\system.c
+  OK    0x0802b064    0x560  src\c\item_affix_formatName.c
+  OK    0x0802bdb4    0x4bc  src\c\item_equipment.c
+  OK    0x0802c47c    0x13e  src\c\item_drawInfo.c
+  OK    0x0802d8e0    0x6f4  src\c\item_statModifiers.c
+  OK    0x0802dfd4     0x54  src\c\player_getMaxHpBonus.c
+  OK    0x0802e028     0x70  src\c\player_getMaxSpiritBonus.c
+  OK    0x0802e8f0     0x30  src\c\player_clearInventory.c
+  OK    0x0802e940     0xb0  src\c\item_swapSlots.c
+  OK    0x0802ea38     0x1a  src\c\item_clearSlot.c
+  OK    0x0802ea88     0x80  src\c\item_isUsableByPlayer.c
+  OK    0x0802eb3c     0x50  src\c\scene_backpack_swapSlotSprites.c
+  OK    0x0802ee0c    0xcd4  src\c\actor\lootPile.c
+  OK    0x0802fae0    0x2d4  src\c\scene\languageSelect.c
+  OK    0x0802fe5c     0xc0  src\c\scene_copyright_enter.c
+  OK    0x0802ff1c     0x4c  src\c\scene_copyright_tick.c
+  OK    0x0802ff68      0xc  src\c\scene_copyright_exit.c
+  OK    0x080303cc     0xb8  src\c\scene_unknown16_enter.c
+  OK    0x08030484     0x50  src\c\scene_unknown16_tick.c
+  OK    0x080304d4      0xc  src\c\scene_unknown16_exit.c
+  OK    0x08030518     0x50  src\c\pool_alloc.c
+  OK    0x08030568     0x5c  src\c\pool_list.c
+  OK    0x080305c4    0xf08  src\c\scene\saveLoadMenu.c
+  OK    0x08032098    0x2f4  src\c\scene\gameplay.c
+  OK    0x0803238c     0x3c  src\c\scene_gameplay_resetMissionState.c
+  OK    0x080326ac     0xa8  src\c\actor_missionWarp_tick.c
+  OK    0x08032754    0x354  src\c\math.c
+  OK    0x08032aa8    0x556  src\c\memory.c
+  OK    0x08033000    0x28e  src\c\game.c
+  OK    0x08035940    0x26c  src\c\actor_npc_setup.c
+  OK    0x080364a4     0x28  src\c\actor_npc_initBehavior.c
+  OK    0x08036540     0x4e  src\c\sprite_pushOam.c
+  OK    0x08036590     0x24  src\c\sprite_hideOamEntry.c
+  OK    0x080365b4     0xac  src\c\sprite_oamMatrices.c
+  OK    0x08036660     0x44  src\c\sprite_buildOamMatrices.c
+  OK    0x080366a4     0x48  src\c\sprite_endFrame.c
+  OK    0x080368b0    0x6bc  src\c\scene\optionsMenu.c
+  OK    0x08037a74     0x3c  src\c\mission_getRegion.c
+  OK    0x080382a8     0x50  src\c\sprite_releasePalette.c
+  OK    0x08039138     0x24  src\c\fx_freeEmitter.c
+  OK    0x0803915c     0x3c  src\c\mission_unknown0803915c.c
+  OK    0x08039198     0x2c  src\c\mission_unknown08039198.c
+  OK    0x08039268     0x5c  src\c\fx_renderLayer.c
+  OK    0x08039300     0x24  src\c\fx_freeParticle.c
+  OK    0x08039d04     0x4c  src\c\scene_pauseMenu_exit.c
+  OK    0x08039d50     0x94  src\c\scene_introLogo_enter.c
+  OK    0x0803a170    0x110  src\c\system_clearRam.c
+  OK    0x0803a280     0x90  src\c\rng_reseed.c
+  OK    0x0803a46c     0x1c  src\c\rng_allocState.c
+  OK    0x0803a4bc     0x2c  src\c\rng_rollRange.c
+  OK    0x0803a4e8     0x28  src\c\rng_range.c
+  OK    0x0803a510     0x24  src\c\rng_mod.c
+  OK    0x0803a534     0x24  src\c\rng_rollUpTo.c
+  OK    0x0803a558     0x2c  src\c\rng_signedOffset.c
+  OK    0x0803a5b0     0x2c  src\c\rng_rollPercent.c
+  OK    0x0803a608     0x38  src\c\rng_seedState.c
+  OK    0x0803a640     0xa8  src\c\rng_streams.c
+  OK    0x0803a6e8    0x8cc  src\c\loot.c
+  OK    0x0803b9b8     0x5a  src\c\combat_shieldAbsorbsHit.c
+  OK    0x0803cc30     0x5c  src\c\save_init.c
+  OK    0x0803cc8c    0x2ec  src\c\save.c
+  OK    0x0803cf78     0x3c  src\c\save_eeprom_readBegin.c
+  OK    0x0803cfb4     0x14  src\c\save_eeprom_readEnd.c
+  OK    0x0803d264    0x2c4  src\c\gfx_mosaic.c
+  OK    0x0803dee8     0x18  src\c\gfx_setBlendControl.c
+  OK    0x0803df00     0x28  src\c\gfx_setBlendAlpha.c
+  OK    0x0803df60     0xf0  src\c\gfx_alphaBlend.c
+  OK    0x0803e0f8    0x104  src\c\gfx_fadeIn.c
+  OK    0x0803e2fc     0x78  src\c\gfx_windowFadeInFromBlack.c
+  OK    0x0803e374     0xc0  src\c\gfx_fadeOut.c
+  OK    0x0803e640     0x48  src\c\gfx_windowFadeOutToBlack.c
+  OK    0x0803f214     0x3c  src\c\gfx_cameraPosition.c
+  OK    0x0803f2a8     0x36  src\c\terrain_getWorldSize.c
+  OK    0x08041800     0x9c  src\c\scene_skillTree_exit.c
+  OK    0x0804189c     0x60  src\c\player_resetActiveSkillControls.c
+  OK    0x08041b04    0x180  src\c\scene_skillTree_moveCursor.c
+  OK    0x080423e8     0x8c  src\c\scene_skillTree_createCursor.c
+  OK    0x08042674     0x28  src\c\scene\skillTree_small.c
+  OK    0x0804269c     0x68  src\c\scene_skillTree_unknown0804269c.c
+  OK    0x08042780     0x1c  src\c\scene\skillTree_handleA.c
+  OK    0x0804279c     0x26  src\c\scene\skillTree_drawPassiveGrid.c
+  OK    0x08042854     0x10  src\c\scene\skillTree_drawActiveGrid.c
+  OK    0x08042864     0x4c  src\c\scene_skillTree_drawActiveTiles.c
+  OK    0x0804296c    0x258  src\c\player_initHeroLoadout.c
+  OK    0x08042bc4    0xc74  src\c\skill.c
+  OK    0x08043b14    0x178  src\c\fx_spawnOnActor.c
+  OK    0x080446c0     0xe4  src\c\skill_active_aragornSweep.c
+  OK    0x080447a4     0xc8  src\c\skill_active_gimliWhirlingAttack.c
+  OK    0x0804486c     0xec  src\c\skill_active_legolasWhiteKnives.c
+  OK    0x08044b0c     0xbc  src\c\skill_active_eowynDoubleStrike.c
+  OK    0x08044bc8     0xc8  src\c\skill_active_eowynShieldBash.c
+  OK    0x08044c90     0xb0  src\c\skill_active_gandalfSwordOfPower.c
+  OK    0x08044d40     0xc8  src\c\skill_active_frodoGaladrielsCloak.c
+  OK    0x08044e08     0xc0  src\c\skill_active_samCookpotSmash.c
+  OK    0x08044ec8     0x90  src\c\skill_active_smeagolBerserkAttack.c
+  OK    0x08044f58     0xc8  src\c\skill_active_smeagolCower.c
+  OK    0x08045020    0x470  src\c\skill_levels.c
+  OK    0x080454c0     0x32  src\c\skill_active_hasLevels.c
+  OK    0x0804555c     0x28  src\c\skill_active_getSpiritCost.c
+  OK    0x08045584     0x3c  src\c\actor_unknown08045584.c
+  OK    0x08045e44     0x34  src\c\scene_cutscene_exit.c
+  OK    0x08045ee4     0x8a  src\c\player_spawnTripleDamageBubble.c
+  OK    0x08046124     0xf0  src\c\actor_onDeathDropLoot.c
+  OK    0x08046bc4     0x7c  src\c\multiplayer_pollSession.c
+  OK    0x08046c40     0x54  src\c\multiplayer_abortSession.c
+  OK    0x08046c94     0x40  src\c\multiplayer_syncBarrier.c
+  OK    0x08046cd4     0x78  src\c\multiplayer_endSession.c
+  OK    0x08046d64     0x1c  src\c\multiplayer_abortScene.c
+  OK    0x08046d8c     0x2c  src\c\multiplayer_clearSessionFlag.c
+  OK    0x08046dc4      0xc  src\c\multiplayer_getMessageMask.c
+  OK    0x08046eec    0x178  src\c\sfx_play.c
+  OK    0x08047064     0x4c  src\c\sfx_init.c
+  OK    0x080470b0     0x60  src\c\sfx_initDriver.c
+  OK    0x0804711c     0x24  src\c\sfx_audioToggle.c
+  OK    0x08047140    0x1a8  src\c\sfx.c
+  OK    0x080477f0    0x2ec  src\c\text.c
+  OK    0x08047d10     0x58  src\c\text_objCreateInSlot.c
+  OK    0x08047d7c     0x18  src\c\text_objSetPos.c
+  OK    0x08047d94     0x20  src\c\text_objClearSlots.c
+  OK    0x08047ef4    0x688  src\c\scene\mainMenu.c
+  OK    0x08049984     0x74  src\c\sprite_applyDeferredObjTileFrees.c
+  OK    0x080499f8     0x5c  src\c\sprite_resetTileAllocatorForMode.c
+  OK    0x08049a54     0x38  src\c\sprite_resetTileAllocator.c
+  OK    0x08049a8c     0x2c  src\c\sprite_resetTileAllocator2.c
+  OK    0x08049c14     0x12  src\c\sprite_freeObjTiles.c
+  OK    0x08049c28     0x12  src\c\sprite_freeObjTilesDeferred.c
+  OK    0x08049ccc     0x58  src\c\sprite_clearObjTileBits.c
+  OK    0x0804a424     0x68  src\c\transition_reset.c
+  OK    0x0804a584     0x7c  src\c\transition_tick.c
+  OK    0x0804dc74     0x48  src\c\eeprom_selectType.c
+  OK    0x0804dcbc     0x28  src\c\eeprom_timeoutIrqHandler.c
+  OK    0x0804dce4     0x3a  src\c\eeprom_configureTimeoutTimer.c
+  OK    0x0804dda8     0x44  src\c\eeprom_stopTimeoutTimer.c
+  OK    0x0804dff8     0x56  src\c\eeprom_verifyBlock.c
+  OK    0x0804e050     0x3e  src\c\eeprom_writeAndVerifyBlock.c
+  OK    0x0804fbec    0x820  carved\data\enemy_graphics\EnemyAnimationBanks_73_EnemyTypeGondorSoldier.c
+  OK    0x08050634     0x8c  carved\data\level_icons\BonusMapMenuEntries.c
+  OK    0x0805104c     0xa8  carved\data\enemy_graphics\EnemyAnimationBankMatrix_63_EnemyTypeDenethor_Parts.c
+  OK    0x080511d4     0xa8  carved\data\enemy_graphics\EnemyAnimationBankMatrix_52_EnemyTypeEasterlingHeavy_Parts.c
+  OK    0x080512d0    0x320  carved\data\enemy_graphics\EnemyAnimationBanks_52_EnemyTypeEasterlingHeavy.c
+  OK    0x080515f0    0x190  carved\data\enemy_graphics\EnemyAnimationBanks_45_EnemyTypeCorsair.c
+  OK    0x08051780    0xf00  carved\data\enemy_graphics\EnemyAnimationBanks_10_EnemyTypeOrcWarriorAxe.c
+  OK    0x08052680    0x1e0  carved\data\enemy_graphics\EnemyAnimationBanks_20_EnemyTypeOrcArcher.c
+  OK    0x08052860    0x1e0  carved\data\enemy_graphics\EnemyAnimationBanks_06_EnemyTypeOrcPitchfork1.c
+  OK    0x08052a40    0x3c0  carved\data\enemy_graphics\EnemyAnimationBanks_18_EnemyTypeOrcCaptainArmored.c
+  OK    0x08052e00    0x230  carved\data\enemy_graphics\EnemyAnimationBanks_26_EnemyTypeOrcAxeThrower.c
+  OK    0x08053030    0x140  carved\data\enemy_graphics\EnemyAnimationBanks_29_EnemyTypeOrcHoplite.c
+  OK    0x08053170    0x3c0  carved\data\enemy_graphics\EnemyAnimationBanks_28_EnemyTypeOrcFlagbearer.c
+  OK    0x08053530    0x1e0  carved\data\enemy_graphics\EnemyAnimationBanks_03_EnemyTypeGoblinArcher.c
+  OK    0x08053710    0x230  carved\data\enemy_graphics\EnemyAnimationBanks_00_EnemyTypeGoblinScout.c
+  OK    0x08053940    0x1e0  carved\data\enemy_graphics\EnemyAnimationBanks_05_EnemyTypeOrcDrummer.c
+  OK    0x08053b20    0x500  carved\data\enemy_graphics\EnemyAnimationBanks_31_EnemyTypeUruk.c
+  OK    0x08054020    0x4b0  carved\data\enemy_graphics\EnemyAnimationBanks_33_EnemyTypeUrukCrossbowman.c
+  OK    0x080544d0    0x1e0  carved\data\enemy_graphics\EnemyAnimationBanks_37_EnemyTypeWildman.c
+  OK    0x080546b0    0x190  carved\data\enemy_graphics\EnemyAnimationBanks_58_EnemyTypeNazgul.c
+  OK    0x08054840    0x190  carved\data\enemy_graphics\EnemyAnimationBanks_41_EnemyTypeSpider.c
+  OK    0x080549d0    0x190  carved\data\enemy_graphics\EnemyAnimationBanks_44_EnemyTypeSpiderSmall.c
+  OK    0x08054b60    0x140  carved\data\enemy_graphics\EnemyAnimationBanks_55_EnemyTypeCrebain.c
+  OK    0x08054ca0    0x140  carved\data\enemy_graphics\EnemyAnimationBanks_56_EnemyTypeBat.c
+  OK    0x08054de0    0x190  carved\data\enemy_graphics\EnemyAnimationBanks_48_EnemyTypeWarg.c
+  OK    0x08054f70    0x280  carved\data\enemy_graphics\EnemyAnimationBanks_68_EnemyTypeMouthOfSauron.c
+  OK    0x080551f0    0x2d0  carved\data\enemy_graphics\EnemyAnimationBanks_62_EnemyTypeSaruman.c
+  OK    0x080554c0    0x140  carved\data\enemy_graphics\EnemyAnimationBanks_39_EnemyTypeMountainTroll.c
+  OK    0x08055600    0x140  carved\data\enemy_graphics\EnemyAnimationBanks_40_EnemyTypeHalfTroll.c
+  OK    0x08055740     0xa0  carved\data\enemy_graphics\EnemyAnimationBanks_61_EnemyTypeGrond.c
+  OK    0x080557e0    0x190  carved\data\enemy_graphics\EnemyAnimationBanks_60_EnemyTypeShelob.c
+  OK    0x08055970    0x190  carved\data\enemy_graphics\EnemyAnimationBanks_66_EnemyTypeMumakil.c
+  OK    0x08055b00     0xf0  carved\data\enemy_graphics\EnemyAnimationBanks_69_EnemyTypeFlyingNazgul.c
+  OK    0x08055bf0    0x190  carved\data\enemy_graphics\EnemyAnimationBanks_57_EnemyTypeGhost.c
+  OK    0x08055d80    0x140  carved\data\enemy_graphics\EnemyAnimationBanks_50_EnemyTypeHaradrimArcher.c
+  OK    0x08055ec0    0x320  carved\data\enemy_graphics\EnemyAnimationBanks_63_EnemyTypeDenethor.c
+  OK    0x080561e0    0x280  carved\data\enemy_graphics\EnemyAnimationBanks_64_EnemyTypeWitchKing.c
+  OK    0x08056460     0x50  carved\data\enemy_graphics\EnemyAnimationBanks_59_EnemyTypeFlySwarm.c
+  OK    0x080564b0    0x140  carved\data\enemy_graphics\EnemyAnimationBanks_70_EnemyTypeGroundSkeleton.c
+  OK    0x080565f0    0x190  carved\data\enemy_graphics\EnemyAnimationBanks_71_EnemyTypeSkeletonWarrior.c
+  OK    0x08056780     0xa0  carved\data\enemy_graphics\EnemyAnimationBanks_67_EnemyTypeKingOfTheDead.c
+  OK    0x08056820    0x7c8  carved\data\enemy_graphics\EnemyAnimationBanks.c
+  OK    0x08057518    0xcf8  carved\data\enemy_tables\EnemyTables.c
+  OK    0x08058754    0x190  carved\data\enemy_graphics\EnemyAnimationBanks_65_EnemyTypeGollum.c
+  OK    0x080628d0     0xc8  carved\data\player_tables\XpThresholds.c
+  OK    0x08062e7c    0x360  carved\data\item_tables\KnifeTables.c
+  OK    0x080631dc    0x210  carved\data\item_tables\Sword1HTables.c
+  OK    0x080633ec    0x1b0  carved\data\item_tables\Sword2HTables.c
+  OK    0x0806359c    0x210  carved\data\item_tables\AxeTables.c
+  OK    0x080637ac    0x1e0  carved\data\item_tables\MaceTables.c
+  OK    0x0806398c     0xc0  carved\data\item_tables\StaffTables.c
+  OK    0x08063a4c    0x270  carved\data\item_tables\BowTables.c
+  OK    0x08063cbc    0x208  carved\data\item_tables\ArrowTables.c
+  OK    0x08063ec4    0x480  carved\data\item_tables\ArmorTables.c
+  OK    0x08064344    0x180  carved\data\item_tables\ShieldTables.c
+  OK    0x080644c4    0x240  carved\data\item_tables\AccessoryTables.c
+  OK    0x08064704    0x1b0  carved\data\item_tables\CloakTables.c
+  OK    0x080648b4    0x180  carved\data\item_tables\GloveTables.c
+  OK    0x08064a34    0x150  carved\data\item_tables\ShoeTables.c
+  OK    0x08064b84    0x9f0  carved\data\item_tables\UniqueTables.c
+  OK    0x08065648     0x70  carved\data\loot_tables\WeaponPrefixRegionRanges.c
+  OK    0x080656b8    0x9c0  carved\data\affix_tables\WeaponPrefixTables.c
+  OK    0x08066078     0x70  carved\data\loot_tables\StaffBowPrefixRegionRanges.c
+  OK    0x080660e8    0x6c0  carved\data\affix_tables\StaffBowPrefixTables.c
+  OK    0x080667a8     0x70  carved\data\loot_tables\ArmorPrefixRegionRanges.c
+  OK    0x08066818    0x9c0  carved\data\affix_tables\ArmorPrefixTables.c
+  OK    0x080671d8     0x70  carved\data\loot_tables\AccessoryPrefixRegionRanges.c
+  OK    0x08067248    0x9c0  carved\data\affix_tables\AccessoryPrefixTables.c
+  OK    0x08067c08     0x70  carved\data\loot_tables\CloakPrefixRegionRanges.c
+  OK    0x08067c78    0x240  carved\data\affix_tables\CloakPrefixTables.c
+  OK    0x08067eb8     0x70  carved\data\loot_tables\GloveShoePrefixRegionRanges.c
+  OK    0x08067f28    0x600  carved\data\affix_tables\GloveShoePrefixTables.c
+  OK    0x08068528     0x28  carved\data\loot_tables\SuffixTierRanges.c
+  OK    0x08068550    0xa00  carved\data\affix_tables\ItemSuffixTables.c
+  OK    0x08068f50    0x258  carved\data\item_tables\ItemTypeInfos.c
+  OK    0x080691a8     0x3c  carved\data\item_tables\Runes.c
+  OK    0x080691e4    0x590  carved\data\loot_piles\LootPileAnimations.c
+  OK    0x0806c828    0x138  carved\data\scene\SceneHandlers.c
+  OK    0x0806c9e4     0xf0  carved\data\level_icons\MultiplayerLevelSelectEntries.c
+  OK    0x0806cddc     0xd8  carved\data\actor_tables\NpcSfxSets.c
+  OK    0x0806cee8     0xa8  carved\data\enemy_graphics\EnemyAnimationBankMatrix_28_EnemyTypeOrcFlagbearer_FlagBearer.c
+  OK    0x0806cfe4     0xa8  carved\data\enemy_graphics\EnemyAnimationBankMatrix_10_EnemyTypeOrcWarriorAxe_Composite.c
+  OK    0x0806d0e0     0xa8  carved\data\enemy_graphics\EnemyAnimationBankMatrix_10_EnemyTypeOrcWarriorAxe_CompositeAttack.c
+  OK    0x0806d20c     0x70  carved\data\mission_tables\RegionMissionRanges.c
+  OK    0x0806db94    0x1e8  carved\data\loot_tables\LootTables.c
+  OK    0x0806dfbc     0xa8  carved\data\enemy_graphics\EnemyAnimationBankMatrix_68_EnemyTypeMouthOfSauron_Parts.c
+  OK    0x0806e3d4    0x578  carved\data\skills\PassiveSkills.c
+  OK    0x0806e94c    0x7dd  carved\data\skills\HeroSkills.c
+  OK    0x0806f684      0x8  carved\data\cutscenes\CutsceneBgCnts.c
+  OK    0x0806f68c    0xc34  carved\data\cutscenes\CutscenePages.c
+  OK    0x0807050c     0xa8  carved\data\enemy_graphics\EnemyAnimationBankMatrix_31_EnemyTypeUruk_Parts.c
+  OK    0x08282978     0x20  carved\data\hero_portraits\HeroPortraitBgAssets.c
+  OK    0x082833d8   0x3f30  carved\data\dialog_portraits\DialogLineInfos.c
+  OK    0x08287310     0x20  carved\data\loot_tables\LootHeroRegionProgressions.c
+  OK    0x082874a4     0x10  carved\data\skills\ActiveSkillDescriptionBaseTextIds.c
+  OK    0x082874bc     0xd2  carved\data\skills\PassiveSkillRequiredLevels.c
+  OK    0x0828758e    0x120  carved\data\skills\ActiveSkillRequiredLevels.c
+  OK    0x082876b0    0x14c  carved\data\skills\SkillIconAssets.c
+  OK    0x082898f0    0x110  carved\data\sfx_tables\Songs.c
+  OK    0x082abc44   0x3cbc  build\generated\data\enemy_graphics\EnemyAnimationAssets_73_EnemyTypeGondorSoldier_ExtraPoses18_20.c
+  OK    0x082b1660   0x9940  build\generated\data\enemy_graphics\EnemyAnimationAssets_41_EnemyTypeSpider.c
+  OK    0x082bafa0   0x40a4  build\generated\data\enemy_graphics\EnemyAnimationAssets_44_EnemyTypeSpiderSmall.c
+  OK    0x082bf044   0x3f28  build\generated\data\enemy_graphics\EnemyAnimationAssets_55_EnemyTypeCrebain.c
+  OK    0x082c2f6c   0x1f3c  build\generated\data\enemy_graphics\EnemyAnimationAssets_56_EnemyTypeBat.c
+  OK    0x082c4ea8  0x17910  build\generated\data\enemy_graphics\EnemyAnimationAssets_48_EnemyTypeWarg.c
+  OK    0x082dc7b8    0x98c  build\generated\data\enemy_graphics\EnemyAnimationAssets_59_EnemyTypeFlySwarm.c
+  OK    0x083cc8ec   0xe43c  build\generated\data\enemy_graphics\EnemyAnimationAssets_61_EnemyTypeGrond.c
+  OK    0x083dad28  0x25128  build\generated\data\enemy_graphics\EnemyAnimationAssets_60_EnemyTypeShelob.c
+  OK    0x083ffe50  0x1fd44  build\generated\data\enemy_graphics\EnemyAnimationAssets_66_EnemyTypeMumakil.c
+  OK    0x0841fb94  0x15610  build\generated\data\enemy_graphics\EnemyAnimationAssets_69_EnemyTypeFlyingNazgul.c
+  OK    0x084351a4  0x2cfe8  build\generated\data\enemy_graphics\EnemyAnimationAssets_63_EnemyTypeDenethor.c
+  OK    0x0846218c  0x3f0cc  build\generated\data\enemy_graphics\EnemyAnimationAssets_64_EnemyTypeWitchKing.c
+  OK    0x084a1258   0xc5a8  build\generated\data\enemy_graphics\EnemyAnimationAssets_67_EnemyTypeKingOfTheDead.c
+  OK    0x084b6df8  0x1511c  build\generated\data\enemy_graphics\EnemyAnimationAssets_65_EnemyTypeGollum.c
+  OK    0x084dce94  0x1c4a8  build\generated\data\enemy_graphics\EnemyAnimationAssets_45_EnemyTypeCorsair.c
+  OK    0x084f939c  0x2dc74  build\generated\data\enemy_graphics\EnemyAnimationAssets_52_EnemyTypeEasterlingHeavy.c
+  OK    0x0868c2e0  0x1d93c  build\generated\data\enemy_graphics\EnemyAnimationAssets_57_EnemyTypeGhost.c
+  OK    0x08725700  0x148e8  build\generated\data\enemy_graphics\EnemyAnimationAssets_03_EnemyTypeGoblinArcher.c
+  OK    0x08739fe8  0x17034  build\generated\data\enemy_graphics\EnemyAnimationAssets_00_EnemyTypeGoblinScout.c
+  OK    0x0875101c   0x1008  build\generated\data\enemy_graphics\EnemyAnimationAssets_05_EnemyTypeOrcDrummer_AdditionalPose.c
+  OK    0x087520c4  0x1a860  build\generated\data\enemy_graphics\EnemyAnimationAssets_50_EnemyTypeHaradrimArcher.c
+  OK    0x0876c964    0xef4  carved\data\items\KnifeHollowIcons.c
+  OK    0x0876d858    0x9d0  carved\data\items\Sword1HHollowIcons.c
+  OK    0x0876e228    0x7c0  carved\data\items\Sword2HHollowIcons.c
+  OK    0x0876e9e8    0x980  carved\data\items\AxeHollowIcons.c
+  OK    0x0876f368    0x8d0  carved\data\items\MaceHollowIcons.c
+  OK    0x0876fc38    0x330  carved\data\items\StaffHollowIcons.c
+  OK    0x0876ff68    0xa6c  carved\data\items\BowHollowIcons.c
+  OK    0x087709d4    0xb00  carved\data\items\ArrowHollowIcons.c
+  OK    0x087714d4   0x1904  carved\data\items\ArmorHollowIcons.c
+  OK    0x08772dd8    0x88c  carved\data\items\ShieldHollowIcons.c
+  OK    0x08773664    0xc54  carved\data\items\AccessoryHollowIcons.c
+  OK    0x087742b8    0x9e4  carved\data\items\CloakHollowIcons.c
+  OK    0x08774c9c    0x88c  carved\data\items\GloveHollowIcons.c
+  OK    0x08775528    0x748  carved\data\items\ShoeHollowIcons.c
+  OK    0x08775c70   0x31dc  carved\data\items\UniqueHollowIcons.c
+  OK    0x0878271c   0x7ac4  carved\data\skills\SkillIcons.c
+  OK    0x0878a918   0x105c  carved\data\items\KnifeBackpackIcons.c
+  OK    0x0878b974    0xa9c  carved\data\items\Sword1HBackpackIcons.c
+  OK    0x0878c410    0x888  carved\data\items\Sword2HBackpackIcons.c
+  OK    0x0878cc98    0xa70  carved\data\items\AxeBackpackIcons.c
+  OK    0x0878d708    0x994  carved\data\items\MaceBackpackIcons.c
+  OK    0x0878e09c    0x384  carved\data\items\StaffBackpackIcons.c
+  OK    0x0878e420    0xcc8  carved\data\items\BowBackpackIcons.c
+  OK    0x0878f0e8    0xbb8  carved\data\items\ArrowBackpackIcons.c
+  OK    0x0878fca0   0x1bec  carved\data\items\ArmorBackpackIcons.c
+  OK    0x0879188c    0x964  carved\data\items\ShieldBackpackIcons.c
+  OK    0x087921f0    0xdcc  carved\data\items\AccessoryBackpackIcons.c
+  OK    0x08792fbc    0xadc  carved\data\items\CloakBackpackIcons.c
+  OK    0x08793a98    0x980  carved\data\items\GloveBackpackIcons.c
+  OK    0x08794418    0x814  carved\data\items\ShoeBackpackIcons.c
+  OK    0x08794c2c   0x3764  carved\data\items\UniqueBackpackIcons.c
+  OK    0x08798390   0x14d4  carved\data\items\KnifeEquipIcons.c
+  OK    0x08799864    0xdc4  carved\data\items\Sword1HEquipIcons.c
+  OK    0x0879a628    0xaa0  carved\data\items\Sword2HEquipIcons.c
+  OK    0x0879b0c8    0xe40  carved\data\items\AxeEquipIcons.c
+  OK    0x0879bf08    0xd08  carved\data\items\MaceEquipIcons.c
+  OK    0x0879cc10    0x4e0  carved\data\items\StaffEquipIcons.c
+  OK    0x0879d0f0   0x101c  carved\data\items\BowEquipIcons.c
+  OK    0x0879e10c   0x1848  carved\data\items\ArrowEquipIcons.c
+  OK    0x0879f954   0x2af8  carved\data\items\ArmorEquipIcons.c
+  OK    0x087a244c    0xfd0  carved\data\items\ShieldEquipIcons.c
+  OK    0x087a341c   0x1054  carved\data\items\AccessoryEquipIcons.c
+  OK    0x087a4470    0xd6c  carved\data\items\CloakEquipIcons.c
+  OK    0x087a51dc    0xc78  carved\data\items\GloveEquipIcons.c
+  OK    0x087a5e54    0x9d4  carved\data\items\ShoeEquipIcons.c
+  OK    0x087a6828   0x3298  carved\data\items\UniqueEquipIcons.c
+  OK    0x08b55350   0x1488  carved\data\level_icons\BonusIcons.c
+  OK    0x08b610c8    0xe7c  carved\data\level_icons\MultiplayerIcons.c
+  OK    0x08b91fd4   0x4910  carved\data\hero_portraits\HeroPortraits.c
+  OK    0x08bb5ef0  0x1265c  build\generated\data\enemy_graphics\EnemyAnimationAssets_58_EnemyTypeNazgul.c
+  OK    0x08bc856c  0x1fad0  build\generated\data\enemy_graphics\EnemyAnimationAssets_73_EnemyTypeGondorSoldier_ExtraPoses00_10.c
+  OK    0x08be803c  0x1b750  build\generated\data\enemy_graphics\EnemyAnimationAssets_73_EnemyTypeGondorSoldier_Primary.c
+  OK    0x08c0378c   0xb6c0  build\generated\data\enemy_graphics\EnemyAnimationAssets_73_EnemyTypeGondorSoldier_ExtraPoses11_17.c
+  OK    0x08c0efcc  0x15b04  build\generated\data\enemy_graphics\EnemyAnimationAssets_20_EnemyTypeOrcArcher.c
+  OK    0x08c24ad0  0x1f148  build\generated\data\enemy_graphics\EnemyAnimationAssets_06_EnemyTypeOrcPitchfork1.c
+  OK    0x08c43c18  0x29f88  build\generated\data\enemy_graphics\EnemyAnimationAssets_18_EnemyTypeOrcCaptainArmored.c
+  OK    0x08c6dba0  0x274c8  build\generated\data\enemy_graphics\EnemyAnimationAssets_26_EnemyTypeOrcAxeThrower.c
+  OK    0x08c95068  0x1df3c  build\generated\data\enemy_graphics\EnemyAnimationAssets_29_EnemyTypeOrcHoplite.c
+  OK    0x08cb2fa4  0x12f7c  build\generated\data\enemy_graphics\EnemyAnimationAssets_05_EnemyTypeOrcDrummer_Main.c
+  OK    0x08cc60c0  0x270dc  build\generated\data\enemy_graphics\EnemyAnimationAssets_10_EnemyTypeOrcWarriorAxe_Body.c
+  OK    0x08ced19c  0x2e600  build\generated\data\enemy_graphics\EnemyAnimationAssets_28_EnemyTypeOrcFlagbearer.c
+  OK    0x08d1b7fc   0x5cdc  build\generated\data\enemy_graphics\EnemyAnimationAssets_10_EnemyTypeOrcWarriorAxe_Part1.c
+  OK    0x08d214d8   0x5a14  build\generated\data\enemy_graphics\EnemyAnimationAssets_10_EnemyTypeOrcWarriorAxe_Part2.c
+  OK    0x08d26eec   0x6288  build\generated\data\enemy_graphics\EnemyAnimationAssets_10_EnemyTypeOrcWarriorAxe_Part3.c
+  OK    0x08d2d174   0x823c  build\generated\data\enemy_graphics\EnemyAnimationAssets_10_EnemyTypeOrcWarriorAxe_Part5.c
+  OK    0x08d353b0   0x814c  build\generated\data\enemy_graphics\EnemyAnimationAssets_10_EnemyTypeOrcWarriorAxe_Part4.c
+  OK    0x08d3dce0   0x9944  carved\data\dialog_portraits\DialogPortraits.c
+  OK    0x08d79474  0x3d190  build\generated\data\enemy_graphics\EnemyAnimationAssets_62_EnemyTypeSaruman_Main.c
+  OK    0x08db83e8  0x2ea34  build\generated\data\enemy_graphics\EnemyAnimationAssets_68_EnemyTypeMouthOfSauron.c
+  OK    0x08de6e1c   0x27d4  build\generated\data\enemy_graphics\EnemyAnimationAssets_62_EnemyTypeSaruman_AdditionalPoses.c
+  OK    0x08de9610   0x6b78  build\generated\data\enemy_graphics\EnemyAnimationAssets_70_EnemyTypeGroundSkeleton.c
+  OK    0x08df0188  0x19f78  build\generated\data\enemy_graphics\EnemyAnimationAssets_71_EnemyTypeSkeletonWarrior.c
+  OK    0x08e27234  0x93fc4  carved\data\cutscenes\CutscenePictures.c
+  OK    0x08ebddec  0x54940  build\generated\data\enemy_graphics\EnemyAnimationAssets_39_EnemyTypeMountainTroll.c
+  OK    0x08f1272c  0x29f88  build\generated\data\enemy_graphics\EnemyAnimationAssets_40_EnemyTypeHalfTroll.c
+  OK    0x08f3c6f4  0x25634  build\generated\data\enemy_graphics\EnemyAnimationAssets_31_EnemyTypeUruk_Core.c
+  OK    0x08f61d28   0xd12c  build\generated\data\enemy_graphics\EnemyAnimationAssets_31_EnemyTypeUruk_AdditionalPoses.c
+  OK    0x08f6ee54  0x11afc  build\generated\data\enemy_graphics\EnemyAnimationAssets_33_EnemyTypeUrukCrossbowman_AdditionalPoses.c
+  OK    0x08f80950  0x1f43c  build\generated\data\enemy_graphics\EnemyAnimationAssets_33_EnemyTypeUrukCrossbowman_Primary.c
+  OK    0x08fc2698  0x1bc20  build\generated\data\enemy_graphics\EnemyAnimationAssets_37_EnemyTypeWildman.c
+  OK    0x08febd84   0x36b0  carved\data\loot_piles\LootPiles.c
+
+549 regions: 549 OK, 0 DIFF/MISS.
+verify: whole-ROM SHA-1 OK (ec3d126d37ea6e2ad7030d8a99cf87c6e46c03fd) == base
+uv run --group dev pytest
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-9.1.1, pluggy-1.6.0
+rootdir: ~\Desktop\lotr\rotk
+configfile: pyproject.toml
+testpaths: tools/rotkit
+collected 300 items
+
+tools\rotkit\analysis\test_decode_text.py ...........................    [  9%]
+tools\rotkit\build\test_enemy_graphics.py ..........                     [ 12%]
+tools\rotkit\carve\test_enemy_graphics.py ......                         [ 14%]
+tools\rotkit\compression\test_bios.py .......................            [ 22%]
+tools\rotkit\compression\test_lz77.py ...........                        [ 25%]
+tools\rotkit\ghidra_build\test_apply_symbols.py ...............s         [ 31%]
+tools\rotkit\ghidra_build\test_parse_headers.py ss                       [ 31%]
+tools\rotkit\hack\test_text_override_config.py ......................... [ 40%]
+.......                                                                  [ 42%]
+tools\rotkit\hack\test_text_override_sources.py ....................     [ 49%]
+tools\rotkit\hack\test_text_overrides.py .................               [ 54%]
+tools\rotkit\test_cheaders.py ...                                        [ 55%]
+tools\rotkit\test_png.py ............................................... [ 71%]
+.................                                                        [ 77%]
+tools\rotkit\test_spritegfx.py ......................................... [ 90%]
+......................                                                   [ 98%]
+tools\rotkit\test_text_encoding.py ......                                [100%]
+
+=========================== short test summary info ===========================
+SKIPPED [3] tools\rotkit\ghidra_build\test_parse_headers.py:18: Ghidra and Java are required for the header import test
+======================= 297 passed, 3 skipped in 29.68s =======================
+arm-none-eabi-gcc -nostartfiles -nodefaultlibs -mthumb -mthumb-interwork -T hacks/hack.ld \
+  -Wl,-L,build -o build/hack.elf build/hack_obj/hack.o build/hack_obj/chapter_select.o build/hack_obj/ability_bench.o build/hack_obj/combat_lab_stats.o build/hack_obj/debug_cheats.o build/hack_obj/debug_lab.o build/hack_obj/delivery_preview.o build/hack_obj/effect_preview.o build/hack_obj/fast_fade.o build/hack_obj/fast_waitstates.o build/hack_obj/item_descriptions.o build/hack_obj/auto_loot.o build/hack_obj/loot_filter.o build/hack_obj/loot_qol.o build/hack_obj/menu_text.o build/hack_obj/mod_options.o build/hack_obj/actor_lifecycle.o build/hack_obj/graphics_scratch.o build/hack_obj/memory_diagnostics.o build/hack_obj/mod_ram.o build/hack_obj/save_format.o build/hack_obj/save_migrate.o build/hack_obj/save_migrate_scene.o build/hack_obj/save_slots.o build/hack_obj/save_sram.o build/hack_obj/save_state.o build/hack_obj/mod_scenes.o build/hack_obj/mod_startup.o build/hack_obj/ranger_hollow_pages.o build/hack_obj/hero_registry.o build/hack_obj/ringwraith.o build/hack_obj/ringwraith_icons.o build/hack_obj/ringwraith_kit.o build/hack_obj/ringwraith_thralls.o build/hack_obj/saruman.o build/hack_obj/wraith_gear.o build/hack_obj/save_slot_pages.o build/hack_obj/aragorn_icons.o build/hack_obj/frodo_icons.o build/hack_obj/gandalf_icons.o build/hack_obj/gimli_icons.o build/hack_obj/sam_icons.o build/hack_obj/skill_delivery.o build/hack_obj/skill_expansion.o build/hack_obj/skill_expansion_abilities.o build/hack_obj/skill_expansion_active.o build/hack_obj/skill_expansion_content.o build/hack_obj/skill_expansion_elite.o build/hack_obj/skill_expansion_frodo.o build/hack_obj/skill_expansion_gandalf.o build/hack_obj/skill_expansion_gimli.o build/hack_obj/skill_expansion_hud.o build/hack_obj/skill_expansion_passive.o build/hack_obj/skill_expansion_runtime.o build/hack_obj/skill_expansion_sam.o build/hack_obj/skill_expansion_save.o build/hack_obj/skill_expansion_save_format.o build/hack_obj/skill_expansion_smeagol.o build/hack_obj/skill_expansion_timeline.o build/hack_obj/skill_expansion_tree.o build/hack_obj/skill_expansion_validation.o build/hack_obj/skill_expansion_values.o build/hack_obj/skill_status.o build/hack_obj/smeagol_icons.o build/hack_obj/text_overrides.o build/hack_obj/unlock_all.o build/hack_obj/actor_ref.o build/hack_obj/cast_timeline.o build/hack_obj/combat_event.o build/hack_obj/combat_source.o build/hack_obj/fx_kit.o build/hack_obj/fx_sprites.o build/hack_obj/hex.o build/hack_obj/hud_meter.o build/hack_obj/lr_button_indicators.o build/hack_obj/movement.o build/hack_obj/profile.o build/hack_obj/profile_clock.o build/hack_obj/skill_fx.o build/hack_obj/summon_registry.o build/hack_obj/targeting.o build/hack_obj/timed_effect.o -lgcc
+~/AppData/Local/rotk-tools/arm-gcc/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/ld.exe: warning: ~/AppData/Local/rotk-tools/arm-gcc/bin/../lib/gcc/arm-none-eabi/14.2.1/thumb/nofp\libgcc.a(_muldi3.o) uses variable-size enums yet the output is to use 32-bit enums; use of enum values across objects may fail
+~/AppData/Local/rotk-tools/arm-gcc/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/ld.exe: warning: ~/AppData/Local/rotk-tools/arm-gcc/bin/../lib/gcc/arm-none-eabi/14.2.1/thumb/nofp\libgcc.a(_udivmoddi4.o) uses variable-size enums yet the output is to use 32-bit enums; use of enum values across objects may fail
+uv run python hacks/tools/validate_abilities.py build/hack.elf rotk.gba
+Ability content: 58 active definitions validated
+arm-none-eabi-objcopy -O binary -j .text -j .rodata build/hack.elf build/modcode.bin
+uv run rotkit hack modcode-syms build/hack.elf build/modcode_syms.inc
+wrote build\modcode_syms.inc: 569 modcode symbol(s) (libgcc internals not exported: __aeabi_idiv, __aeabi_idivmod, __aeabi_ldivmod, __aeabi_lmul, __aeabi_uidiv, __aeabi_uidivmod, __divsi3, __muldi3, __udivsi3)
+armips -equ HACK_chapter_select 1 -equ HACK_debug_cheats 1 -equ HACK_demo_pages 0 -equ HACK_demo_table_patch 0 -equ HACK_fast_fade 1 -equ HACK_fast_waitstates 1 -equ HACK_item_descriptions 1 -equ HACK_loot_qol 1 -equ HACK_menu_text 1 -equ HACK_mod_options 1 -equ HACK_mod_ram 1 -equ HACK_mod_save 1 -equ HACK_mod_scenes 1 -equ HACK_mod_startup 1 -equ HACK_ranger_hollow_pages 1 -equ HACK_ringwraith 1 -equ HACK_save_slot_pages 1 -equ HACK_skill_expansion 1 -equ HACK_text_overrides 1 -equ HACK_unlock_all 1 -equ HACK_HAVE_TABLES 0 -strequ HACK_OUTFILE build/rotk_hack.gba hacks/hack.asm
+uv run --group dev pytest hacks/tools -q
+........F........................................................        [100%]
+================================== FAILURES ===================================
+________________________________ test_runtime _________________________________
+
+tmp_path = WindowsPath('~/AppData/Local/Temp/pytest-of-user/pytest-153/test_runtime0')
+
+    def test_runtime(tmp_path):
+        compiler = shutil.which("clang") or shutil.which("cc")
+        assert compiler
+        generate(
+            ROOT / "hacks/content/cast_timelines.json",
+            ROOT / "hacks/content/skill_fx.json",
+            tmp_path,
+            tmp_path,
+        )
+        executable = tmp_path / "timeline-tests.exe"
+>       subprocess.run(
+            [
+                compiler,
+                "-std=c11",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "-ffunction-sections",
+                "-fdata-sections",
+                "-Wl,--gc-sections",
+                "-DHACK_debug_cheats=1",
+                "-DHACK_mod_options=1",
+                f"-I{tmp_path}",
+                *(
+                    f"-I{ROOT / path}"
+                    for path in (
+                        "include",
+                        "carved/include",
+                        "build/include",
+                        "build/hack_include",
+                        "hacks",
+                    )
+                ),
+                *(
+                    str(ROOT / path)
+                    for path in (
+                        "hacks/tests/cast_timeline.c",
+                        "hacks/lib/cast_timeline.c",
+                        "hacks/patches/skill_expansion/skill_expansion_timeline.c",
+                        "hacks/patches/debug_cheats/ability_bench.c",
+                    )
+                ),
+                "-o",
+                str(executable),
+            ],
+            check=True,
+        )
+
+hacks\tools\test_cast_timelines.py:77: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['~\\AppData\\Local\\Microsoft\\WinGet\\Packages\\MartinStorsjo.LLVM-MinGW.UCRT_Microsoft.Winget.Sourc...m-mingw-20260908-ucrt-x86_64\\bin\\clang.EXE', '-std=c11', '-Wall', '-Wextra', '-Werror', '-ffunction-sections', ...],)
+kwargs = {}
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout (seconds) is given and the process takes too long,
+         a TimeoutExpired exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['~\\AppData\\Local\\Microsoft\\WinGet\\Packages\\MartinStorsjo.LLVM-MinGW.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\\llvm-mingw-20260908-ucrt-x86_64\\bin\\clang.EXE', '-std=c11', '-Wall', '-Wextra', '-Werror', '-ffunction-sections', '-fdata-sections', '-Wl,--gc-sections', '-DHACK_debug_cheats=1', '-DHACK_mod_options=1', '-I~\\AppData\\Local\\Temp\\pytest-of-user\\pytest-153\\test_runtime0', '-I~\\Desktop\\lotr\\rotk\\include', '-I~\\Desktop\\lotr\\rotk\\carved\\include', '-I~\\Desktop\\lotr\\rotk\\build\\include', '-I~\\Desktop\\lotr\\rotk\\build\\hack_include', '-I~\\Desktop\\lotr\\rotk\\hacks', '~\\Desktop\\lotr\\rotk\\hacks\\tests\\cast_timeline.c', '~\\Desktop\\lotr\\rotk\\hacks\\lib\\cast_timeline.c', '~\\Desktop\\lotr\\rotk\\hacks\\patches\\skill_expansion\\skill_expansion_timeline.c', '~\\Desktop\\lotr\\rotk\\hacks\\patches\\debug_cheats\\ability_bench.c', '-o', '~\\AppData\\Local\\Temp\\pytest-of-user\\pytest-153\\test_runtime0\\timeline-tests.exe']' returned non-zero exit status 1.
+
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\subprocess.py:571: CalledProcessError
+---------------------------- Captured stdout call -----------------------------
+Cast timelines: 2 validated
+---------------------------- Captured stderr call -----------------------------
+ld.lld: error: undefined symbol: skillDelivery_launch
+>>> referenced by ~/AppData/Local/Temp/cast_timeline-3d4487.o:(skillExpansion_resolveTimelineCast)
+clang-23: error: linker command failed with exit code 1 (use -v to see invocation)
+=========================== short test summary info ===========================
+FAILED hacks/tools/test_cast_timelines.py::test_runtime - subprocess.CalledPr...
+1 failed, 64 passed in 16.95s
+make: *** [make/hack.mk:109: check-abilities] Error 1
+make: *** Waiting for unfinished jobs....
+check-bugfixes: every src/c fix arm compiles with -DBUGFIX

@@ -1,0 +1,58 @@
+#include "actor.h"
+#include "game.h"
+#include "math.h"
+#include "mission.h"
+#include "player.h"
+#include "variables.h"
+
+/**
+ * Script op 18: start a scripted camera pan on every active player, or start a spawn group and
+ * stream instead in co-op.
+ *
+ * @romaddress 0x08017720
+ */
+void mission_script_op18(const u8 *command)
+{
+    Actor *actor = mission_script_getGroupActor(command[4], command[5]);
+    u8 i;
+
+    if (actor)
+    {
+        if (g_GameFlags.p & GAME_FLAG_COOP_ACTIVE)
+        {
+            mission_script_spawnGroupAndStartStream(command[6], command[7]);
+            return;
+        }
+        for (i = 0; i < g_PlayerGlobals.activePlayerCount; i++)
+        {
+            MissionCameraPan *pan = &g_MissionCameraPans[i];
+            Actor *player = PLAYER(i).ownerActor;
+
+            if (actor->type == 0)
+                pan->target = player;
+            else
+                pan->target = actor;
+            pan->speed = math_signMagnitudeToFp16(*(const s16 *)(command + 8));
+            pan->duration = *(const u16 *)(command + 10);
+            if (i == 0)
+            {
+                pan->destX = command[6];
+                pan->destY = command[7];
+            }
+            else
+            {
+                pan->destX = 0;
+                pan->destY = 0;
+            }
+            pan->state = 1;
+            pan->savedActionState = player->actionState;
+            pan->savedVelocity = player->velocity;
+            player->velocity.x = 0;
+            player->velocity.y = 0;
+            pan->field_0x1e = 0;
+            pan->field_0x26 = 0;
+            pan->field_0x27 = 0;
+            pan->field_0x29 = 0;
+        }
+    }
+}

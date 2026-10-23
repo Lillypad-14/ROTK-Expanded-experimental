@@ -8,10 +8,6 @@
 /** Spawn the player's actor at the mission spawn point and rebuild the player from its slot. */
 Actor *actor_player_create(u8 playerIndex);
 
-/**
- * Set the actor's tick callback, animation bank, playerIndex, and combat defaults right after
- * allocation.
- */
 void actor_player_initState(Actor *actor, u8 playerIndex);
 
 /**
@@ -35,8 +31,7 @@ void actor_player_tickPoisonFear(Actor *actor);
  */
 void actor_player_updateHandSprites(Actor *actor);
 
-/**
- * Point the actor at the hero's bank in HeroMoveAnimationBanks (0), HeroMeleeAnimationBanks (1),
- * or HeroCastAnimationBanks (2).
- */
-void actor_player_selectAnimationBank(Actor *actor, u32 heroId, u8 bankSet);
+void actor_player_initScripted(Actor *actor);
+void actor_player_tickScripted(Actor *actor);
+
+void actor_player_selectAnimationBank(Actor *actor, u8 heroId, u8 bankSet);

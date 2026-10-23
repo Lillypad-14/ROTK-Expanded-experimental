@@ -1,0 +1,79 @@
+#include "actor.h"
+#include "actor/player.h"
+#include "match_hacks.h"
+#include "mission.h"
+
+/**
+ * Script op 31: start a scripted move on an actor. The player is switched to the scripted
+ * tick, any other actor takes the move parameters in its kind-polymorphic state bytes.
+ *
+ * @romaddress 0x080172fc
+ */
+void mission_script_op31(const u8 *command)
+{
+    u32 state = 0;
+    u8 *p;
+    u32 v7;
+    u32 v8;
+    Actor *actor = mission_script_getGroupActor(command[4], command[5]);
+
+    if (actor && actor_isStunnable(actor))
+    {
+        switch (command[10])
+        {
+        case 0:
+            state = 7;
+            break;
+        case 1:
+            state = 8;
+            break;
+        case 2:
+            state = 9;
+            break;
+        case 3:
+            state = 10;
+            break;
+        case 4:
+            state = 11;
+            break;
+        case 5:
+            state = 12;
+            break;
+        case 6:
+            state = 13;
+            actor->moveSpeed = 0x48000;
+            break;
+        }
+        actor->behaviorState = state;
+        actor->as.combat.field_0x8c[0] = command[6];
+        v7 = command[7];
+        p = &actor->as.combat.field_0x8c[1];
+        *p = v7;
+        v8 = command[8];
+        p++;
+        *p = v8;
+        v8 = command[9];
+        p++;
+        *p = v8;
+        p -= 5;
+        *p = 1;
+        if (actor->type == ACTOR_TYPE_UNKNOWN_00)
+            actor_player_initScripted(actor);
+        else
+        {
+            u32 v = command[11];
+            u32 zero = 0;
+            u8 *q;
+            *(u16 *)&actor->as.combat.head.enemyAiParams[0] = v;
+            q = (u8 *)&actor->as.combat.venomDuration + 1;
+            *q = command[12];
+            q = (u8 *)&actor->as.combat.venomDuration;
+            *q = command[13];
+            q -= 5;
+            *q = zero;
+            actor->flags.p |= ACTOR_FLAG_TICK_ALWAYS;
+        }
+        actor->actionState = (ActorActionState)0x12;
+        actor->flags.p &= ~(ACTOR_FLAG_COLLISION_CHECK | ACTOR_FLAG_TILE_COLLISION);
+    }
+}

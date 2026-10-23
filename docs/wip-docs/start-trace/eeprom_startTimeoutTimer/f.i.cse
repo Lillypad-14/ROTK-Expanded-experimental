@@ -1,0 +1,207 @@
+
+;; Function eeprom_startTimeoutTimer
+
+;; Processing block from 2 to 0, 53 sets.
+(note 2 0 4 "" NOTE_INSN_DELETED)
+
+(insn 4 2 5 (set (reg/v:SI 22)
+        (reg:SI 0 r0)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(note 5 4 6 "" NOTE_INSN_FUNCTION_BEG)
+
+(note 6 5 8 "" NOTE_INSN_DELETED)
+
+(note 8 6 11 0 NOTE_INSN_BLOCK_BEG)
+
+(insn 11 8 13 (set (reg:SI 27)
+        (mem/u:SI (symbol_ref/u:SI ("*.LC0")) 0)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (symbol_ref:SI ("g_EepromSavedIME"))
+        (nil)))
+
+(insn 13 11 15 (set (reg:SI 28)
+        (const_int 67109384)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (const_int 67109384)
+        (nil)))
+
+(insn 15 13 16 (set (reg:HI 29)
+        (mem/v:HI (reg:SI 28) 5)) 5 {*movhi_insn} (nil)
+    (nil))
+
+(insn 16 15 21 (set (mem/f:HI (reg:SI 27) 5)
+        (reg:HI 29)) 5 {*movhi_insn} (nil)
+    (nil))
+
+(insn 21 16 22 (set (reg:HI 31)
+        (const_int 0)) 5 {*movhi_insn} (nil)
+    (expr_list:REG_EQUAL (const_int 0)
+        (nil)))
+
+(insn 22 21 25 (set (mem/v:HI (reg:SI 28) 5)
+        (reg:HI 31)) 5 {*movhi_insn} (nil)
+    (nil))
+
+(insn 25 22 27 (set (reg:SI 32)
+        (mem/u:SI (symbol_ref/u:SI ("*.LC1")) 0)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (symbol_ref:SI ("g_EepromTimerReg"))
+        (nil)))
+
+(insn 27 25 31 (set (reg/v:SI 23)
+        (mem/v/f:SI (reg:SI 32) 0)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 31 27 34 (set (mem/s/v:HI (plus:SI (reg/v:SI 23)
+                (const_int 2)) 5)
+        (reg:HI 31)) 5 {*movhi_insn} (nil)
+    (nil))
+
+(insn 34 31 37 (set (reg/v:SI 24)
+        (const_int 67109378)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (const_int 67109378)
+        (nil)))
+
+(insn 37 34 39 (set (reg:SI 34)
+        (mem/u:SI (symbol_ref/u:SI ("*.LC2")) 0)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (symbol_ref:SI ("g_EepromChannel"))
+        (nil)))
+
+(insn 39 37 40 (set (reg:QI 36)
+        (mem/v:QI (reg:SI 34) 0)) 7 {*movqi_insn} (nil)
+    (nil))
+
+(insn 40 39 41 (set (reg:SI 37)
+        (ashift:SI (subreg:SI (reg:QI 36) 0)
+            (const_int 24))) 39 {ashlsi3} (nil)
+    (nil))
+
+(insn 41 40 43 (set (reg:SI 35)
+        (lshiftrt:SI (reg:SI 37)
+            (const_int 24))) 41 {lshrsi3} (nil)
+    (expr_list:REG_EQUAL (zero_extend:SI (reg:QI 36))
+        (nil)))
+
+(insn 43 41 44 (set (reg:SI 39)
+        (const_int 8)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (const_int 8)
+        (nil)))
+
+(insn 44 43 49 (set (reg/v:SI 7 r7)
+        (ashift:SI (reg:SI 39)
+            (reg:SI 35))) 39 {ashlsi3} (nil)
+    (nil))
+
+(insn 49 44 51 (set (mem/v:HI (reg/v:SI 24) 5)
+        (reg:HI 7 r7)) 5 {*movhi_insn} (nil)
+    (nil))
+
+(insn 51 49 56 (set (reg/v:SI 24)
+        (plus:SI (reg/v:SI 24)
+            (const_int -2))) 27 {addsi3} (nil)
+    (expr_list:REG_EQUAL (const_int 67109376)
+        (nil)))
+
+(insn 56 51 57 (set (reg:QI 42)
+        (mem/v:QI (reg:SI 34) 0)) 7 {*movqi_insn} (nil)
+    (nil))
+
+(insn 57 56 58 (set (reg:SI 43)
+        (ashift:SI (subreg:SI (reg:QI 42) 0)
+            (const_int 24))) 39 {ashlsi3} (nil)
+    (nil))
+
+(insn 58 57 61 (set (reg:SI 41)
+        (lshiftrt:SI (reg:SI 43)
+            (const_int 24))) 41 {lshrsi3} (nil)
+    (expr_list:REG_EQUAL (zero_extend:SI (reg:QI 42))
+        (nil)))
+
+(insn 61 58 63 (set (reg:SI 44)
+        (ashift:SI (reg:SI 39)
+            (reg:SI 41))) 39 {ashlsi3} (nil)
+    (nil))
+
+(insn 63 61 66 (set (reg:HI 46)
+        (mem/v:HI (reg/v:SI 24) 5)) 5 {*movhi_insn} (nil)
+    (nil))
+
+(insn 66 63 69 (set (reg:SI 48)
+        (ior:SI (subreg:SI (reg:HI 46) 0)
+            (reg:SI 44))) 36 {iorsi3} (nil)
+    (nil))
+
+(insn 69 66 72 (set (mem/v:HI (reg/v:SI 24) 5)
+        (subreg:HI (reg:SI 48) 0)) 5 {*movhi_insn} (nil)
+    (nil))
+
+(insn 72 69 75 (set (reg:SI 50)
+        (mem/u:SI (symbol_ref/u:SI ("*.LC3")) 0)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (symbol_ref:SI ("g_EepromTimeoutFlag"))
+        (nil)))
+
+(insn 75 72 78 (set (mem/f:QI (reg:SI 50) 0)
+        (subreg:QI (reg:HI 31) 0)) 7 {*movqi_insn} (nil)
+    (nil))
+
+(insn 78 75 81 (set (reg/v:SI 0 r0)
+        (reg/v:SI 22)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 81 78 83 (set (reg:SI 52)
+        (mem/u:SI (symbol_ref/u:SI ("*.LC4")) 0)) 1 {*movsi_insn} (nil)
+    (expr_list:REG_EQUAL (symbol_ref:SI ("g_EepromTimeoutCount"))
+        (nil)))
+
+(insn 83 81 84 (set (reg:HI 53)
+        (mem:HI (reg/v:SI 0 r0) 5)) 5 {*movhi_insn} (nil)
+    (nil))
+
+(insn 84 83 85 (set (mem/f:HI (reg:SI 52) 5)
+        (reg:HI 53)) 5 {*movhi_insn} (nil)
+    (nil))
+
+(insn 85 84 88 (set (reg/v:SI 0 r0)
+        (plus:SI (reg/v:SI 0 r0)
+            (const_int 2))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 88 85 89 (set (reg:HI 54)
+        (mem:HI (reg/v:SI 0 r0) 5)) 5 {*movhi_insn} (nil)
+    (nil))
+
+(insn 89 88 93 (set (mem/v:HI (reg/v:SI 23) 5)
+        (reg:HI 54)) 5 {*movhi_insn} (nil)
+    (nil))
+
+(insn 93 89 95 (set (reg:SI 56)
+        (plus:SI (reg/v:SI 23)
+            (const_int 2))) 27 {addsi3} (nil)
+    (nil))
+
+(insn 95 93 98 (set (mem/v/f:SI (reg:SI 32) 18)
+        (reg:SI 56)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 98 95 99 (set (reg:HI 57)
+        (mem/s:HI (plus:SI (reg/v:SI 0 r0)
+                (const_int 2)) 5)) 5 {*movhi_insn} (nil)
+    (nil))
+
+(insn 99 98 104 (set (mem/s/v:HI (plus:SI (reg/v:SI 23)
+                (const_int 2)) 5)
+        (reg:HI 57)) 5 {*movhi_insn} (nil)
+    (nil))
+
+(insn 104 99 109 (set (mem/v/f:SI (reg:SI 32) 18)
+        (reg/v:SI 23)) 1 {*movsi_insn} (nil)
+    (nil))
+
+(insn 109 104 110 (set (reg:HI 60)
+        (const_int 1)) 5 {*movhi_insn} (nil)
+    (expr_list:REG_EQUAL (const_int 1)
+        (nil)))
+
+(insn 110 109 112 (set (mem/v:HI (reg:SI 28) 5)
+        (reg:HI 60)) 5 {*movhi_insn} (nil)
+    (nil))
+
+(note 112 110 0 0 NOTE_INSN_BLOCK_END)

@@ -1,0 +1,170 @@
+build gfx: items: 45 categories, 0 encoded
+build gfx: loot_piles: 1 categories, 0 encoded
+build gfx: level_icons: 2 categories, 0 encoded
+build gfx: skills/icons: 2 categories, 0 encoded
+build gfx: hero_portraits, dialog_portraits, cutscenes: 3 categories, 0 encoded
+build gfx: enemy: 51 categories, 0 encoded
+rotk.gba: OK
+  ROM ok
+uv run python hacks/tools/hero_registry.py
+uv run rotkit build clangd
+compile_commands.json unchanged
+hacks\compile_flags.txt unchanged
+uv run python hacks/tools/skill_fx.py
+Skill FX: 16 sprite sheets, 20 effects validated
+uv run python hacks/tools/cast_timelines.py
+Cast timelines: 2 validated
+uv run python hacks/tools/skill_deliveries.py
+Skill deliveries: 5 validated
+uv run rotkit hack text-overrides --patches "chapter_select debug_cheats fast_fade fast_waitstates item_descriptions loot_qol menu_text mod_options mod_ram mod_save mod_scenes mod_startup ranger_hollow_pages ringwraith save_slot_pages skill_expansion text_overrides unlock_all"
+text overrides: 115 strings -> ~\Desktop\lotr\rotk\build\hack_include\text_overrides.inc
+arm-none-eabi-gcc -nostartfiles -nodefaultlibs -mthumb -mthumb-interwork -T hacks/hack.ld \
+  -Wl,-L,build -o build/hack.elf build/hack_obj/hack.o build/hack_obj/chapter_select.o build/hack_obj/ability_bench.o build/hack_obj/debug_cheats.o build/hack_obj/debug_lab.o build/hack_obj/delivery_preview.o build/hack_obj/effect_preview.o build/hack_obj/fast_fade.o build/hack_obj/fast_waitstates.o build/hack_obj/item_descriptions.o build/hack_obj/auto_loot.o build/hack_obj/loot_filter.o build/hack_obj/loot_qol.o build/hack_obj/menu_text.o build/hack_obj/mod_options.o build/hack_obj/actor_lifecycle.o build/hack_obj/graphics_scratch.o build/hack_obj/memory_diagnostics.o build/hack_obj/mod_ram.o build/hack_obj/save_format.o build/hack_obj/save_migrate.o build/hack_obj/save_migrate_scene.o build/hack_obj/save_slots.o build/hack_obj/save_sram.o build/hack_obj/save_state.o build/hack_obj/mod_scenes.o build/hack_obj/mod_startup.o build/hack_obj/ranger_hollow_pages.o build/hack_obj/hero_registry.o build/hack_obj/ringwraith.o build/hack_obj/ringwraith_icons.o build/hack_obj/ringwraith_kit.o build/hack_obj/ringwraith_thralls.o build/hack_obj/saruman.o build/hack_obj/wraith_gear.o build/hack_obj/save_slot_pages.o build/hack_obj/aragorn_icons.o build/hack_obj/frodo_icons.o build/hack_obj/gandalf_icons.o build/hack_obj/gimli_icons.o build/hack_obj/sam_icons.o build/hack_obj/skill_delivery.o build/hack_obj/skill_expansion.o build/hack_obj/skill_expansion_abilities.o build/hack_obj/skill_expansion_active.o build/hack_obj/skill_expansion_content.o build/hack_obj/skill_expansion_elite.o build/hack_obj/skill_expansion_frodo.o build/hack_obj/skill_expansion_gandalf.o build/hack_obj/skill_expansion_gimli.o build/hack_obj/skill_expansion_hud.o build/hack_obj/skill_expansion_passive.o build/hack_obj/skill_expansion_runtime.o build/hack_obj/skill_expansion_sam.o build/hack_obj/skill_expansion_save.o build/hack_obj/skill_expansion_save_format.o build/hack_obj/skill_expansion_smeagol.o build/hack_obj/skill_expansion_timeline.o build/hack_obj/skill_expansion_tree.o build/hack_obj/skill_expansion_validation.o build/hack_obj/skill_expansion_values.o build/hack_obj/smeagol_icons.o build/hack_obj/text_overrides.o build/hack_obj/unlock_all.o build/hack_obj/actor_ref.o build/hack_obj/cast_timeline.o build/hack_obj/combat_source.o build/hack_obj/fx_kit.o build/hack_obj/fx_sprites.o build/hack_obj/hex.o build/hack_obj/hud_meter.o build/hack_obj/lr_button_indicators.o build/hack_obj/movement.o build/hack_obj/profile.o build/hack_obj/profile_clock.o build/hack_obj/skill_fx.o build/hack_obj/summon_registry.o build/hack_obj/targeting.o build/hack_obj/timed_effect.o -lgcc
+~/AppData/Local/rotk-tools/arm-gcc/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/ld.exe: warning: ~/AppData/Local/rotk-tools/arm-gcc/bin/../lib/gcc/arm-none-eabi/14.2.1/thumb/nofp\libgcc.a(_muldi3.o) uses variable-size enums yet the output is to use 32-bit enums; use of enum values across objects may fail
+~/AppData/Local/rotk-tools/arm-gcc/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/ld.exe: warning: ~/AppData/Local/rotk-tools/arm-gcc/bin/../lib/gcc/arm-none-eabi/14.2.1/thumb/nofp\libgcc.a(_udivmoddi4.o) uses variable-size enums yet the output is to use 32-bit enums; use of enum values across objects may fail
+uv run python hacks/tools/validate_abilities.py build/hack.elf rotk.gba
+Ability content: 58 active definitions validated
+arm-none-eabi-objcopy -O binary -j .text -j .rodata build/hack.elf build/modcode.bin
+uv run rotkit hack modcode-syms build/hack.elf build/modcode_syms.inc
+wrote build\modcode_syms.inc: 561 modcode symbol(s) (libgcc internals not exported: __aeabi_idiv, __aeabi_idivmod, __aeabi_ldivmod, __aeabi_lmul, __aeabi_uidiv, __aeabi_uidivmod, __divsi3, __muldi3, __udivsi3)
+armips -equ HACK_chapter_select 1 -equ HACK_debug_cheats 1 -equ HACK_demo_pages 0 -equ HACK_demo_table_patch 0 -equ HACK_fast_fade 1 -equ HACK_fast_waitstates 1 -equ HACK_item_descriptions 1 -equ HACK_loot_qol 1 -equ HACK_menu_text 1 -equ HACK_mod_options 1 -equ HACK_mod_ram 1 -equ HACK_mod_save 1 -equ HACK_mod_scenes 1 -equ HACK_mod_startup 1 -equ HACK_ranger_hollow_pages 1 -equ HACK_ringwraith 1 -equ HACK_save_slot_pages 1 -equ HACK_skill_expansion 1 -equ HACK_text_overrides 1 -equ HACK_unlock_all 1 -equ HACK_HAVE_TABLES 0 -strequ HACK_OUTFILE build/rotk_hack.gba hacks/hack.asm
+uv run --group dev pytest hacks/tools -q
+.....................F.................................                  [100%]
+================================== FAILURES ===================================
+__________________________ test_hero_moves[aragorn] ___________________________
+
+tmp_path = WindowsPath('~/AppData/Local/Temp/pytest-of-user/pytest-119/test_hero_moves_aragorn_0')
+hero = 'aragorn'
+
+    @pytest.mark.parametrize("hero", ["sam", "smeagol", "aragorn"])
+    def test_hero_moves(tmp_path: Path, hero: str) -> None:
+        compiler = shutil.which("clang") or shutil.which("cc")
+        assert compiler
+        output = tmp_path / (hero + ".exe")
+>       subprocess.run(
+            [
+                compiler,
+                "-std=gnu11",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                f"-DTEST_SAM={int(hero == 'sam')}",
+                *(
+                    f"-I{ROOT / path}"
+                    for path in (
+                        "include",
+                        "carved/include",
+                        "build/include",
+                        "build/hack_include",
+                        "hacks",
+                    )
+                ),
+                str(
+                    ROOT
+                    / (
+                        "hacks/tests/aragorn.c"
+                        if hero == "aragorn"
+                        else "hacks/tests/hero_moves.c"
+                    )
+                ),
+                "-o",
+                str(output),
+            ],
+            check=True,
+        )
+
+hacks\tools\test_hero_moves.py:16: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['~\\AppData\\Local\\Microsoft\\WinGet\\Packages\\MartinStorsjo.LLVM-MinGW.UCRT_Microsoft.Winget.Sourc...\\llvm-mingw-20260908-ucrt-x86_64\\bin\\clang.EXE', '-std=gnu11', '-Wall', '-Wextra', '-Werror', '-DTEST_SAM=0', ...],)
+kwargs = {}
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout (seconds) is given and the process takes too long,
+         a TimeoutExpired exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['~\\AppData\\Local\\Microsoft\\WinGet\\Packages\\MartinStorsjo.LLVM-MinGW.UCRT_Microsoft.Winget.Source_8wekyb3d8bbwe\\llvm-mingw-20260908-ucrt-x86_64\\bin\\clang.EXE', '-std=gnu11', '-Wall', '-Wextra', '-Werror', '-DTEST_SAM=0', '-I~\\Desktop\\lotr\\rotk\\include', '-I~\\Desktop\\lotr\\rotk\\carved\\include', '-I~\\Desktop\\lotr\\rotk\\build\\include', '-I~\\Desktop\\lotr\\rotk\\build\\hack_include', '-I~\\Desktop\\lotr\\rotk\\hacks', '~\\Desktop\\lotr\\rotk\\hacks\\tests\\aragorn.c', '-o', '~\\AppData\\Local\\Temp\\pytest-of-user\\pytest-119\\test_hero_moves_aragorn_0\\aragorn.exe']' returned non-zero exit status 1.
+
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\subprocess.py:571: CalledProcessError
+---------------------------- Captured stderr call -----------------------------
+~\Desktop\lotr\rotk\hacks\tests\aragorn.c:297:1: error: conflicting types for 'skill_active_aragornSweep'
+  297 | STOCK_CAST(aragornSweep)
+      | ^
+~\Desktop\lotr\rotk\hacks\tests\aragorn.c:293:10: note: expanded from macro 'STOCK_CAST'
+  293 |     void skill_active_##name(Actor *a)                                                             \
+      |          ^
+<scratch space>:113:1: note: expanded from here
+  113 | skill_active_aragornSweep
+      | ^
+~\Desktop\lotr\rotk\include/skill.h:330:5: note: previous declaration is here
+  330 | u32 skill_active_aragornSweep(Actor *playerActor);
+      |     ^
+1 error generated.
+=========================== short test summary info ===========================
+FAILED hacks/tools/test_hero_moves.py::test_hero_moves[aragorn] - subprocess....
+1 failed, 54 passed in 14.89s
+make: *** [make/hack.mk:109: check-abilities] Error 1

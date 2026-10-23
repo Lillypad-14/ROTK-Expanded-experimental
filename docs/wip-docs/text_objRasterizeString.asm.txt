@@ -1,0 +1,137 @@
+[Context] Operating on: rotk
+
+Disassembly of function: text_objRasterizeString
+Entry Point: 08047be4
+
+08047be4: push {r4,r5,r6,r7,lr}
+08047be6: mov r7, r10
+08047be8: mov r6, r9
+08047bea: mov r5, r8
+08047bec: push {r5,r6,r7}
+08047bee: sub sp, #0x14
+08047bf0: mov r9, r0
+08047bf2: add r4, r1, #0x0
+08047bf4: ldr r1, [r4,#0x0]
+08047bf6: bl 0x08047b5c
+08047bfa: mov r0, #0x74
+08047bfc: bl 0x08032bb8
+08047c00: str r0, [sp,#0x10]
+08047c02: mov r5, r9
+08047c04: add r5, #0xdd
+08047c06: ldrb r1, [r5,#0x0]
+08047c08: lsl r1, r1, #0x1a
+08047c0a: lsr r1, r1, #0x1f
+08047c0c: add r1, #0x1
+08047c0e: lsl r0, r1, #0x3
+08047c10: sub r0, r0, r1
+08047c12: lsl r0, r0, #0x2
+08047c14: add r0, r0, r1
+08047c16: lsl r0, r0, #0x6
+08047c18: bl 0x08032c38
+08047c1c: mov r10, r0
+08047c1e: ldrb r2, [r5,#0x0]
+08047c20: lsl r2, r2, #0x1a
+08047c22: lsr r2, r2, #0x1f
+08047c24: ldr r0, [sp,#0x10]
+08047c26: mov r1, r10
+08047c28: bl 0x0801d5a8
+08047c2c: str r4, [sp,#0x0]
+08047c2e: mov r0, #0x0
+08047c30: str r0, [sp,#0x4]
+08047c32: add r0, sp,#0xc
+08047c34: str r0, [sp,#0x8]
+08047c36: mov r0, #0x0
+08047c38: mov r1, #0x0
+08047c3a: mov r2, #0x0
+08047c3c: mov r3, #0xe8
+08047c3e: bl 0x0801cf74
+08047c42: add r0, sp,#0xc
+08047c44: ldrh r0, [r0,#0x0]
+08047c46: mov r1, r9
+08047c48: strh r0, [r1,#0x20]
+08047c4a: ldrh r0, [r1,#0x22]
+08047c4c: cmp r0, #0x8
+08047c4e: bhi 0x08047c84
+08047c50: mov r2, r9
+08047c52: add r2, #0xdf
+08047c54: ldrb r1, [r2,#0x0]
+08047c56: mov r0, #0x3f
+08047c58: and r0, r1
+08047c5a: mov r1, #0x40
+08047c5c: orr r0, r1
+08047c5e: strb r0, [r2,#0x0]
+08047c60: mov r0, r9
+08047c62: add r0, #0xf2
+08047c64: ldrh r1, [r0,#0x0]
+08047c66: lsl r1, r1, #0x5
+08047c68: ldr r2, [0x08047c80]
+08047c6a: add r1, r1, r2
+08047c6c: mov r0, r9
+08047c6e: ldrh r2, [r0,#0x24]
+08047c70: lsl r2, r2, #0x5
+08047c72: mov r0, #0x80
+08047c74: lsl r0, r0, #0x13
+08047c76: orr r2, r0
+08047c78: mov r0, r10
+08047c7a: bl 0x0804dc4c
+08047c7e: b 0x08047ce2
+08047c84: mov r2, r9
+08047c86: add r2, #0xdf
+08047c88: ldrb r1, [r2,#0x0]
+08047c8a: mov r0, #0x3f
+08047c8c: and r0, r1
+08047c8e: mov r1, #0x80
+08047c90: orr r0, r1
+08047c92: strb r0, [r2,#0x0]
+08047c94: mov r5, r10
+08047c96: mov r0, r9
+08047c98: add r0, #0xf2
+08047c9a: ldrh r0, [r0,#0x0]
+08047c9c: lsl r0, r0, #0x5
+08047c9e: ldr r1, [0x08047d00]
+08047ca0: add r4, r0, r1
+08047ca2: mov r0, #0x0
+08047ca4: mov r2, r9
+08047ca6: ldrh r2, [r2,#0x24]
+08047ca8: cmp r0, r2
+08047caa: bge 0x08047ce2
+08047cac: ldr r7, [0x08047d04]
+08047cae: mov r6, #0x4
+08047cb0: add r0, #0x1
+08047cb2: mov r8, r0
+08047cb4: str r5, [r7,#0x0]
+08047cb6: str r4, [r7,#0x4]
+08047cb8: ldr r0, [0x08047d08]
+08047cba: str r0, [r7,#0x8]
+08047cbc: ldr r0, [r7,#0x8]
+08047cbe: add r5, #0x20
+08047cc0: add r1, r4, #0x0
+08047cc2: add r1, #0x80
+08047cc4: add r0, r5, #0x0
+08047cc6: ldr r2, [0x08047d0c]
+08047cc8: bl 0x0804dc4c
+08047ccc: add r5, #0x20
+08047cce: add r4, #0x20
+08047cd0: sub r6, #0x1
+08047cd2: cmp r6, #0x0
+08047cd4: bgt 0x08047cb4
+08047cd6: add r4, #0x80
+08047cd8: mov r0, r8
+08047cda: mov r1, r9
+08047cdc: ldrh r1, [r1,#0x24]
+08047cde: cmp r0, r1
+08047ce0: blt 0x08047cae
+08047ce2: ldr r0, [sp,#0x10]
+08047ce4: bl 0x08032cdc
+08047ce8: mov r0, r10
+08047cea: bl 0x08032cdc
+08047cee: add sp, #0x14
+08047cf0: pop {r3,r4,r5}
+08047cf2: mov r8, r3
+08047cf4: mov r9, r4
+08047cf6: mov r10, r5
+08047cf8: pop {r4,r5,r6,r7}
+08047cfa: pop {r0}
+08047cfc: bx r0
+
+Total instructions: 130

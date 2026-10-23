@@ -97,12 +97,8 @@ void system_vCountIrqHandler(void);
 void system_timer0IrqHandler(void);
 void system_timer3SerialIrqHandler(void);
 void system_nullCallback(void);
-/**
- * End-of-frame housekeeping run by the default vblank callback: when a frame was
- * composed (frameReady), clear ANIMATION_FRAME_CHANGED on the actors that ticked and
- * commit the sfx channel masks.
- */
 void system_endFrame(void);
 void system_clearRam(void);
 void system_initEngine(void);
 void system_initInterrupts(void);
+void system_unknown08047e5c(u32 index, u32 value);

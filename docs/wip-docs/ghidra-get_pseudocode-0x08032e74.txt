@@ -1,0 +1,57 @@
+[Context] Operating on: rotk
+
+Decompiled function memory_addHeap:
+
+
+
+/* Register [base, end) as heap heapIndex: one free block over the region past a leading
+
+   HEAP_ALIGN gap. */
+
+
+
+void memory_addHeap(u32 heapIndex,void *base,void *end)
+
+
+
+{
+
+  HeapBlock *pHVar1;
+
+  code *UNRECOVERED_JUMPTABLE;
+
+  
+
+  g_Heaps[heapIndex].firstBlock = (HeapBlock *)((int)base + 0x10);
+
+  g_Heaps[heapIndex].freeList = (HeapBlock *)((int)base + 0x10);
+
+  g_Heaps[heapIndex].size = (int)end + (-0x10 - (int)base);
+
+  g_Heaps[heapIndex].end = end;
+
+  pHVar1 = g_Heaps[heapIndex].firstBlock;
+
+  pHVar1->next = (HeapBlock *)0x0;
+
+  pHVar1->prev = (HeapBlock *)0x0;
+
+  (pHVar1->link).freeNext = (HeapBlock *)0x0;
+
+  pHVar1->freePrev = (HeapBlock *)0x0;
+
+  g_HeapCount = g_HeapCount + 1;
+
+                    /* WARNING: Could not recover jumptable at 0x08032eb2. Too many branches */
+
+                    /* WARNING: Treating indirect jump as call */
+
+  (*UNRECOVERED_JUMPTABLE)();
+
+  return;
+
+}
+
+
+
+

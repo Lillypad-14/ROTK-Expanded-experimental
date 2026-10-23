@@ -148,7 +148,7 @@ void scene_shop_drawUpgradeOffer(u8 playerIndex);
 void scene_shop_createCursor(void);
 
 /** Spawn the item sprite object for a backpack cell (0..7) into g_ShopBackpackSlotSprites. */
-void scene_shop_spawnBackpackSlotSprite(u8 backpackSlot);
+void scene_shop_spawnBackpackSlotSprite(u32 backpackSlot);
 
 /** Draw the item tiles of one Ranger Hollow cell (0..8). */
 void scene_shop_drawHollowSlotItem(Item item, u8 hollowSlot);
@@ -162,14 +162,13 @@ void scene_shop_clearHollowSlotItem(u8 hollowSlot);
  * refresh the shop UI only for the active player, so the link peer's moves stay silent.
  */
 void scene_shop_storeItemInHollow(u32 playerIndex, u32 inventorySlot, u32 hollowSlot);
-void scene_shop_takeItemFromHollow(u32 playerIndex, u32 inventorySlot, u32 itemHandle,
-                                   u32 hollowSlot);
+void scene_shop_takeItemFromHollow(u8 playerIndex, u32 inventorySlot, Item item, u8 hollowSlot);
 
 /** Reset a player's 9 Ranger Hollow stash slots to empty. */
 void scene_shop_clearHollowItems(u32 playerIndex);
 
 /** Draw one Yes/No confirm option; highlighted when optionIndex == selectedIndex. */
-void scene_shop_drawConfirmOption(u8 optionIndex, u8 selectedIndex);
+void scene_shop_drawConfirmOption(u32 optionIndex, u32 selectedIndex);
 
 /**
  * Cursor-sprite variant for the highlighted item: 2 = normal or empty cell, 7 = carried

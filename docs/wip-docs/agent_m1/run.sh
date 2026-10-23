@@ -1,0 +1,1 @@
+export PATH="~/AppData/Local/rotk-tools/arm-gcc/bin:~/AppData/Local/rotk-tools/armips:$PATH"; cd ~/Desktop/lotr/rotk; uv run rotkit match $1 local/wip-docs/agent_m1/$2 --full 2>&1 | grep -v warning | head -${3:-40}

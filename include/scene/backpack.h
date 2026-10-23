@@ -20,6 +20,7 @@ void scene_backpack_setCursorAnimation(u8 cell);
 void scene_backpack_updateRuneSprites(u8 slotA, u8 slotB, u8 playerIndex);
 
 /** Swap item icon sprites and redraw their destination cells. */
+void scene_backpack_unknown0802d578(u8 slotA, u8 slotB);
 void scene_backpack_swapSlotSprites(u8 slotA, u8 slotB);
 
 /** Clear the BG2/BG3 tile rect behind an equipment cell's icon. */

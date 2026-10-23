@@ -1,0 +1,6 @@
+insn 229: skip r0 (reload 0, pass 0): busy: RELOAD_OTHER/inherited
+insn 229: skip r0 (reload 0, pass 1): busy: RELOAD_OTHER/inherited
+insn 229: alloc r1 (reload 0, pass 1, last_spill -1, n_spills 2)
+insn 247: alloc r0 (reload 0, pass 1, last_spill 1, n_spills 2)
+insn 350: alloc r1 (reload 0, pass 1, last_spill 0, n_spills 2)
+insn 406: alloc r0 (reload 0, pass 1, last_spill 1, n_spills 2)

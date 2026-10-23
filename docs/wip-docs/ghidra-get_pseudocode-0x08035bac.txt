@@ -1,0 +1,321 @@
+[Context] Operating on: rotk
+
+Decompiled function actor_npc_tickPassive:
+
+
+
+void actor_npc_tickPassive(Actor *actor)
+
+
+
+{
+
+  byte bVar1;
+
+  ActorActionState AVar2;
+
+  ushort uVar3;
+
+  ActorFlags *pAVar4;
+
+  ushort *puVar5;
+
+  undefined1 *puVar6;
+
+  u8 *puVar7;
+
+  Actor *pAVar8;
+
+  uint uVar9;
+
+  code *UNRECOVERED_JUMPTABLE;
+
+  
+
+  pAVar8 = (Actor *)0x0;
+
+  if (actor->variant == '\x16') {
+
+    (actor->flags).p = (actor->flags).p | 4;
+
+  }
+
+  pAVar4 = &actor->flags;
+
+  puVar7 = &actor->behaviorState;
+
+  if (-1 < (int)pAVar4->p) {
+
+    pAVar8 = (actor->as).enemySpawner.children[1];
+
+    puVar5 = (ushort *)((int)&actor->as + 8);
+
+    uVar3 = *puVar5;
+
+    *puVar5 = uVar3 - 1;
+
+    if (uVar3 == 0 || (int)((uint)uVar3 * 0x10000) < 0) {
+
+      *puVar7 = '\x01';
+
+    }
+
+  }
+
+  bVar1 = *puVar7;
+
+  if (bVar1 != 1) {
+
+    if (bVar1 < 2) {
+
+      if (bVar1 != 0) {
+
+LAB_08035cfa:
+
+        actor_runBehaviorState(actor);
+
+      }
+
+    }
+
+    else if (bVar1 == 4) {
+
+      if (actor->variant == '\x13') {
+
+        sprite_setAnimation(actor,EnemyAnimationBank_EnemyTypeGondorSoldier_ExtraPose02);
+
+        pAVar4->p = pAVar4->p & 0xfffffdfb | 0x80010;
+
+        (actor->oam).bgPriority = 3;
+
+        *puVar7 = '\x05';
+
+        actor->field_0x64[0] = '\0';
+
+      }
+
+    }
+
+    else {
+
+      if (bVar1 != 5) goto LAB_08035cfa;
+
+      if ((actor->variant == '\x13') && ((pAVar4->p & 0x400000) != 0)) {
+
+        pAVar4->p = pAVar4->p & 0xffffffef;
+
+        *puVar7 = '\0';
+
+        func_0x08001c70(actor);
+
+      }
+
+    }
+
+    puVar7 = actor->field_0x64;
+
+    func_0x0800a480(actor);
+
+    uVar9 = (uint)actor->field_0x66[1];
+
+    if (((*puVar7 & 4) != 0) && (actor->recoveryCooldown == 0)) {
+
+      actor_setVelocityFromDirection8
+
+                (&actor->velocity,pAVar4->p,(uint)actor->facing,actor->moveSpeed);
+
+    }
+
+    if ((*puVar7 & 8) != 0) {
+
+      sprite_setAnimation(actor,(SpriteAnimation *)
+
+                                (*(int *)(&UNK_0806cbcc + (uint)actor->variant * 0x14) +
+
+                                (uint)""[uVar9] * 0x10));
+
+    }
+
+    if (((*puVar7 & 1) == 0) && ((*puVar7 & 2) == 0)) goto LAB_08035f78;
+
+    AVar2 = actor->actionState;
+
+    if (((AVar2 == 2) ||
+
+        (((AVar2 == ACTOR_STATE_UNKNOWN_08 || (AVar2 == ACTOR_STATE_UNKNOWN_0E)) || (AVar2 == 0x18))
+
+        )) || (AVar2 == 9)) {
+
+      sprite_setAnimation(actor,(SpriteAnimation *)
+
+                                (*(int *)(&UNK_0806cbd0 + (uint)actor->variant * 0x14) +
+
+                                (uint)""[uVar9] * 0x10));
+
+      pAVar4->p = pAVar4->p | 0x10;
+
+      func_0x08001c40(actor);
+
+    }
+
+    else {
+
+      if (AVar2 == 0x11) {
+
+        sprite_setAnimation(actor,(SpriteAnimation *)
+
+                                  (*(int *)(&UNK_0806cbc4 + (uint)actor->variant * 0x14) +
+
+                                  (uint)""[uVar9] * 0x10));
+
+        pAVar4->p = pAVar4->p | 0x10;
+
+      }
+
+      else if (AVar2 == 3) {
+
+        if (actor->variant == '\x1a') {
+
+          sfx_play(0xcb);
+
+        }
+
+        sprite_setAnimation(actor,(SpriteAnimation *)
+
+                                  (*(int *)(&UNK_0806cbc0 + (uint)actor->variant * 0x14) +
+
+                                  (uint)""[uVar9] * 0x10));
+
+        pAVar4->p = pAVar4->p & 0xffbfffff | 0x10;
+
+      }
+
+      else if (AVar2 == (ACTOR_STATE_UNKNOWN_30|ACTOR_STATE_UNKNOWN_08|ACTOR_STATE_UNKNOWN_04)) {
+
+        sprite_setAnimation(actor,(SpriteAnimation *)
+
+                                  (*(int *)(&UNK_0806cbc8 + (uint)actor->variant * 0x14) +
+
+                                  (uint)""[uVar9] * 0x10));
+
+        pAVar4->p = pAVar4->p & 0xffbfffff | 0x10;
+
+      }
+
+      else {
+
+        if (AVar2 != 0x3d) {
+
+          sprite_setAnimation(actor,(SpriteAnimation *)
+
+                                    (*(int *)(&UNK_0806cbcc + (uint)actor->variant * 0x14) +
+
+                                    (uint)""[uVar9] * 0x10));
+
+          pAVar4->p = pAVar4->p | 0x10;
+
+          func_0x08001c70(actor);
+
+          goto LAB_08035f4a;
+
+        }
+
+        sprite_setAnimation(actor,(SpriteAnimation *)
+
+                                  (*(int *)(&UNK_0806cbc4 + (uint)actor->variant * 0x14) +
+
+                                  (uint)""[uVar9] * 0x10));
+
+        pAVar4->p = pAVar4->p & 0xffbfffff | 0x10;
+
+        pAVar8 = fx_spawnOnActor(actor,'\x06','\a','\0');
+
+        pAVar8->tickCallback = (ActorCallback)0x8043c8d;
+
+        pAVar8->spriteFlags = pAVar8->spriteFlags | 0x20;
+
+        pAVar8->type = 0x55;
+
+      }
+
+      func_0x08001c70(actor);
+
+    }
+
+LAB_08035f4a:
+
+    if (uVar9 < 5) {
+
+      puVar6 = &(actor->oam).field_0x3;
+
+      *puVar6 = *puVar6 & 0xef;
+
+    }
+
+    else {
+
+      puVar6 = &(actor->oam).field_0x3;
+
+      *puVar6 = *puVar6 | 0x10;
+
+    }
+
+    *puVar7 = '\0';
+
+    goto LAB_08035f78;
+
+  }
+
+  pAVar4->p = pAVar4->p & 0xfffffffe | 0x82;
+
+  if (g_CompanionActors[0] == actor) {
+
+    g_CompanionActors[0] = (Actor *)0x0;
+
+  }
+
+  else if (g_CompanionActors[1] == actor) {
+
+    g_CompanionActors[1] = (Actor *)0x0;
+
+  }
+
+  if (actor->variant == '\x1a') {
+
+    if (-1 < (int)pAVar4->p) {
+
+      puVar7 = (pAVar8->as).combat.comboState;
+
+      *puVar7 = *puVar7 + 0xff;
+
+      goto LAB_08035ce0;
+
+    }
+
+  }
+
+  else {
+
+LAB_08035ce0:
+
+    if (-1 < (int)pAVar4->p) goto LAB_08035f78;
+
+  }
+
+  mission_script_spawnGroupAndStartStream(actor->linkGroup,actor->linkStream);
+
+LAB_08035f78:
+
+                    /* WARNING: Could not recover jumptable at 0x08035f80. Too many branches */
+
+                    /* WARNING: Treating indirect jump as call */
+
+  (*UNRECOVERED_JUMPTABLE)();
+
+  return;
+
+}
+
+
+
+

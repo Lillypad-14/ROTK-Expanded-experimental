@@ -1,0 +1,55 @@
+#include "actor.h"
+#include "match_hacks.h"
+#include "mission.h"
+#include "variables.h"
+
+/**
+ * Script op 43: face a stunnable actor and set its pose through its family's pose setter, then
+ * return it to behavior state 0.
+ *
+ * @romaddress 0x08017e08
+ */
+void mission_script_op43(const u8 *command)
+{
+    Actor *actor = mission_script_getGroupActor(command[4], command[5]);
+
+    if (actor && actor_isStunnable(actor))
+    {
+        u8 facing;
+        u8 pose;
+        u8 unitType;
+
+        actor->facing = command[7];
+        facing = command[7];
+        pose = command[6];
+        if (actor->type == ACTOR_TYPE_NPC)
+        {
+            actor_unknown08036344(actor, pose, FacingVariants[facing]);
+        }
+        else if (actor->flags.p & 0x10040400)
+        {
+            unitType = actor->unitType;
+            if ((u8)(unitType - 10) <= 7)
+                actor_unknown080378fc(actor, pose, FacingVariants[facing]);
+            else if (unitType == 28)
+                actor_unknown080379bc(actor, pose, FacingVariants[facing]);
+            else if ((u8)(unitType - 31) <= 1 || unitType == 35 || unitType == 36)
+                actor_unknown0804949c(actor, pose, FacingVariants[facing]);
+            else if (actor->type == 48)
+                actor_unknown0801b6f4(actor, pose, FacingVariants[facing]);
+            else if (unitType == 63)
+                actor_unknown0801a70c(actor, pose, FacingVariants[facing]);
+            else if (actor->type == 44)
+                actor_unknown0803c1f0(actor, pose, FacingVariants[facing]);
+            else
+                actor_unknown0801c250(actor, pose, FacingVariants[facing]);
+        }
+        if (facing > 4)
+            *((u8 *)&actor->oam + 3) |= 0x10;
+        else
+            { int m; u8 *p = (u8 *)&actor->oam + 3; u8 v = *p; MATCH_FRESH(m, -17); *p = v & m; }
+        actor->behaviorState = 0;
+        actor->flags.p &= ~0xc;
+        actor_clearVelocity(actor);
+    }
+}

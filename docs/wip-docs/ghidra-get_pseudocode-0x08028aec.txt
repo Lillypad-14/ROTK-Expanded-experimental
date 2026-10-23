@@ -1,0 +1,73 @@
+[Context] Operating on: rotk
+
+Decompiled function player_tickHud:
+
+
+
+void player_tickHud(s32 playerIndex)
+
+
+
+{
+
+  PlayerHudFlags *pPVar1;
+
+  code *UNRECOVERED_JUMPTABLE;
+
+  
+
+  pPVar1 = &g_PlayerHuds[playerIndex].flags;
+
+  if ((pPVar1->p & 8) != 0) {
+
+    func_0x08029828(playerIndex);
+
+  }
+
+  if ((pPVar1->p & 0x10) != 0) {
+
+    func_0x080298b8(playerIndex);
+
+  }
+
+  if ((pPVar1->p & 0x20) != 0) {
+
+    func_0x08028b7c(playerIndex);
+
+  }
+
+  func_0x08028c18(playerIndex);
+
+  if (g_PlayerHuds[playerIndex].skillPanelState != PLAYERHUD_SKILL_PANEL_IDLE) {
+
+    func_0x08028ec0(playerIndex);
+
+  }
+
+  player_updateHudSkillPalette(playerIndex);
+
+  if ((pPVar1->p & 0x1000) != 0) {
+
+    func_0x0802948c(playerIndex);
+
+  }
+
+  if ((g_GameFlags.p & 1) == 0) {
+
+    func_0x0802951c(playerIndex);
+
+  }
+
+                    /* WARNING: Could not recover jumptable at 0x08028b72. Too many branches */
+
+                    /* WARNING: Treating indirect jump as call */
+
+  (*UNRECOVERED_JUMPTABLE)();
+
+  return;
+
+}
+
+
+
+

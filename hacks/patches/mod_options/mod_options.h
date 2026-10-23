@@ -17,9 +17,13 @@
  * One mod-settings row: label in the left column (shifted right labelIndent px, to nest
  * rows under a section heading), valueNames[get()] in the right one; left/right adjusts
  * (wrapping 0..valueCount-1) and commits via set.
+ * desc is an optional help text shown under the rows while the row is highlighted: lines
+ * separated by '
+', about 26 characters each. It uses the page's free bottom rows (at most
+ * two, none on a page with 8 rows), so keep pages to 6 entries for two lines.
  * MOD_OPTIONS_SPACER is a blank, non-selectable row (the cursor skips it).
  */
-#define MOD_OPTIONS_SPACER {NULL, NULL, 0, 0, NULL, NULL}
+#define MOD_OPTIONS_SPACER {NULL, NULL, 0, 0, NULL, NULL, NULL}
 
 struct ModOptionEntry
 {
@@ -29,6 +33,7 @@ struct ModOptionEntry
     u8 labelIndent;
     u8 (*get)(void);
     void (*set)(u8 value);
+    const char *desc;
 };
 
 /**

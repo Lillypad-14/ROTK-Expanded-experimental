@@ -1,0 +1,108 @@
+#include "actor.h"
+#include "match_hacks.h"
+#include "player.h"
+#include "sfx.h"
+#include "skill.h"
+#include "sprite.h"
+#include "variables.h"
+
+/**
+ * Cast Snare.
+ *
+ * @romaddress 0x080455c0
+ */
+Actor *skill_active_frodoSnare(Actor *playerActor)
+{
+    u32 playerIndex = playerActor->as.combat.playerIndex;
+    Actor *fx = actor_allocMain();
+    Vector2Fp16 pos;
+    s32 *pa;
+    s32 *pb;
+    s32 *pc;
+
+    if (fx != NULL)
+    {
+        actor_getOffsetPosition(playerActor, 0, &pos, -1);
+        pa = (s32 *)&fx->as.combat.field_0xa1[3];
+        pb = &fx->coords.x;
+        pc = &fx->renderCoords.x;
+        *pa = *pb = *pc = pos.x;
+        MATCH_BARRIER(pa);
+        MATCH_FRESH(pa, pa + 1);
+        MATCH_BARRIER(pb);
+        MATCH_FRESH(pb, pb + 1);
+        MATCH_BARRIER(pc);
+        MATCH_FRESH(pc, pc + 1);
+        *pa = *pb = *pc = pos.y;
+        fx->velocity.x = 0;
+        fx->velocity.y = 0;
+        fx->type = 0x5d;
+        fx->tickCallback = skill_active_frodoSnare_tick;
+        fx->triggerCallbacks[0] = actor_unknown08016958;
+        fx->parentActor = playerActor;
+        sprite_setAnimation(fx, &FrodoSnareCastAnimation);
+        fx->oam.paletteNumber = 3;
+        fx->oam.bgPriority = playerActor->oam.bgPriority;
+        fx->oam.colors256 = 0;
+        fx->oam.objMode = 0;
+        fx->triggerBoxCount = 1;
+        fx->triggerBoxes[0].enable = TRUE;
+        fx->interactionRadius = 30;
+        fx->flags.p = 0x04018219;
+        fx->actionState = 0x4d;
+        playerActor->as.combat.comboState[0]++;
+        fx->as.combat.venomDuration = skill_active_getLeveledValue(
+            playerIndex, ACTIVE_SKILL_FRODO_SNARE, 0,
+            PLAYER(playerIndex).activeSkillLevels[ACTIVE_SKILL_FRODO_SNARE]);
+        fx->actionStateTimer = 150;
+        sfx_play(0x6f);
+        return fx;
+    }
+    return NULL;
+}
+
+/**
+ * Per-frame tick of a snare.
+ *
+ * @romaddress 0x080456d8
+ */
+void skill_active_frodoSnare_tick(Actor *fx)
+{
+    if (fx->parentActor->actionState == ACTOR_STATE_UNKNOWN_2D)
+        fx->actionState = ACTOR_STATE_UNKNOWN_04;
+    switch ((s32)fx->actionState)
+    {
+    case 0x4d:
+        if (fx->flags.p & ACTOR_FLAG_ANIMATION_END)
+        {
+            sprite_setAnimationFrame(fx, 4);
+            fx->flags.p &= ~ACTOR_FLAG_ANIMATION_PLAYING;
+            fx->actionState = 0x4e;
+            fx->flags.p |= ACTOR_FLAG_COLLISION_CHECK;
+        }
+        break;
+    case 0x4e:
+        if (fx->actionStateTimer-- <= 0)
+            fx->actionState = 0x4f;
+        break;
+    case 0x4f:
+        fx->flags.p |= ACTOR_FLAG_ANIMATION_PLAYING;
+        sprite_setAnimation(fx, &FrodoSnareEndAnimation);
+        fx->flags.p &= ~ACTOR_FLAG_COLLISION_CHECK;
+        fx->actionState = 0x50;
+        sfx_play(0x70);
+        break;
+    case 0x50:
+        if (fx->flags.p & ACTOR_FLAG_ANIMATION_END)
+        {
+            fx->actionState = ACTOR_STATE_UNKNOWN_04;
+            fx->flags.p &= ~ACTOR_FLAG_RENDER;
+        }
+        break;
+    case 4:
+        fx->flags.p &= ~ACTOR_FLAG_RENDER;
+        fx->flags.p |= ACTOR_FLAG_ANIMATION_FRAME_CHANGED | ACTOR_FLAG_PENDING_REMOVE;
+        fx->parentActor->as.combat.comboState[0]--;
+        break;
+    }
+}

@@ -1,0 +1,139 @@
+[Context] Operating on: rotk
+
+Decompiled function scene_skillTree_handleSelect:
+
+
+
+void scene_skillTree_handleSelect(void)
+
+
+
+{
+
+  MpMessageArgs args;
+
+  u32 uVar1;
+
+  u8 uVar2;
+
+  u32 uVar3;
+
+  u8 *puVar4;
+
+  uint uVar5;
+
+  code *UNRECOVERED_JUMPTABLE;
+
+  u8 activeSkillIndex;
+
+  u8 in_stack_ffffffda;
+
+  u8 in_stack_ffffffdb;
+
+  undefined8 in_stack_ffffffdc;
+
+  
+
+  uVar3 = multiplayer_getMessageMask();
+
+  uVar1 = g_SceneCurrent.args[1];
+
+  uVar2 = g_PlayerGlobals.activePlayerIndex;
+
+  if (g_SceneCurrent.args[3] == 1) {
+
+    if (((byte)g_SaveGlobals.d.optionsFlags & 8) == 0) {
+
+      activeSkillIndex = (u8)g_SceneCurrent.args[1];
+
+      if ((uVar3 & 4) == 0) {
+
+        uVar5 = (uint)g_PlayerGlobals.activePlayerIndex;
+
+        puVar4 = g_PlayerGlobals.players[uVar5].activeSkillCycleEnabled + g_SceneCurrent.args[1];
+
+        if (*puVar4 == '\0') {
+
+          *puVar4 = '\x01';
+
+        }
+
+        else {
+
+          *puVar4 = '\0';
+
+        }
+
+        if (uVar5 == g_PlayerGlobals.activePlayerIndex) {
+
+          sfx_play(3);
+
+          scene_skillTree_drawActiveTile
+
+                    (uVar2,activeSkillIndex,activeSkillIndex,
+
+                     g_PlayerGlobals.players[uVar5].activeSkillLevelsPurchased[uVar1]);
+
+        }
+
+        goto LAB_08041a14;
+
+      }
+
+      uVar2 = ',';
+
+    }
+
+    else {
+
+      scene_skillTree_assignQuickSelect();
+
+      if ((uVar3 & 4) == 0) goto LAB_08041a14;
+
+      activeSkillIndex =
+
+           g_PlayerGlobals.players[g_PlayerGlobals.activePlayerIndex].quickSelectActiveSkills[0];
+
+      in_stack_ffffffda =
+
+           g_PlayerGlobals.players[g_PlayerGlobals.activePlayerIndex].quickSelectActiveSkills[1];
+
+      in_stack_ffffffdb =
+
+           g_PlayerGlobals.players[g_PlayerGlobals.activePlayerIndex].quickSelectActiveSkills[2];
+
+      uVar2 = '.';
+
+    }
+
+    args.words[0]._1_1_ = activeSkillIndex;
+
+    args.words[0]._0_1_ = g_PlayerGlobals.activePlayerIndex;
+
+    args.words[0]._2_1_ = in_stack_ffffffda;
+
+    args.words[0]._3_1_ = in_stack_ffffffdb;
+
+    args.words[1] = (int)in_stack_ffffffdc;
+
+    args.words[2] = (int)((ulonglong)in_stack_ffffffdc >> 0x20);
+
+    multiplayer_queueMessage(uVar2,args);
+
+  }
+
+LAB_08041a14:
+
+                    /* WARNING: Could not recover jumptable at 0x08041a1e. Too many branches */
+
+                    /* WARNING: Treating indirect jump as call */
+
+  (*UNRECOVERED_JUMPTABLE)();
+
+  return;
+
+}
+
+
+
+

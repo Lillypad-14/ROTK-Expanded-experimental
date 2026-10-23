@@ -1,0 +1,80 @@
+#include "actor.h"
+#include "match_hacks.h"
+#include "mission.h"
+#include "scene.h"
+#include "variables.h"
+
+/**
+ * Turn a touching stunnable actor away and stagger it.
+ *
+ * @romaddress 0x08016100
+ */
+void actor_staggerOnTouch(Actor *self, Actor *touching)
+{
+    MATCH_PIN(u32, pad, "r6");
+
+    __asm__ volatile("" : "=r"(pad));
+    if (touching->actionState != ACTOR_STATE_UNKNOWN_0E && touching->type != 0x17 &&
+        actor_isStunnable(touching))
+    {
+        touching->facing = FacingStaggerVariants[touching->facing][0];
+        touching->actionState = ACTOR_STATE_UNKNOWN_0E;
+        touching->actionStateTimer = 10;
+        touching->field_0x64[0] |= 3;
+    }
+}
+
+/**
+ * @romaddress 0x08016154
+ */
+bool actor_triggerBoxesOverlapMovementBox(Actor *self, Actor *other)
+{
+    s32 otherX = other->renderCoords.x >> 16;
+    s32 otherY = other->renderCoords.y >> 16;
+    s32 otherTop = otherY + other->movementCollisionBox.yMin;
+    s32 otherBottom = otherY + other->movementCollisionBox.yMax;
+    s32 otherLeft;
+    s32 otherRight;
+    u32 i;
+
+    if (*((u8 *)&other->oam + 3) & 0x10)
+    {
+        otherLeft = otherX - other->movementCollisionBox.xMax;
+        otherRight = otherX - other->movementCollisionBox.xMin;
+    }
+    else
+    {
+        otherLeft = otherX + other->movementCollisionBox.xMin;
+        otherRight = otherX + other->movementCollisionBox.xMax;
+    }
+    for (i = 0; i < self->triggerBoxCount; i++)
+    {
+        struct ActorTriggerBox *box = &self->triggerBoxes[i];
+
+        if (box->enable == 1)
+        {
+            s32 x = self->renderCoords.x >> 16;
+            s32 y = self->renderCoords.y >> 16;
+            s32 left;
+            s32 right;
+            s32 top = y + box->yMin;
+            s32 bottom = y + box->yMax;
+
+            if (*((u8 *)&self->oam + 3) & 0x10)
+            {
+                left = x - box->xMax;
+                right = x - box->xMin;
+            }
+            else
+            {
+                left = x + box->xMin;
+                right = x + box->xMax;
+            }
+            if (otherLeft >= left && otherRight <= right && otherTop <= top &&
+                otherBottom >= bottom)
+                return TRUE;
+        }
+    }
+    return FALSE;
+}
+

@@ -1,6 +1,6 @@
 # hack / build: compose the selected patches (hacks/patches.cfg) into one patched ROM / BPS.
 # Make owns the build graph; build_patch.py only does the SHA + BPS round-trip.
-.PHONY: hack dist check-hacks hack-text-overrides
+.PHONY: hack dist check-hacks check-abilities hack-text-overrides
 
 # Memory map (single source hacks/layout.cfg) -> per-consumer fragments (.inc/.h/.ld). No hardcoded
 # addresses in the hack files: hack.asm includes .inc, hack.ld INCLUDEs .ld, rom.c includes .h. The C
@@ -54,16 +54,30 @@ MODCODE_CFLAGS := -c -g3 -std=gnu11 -Wall -Wextra -mthumb -mthumb-interwork -mlo
            -ffreestanding -fno-strict-aliasing -fno-short-enums \
            -Iinclude -Icarved/include -Ibuild/include \
            -Ibuild/hack_include -Ihacks $(DEF)
+ARENA_HERO ?= 2
+MODCODE_CFLAGS += -DTEST_ARENA_HERO=$(ARENA_HERO)
 
 # Refresh for the selected patches so file and selection changes cannot leave stale entries.
 hack-text-overrides:
 	uv run rotkit hack text-overrides --patches "$(SEL)"
 
+.PHONY: hack-heroes hack-fx check-fx
+hack-fx:
+	uv run python hacks/tools/skill_fx.py
+	uv run python hacks/tools/cast_timelines.py
+	uv run python hacks/tools/skill_deliveries.py
+
+check-fx: hack-fx
+	uv run --group dev pytest hacks/tools/test_skill_fx.py hacks/tools/test_cast_timelines.py hacks/tools/test_skill_deliveries.py -q
+
+hack-heroes:
+	uv run python hacks/tools/hero_registry.py
+
 # Selection is a runtime choice, so the modcode is rebuilt each `make hack` (it's small): guard
 # hook-site collisions, compile the enabled C bodies into one blob, then armips.
 hack: $(if $(SKIP_ROM_CHECK),,check-base-rom) build/game_symbols.inc build/game_symbols.ld \
                      build/memmap.inc build/hack_include/memmap.h build/memmap.ld \
-                     build/include/variables.h clangd hack-text-overrides
+                     build/include/variables.h clangd hack-text-overrides hack-heroes hack-fx
 	@# hook-site guard: the site arg of every hookTrampoline/hookReplace/hookTrap/hookStub
 	@# call (hack.asm + all patch asm) must be unique - armips would let a later write silently
 	@# overwrite an earlier one at the same site. Repo-wide on purpose: a shared site must
@@ -80,6 +94,7 @@ hack: $(if $(SKIP_ROM_CHECK),,check-base-rom) build/game_symbols.inc build/game_
 	@# -lgcc: Do emit libgcc as the ROM used a different compiler
 	arm-none-eabi-gcc -nostartfiles -nodefaultlibs -mthumb -mthumb-interwork -T hacks/hack.ld \
 	  -Wl,-L,build -o build/hack.elf $(C_OBJS) -lgcc
+	uv run python hacks/tools/validate_abilities.py build/hack.elf rotk.gba
 	arm-none-eabi-objcopy -O binary -j .text -j .rodata build/hack.elf build/modcode.bin
 	uv run rotkit hack modcode-syms build/hack.elf build/modcode_syms.inc
 	@if [ "$(HAVE_TAB)" = "1" ]; then \
@@ -92,6 +107,23 @@ hack: $(if $(SKIP_ROM_CHECK),,check-base-rom) build/game_symbols.inc build/game_
 dist: hack
 	uv run rotkit hack bps hack
 
+check-abilities: hack
+	uv run --group dev pytest hacks/tools -q
+	uv run python hacks/tools/test_ability_support.py
+	uv run python hacks/tools/test_engine_content.py
+
+.PHONY: check-mod
+check-mod: check check-abilities
+
+.PHONY: check-elemental-hook
+check-elemental-hook: hack
+	uv run --with unicorn python hacks/tools/validate_elemental_hook.py
+
+.PHONY: test-arena
+test-arena:
+	$(MAKE) hack HACKS="@cfg test_arena" HACK_OUT=build/test_arena.gba
+	cp build/hack.elf build/test_arena.elf
+
 # ROM-free hack compile gate for the pre-commit hook. `make hack` needs the base ROM and only
 # compiles the enabled patches; check-hacks builds every patch (all C bodies, tables.c, all asm)
 # with the ROM sha gate skipped and the patched ROM written to build/rotk_hack_check.gba instead
@@ -99,3 +131,15 @@ dist: hack
 # that patch doesn't compile, without disturbing the ROM under test.
 check-hacks:
 	$(MAKE) hack SKIP_ROM_CHECK=1 HACK_OUT=build/rotk_hack_check.gba HACKS="$(PATCHES)"
+
+.PHONY: effect-editor check-effect-editor
+effect-editor:
+	uv run python hacks/tools/effect_editor.py --open
+
+check-effect-editor:
+	uv run --group dev pytest hacks/tools/test_effect_editor.py -q
+
+.PHONY: check-hero-moves
+check-hero-moves:
+	uv run --group dev pytest hacks/tools/test_hero_moves.py -q
+	uv run python hacks/tools/test_ability_support.py

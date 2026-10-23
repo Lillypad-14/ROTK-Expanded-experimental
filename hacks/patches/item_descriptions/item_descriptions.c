@@ -5,6 +5,9 @@
 #include "stats.h"
 #include "text.h"
 #include "variables.h"
+#if HACK_ringwraith && HACK_skill_expansion
+#include "patches/ringwraith/wraith_gear.h"
+#endif
 
 #define ITEM_DESCRIPTIONS_UNIQUE_COUNT 26
 #define ITEM_DESCRIPTIONS_RUNE_DESC_BASE (TEXT_ID_RUNE_NOT_AVAILABLE + 1)
@@ -264,6 +267,12 @@ char *itemDescriptions_drawInfo(char *buffer, u32 playerIndex, Item item, const 
     *tileIndex = font_drawLines(*tileIndex, *x, *y, 118, line, 0);
 
     font_setStyle(FONT_STYLE_8PX_A, 3, 0);
+#if HACK_ringwraith && HACK_skill_expansion
+    if (wraithGear_isWraithItem(item))
+    {
+        return wraithGear_describe(item);
+    }
+#endif
     if (ITEM_TYPE(item) == ITEM_TYPE_UNIQUE && item.d.baseIndex < ITEM_DESCRIPTIONS_UNIQUE_COUNT)
     {
         return describeUnique(item);

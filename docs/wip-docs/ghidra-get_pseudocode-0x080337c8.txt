@@ -1,0 +1,393 @@
+[Context] Operating on: rotk
+
+Decompiled function actor_projectile_create:
+
+
+
+void actor_projectile_create(Actor *param_1,uint param_2,uint param_3)
+
+
+
+{
+
+  ActorType AVar1;
+
+  u8 uVar2;
+
+  Actor *actor;
+
+  uint uVar3;
+
+  s32 sVar4;
+
+  fp16_16 fVar5;
+
+  ActorTriggerCallback pAVar6;
+
+  Direction8 *pDVar7;
+
+  undefined *puVar8;
+
+  s16 *psVar9;
+
+  undefined1 *puVar10;
+
+  fp16_16 fVar11;
+
+  int iVar12;
+
+  code *UNRECOVERED_JUMPTABLE;
+
+  int iStack_34;
+
+  int iStack_30;
+
+  uint uStack_2c;
+
+  ActorType *pAStack_28;
+
+  ActorFlags *pAStack_24;
+
+  
+
+  param_2 = param_2 & 0xff;
+
+  uStack_2c = param_3 & 0xff;
+
+  iStack_34 = 0;
+
+  iStack_30 = 0;
+
+  actor = actor_allocMain();
+
+  if (actor == (Actor *)0x0) goto LAB_08033d04;
+
+  actor->parentActor = param_1;
+
+  actor->type = 0x37;
+
+  pDVar7 = &actor->facing;
+
+  *pDVar7 = param_1->facing;
+
+  pAStack_28 = &param_1->type;
+
+  if (*pAStack_28 != (ACTOR_TYPE_CHEST|ACTOR_TYPE_GATE_PANEL)) {
+
+    func_0x08001d8c(param_1,0,&iStack_34,0xffffffff);
+
+  }
+
+  iVar12 = (param_1->coords).y + iStack_30 * 0x10000;
+
+  if (*pDVar7 < DIRECTION8_SOUTHWEST) {
+
+    fVar11 = (param_1->coords).x + iStack_34 * 0x10000;
+
+    puVar10 = &(actor->oam).field_0x3;
+
+    *puVar10 = *puVar10 & 0xef;
+
+  }
+
+  else {
+
+    fVar11 = (param_1->coords).x + iStack_34 * -0x10000;
+
+    puVar10 = &(actor->oam).field_0x3;
+
+    *puVar10 = *puVar10 | 0x10;
+
+  }
+
+  puVar10 = &(actor->oam).field_0x3;
+
+  (actor->renderCoords).x = fVar11;
+
+  (actor->coords).x = fVar11;
+
+  *(fp16_16 *)((int)&actor->as + 0x20) = fVar11;
+
+  (actor->renderCoords).y = iVar12;
+
+  (actor->coords).y = iVar12;
+
+  *(int *)((int)&actor->as + 0x24) = iVar12;
+
+  pAStack_24 = &actor->flags;
+
+  pAStack_24->p = 0x4100a0d;
+
+  AVar1 = *pAStack_28;
+
+  if (AVar1 == 0x2f) {
+
+    sprite_setAnimation(actor,(SpriteAnimation *)&UNK_0806c9a0);
+
+    actor_setVelocityFromDirection8(&actor->velocity,pAStack_24->p,param_2,0x78000);
+
+    actor->variant = '\x04';
+
+  }
+
+  else if (uStack_2c == 0) {
+
+    if (AVar1 != ACTOR_TYPE_UNKNOWN_00) {
+
+      actor_setVelocityFromDirection8(&actor->velocity,0x4100a0d,param_2,0x78000);
+
+    }
+
+    if ((param_1->unitType == '\x16') ||
+
+       ((*pAStack_28 == ACTOR_TYPE_UNKNOWN_00 &&
+
+        ((g_PlayerGlobals.players[(param_1->as).combat.playerIndex].combatFlags.p & 0x20) != 0)))) {
+
+      actor->animationFrameDuration = '\x01';
+
+      func_0x08001bf0(actor,*(undefined4 *)(&UNK_08282f68 + (uint)*pDVar7 * 4));
+
+      actor->variant = '\x02';
+
+      pAStack_24->p = pAStack_24->p | 0x10;
+
+    }
+
+    else if ((((param_1->flags).p & 0x10040400) == 0) &&
+
+            (*pAStack_28 != (ACTOR_TYPE_CHEST|ACTOR_TYPE_GATE_PANEL))) {
+
+      func_0x08001bf0(actor,*(undefined4 *)(&UNK_08282e28 + (uint)*pDVar7 * 4));
+
+      actor->variant = '\0';
+
+    }
+
+    else {
+
+      func_0x08001bf0(actor,*(undefined4 *)(&UNK_08282ec8 + (uint)*pDVar7 * 4));
+
+      actor->variant = '\x01';
+
+    }
+
+  }
+
+  else {
+
+    if (AVar1 != ACTOR_TYPE_UNKNOWN_00) {
+
+      fVar11 = math_multiplyFp16(Direction32MoveVectors[param_2].x,0x78000);
+
+      (actor->velocity).x = fVar11;
+
+      fVar11 = math_multiplyFp16(Direction32MoveVectors[param_2].y,0x78000);
+
+      (actor->velocity).y = fVar11;
+
+    }
+
+    if ((param_1->unitType == '\x16') ||
+
+       ((*pAStack_28 == ACTOR_TYPE_UNKNOWN_00 &&
+
+        ((g_PlayerGlobals.players[(param_1->as).combat.playerIndex].combatFlags.p & 0x20) != 0)))) {
+
+      actor->animationFrameDuration = '\x01';
+
+      func_0x08001bf0(actor,*(undefined4 *)(&UNK_08282f88 + param_2 * 4));
+
+      actor->variant = '\x03';
+
+      pAStack_24->p = pAStack_24->p | 0x10;
+
+    }
+
+    else {
+
+      if ((((param_1->flags).p & 0x10040400) == 0) &&
+
+         (*pAStack_28 != (ACTOR_TYPE_CHEST|ACTOR_TYPE_GATE_PANEL))) {
+
+        puVar8 = &UNK_08282e48;
+
+      }
+
+      else {
+
+        puVar8 = &UNK_08282ee8;
+
+      }
+
+      func_0x08001bf0(actor,*(undefined4 *)(puVar8 + param_2 * 4));
+
+      actor->variant = '\x01';
+
+    }
+
+    if (param_2 < 0x11) {
+
+      *puVar10 = *puVar10 & 0xef;
+
+    }
+
+    else {
+
+      *puVar10 = *puVar10 | 0x10;
+
+    }
+
+  }
+
+  (actor->oam).objMode = 0;
+
+  (actor->oam).colors256 = 0;
+
+  (actor->oam).bgPriority = 2;
+
+  actor->gfxSize = 0x100;
+
+  actor_applyTypeDefaults(actor);
+
+  actor->tickCallback = (ActorCallback)&UNK_08033d1d;
+
+  actor->actionStateTimer = 0x19;
+
+  actor->actionState = 2;
+
+  switch(*pAStack_28) {
+
+  case ACTOR_TYPE_UNKNOWN_00:
+
+    uVar3 = (uint)(param_1->as).combat.playerIndex;
+
+    psVar9 = g_PlayerGlobals.players[uVar3].stats + 0x4c;
+
+    if (*psVar9 < 1) {
+
+      fVar11 = 0x78000;
+
+    }
+
+    else {
+
+      sVar4 = math_percentOf(0x78000,*psVar9);
+
+      fVar11 = sVar4 + 0x78000;
+
+    }
+
+    if (uStack_2c == 0) {
+
+      actor_setVelocityFromDirection8(&actor->velocity,pAStack_24->p,param_2,fVar11);
+
+    }
+
+    else {
+
+      fVar5 = math_multiplyFp16(Direction32MoveVectors[param_2].x,fVar11);
+
+      (actor->velocity).x = fVar5;
+
+      fVar11 = math_multiplyFp16(Direction32MoveVectors[param_2].y,fVar11);
+
+      (actor->velocity).y = fVar11;
+
+    }
+
+    actor->triggerCallbacks[0] = (ActorTriggerCallback)&UNK_08015425;
+
+    if ((*(byte *)((int)&g_PlayerGlobals.players[uVar3].inventory + 8) & 0xf) == 7) {
+
+      uVar2 = *(u8 *)((int)&g_PlayerGlobals.players[uVar3].inventory + 9);
+
+    }
+
+    else {
+
+      uVar2 = 0xff;
+
+    }
+
+    (actor->as).gatePanel.cols = uVar2;
+
+    func_0x08026e88(uVar3,actor,g_PlayerGlobals.players[uVar3].inventory.array[1].word);
+
+    goto code_r0x08033cf6;
+
+  default:
+
+    pAVar6 = (ActorTriggerCallback)&UNK_08015425;
+
+    break;
+
+  case ACTOR_TYPE_CHEST|ACTOR_TYPE_GATE_PANEL:
+
+  case 0x2a:
+
+    pAVar6 = (ActorTriggerCallback)&UNK_080158b5;
+
+    break;
+
+  case ACTOR_TYPE_NPC:
+
+    pAVar6 = (ActorTriggerCallback)&UNK_080163e9;
+
+    break;
+
+  case ACTOR_TYPE_ENEMY:
+
+  case ACTOR_TYPE_GEM_RAIN|ACTOR_TYPE_LOOT_PILE:
+
+  case 0x1d:
+
+  case 0x20:
+
+    if (((param_1->combatFlags).p & 0x40) == 0) {
+
+      pAVar6 = (ActorTriggerCallback)&UNK_08015785;
+
+    }
+
+    else {
+
+      pAVar6 = (ActorTriggerCallback)&UNK_080163e9;
+
+    }
+
+    break;
+
+  case 0x2f:
+
+    (actor->oam).paletteNumber = (param_1->oam).paletteNumber;
+
+    actor->actionStateTimer = 0x3c;
+
+    pAVar6 = (ActorTriggerCallback)&UNK_080164bd;
+
+  }
+
+  actor->triggerCallbacks[0] = pAVar6;
+
+code_r0x08033cf6:
+
+  func_0x08033dd8(actor);
+
+  actor->field_0xf6[0] = '\x04';
+
+LAB_08033d04:
+
+                    /* WARNING: Could not recover jumptable at 0x08033d14. Too many branches */
+
+                    /* WARNING: Treating indirect jump as call */
+
+  (*UNRECOVERED_JUMPTABLE)(actor);
+
+  return;
+
+}
+
+
+
+

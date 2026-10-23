@@ -61,7 +61,9 @@ union GlobalModOptionsArea {
     struct
     {
         u8 lootQolState; // loot_qol: struct LootQolState overlays this byte
-        u8 reserved[GLOBAL_MOD_OPTIONS_SIZE - 1];
+        u8 debugCheatsState; // debug_cheats: struct DebugCheatsState overlays this byte
+        u8 twistsState[17]; // twists: struct TwistsState overlays these bytes
+        u8 reserved[GLOBAL_MOD_OPTIONS_SIZE - 19];
     } d;
 };
 
@@ -69,6 +71,22 @@ _Static_assert(sizeof(union GlobalModOptionsArea) == GLOBAL_MOD_OPTIONS_SIZE,
                "global mod options area overrun");
 _Static_assert(GLOBAL_MOD_OPTIONS_OFF + GLOBAL_MOD_OPTIONS_SIZE <= SRAM_SIZE,
                "save regions overrun the save chip");
+
+// Region 5: skill_expansion per-slot records, one per slot of every page, in slot order.
+#define SKILL_EXPANSION_SAVE_OFF (GLOBAL_MOD_OPTIONS_OFF + GLOBAL_MOD_OPTIONS_SIZE)
+#define SKILL_EXPANSION_SAVE_RECORD_SIZE 32u
+#define SKILL_EXPANSION_SAVE_SIZE                                                                      (SAVE_SLOT_PAGE_COUNT * SAVE_SLOTS_PER_PAGE * SKILL_EXPANSION_SAVE_RECORD_SIZE)
+
+_Static_assert(SKILL_EXPANSION_SAVE_OFF + SKILL_EXPANSION_SAVE_SIZE <= SRAM_SIZE,
+               "save regions overrun the save chip");
+
+// Region 6: versioned ID-based records. Region 5 stays at its original offset and stride.
+#define SKILL_EXPANSION_ID_SAVE_OFF (SKILL_EXPANSION_SAVE_OFF + SKILL_EXPANSION_SAVE_SIZE)
+#define SKILL_EXPANSION_ID_SAVE_RECORD_SIZE 144u
+#define SKILL_EXPANSION_ID_SAVE_SIZE \
+    (SAVE_SLOT_PAGE_COUNT * SAVE_SLOTS_PER_PAGE * SKILL_EXPANSION_ID_SAVE_RECORD_SIZE)
+_Static_assert(SKILL_EXPANSION_ID_SAVE_OFF + SKILL_EXPANSION_ID_SAVE_SIZE <= SRAM_SIZE,
+               "skill ID records overrun the save chip");
 
 // Save-format header magic. The base game and SavSlotPages both carry "ROTKGBA6"; the
 // current header is built entirely in C (modSave_stampHeaderMirror), so bumping the

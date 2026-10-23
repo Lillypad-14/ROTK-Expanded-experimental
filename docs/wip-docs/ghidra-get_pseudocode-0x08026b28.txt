@@ -1,0 +1,421 @@
+[Context] Operating on: rotk
+
+Decompiled function player_setHandFx:
+
+
+
+void player_setHandFx(u8 playerIndex,u8 hand,Item item)
+
+
+
+{
+
+  uint uVar1;
+
+  u16 uVar2;
+
+  uint uVar3;
+
+  Actor *actor;
+
+  FxEmitter *pFVar4;
+
+  int iVar5;
+
+  FxEmitter **ppFVar6;
+
+  uint uVar7;
+
+  u8 kind;
+
+  u32 uVar8;
+
+  uint uVar9;
+
+  code *UNRECOVERED_JUMPTABLE;
+
+  bool bVar10;
+
+  
+
+  uVar3 = (uint)playerIndex;
+
+  actor = g_PlayerGlobals.players[uVar3].ownerActor;
+
+  kind = '\0';
+
+  uVar9 = 0xffffffff;
+
+  uVar8 = 0;
+
+  uVar7 = 0;
+
+  bVar10 = false;
+
+  func_0x08001bbc(actor,hand);
+
+  if (hand == '\0') {
+
+    ppFVar6 = g_PlayerGlobals.players[uVar3].handFxEmitters;
+
+    if (*ppFVar6 != (FxEmitter *)0x0) {
+
+      func_0x08039138();
+
+      *ppFVar6 = (FxEmitter *)0x0;
+
+    }
+
+  }
+
+  else {
+
+    ppFVar6 = g_PlayerGlobals.players[uVar3].handFxEmitters + 1;
+
+    if (*ppFVar6 != (FxEmitter *)0x0) {
+
+      func_0x08039138();
+
+      *ppFVar6 = (FxEmitter *)0x0;
+
+    }
+
+  }
+
+  if (((item.word & 0xffffff) >> 0x10 == 0xff) ||
+
+     (ItemTypeInfos[item.word & 0xf].prefixFlags == (AffixFlags *)0x0)) {
+
+    if ((item.word & 0xf) == 0xe) {
+
+      uVar8 = ItemTypeInfos[item.word & 0xf].prefixFlags[item.word >> 8 & 0xff].p;
+
+    }
+
+  }
+
+  else {
+
+    uVar8 = ItemTypeInfos[item.word & 0xf].prefixFlags[(item.word & 0xffffff) >> 0x10].p;
+
+  }
+
+  if (item.word >> 0x18 != 0xff) {
+
+    uVar7 = ItemSuffixFlags[item.word >> 0x18].p;
+
+  }
+
+  uVar1 = uVar9;
+
+  if ((uVar7 == 0) || (bVar10 = (uVar7 & 0x4000) != 0, uVar1 = 0xffffffff, (uVar7 & 0x38000) == 0))
+
+  {
+
+LAB_08026cd8:
+
+    uVar9 = uVar1;
+
+    if (uVar9 == 0xffffffff) goto LAB_08026ce0;
+
+  }
+
+  else {
+
+    if ((uVar7 & 0x8000) == 0) {
+
+      if ((uVar7 & 0x10000) == 0) {
+
+        if ((uVar7 & 0x20000) != 0) {
+
+          uVar9 = 4;
+
+        }
+
+      }
+
+      else {
+
+        uVar9 = 3;
+
+      }
+
+    }
+
+    else {
+
+      uVar9 = 2;
+
+    }
+
+    if (uVar9 != 0xffffffff) {
+
+      uVar1 = uVar9;
+
+      if ((uVar7 & 0x40000) == 0) {
+
+        if ((uVar7 & 0x80000) == 0) {
+
+          if ((uVar7 & 0x100000) == 0) {
+
+            if ((uVar7 & 0x200000) == 0) {
+
+              if ((uVar7 & 0x400000) == 0) {
+
+                if ((uVar7 & 0x800000) == 0) {
+
+                  kind = '\x02';
+
+                  if ((uVar7 & 0x1000000) != 0) {
+
+                    kind = '\b';
+
+                  }
+
+                }
+
+                else {
+
+                  kind = '\a';
+
+                }
+
+              }
+
+              else {
+
+                kind = '\x06';
+
+              }
+
+            }
+
+            else {
+
+              kind = '\x05';
+
+            }
+
+          }
+
+          else {
+
+            kind = '\x04';
+
+          }
+
+        }
+
+        else {
+
+          kind = '\x03';
+
+        }
+
+      }
+
+      else {
+
+        kind = '\x02';
+
+      }
+
+      goto LAB_08026cd8;
+
+    }
+
+LAB_08026ce0:
+
+    if (uVar8 != 0) {
+
+      if ((uVar8 & 0x4000) != 0) {
+
+        bVar10 = true;
+
+      }
+
+      if ((uVar8 & 0x38000) != 0) {
+
+        if ((uVar8 & 0x8000) == 0) {
+
+          if ((uVar8 & 0x10000) == 0) {
+
+            if ((uVar8 & 0x20000) != 0) {
+
+              uVar9 = 4;
+
+            }
+
+          }
+
+          else {
+
+            uVar9 = 3;
+
+          }
+
+        }
+
+        else {
+
+          uVar9 = 2;
+
+        }
+
+        if (uVar9 == 0xffffffff) goto LAB_08026e60;
+
+        if ((uVar8 & 0x40000) == 0) {
+
+          if ((uVar8 & 0x80000) == 0) {
+
+            if ((uVar8 & 0x100000) == 0) {
+
+              if ((uVar8 & 0x200000) == 0) {
+
+                if ((uVar8 & 0x400000) == 0) {
+
+                  if ((uVar8 & 0x800000) == 0) {
+
+                    kind = '\x02';
+
+                    if ((uVar8 & 0x1000000) != 0) {
+
+                      kind = '\b';
+
+                    }
+
+                  }
+
+                  else {
+
+                    kind = '\a';
+
+                  }
+
+                }
+
+                else {
+
+                  kind = '\x06';
+
+                }
+
+              }
+
+              else {
+
+                kind = '\x05';
+
+              }
+
+            }
+
+            else {
+
+              kind = '\x04';
+
+            }
+
+          }
+
+          else {
+
+            kind = '\x03';
+
+          }
+
+        }
+
+        else {
+
+          kind = '\x02';
+
+        }
+
+      }
+
+    }
+
+    if (uVar9 == 0xffffffff) goto LAB_08026e60;
+
+  }
+
+  pFVar4 = fx_allocEmitter(kind,0,uVar9 & 0xff);
+
+  if (pFVar4 != (FxEmitter *)0x0) {
+
+    pFVar4->target = actor;
+
+    pFVar4->field_0x3a = 0;
+
+    pFVar4->field_0x38 = '\x01';
+
+    if (uVar9 == 2) {
+
+      pFVar4->field_0x2a = 0xc;
+
+      uVar2 = 6;
+
+    }
+
+    else {
+
+      pFVar4->field_0x2a = 5;
+
+      uVar2 = 2;
+
+    }
+
+    pFVar4->field_0x28 = uVar2;
+
+    pFVar4->field_0x30 = 2;
+
+    pFVar4->field_0x36 = '\x04';
+
+    pFVar4->field_0x37 = actor->facing;
+
+    pFVar4->field_0x2e = pFVar4->field_0x2e | 0x180;
+
+    pFVar4->field_0x3c[1] = '\x1e';
+
+    pFVar4->field_0x3c[0] = '\x05';
+
+    pFVar4->field_0x3f = hand;
+
+    if (hand == '\0') {
+
+      iVar5 = 0x3003c10;
+
+    }
+
+    else {
+
+      iVar5 = 0x3003c14;
+
+    }
+
+    *(FxEmitter **)(uVar3 * 0x1ac + iVar5) = pFVar4;
+
+  }
+
+LAB_08026e60:
+
+  if (bVar10) {
+
+    sprite_setSlotFlag0(actor,hand);
+
+  }
+
+                    /* WARNING: Could not recover jumptable at 0x08026e80. Too many branches */
+
+                    /* WARNING: Treating indirect jump as call */
+
+  (*UNRECOVERED_JUMPTABLE)();
+
+  return;
+
+}
+
+
+
+

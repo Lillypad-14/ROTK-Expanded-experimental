@@ -1,0 +1,193 @@
+[Context] Operating on: rotk
+
+Decompiled function sprite_free:
+
+
+
+s32 sprite_free(Actor *actor)
+
+
+
+{
+
+  u16 uVar1;
+
+  byte bVar2;
+
+  char *pcVar3;
+
+  undefined4 uVar4;
+
+  s32 sVar5;
+
+  char cVar6;
+
+  u32 gfxSize;
+
+  u16 *puVar7;
+
+  uint uVar8;
+
+  int iVar9;
+
+  u16 *puVar10;
+
+  code *UNRECOVERED_JUMPTABLE;
+
+  
+
+  if (actor->type == ACTOR_TYPE_STORAGE_MAX) {
+
+    uVar4 = 0xffffffff;
+
+  }
+
+  else {
+
+    if ((int)(actor->flags).p < 0) {
+
+      func_0x0800c648(0,actor->recordGroup,actor->recordIndex);
+
+    }
+
+    func_0x080382a8(actor);
+
+    actor->type = ACTOR_TYPE_STORAGE_MAX;
+
+    bVar2 = (actor->oam).affineMode;
+
+    if ((bVar2 == 1) || (bVar2 == 3)) {
+
+      sprite_disableScale(actor);
+
+    }
+
+    if (((actor->flags).p & 0x100) == 0) {
+
+      gfxSize = actor->gfxSize;
+
+      if ((gfxSize != 0) && (puVar7 = &actor->tileNumber, *puVar7 != 0xffff)) {
+
+        bVar2 = actor->spriteFlags;
+
+        if ((bVar2 & 3) == 0) {
+
+          if ((g_SpriteFrameSubmitted == '\x01') &&
+
+             (sprite_freeObjTiles(*puVar7,gfxSize), (actor->spriteFlags & 0x40) != 0)) {
+
+            uVar8 = 0;
+
+            do {
+
+              puVar7 = (actor->sprite).slotTileNumbers + uVar8;
+
+              uVar1 = *puVar7;
+
+              if (uVar1 != 0xffff) {
+
+                puVar10 = (actor->sprite).slotGfxSizes + uVar8;
+
+                sprite_freeObjTiles(uVar1,(uint)*puVar10);
+
+                *puVar7 = 0xffff;
+
+                *puVar10 = 0;
+
+              }
+
+              uVar8 = uVar8 + 1;
+
+            } while (uVar8 < 4);
+
+          }
+
+        }
+
+        else if (g_SpriteFrameSubmitted == '\x01') {
+
+          if ((bVar2 & 1) == 0) {
+
+            uVar8 = (uint)actor->previousAnimationFrame;
+
+          }
+
+          else {
+
+            uVar8 = 0;
+
+          }
+
+          iVar9 = (uint)actor->spriteCellIndex * 0x2c;
+
+          pcVar3 = (char *)(iVar9 + iRam030019ec + 0x1e + uVar8);
+
+          cVar6 = *pcVar3;
+
+          if (cVar6 != '\0') {
+
+            cVar6 = cVar6 + -1;
+
+            *pcVar3 = cVar6;
+
+            uVar1 = *(u16 *)(iVar9 + iRam030019ec + 6 + uVar8 * 2);
+
+            if ((cVar6 == '\0') && (uVar1 != 0xffff)) {
+
+              sprite_freeObjTiles(uVar1,actor->gfxSize);
+
+              *puVar7 = 0xffff;
+
+              *(undefined2 *)(iVar9 + iRam030019ec + 6 + uVar8 * 2) = 0xffff;
+
+            }
+
+          }
+
+        }
+
+      }
+
+    }
+
+    if (actor->listId == ACTOR_LIST_MAIN) {
+
+      if (g_ActorListMain.tail == actor) {
+
+        g_ActorListMain.tail = actor->previous;
+
+      }
+
+      func_0x0803054c(&g_ActorPoolMainFreeList,&g_ActorListMain,actor);
+
+    }
+
+    else {
+
+      if (g_ActorListOverlay.tail == actor) {
+
+        g_ActorListOverlay.tail = actor->previous;
+
+      }
+
+      func_0x0803054c(&g_ActorPoolOverlayFreeList,&g_ActorListOverlay,actor);
+
+    }
+
+    uVar4 = 0;
+
+  }
+
+                    /* WARNING: Could not recover jumptable at 0x08000bba. Too many branches */
+
+                    /* WARNING: Treating indirect jump as call */
+
+  sVar5 = (*UNRECOVERED_JUMPTABLE)(uVar4);
+
+  return sVar5;
+
+}
+
+
+
+

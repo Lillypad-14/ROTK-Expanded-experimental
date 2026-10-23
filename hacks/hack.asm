@@ -29,6 +29,12 @@
 .if HACK_mod_options
     .include "hacks/patches/mod_options/mod_options.asm"
 .endif
+.if HACK_skill_expansion
+    .include "hacks/patches/skill_expansion/skill_expansion_hook.asm"
+.endif
+.if HACK_ringwraith
+    .include "hacks/patches/ringwraith/ringwraith_hook.asm"
+.endif
 .if . > MEM_HOOK_END+1
     .error "hook region overflow - raise the HOOK budget in hacks/layout.cfg"
 .endif
@@ -55,6 +61,9 @@
 .endif
 
 ; ------------------------------------ Patch Includes ------------------------------------
+.if HACK_test_arena
+    .include "hacks/patches/test_arena/test_arena.asm"
+.endif
 ; hookReplace/hookTrap/hookStub calls and in-place .org edits. The replacement bodies they name
 ; are C in the modcode, so these files write at game addresses only.
 .if HACK_fast_fade
@@ -86,6 +95,16 @@
 .if HACK_text_overrides
     .include "hacks/patches/text_overrides/text_overrides.asm"
 .endif
+.if HACK_skill_expansion
+    .include "hacks/patches/skill_expansion/skill_expansion.asm"
+.endif
+.if HACK_twists
+    .include "hacks/patches/twists/twists.asm"
+.endif
+.if HACK_ringwraith
+    .include "hacks/patches/ringwraith/ringwraith.asm"
+    .include "hacks/patches/ringwraith/wraith_gear.asm"
+.endif
 
 ; ---------------------------------- Data-Table Patches ----------------------------------
 ; Table patches generated from hacks/tables.c by rotkit hack tablepatch.
@@ -96,6 +115,12 @@
 ; ----------------------------------- Compiled C Code ------------------------------------
 .org MEM_MODCODE
     .incbin "build/modcode.bin"
+
+; ------------------------------------ Modcode Overlays -----------------------------------
+; Stock ROM rows copied into modcode tables, after the incbin that would overwrite them.
+.if HACK_ringwraith
+    .include "hacks/patches/ringwraith/wraith_gear_tables.asm"
+.endif
 
 ; ------------------------------------- ROM Padding --------------------------------------
 ; Pad the output to the 32 MiB ceiling (0x08000000..0x09ffffff). The patches can push the ROM past

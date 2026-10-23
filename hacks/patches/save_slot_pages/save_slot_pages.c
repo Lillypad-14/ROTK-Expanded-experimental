@@ -17,6 +17,13 @@
 #include "text.h"
 #include "variables.h"
 
+#if HACK_ringwraith
+#include "patches/ringwraith/ringwraith.h"
+#define HERO_SELECT_LAST_HERO (HACK_HERO_COUNT - 1)
+#else
+#define HERO_SELECT_LAST_HERO HERO_ID_SMEAGOL
+#endif
+
 // Page indicator ("@1/@2") on the load-game title row, top-right.
 #define PAGE_INDICATOR_X (240 - 24)
 #define PAGE_INDICATOR_Y 3
@@ -224,9 +231,10 @@ void saveSlotPages_moveCursor(void)
         // skip Sam and Smeagol until unlocked
         while (unlocked == 0)
         {
-            menu_moveCursorHorizontal(&SCENE_ARG_SAVE_LOAD_CURSOR, 0, HERO_ID_SMEAGOL, TRUE,
+            menu_moveCursorHorizontal(&SCENE_ARG_SAVE_LOAD_CURSOR, 0, HERO_SELECT_LAST_HERO, TRUE,
                                       ACTIVE_PLAYER_INDEX);
-            if (SCENE_ARG_SAVE_LOAD_CURSOR < HERO_ID_SAM)
+            if (SCENE_ARG_SAVE_LOAD_CURSOR < HERO_ID_SAM ||
+                SCENE_ARG_SAVE_LOAD_CURSOR > HERO_ID_SMEAGOL)
             {
                 break;
             }

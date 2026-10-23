@@ -1,0 +1,41 @@
+/**
+ * @romaddress 0x08021e30
+ */
+bool actor_enemySpawner_trySpawn(Actor *actor)
+{
+    u8 *idPtr;
+    u8 enemySpawnId;
+    u8 slot;
+    Actor *child;
+
+    if (actor->type == ACTOR_TYPE_ENEMY_SPAWNER)
+    {
+        MATCH_FRESH(idPtr, (u8 *)&actor->as.enemySpawner.enemySpawnId);
+    }
+    else
+    {
+        u8 roll = rng_mod(100);
+        u8 upper = 100 - actor->as.enemySpawner.field_0x96[4];
+        u8 lower = actor->as.enemySpawner.field_0x96[5];
+
+        if (roll > upper)
+            MATCH_FRESH(idPtr, (u8 *)&actor->as.enemySpawner.enemySpawnId);
+        else if (roll > lower && roll < upper)
+            MATCH_FRESH(idPtr, &actor->as.enemySpawner.field_0x96[0]);
+        else
+            MATCH_FRESH(idPtr, &actor->as.enemySpawner.field_0x96[2]);
+    }
+    enemySpawnId = *idPtr;
+    slot = actor_enemySpawner_findFreeChildSlot(actor);
+    if (slot == 4)
+        return FALSE;
+    child = actor_enemySpawner_spawnChild(enemySpawnId, actor);
+    if (child == NULL)
+        return FALSE;
+    actor->as.enemySpawner.children[slot] = child;
+    if (!actor->as.enemySpawner.unbudgeted)
+        actor->as.enemySpawner.budget--;
+    actor->as.enemySpawner.cap--;
+    return TRUE;
+}
+

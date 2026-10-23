@@ -1,4 +1,65 @@
-# Return of the King (GBA) RE / Decompilation / ROM Hacking
+# ROTK Expanded (experimental)
+
+An experimental content mod for _The Lord of the Rings: The Return of the King_ (GBA), built on top of the
+[lotr-gba-re/rotk](https://github.com/lotr-gba-re/rotk) decompilation and ROM hack framework.
+
+> [!important]
+> **All credit for the foundation goes to [RagingCactus](https://github.com/RagingCactus)** and the
+> [lotr-gba-re/rotk](https://github.com/lotr-gba-re/rotk) project: the reverse engineering, the byte-matched
+> decompilation, the `rotkit` toolkit, the modular hack build, and the original patches (extra save slots, mod
+> options, loot QoL, chapter select, fast fades, and more).
+> This repository adds experimental content on top of that work. Please support and contribute to the original project
+> and join the [LOTR GBA Discord community](https://discord.gg/yjHm8uf49e).
+> The upstream project has no license file, so its code remains RagingCactus's. This repository is shared for study
+> and community use with credit, and will be changed or taken down on request.
+
+## What this mod adds
+
+- **Second skill page for every hero.** Twelve active rows and eighteen passives per hero, with three color-coded
+  builds per page and a unique mechanic per hero:
+  - Aragorn, Frodo (Burden meter on the HUD), Sam ("Samwise's Garden"), Smeagol ("Gollum's Grip"),
+    Gimli ("The Tally"), Gandalf ("The Grey and the White", hold R to swap form), Legolas ("The Glint", timed
+    Overdraw release for True Shots).
+- **New playable heroes.** Ringwraith (hero 8, built from the Nazgul model, with its own gear) and Saruman
+  ("The Prism").
+- **Twists.** Playthrough modifier pages in the mod options.
+- **Debug cheats and Unlocks pages** for testing.
+- **Content toolkit** in `hacks/lib/`: FX kit (stock effects, recolors, sprite tints, custom PNG effects), combat
+  events, targeting, movement, status effects, timed zones, summons, HUD meters and cast timelines.
+- Engine and save changes needed for all of the above (skill system, skill tree screen, combat and per-frame hooks).
+
+Most of this is **untested on hardware and only lightly tested in emulators**. Expect bugs and balance problems.
+
+## Playing it
+
+1. Get `hack.bps` from the [latest release](../../releases/latest).
+2. You need your own legally dumped EU/US ROM (SHA-1 `ec3d126d37ea6e2ad7030d8a99cf87c6e46c03fd`).
+3. Apply the patch with [RomPatcher.js](https://www.marcrobledo.com/RomPatcher.js/) and play in mGBA or similar.
+
+No ROM or game art is included in this repository.
+
+## Building and modding
+
+Same as upstream: see [docs/setup.md](docs/setup.md), then `make hack` (ROM) or `make dist` (BPS).
+`dist` also needs [Flips](https://github.com/Sir-Walrus/Flips/releases).
+
+Guides for extending the mod:
+
+- [hacks/README.md](hacks/README.md): hook kinds and how patches are wired.
+- [docs/wip-docs/howto-heroes-skills.md](docs/wip-docs/howto-heroes-skills.md): adding hero skills and mechanics.
+- [docs/wip-docs/hacking-recipes.md](docs/wip-docs/hacking-recipes.md): reverse-engineering recipes and traps.
+- [docs/wip-docs/fx-catalog.md](docs/wip-docs/fx-catalog.md): the effect kit and what each stock effect looks like.
+- [docs/wip-docs/skill-tree.md](docs/wip-docs/skill-tree.md): per-hero designs, as-built notes and test lists.
+
+`docs/wip-docs/` is the raw working notebook: research notes, decomp candidates, compiler traces and logs. It is
+unpolished and partly out of date. ROM fragments and ripped sprite sheets were removed from it. Regenerate the sheets
+from your own ROM with `make carve` and the tools in `hacks/tools/`.
+
+---
+
+# Original project README (lotr-gba-re/rotk, by RagingCactus)
+
+The text below is the upstream README, written by RagingCactus. "I" and "my" refer to them.
 
 Reverse engineering, decompilation, and ROM hacking for the game _Lord of the Rings: The Return of the King_ on the Game Boy Advance.
 
