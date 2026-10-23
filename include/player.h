@@ -474,7 +474,14 @@ enum PlayerHudFlag
     PLAYERHUD_FLAG_POISON = 1 << 10,
     PLAYERHUD_FLAG_FEAR = 1 << 11,
     PLAYERHUD_FLAG_12 = 1 << 12, // set together with POISON/FEAR on status application
+
+    // The compass shows a blue count in char tiles from 0x4d, timed by field_0x79[0].
+    PLAYERHUD_FLAG_COMPASS_COUNT = 1 << 14,
+
     PLAYERHUD_FLAG_BOSS_BAR = 1 << 15, // the boss HP bar shows g_BossHpBarActor
+
+    // The compass shows the kingsfoil herb count in char tiles from 0x4d, timed by field_0x79[0].
+    PLAYERHUD_FLAG_HERB_COUNT = 1 << 16,
 };
 
 /** PlayerHud.flags; matched code tests the PLAYERHUD_FLAG_* masks on the word view instead. */

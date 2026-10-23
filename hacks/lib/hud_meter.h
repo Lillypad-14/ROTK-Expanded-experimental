@@ -10,10 +10,11 @@
 #define HACKLIB_HUD_BG 0
 
 // Gap between the HP and Spirit bars on HUD row 18, and 9 free tiles of the HUD char block.
+// Tiles 0x4d..0x55 look free but the compass herb and item counts draw their digits there.
 #define HACKLIB_HUD_GAP_X 11
 #define HACKLIB_HUD_GAP_Y 18
 #define HACKLIB_HUD_GAP_WIDTH 8
-#define HACKLIB_HUD_FREE_TILE 0x4d
+#define HACKLIB_HUD_FREE_TILE 0x62
 #define HACKLIB_HUD_FREE_TILE_COUNT 9
 
 // HUD palette bank 0 colors (the stock bars use these).

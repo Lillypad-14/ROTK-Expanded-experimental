@@ -72,7 +72,13 @@ Output: `build/rotk_hack.gba`. mGBA locks the ROM it has open, so copy to a new 
   x 27..29 skill icon frame. Row 19 is the dark text strip (tiles 5..0xe, 0x50).
 - Bar tile style: row 0 gold top (colors 2..4), rows 1..5 dithered fill (HP 7/8/9, Spirit 10/11/12),
   row 6 dark gold (4), row 7 near black (6). Empty fill is color 6.
-- Free char-3 tiles: 0x4d..0x55 (9 tiles between the frame 0x44..0x4c and the skill icon 0x56).
+- HUD meter tiles: 0x62..0x6a (HACKLIB_HUD_FREE_TILE). VRAM dumps in gameplay (2026-10-23, Aragorn,
+  through a full herb count) show 0x62..0xff blank and unreferenced. Char tiles stop at 0xff because
+  screen block 28 starts at 0x0600E000.
+- 0x4d..0x55 look free but are NOT: the compass herb count (PLAYERHUD_FLAG_HERB_COUNT, also on Herbal
+  Healing at full HP) and item count (PLAYERHUD_FLAG_COMPASS_COUNT) draw digits into 0x4d..0x4f and
+  point compass column 28 at them for ~20 HUD ticks. A meter there garbles both.
+- BGCNT in gameplay: BG0 0x1d0c, BG1 0x1c03 (char base 0, not 3), BG2 0x1e09, BG3 0x1f02.
   0x0f..0x27 are blank too but may belong to the text area, avoid them.
 - BG palette bank 0 = HUD colors (enum HackLibHudColor in hacks/lib/hud_meter.h). Bank 1 = skill icon
   panel (8..13 swapped by skillExpansion_hudUpdateSkillPalette). Bank 2 = BG1 pattern. Banks 3..15 are
@@ -130,8 +136,8 @@ Recipe for another hero's meter:
 2. Call it from `skillExpansion_tickHud` next to the Frodo call (it already gates on gameplay, active
    player, no overlay).
 3. One meter per hero fits the gap (8 tiles of the 9 free). A second meter at the same time needs
-   another free strip: shrink both to 4 tiles each (`HackLibHudMeter{x, y, 4, 0x4d}` and `{x+4, y, 4,
-   0x51}`) or find more free tiles first (dump VRAM, check they stay blank across levels and menus).
+   another strip: shrink both to 4 tiles each (`HackLibHudMeter{x, y, 4, 0x62}` and `{x+4, y, 4,
+   0x66}`) or take tiles from 0x6b..0xff (dumped blank, see "Gameplay HUD layout").
 Traps: the drawer writes VRAM directly (no DMA queue), fine in the HUD tick. Only draw in
 SCENE_ID_GAMEPLAY without overlay, the menus reuse char block 3. Hidden meter = stop calling it, but
 then the map keeps our tiles until the HUD reloads, so restore gap tiles 1..4 (h-flip 0x400 for the right

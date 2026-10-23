@@ -1,5 +1,7 @@
 # ROM Hack - End User Documentation
 
+This guide describes the original Vanilla+ mod. For this fork's added heroes, skill pages, authoring tools and testing limits, see the [Expanded change overview](expanded-changes.md) and [community documentation](README.md). The upstream release link below refers to the original project's patches.
+
 If you encounter issues with the ROM hack or have suggestions, feel free to open an issue or a discussion on this repository or visit the [**LOTR GBA Discord community**](https://discord.gg/yjHm8uf49e).
 
 See the [changelog](./romhack-changelog.md) for more information about what changed between ROM hack releases.

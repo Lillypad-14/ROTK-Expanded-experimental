@@ -5,6 +5,7 @@ The checks compile actual kit C code with host stubs for native combat, graphics
 
 Coverage includes:
 
+- Frodo: corruption tier boundaries and the 100-to-60 Claim It transition, restored Spirit costs, death cleanup for shadow tint, held Ring, Phial and temporary strike state, and preservation of living characters' Burden during cleanup.
 - Sam: levels 1..5 for planting, stew healing/duration and parry damage/duration; Green Thumb, Master Gardener, Stubborn, Fine Seasoning, Lembas Crumbs, Shire Grit, Taters for All and the emergency heal; failed targets and missed-hit secondary effects.
 - Smeagol: levels 1..5 for Play Dead, Catch a Fish capacity, Throttle and Slink duration; stealth cleanup, the follow-up strike, failed targets/landings, grip passives, takeover/free-state rewards and bait visual reuse.
 - Aragorn: levels 1..5 for Mark, Flame, Ambush and Return duration; Return level/cost restoration, mark target reuse, King's Presence, Blade Reforged and Hands of the King scaling.
@@ -19,4 +20,4 @@ These measurements use debug-controlled test state.
 
 Host checks do not validate every native animation, hit roll, equipment combination, map, co-op interaction or visual lifetime.
 The suite does not certify all characters or all stock moves.
-Full ROM reconstruction also requires the repository's missing `agbcc` compiler.
+Full ROM reconstruction requires the matching `agbcc` compiler described in [setup](setup.md). Its local availability is separate from these host checks.

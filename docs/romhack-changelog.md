@@ -1,5 +1,7 @@
 # ROM Hack - Changelog
 
+This is the original mod's release history. For the experimental expansion's source-tree features and fixes, see the [Expanded change overview](expanded-changes.md). Repository content can differ from published release patches.
+
 ## 2026.09.14 - Memory Management Fixes
 
 This version should contain no user-facing changes.

@@ -15,7 +15,7 @@ An experimental content mod for _The Lord of the Rings: The Return of the King_ 
 
 ## What this mod adds
 
-- **Second skill page for every hero.** Twelve active rows and eighteen passives per hero, with three color-coded
+- **Second skill page for every hero except Eowyn** (hers is not built yet). Twelve active rows and eighteen passives per hero, with three color-coded
   builds per page and a unique mechanic per hero:
   - Aragorn, Frodo (Burden meter on the HUD), Sam ("Samwise's Garden"), Smeagol ("Gollum's Grip"),
     Gimli ("The Tally"), Gandalf ("The Grey and the White", hold R to swap form), Legolas ("The Glint", timed
@@ -29,6 +29,37 @@ An experimental content mod for _The Lord of the Rings: The Return of the King_ 
 - Engine and save changes needed for all of the above (skill system, skill tree screen, combat and per-frame hooks).
 
 Most of this is **untested on hardware and only lightly tested in emulators**. Expect bugs and balance problems.
+
+## Heroes
+
+Each hero below has a second skill page with three builds and a mechanic of its own. Eowyn keeps her stock kit for now. Full rundowns with every skill are in
+**[docs/heroes.md](docs/heroes.md)**.
+
+| Hero | Mechanic | In short |
+| --- | --- | --- |
+| [Aragorn](docs/heroes.md#aragorn) | Flame of Anduril | Hits, stuns and marks fill a Flame bar that powers the King's abilities. |
+| [Frodo](docs/heroes.md#frodo) | Burden | The Ring's corruption is a HUD meter: power that rises in combat and carries between zones. |
+| [Sam](docs/heroes.md#sam) | Samwise's Garden | Plant taters and brambles that grow and ripen. Ripe taters pelt foes, harvests restore Spirit. |
+| [Smeagol](docs/heroes.md#smeagol) | Gollum's Grip | Fill Grip to 100 and Gollum takes over for two seconds at double damage. |
+| [Gimli](docs/heroes.md#gimli) | The Tally | Page 2 is bought with kills. Every 10 kills charges a free, stronger cast. |
+| [Gandalf](docs/heroes.md#gandalf) | The Grey and the White | Hold R to swap form. Grey saves Spirit, White burns it for +30% power. |
+| [Legolas](docs/heroes.md#legolas) | The Glint | Release Overdraw on the glint for a True Shot and chain a five-shot streak. |
+| [Ringwraith](docs/heroes.md#ringwraith) | Dread | **New hero.** Terrify foes and raise the slain as thralls. Own skills and gear. |
+| [Saruman](docs/heroes.md#saruman) | The Prism | **New hero.** Spells add three colors. A full Prism refracts the next spell at half cost. |
+
+## Community documentation
+
+Start at the [documentation index](docs/README.md) for player, contributor and testing guides.
+
+- [Heroes](docs/heroes.md): every hero's idea, mechanic and skills.
+- [Engine changes](docs/engine-changes.md): hooks, memory and save layout, the skill system and the combat system.
+- [Pipeline](docs/pipeline.md): from Ghidra to byte matching, patch building, testing and release.
+- [Expansion changes](docs/expanded-changes.md): hero content, engine systems, tooling and known testing limits.
+- [Decompilation status](docs/decompilation.md): what the counts mean and how byte verification works.
+- [Source inventory](docs/source-inventory.md): every original-game C file, mapped function without C, reconstructed data region, mod patch and authoring tool.
+- [Contributing](CONTRIBUTING.md): development checks, documentation updates and useful bug reports.
+
+The inventory can be regenerated with `uv run python tools/documentation_inventory.py` without a ROM.
 
 ## Playing it
 
@@ -51,7 +82,7 @@ Guides for extending the mod:
 - [docs/wip-docs/fx-catalog.md](docs/wip-docs/fx-catalog.md): the effect kit and what each stock effect looks like.
 - [docs/wip-docs/skill-tree.md](docs/wip-docs/skill-tree.md): per-hero designs, as-built notes and test lists.
 
-`docs/wip-docs/` is the raw working notebook: research notes, decomp candidates, compiler traces and logs. It is
+For maintained entry points, use the [documentation index](docs/README.md). `docs/wip-docs/` is the inherited raw working notebook: research notes, decomp candidates, compiler traces and logs. It is
 unpolished and partly out of date. ROM fragments and ripped sprite sheets were removed from it. Regenerate the sheets
 from your own ROM with `make carve` and the tools in `hacks/tools/`.
 
