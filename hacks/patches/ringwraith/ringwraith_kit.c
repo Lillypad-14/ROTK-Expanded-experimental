@@ -7,6 +7,7 @@
 #include "lib/fx_kit.h"
 #include "lib/fx_sprites.h"
 #include "lib/movement.h"
+#include "lib/skill_fx.h"
 #include "lib/status.h"
 #include "lib/timer.h"
 #include "memory.h"
@@ -72,6 +73,11 @@
 #define FELL_BEAST_DAMAGE_PER_LEVEL 7
 #define FELL_BEAST_DREAD 50
 #define FELL_BEAST_STUN_FRAMES 40
+#define FELL_BEAST_DIVE_FRAMES 44
+#define FELL_BEAST_START 180
+#define FELL_BEAST_SPEED 8
+#define FELL_BEAST_LEAD 32
+#define FELL_BEAST_PIECES 4
 
 // No Living Man
 #define MALICE_BASE_FRAMES 180
@@ -250,6 +256,9 @@ typedef struct RingwraithState
 
     // TRUE while a heal or Spirit gain of the kit applies
     u8 allowGain;
+
+    // TRUE while the game heals every player to full for a fresh scene start
+    u8 fullHeal;
 
     // TRUE while a melee blow from The Unseen World resolves
     u8 unseenStrike;
@@ -878,6 +887,7 @@ static void limitStartSpirit(u8 playerIndex)
     if (PLAYER(playerIndex).currentSpirit > start)
     {
         PLAYER(playerIndex).currentSpirit = start;
+        g_PlayerHuds[playerIndex].flags.p |= PLAYERHUD_FLAG_SPIRIT_DIRTY;
     }
 }
 
@@ -940,6 +950,16 @@ static void tickBladeGlow(RingwraithState *st, Actor *playerActor)
     if (left != 0 && left % BLADE_SPARK_INTERVAL == 0)
     {
         spawnBladeSpark(playerActor);
+    }
+}
+
+void ringwraith_kitSetFullHeal(bool32 on)
+{
+    u32 p;
+
+    for (p = 0; p < 2; p++)
+    {
+        states[p].fullHeal = on;
     }
 }
 
@@ -1318,7 +1338,7 @@ void ringwraith_addHp(u32 playerIndex, s32 delta, u32 flinchOnDamage)
     }
     if (amount > 0)
     {
-        if (states[p].allowGain || PLAYER(p).currentHp <= 0)
+        if (states[p].allowGain || states[p].fullHeal || PLAYER(p).currentHp <= 0)
         {
             skillExpansion_original_player_addHp(p, amount, flinchOnDamage);
         }
@@ -1391,6 +1411,8 @@ void ringwraith_addSpirit(u32 playerIndex, s32 delta)
 
     if (ringwraith_isHero(p) && amount > 0 && !states[p].allowGain)
     {
+        // The refused gain still redraws the meter, so a respawn shows the Spirit the wraith has.
+        g_PlayerHuds[p].flags.p |= PLAYERHUD_FLAG_SPIRIT_DIRTY;
         return;
     }
     ringwraith_original_player_addSpirit(p, amount);
@@ -1489,26 +1511,126 @@ static void unseenWorld(Actor *playerActor)
     }
 }
 
+static s32 fellBeastBand(u8 playerIndex)
+{
+    return hasUnique(playerIndex, WRAITH_UNIQUE_FELL_BEAST_SADDLE)
+               ? FELL_BEAST_BAND * SADDLE_BAND_MULTIPLIER
+               : FELL_BEAST_BAND;
+}
+
+static void fellBeastStrike(Actor *playerActor, Actor *foe, s32 damage)
+{
+    u8 p = playerActor->as.combat.playerIndex;
+
+    skillExpansion_applyPveRangedHit(playerActor, foe, damage);
+    addDread(p, foe, hasUnique(p, WRAITH_UNIQUE_FELL_BEAST_SADDLE) ? DREAD_MAX : FELL_BEAST_DREAD);
+    stun(foe, FELL_BEAST_STUN_FRAMES);
+    hackLib_fxBurst(foe, FX_SHAPE_STREAK_RAIN, FX_COLOR_NIGHT, FX_LAYER_FRONT);
+}
+
+/**
+ * One piece of the beast, which is cut into FELL_BEAST_PIECES effect layers. The piece's actor
+ * carries the dive: venomDuration frames left, storedDamage the hit damage, playerIndex the wraith,
+ * comboState[0] the direction (1 right) and comboState[1] the piece. Piece 0 strikes the foes the
+ * beast passes over this tick, within its band, once each.
+ */
+static void tickFellBeast(Actor *fx)
+{
+    u8 p = fx->as.combat.playerIndex;
+    Actor *owner = p < 2 ? PLAYER(p).ownerActor : NULL;
+    s32 dir = fx->as.combat.comboState[0] ? 1 : -1;
+    s32 band = fellBeastBand(p);
+    s32 from;
+    s32 to;
+    Vector2Fp16 pos = fx->coords;
+    Actor *foe = NULL;
+
+    if (--fx->as.combat.venomDuration <= 0 || owner == NULL)
+    {
+        hackLib_fxRemove(fx);
+        return;
+    }
+    if (fx->flags.p & ACTOR_FLAG_ANIMATION_END)
+    {
+        fx->flags.p &= ~ACTOR_FLAG_ANIMATION_END;
+        sprite_setAnimationFrame(fx, 0);
+    }
+    from = (pos.x >> 16) + dir * FELL_BEAST_LEAD;
+    pos.x += dir * (FELL_BEAST_SPEED << 16);
+    to = (pos.x >> 16) + dir * FELL_BEAST_LEAD;
+    hackLib_fxDetach(fx, &pos);
+    while (fx->as.combat.comboState[1] == 0 && (foe = findNextEnemy(owner, foe)) != NULL)
+    {
+        s32 x = foe->coords.x >> 16;
+        s32 dy = (foe->coords.y - pos.y) >> 16;
+
+        if (skillExpansion_isFoe(foe) && dy <= band && dy >= -band &&
+            (dir > 0 ? x > from && x <= to : x < from && x >= to))
+        {
+            fellBeastStrike(owner, foe, fx->as.combat.storedDamage);
+        }
+    }
+    if (fx_tickAttachment(fx))
+    {
+        hackLib_fxRemove(fx);
+    }
+}
+
+/** The beast diving across the screen, or NULL when its first piece found no effect actor. */
+static Actor *spawnFellBeast(Actor *playerActor, s32 dir, s32 damage)
+{
+    HackLibEffectHandle handle = {0};
+    Vector2Fp16 start = playerActor->coords;
+    u32 piece;
+
+    start.x -= dir * (FELL_BEAST_START << 16);
+    hackLib_playEffect(dir > 0 ? HACKLIB_EFFECT_FELL_BEAST_RIGHT : HACKLIB_EFFECT_FELL_BEAST_LEFT,
+                       playerActor, &start, &handle);
+    if (!hackLib_isActorRefValid(handle.actors[0]))
+    {
+        hackLib_stopEffect(&handle);
+        return NULL;
+    }
+    for (piece = 0; piece < FELL_BEAST_PIECES; piece++)
+    {
+        Actor *fx = handle.actors[piece].actor;
+
+        if (!hackLib_isActorRefValid(handle.actors[piece]))
+        {
+            continue;
+        }
+        fx->as.combat.venomDuration = FELL_BEAST_DIVE_FRAMES;
+        fx->as.combat.storedDamage = damage;
+        fx->as.combat.playerIndex = playerActor->as.combat.playerIndex;
+        fx->as.combat.comboState[0] = dir > 0;
+        fx->as.combat.comboState[1] = piece;
+        fx->tickCallback = tickFellBeast;
+    }
+    return handle.actors[0].actor;
+}
+
 static void fellBeast(Actor *playerActor)
 {
     u8 p = playerActor->as.combat.playerIndex;
     s32 damage = FELL_BEAST_BASE_DAMAGE + FELL_BEAST_DAMAGE_PER_LEVEL * castLevel(p);
-    bool32 saddle = hasUnique(p, WRAITH_UNIQUE_FELL_BEAST_SADDLE);
-    s32 band = saddle ? FELL_BEAST_BAND * SADDLE_BAND_MULTIPLIER : FELL_BEAST_BAND;
+    s32 band = fellBeastBand(p);
+    s32 dir = playerActor->facing >= DIRECTION8_SOUTHWEST && playerActor->facing <= DIRECTION8_NORTHWEST ? -1 : 1;
     Actor *foe = NULL;
 
     sfx_play(EnemySfxSets[ENEMY_TYPE_NAZGUL].attackSfx);
     castFx(playerActor, FX_SHAPE_SHOCKWAVE_ALT, FX_COLOR_NIGHT, FX_LAYER_BEHIND);
+    if (spawnFellBeast(playerActor, dir, damage) != NULL)
+    {
+        return;
+    }
+    // No effect actor was free, so the strike lands at once.
     while ((foe = findNextEnemy(playerActor, foe)) != NULL)
     {
         s32 dy = (foe->coords.y - playerActor->coords.y) >> 16;
 
         if (skillExpansion_isFoe(foe) && dy <= band && dy >= -band)
         {
-            skillExpansion_applyPveRangedHit(playerActor, foe, damage);
-            addDread(p, foe, saddle ? DREAD_MAX : FELL_BEAST_DREAD);
-            stun(foe, FELL_BEAST_STUN_FRAMES);
-            hackLib_fxBurst(foe, FX_SHAPE_STREAK_RAIN, FX_COLOR_NIGHT, FX_LAYER_FRONT);
+            fellBeastStrike(playerActor, foe, damage);
         }
     }
 }

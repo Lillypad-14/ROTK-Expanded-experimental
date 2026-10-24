@@ -95,6 +95,9 @@ enum HackLibFxLayer
     FX_LAYER_FRONT = 1,
 };
 
+/** Most live effects before new requests are refused, 0 for no limit. */
+extern u8 hackLib_fxCap;
+
 /** One-shot effect on an actor. It follows the actor and despawns when its animation ends. */
 Actor *hackLib_fxBurst(Actor *on, u8 shape, HackLibFxColor color, u8 layer);
 

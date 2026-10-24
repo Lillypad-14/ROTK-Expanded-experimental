@@ -67,6 +67,10 @@ Add/sub immediates only -255..255; `cmp` immediate only 0..255 (`x == 256` -> `m
 **Literal pool** (`thumb_reorg`, mach): scans for constants failing the immediate constraints, finds the FIRST barrier within 1000 bytes, rewrites them to `ldr [pc]`, and dumps one table after the barrier (synthesizing a `b`-around barrier if none is near).
 Identical constants in one dump share an entry; a function's constants can land in several dumps; HImode pool constants widen to SImode.
 
+A loop-invariant mask computed inside a conditional loop arm can share its constant pseudo with packed-field operations before loop hoisting.
+Moving the mask expression into the preheader can split that quantity, reduce its allocation priority and spill the loop's constant.
+Check loop/galloc dumps before pinning a rematerialized mask.
+
 **Out-of-range immediate forces a copy.** Thumb's 3-operand `adds rd, rs, #imm` only reaches imm3, so `b = a + C` with C larger and `b != a` lowers to `adds rd, rs, #0; adds rd, #C`.
 Two distinct locals keep that register copy; the single-variable `x += C` spelling folds it away.
 A ROM `lsls rT, ..; adds rD, rT, #0; adds rD, #C` is therefore a two-local source, not a barrier candidate.

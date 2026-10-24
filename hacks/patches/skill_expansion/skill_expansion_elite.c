@@ -29,6 +29,10 @@
 #if HACK_twists
 #include "patches/twists/twists.h"
 #endif
+#if HACK_gauntlet
+#include "patches/gauntlet/gauntlet.h"
+#include "patches/gauntlet/gauntlet_boons.h"
+#endif
 #if HACK_debug_cheats
 #include "patches/debug_cheats/debug_cheats.h"
 #include "patches/debug_cheats/debug_lab.h"
@@ -1027,6 +1031,9 @@ s32 skillExpansion_computePveDamage(Actor *attacker, Actor *victim, bool crit)
 #if HACK_twists
     damage = twists_damageDealt(p, damage);
 #endif
+#if HACK_gauntlet
+    damage = gauntlet_damageDealt(p, victim, damage);
+#endif
 #if HACK_debug_cheats
     damage = debugCheats_meleeDamage(victim, damage);
 #endif
@@ -1149,6 +1156,9 @@ static bool resolveMeleeHit(Actor *attacker, Actor *victim)
 #endif
 #if HACK_twists
     twists_combatEvent(p, &event);
+#endif
+#if HACK_gauntlet
+    gauntlet_combatEvent(p, &event);
 #endif
     st->ambushStrike = FALSE;
     st->patienceFrames = 0;
@@ -1317,6 +1327,9 @@ static HackLibDamageResult resolveRangedHit(Actor *attacker, Actor *victim, u16 
 #if HACK_twists
     baseDamage = twists_damageDealt(p, baseDamage);
 #endif
+#if HACK_gauntlet
+    baseDamage = gauntlet_damageDealt(p, victim, baseDamage);
+#endif
     hit = skillExpansion_original_combat_applyPveRangedHit(attacker, victim, baseDamage);
     result = hackLib_damageResult(hpBefore, victim->currentHp, hit);
     HackLibCombatEvent event = hackLib_captureCombatEvent(attacker, victim, result, FALSE);
@@ -1325,6 +1338,9 @@ static HackLibDamageResult resolveRangedHit(Actor *attacker, Actor *victim, u16 
 #endif
 #if HACK_twists
     twists_combatEvent(p, &event);
+#endif
+#if HACK_gauntlet
+    gauntlet_combatEvent(p, &event);
 #endif
     dispatchCombatEvent(p, &event);
     if (hit)
@@ -1421,6 +1437,12 @@ bool skillExpansion_resolveEnemyAttackOnPlayer(Actor *attacker, Actor *victim)
         twists_enemyHitResolved(p, hpBefore);
     }
 #endif
+#if HACK_gauntlet
+    if (playerVictim)
+    {
+        gauntlet_enemyHitResolved(p, hpBefore);
+    }
+#endif
     HackLibDamageResult result =
         hackLib_damageResult(hpBefore, playerVictim ? PLAYER(p).currentHp : 0, hit);
     if (resolution.observed && hit)
@@ -1469,6 +1491,9 @@ void skillExpansion_playerTick(Actor *actor)
 #endif
 #if HACK_twists
         twists_playerTick(actor->as.combat.playerIndex);
+#endif
+#if HACK_gauntlet
+        gauntlet_playerTick(actor->as.combat.playerIndex);
 #endif
     }
     skillExpansion_original_actor_player_tick(actor);

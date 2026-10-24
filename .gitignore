@@ -34,3 +34,9 @@ hacks/compile_flags.txt
 # LLM MCP information
 .mcp.json
 
+# Fell Beast effect sheets, generated from the stock flying Nazgul by hacks/tools/fell_beast_art.py
+/hacks/content/fx/fell_beast_*.png
+
+# Ripped effect sprites and local saves
+/x/
+/rotk.sav

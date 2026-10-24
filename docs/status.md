@@ -31,14 +31,14 @@ A starting point for anyone picking up ROTK Expanded from this repository. Last 
 | Saruman (hero 9) | Spell visual rework, ground shockwave and balance pass built. In-game check of every spell pending. |
 | Twists, Debug, Unlocks pages | Done. See [mod-options.md](mod-options.md). |
 | Engine health | Hero state ownership checks, heap Room telemetry and BSS guard words. The sweep reports all of them. |
-| Performance | Mod overhead is about 4-5% of CPU in busy fights, roughly offset by `fast_waitstates`. The remaining slowdown is stock sprite, collision and actor code. |
+| Performance | `fast_obj_tiles` improves native tile-search work within its existing IWRAM buffer. Measured stress-test gains are modest and scene-dependent. See [performance](performance.md). |
 | Decompilation | See [decomp-handoff.md](decomp-handoff.md) and [decompilation.md](decompilation.md). |
 
 ## Next Steps
 
 - Playtest Gandalf, Legolas and Saruman page 2 against the test lists in `docs/wip-docs/skill-tree.md`.
 - The actor dispatcher and `sprite_commitGfx` are byte-matched.
-  Finish `sprite_composeOam` and its frame-composition helper, verify safe IWRAM placement, then benchmark the relocated code.
+  The frame-composition helper is matched (884 bytes). Finish `sprite_composeOam`, verify safe IWRAM placement, then benchmark the relocated code.
   See [performance groundwork](decompilation.md#actor-and-sprite-performance-groundwork).
 - Keep [heroes.md](heroes.md) and the README hero table in step when a hero's mechanic changes.
 

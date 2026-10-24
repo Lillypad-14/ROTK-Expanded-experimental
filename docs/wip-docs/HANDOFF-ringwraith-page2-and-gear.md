@@ -117,3 +117,26 @@ Pillar/ledge spawns (enemy spawner variant 1/2) start in behaviorState 0x2f with
 Ghost/thrall NPCs are `NPC_KIND_SIEGE_B` (0x1a), spawned by `spawnNpc` 0x08035864. Their collision trigger callback 0x08016354 calls `combat_applyPveRangedHit(owner, victim, ghost damage byte)`, so thrall hits run the player's on-hit wrappers with the owner as attacker (resolves assumption 3).
 
 Gear reference: `ringwraith-gear.md`.
+
+## Session 2026-10-24 (ROMs v12 to v24, all untested in game unless marked)
+
+Latest ROM: `Desktop/lotr/ROTK-Mod-Ringwraith-v24.gba`. Next is -v25.
+
+| ROM | Change |
+| --- | --- |
+| v12/v13 | Page 2 passives turned the menu blue after a purchase. `tintTileForBuild` tinted the shared drawn bank 4 for stock-icon tiles with no build, so the last drawn tile recolored the whole page. Those tiles now get their own bank 15 (`NO_BUILD_PALETTE`, skill_expansion_tree.c). Build banks use 9..14, icon color groups 9..14: a page mixing build-tinted stock icons with own-color icons still collides. |
+| v14 to v16, v24 | Icons. All 29 wraith skills use user art from `new icons/Wraithimproved.png`, `Wraithimproved2.png`, `Wraithimproved3.png`, then `Wraithbreath.png` and `Wraithsword.png`. Page 1 passives now carry `RINGWRAITH_ICON(...)` too. See the icon notes in howto-heroes-skills.md. Backups: `Desktop/lotr/icon-backup-ringwraith*`. |
+| v17 | Respawn HP (verified by the user). The wraith's `player_addHp` refuses gains, and the stock full heal (`scene_gameplay_healAllPlayers`, 0x08032434, modes 4..7) is a plain addHp(max). `ringwraith_healAllPlayers` sets `fullHeal` around it. |
+| v18 | Thralls. `ringwraith_tickThrall` drops a swing when the target dies or drifts past reach + 16 px (reach is byte 0x92 of the ghost record). The stock ghost holds still until the swing animation ends. |
+| v19 to v22 | Fell Beast dive. See fx-catalog.md. Four pieces, `tickFellBeast`, instant sweep fallback. |
+| v20 | Burden (corruption) now clears on a save load. skill_expansion.asm removed the stock resets so Burden carries between zones, which also carried it across loads. Done in the same heal hook. |
+| v21, v23 | Spirit HUD. A refused Spirit gain and `limitStartSpirit` changed Spirit without `PLAYERHUD_FLAG_SPIRIT_DIRTY`, so the bar showed the old value until the next change. |
+
+Test checklist:
+1. Open both tree pages after buying passives on page 2: colors must not change.
+2. Die and reload: full health, Burden 0, Spirit bar a quarter (full with Ringbound) on the first frame.
+3. Fell Beast facing left and right: size, direction (the left and right sheets may be swapped), one hit per foe, slowdown with four effect actors.
+4. Kill a foe next to a thrall: it should turn on the next foe at once.
+5. Every icon on both pages and in the HUD while casting.
+
+Known limits: `make test-arena` fails the BSS link, because the mod's RAM (`MODCODE_BSS`) has no spare bytes, so the arena sweep cannot run. Thralls with no foe within about 160 px idle (stock leash).

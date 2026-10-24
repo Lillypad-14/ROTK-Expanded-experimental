@@ -65,7 +65,12 @@ hack-text-overrides:
 	uv run rotkit hack text-overrides --patches "$(SEL)"
 
 .PHONY: hack-heroes hack-fx check-fx
-hack-fx:
+# Fell Beast sheets are cut from the stock flying Nazgul, so they are generated and never committed.
+FELL_BEAST_SHEETS := hacks/content/fx/fell_beast_palette.png
+$(FELL_BEAST_SHEETS): hacks/tools/fell_beast_art.py rotk.gba
+	uv run python hacks/tools/fell_beast_art.py > /dev/null
+
+hack-fx: $(FELL_BEAST_SHEETS)
 	uv run python hacks/tools/skill_fx.py
 	uv run python hacks/tools/cast_timelines.py
 	uv run python hacks/tools/skill_deliveries.py

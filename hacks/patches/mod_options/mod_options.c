@@ -36,6 +36,9 @@
 #if HACK_twists
 #include "patches/twists/twists.h"
 #endif
+#if HACK_experimental
+#include "patches/experimental/experimental.h"
+#endif
 #if HACK_demo_pages
 #include "patches/demo_pages/demo_pages.h"
 #endif
@@ -91,6 +94,10 @@ static const struct ModOptionsPage ModOptionsPages[] = {
     {"Ability Bench", AbilityBenchOptions, ABILITY_BENCH_OPTION_COUNT, NULL},
     {"Delivery Test", DeliveryPreviewOptions, DELIVERY_PREVIEW_OPTION_COUNT, NULL},
     {"Effect Preview", EffectPreviewOptions, EFFECT_PREVIEW_OPTION_COUNT, NULL},
+#endif
+#if HACK_experimental
+    {"Performance", ExperimentalOptions, EXPERIMENTAL_OPTION_COUNT, NULL},
+    {"Performance 2", ExperimentalOptions2, EXPERIMENTAL_OPTION2_COUNT, NULL},
 #endif
 #if HACK_demo_pages
     {"Demo Page A", DemoPagesFirstOptions, DEMO_PAGES_FIRST_OPTION_COUNT, NULL},

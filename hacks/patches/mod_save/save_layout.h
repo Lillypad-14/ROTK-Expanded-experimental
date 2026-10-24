@@ -63,7 +63,9 @@ union GlobalModOptionsArea {
         u8 lootQolState; // loot_qol: struct LootQolState overlays this byte
         u8 debugCheatsState; // debug_cheats: struct DebugCheatsState overlays this byte
         u8 twistsState[17]; // twists: struct TwistsState overlays these bytes
-        u8 reserved[GLOBAL_MOD_OPTIONS_SIZE - 19];
+        u8 experimentalState[2]; // experimental: struct ExperimentalState overlays these bytes
+        u8 gauntletState[24]; // gauntlet: struct GauntletMeta overlays these bytes
+        u8 reserved[GLOBAL_MOD_OPTIONS_SIZE - 45];
     } d;
 };
 

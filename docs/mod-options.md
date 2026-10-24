@@ -14,6 +14,8 @@ saved in the global mod options area and apply to every save slot.
 | Twists: Combat | Damage modifiers. See below. |
 | Twists: Vigor | Healing and resource modifiers. See below. |
 | Twists: Fate | XP and random events. See below. |
+| Performance | Off-by-default performance experiments. See [performance](performance.md#experimental-audio). |
+| Performance 2 | Effect Cap. See [performance](performance.md#effect-cap). |
 | Combat Lab | Combat display and test encounters. See [test arena](test-arena.md). |
 | Ability Bench | Cast any skill at any level. See [Ability Bench](ability-bench.md). |
 | Delivery Test | Fire projectile and effect deliveries. See [skill deliveries](skill-deliveries.md). |

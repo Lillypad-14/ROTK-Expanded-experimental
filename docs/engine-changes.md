@@ -209,6 +209,30 @@ makes room for hero ids 8 (Ringwraith) and 9 (Saruman):
   `ItemTypeInfos` rows point at extended tables. The stock rows are copied from the ROM and the wraith rows are
   appended after them.
 
+## Scene start and respawn
+
+`scene_gameplay_enter` calls `scene_gameplay_healAllPlayers` (0x08032434) for the start modes that heal everyone
+(save load, bonus map and co-op level select launches). The `ringwraith` patch hooks it, because two things need
+fixing around that call:
+
+- **Full heal.** The wraith's `player_addHp` refuses every gain except its own drains, so the stock heal left it at
+  its old health. The hook raises a `fullHeal` flag in the kit around the call, which lets that one heal through.
+  Spirit stays refused, since the wraith starts missions at a quarter of its Spirit.
+- **Burden.** `skill_expansion.asm` removes the stock `corruption = 0` writes at zone exit and player spawn so
+  Frodo's Burden carries between zones. That also carried it across save loads, so the hook clears the meter for both
+  players and re-applies the tier flags with `player_addCorruption(p, 0)`.
+
+Anything that changes `currentSpirit` without `player_addSpirit` must set `PLAYERHUD_FLAG_SPIRIT_DIRTY` on
+`g_PlayerHuds[p]`, or the HUD keeps drawing the old value. The wraith's start clamp and its refused Spirit gains do.
+
+## Effect actors that run their own logic
+
+An imported sprite effect is an ordinary actor, so a skill can replace its `tickCallback` and keep per-effect state in
+the actor's `as.combat` fields (`venomDuration` as a frame counter, `storedDamage`, `playerIndex`, `comboState`).
+Fell Beast does this: the callback moves the beast, loops its animation, and strikes foes it crosses, with no static
+RAM. The mod's RAM budget (`MODCODE_BSS`) has no spare bytes, so new per-effect state belongs in the actor.
+If no effect actor can be allocated the cast falls back to an instant strike, because effects must stay cosmetic.
+
 ## Skill icon colors
 
 Page 2 icons can carry their own colors. The stock frame uses palette indices 0..7, so each icon gets 8
@@ -243,6 +267,9 @@ counts there.
 | `unlock_all` | An Unlocks options page, for example every hero path in Chapter Select. |
 | `test_arena` | A boot-to-arena build for testing abilities (`make test-arena`). Stubs mission spawning and fixes the RNG seed. Also runs the self-driving hero sweep and the busy fight benchmark (see [test-arena.md](test-arena.md)). |
 | `fast_waitstates` | Faster ROM wait states at startup. |
+| `fast_obj_tiles` | Faster OBJ tile bitmap search within the original ARM/IWRAM buffer. See [measurements and validation](performance.md). |
+| `fast_oam` | Sprite OAM submission without a stack frame. See [measurements and validation](performance.md). |
+| `fast_sprite` (optional) | Experimental frame composition with unused dimension lookups skipped. Disabled by default after mixed timing results. See [performance](performance.md#experimental-frame-composer). |
 | `item_descriptions`, `text_overrides` | Text for new items and skills, and overrides of stock strings. |
 | `mod_options`, `save_slot_pages`, `mod_startup` | Extended for the new pages, heroes and startup hooks. |
 

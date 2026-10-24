@@ -16,6 +16,9 @@
 ; Asm bodies, mostly used for hookTrampoline. These are all put into MEM_HOOK.
 .org MEM_HOOK
 .thumb
+.if HACK_gauntlet
+    .include "hacks/patches/gauntlet/gauntlet_compass_hook.asm"
+.endif
 .if HACK_menu_text
     .include "hacks/patches/menu_text/menu_text.asm"
 .endif
@@ -28,6 +31,9 @@
 .endif
 .if HACK_mod_options
     .include "hacks/patches/mod_options/mod_options.asm"
+.endif
+.if HACK_experimental
+    .include "hacks/patches/experimental/experimental_hook.asm"
 .endif
 .if HACK_skill_expansion
     .include "hacks/patches/skill_expansion/skill_expansion_hook.asm"
@@ -42,6 +48,11 @@
 ; ------------------------------------- Trampolines --------------------------------------
 .if HACK_menu_text
     hookTrampoline scene_mainMenu_tick, menu_text_hook
+.endif
+.if HACK_experimental
+    hookTrampoline sprite_commitGfx, framePacing_commitGfx_hook
+    hookTrampoline sprite_composeOam, framePacing_composeOam_hook
+    hookTrampoline sprite_endFrame, framePacing_endFrame_hook
 .endif
 .if HACK_ranger_hollow_pages
     hookTrampoline scene_shop_tick, ranger_hollow_pages_tick_hook
@@ -66,8 +77,28 @@
 .endif
 ; hookReplace/hookTrap/hookStub calls and in-place .org edits. The replacement bodies they name
 ; are C in the modcode, so these files write at game addresses only.
+.if HACK_fast_obj_tiles
+    .include "hacks/patches/fast_obj_tiles/fast_obj_tiles.asm"
+.endif
+.if HACK_fast_oam
+    .include "hacks/patches/fast_oam/fast_oam.asm"
+.endif
+.if HACK_fast_sprite
+    .include "hacks/patches/fast_sprite/fast_sprite.asm"
+.endif
 .if HACK_fast_fade
     .include "hacks/patches/fast_fade/fast_fade.asm"
+.endif
+.if HACK_experimental
+    .include "hacks/patches/experimental/experimental.asm"
+.endif
+.if HACK_gauntlet
+    .include "hacks/patches/gauntlet/gauntlet.asm"
+.endif
+; Story spawn groups and scripts, switched off by hackLib_suppressMissionScripts.
+.if HACK_test_arena || HACK_gauntlet
+    hookReplace mission_script_spawnGroup, hackLib_missionSpawnGroup
+    hookReplace mission_script_runStream, hackLib_missionRunStream
 .endif
 .if HACK_mod_ram                         ; required: every build, see hacks/hack.c
     .include "hacks/patches/mod_ram/mod_ram.asm"

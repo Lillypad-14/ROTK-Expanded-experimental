@@ -8,6 +8,7 @@ hookReplace scene_saveLoadMenu_drawSlot, ringwraith_drawSlot
 hookReplace scene_saveLoadMenu_refreshSlot, ringwraith_refreshSlot
 .if HACK_skill_expansion
 hookReplace player_addSpirit, ringwraith_addSpirit
+hookReplace scene_gameplay_healAllPlayers, ringwraith_healAllPlayers
 .endif
 
 ; Repoint one literal pool word, checking it still holds the stock table address.

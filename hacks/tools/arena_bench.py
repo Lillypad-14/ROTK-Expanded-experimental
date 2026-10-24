@@ -87,6 +87,8 @@ def main() -> None:
     parser.add_argument(
         "--nm", default=shutil.which("arm-none-eabi-nm") or "arm-none-eabi-nm"
     )
+    parser.add_argument("--rom", type=Path, default=ROOT / "build/test_arena.gba")
+    parser.add_argument("--elf", type=Path, default=ROOT / "build/test_arena.elf")
     parser.add_argument("--hero", type=int, default=2)
     parser.add_argument(
         "--ticks", type=int, default=1200, help="Measured benchmark ticks"
@@ -104,8 +106,8 @@ def main() -> None:
     emulator = args.emulator.resolve(strict=True)
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=False)
-    elf = ROOT / "build/test_arena.elf"
-    rom = (ROOT / "build/test_arena.gba").read_bytes()
+    elf = args.elf.resolve(strict=True)
+    rom = args.rom.read_bytes()
     test_rom = output / "arena.gba"
     test_rom.write_bytes(
         patch_rom(

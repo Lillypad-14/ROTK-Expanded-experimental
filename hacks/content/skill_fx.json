@@ -16,7 +16,15 @@
     {"key": "sam_stew_pot", "id": 1, "sheet": "fx/sam_stew_pot.png", "palette": "fx/sam_palette.png", "width": 32, "height": 32, "frameTicks": 4, "anchor": [16, 28]},
     {"key": "sam_pan_clang", "id": 1, "sheet": "fx/sam_pan_clang.png", "palette": "fx/sam_palette.png", "width": 32, "height": 32, "frameTicks": 3, "anchor": [16, 28]},
     {"key": "sam_rope_lasso", "id": 1, "sheet": "fx/sam_rope_lasso.png", "palette": "fx/sam_palette.png", "width": 32, "height": 16, "frameTicks": 4, "anchor": [16, 8]},
-    {"key": "sam_rope_knot", "id": 1, "sheet": "fx/sam_rope_knot.png", "palette": "fx/sam_palette.png", "width": 16, "height": 16, "frameTicks": 3, "anchor": [8, 8]}
+    {"key": "sam_rope_knot", "id": 1, "sheet": "fx/sam_rope_knot.png", "palette": "fx/sam_palette.png", "width": 16, "height": 16, "frameTicks": 3, "anchor": [8, 8]},
+    {"key": "fell_beast_left_0", "id": 2, "sheet": "fx/fell_beast_left_0.png", "palette": "fx/fell_beast_palette.png", "width": 72, "height": 64, "frameTicks": 2, "anchor": [66, 88]},
+    {"key": "fell_beast_left_1", "id": 2, "sheet": "fx/fell_beast_left_1.png", "palette": "fx/fell_beast_palette.png", "width": 72, "height": 64, "frameTicks": 2, "anchor": [-6, 88]},
+    {"key": "fell_beast_left_2", "id": 2, "sheet": "fx/fell_beast_left_2.png", "palette": "fx/fell_beast_palette.png", "width": 72, "height": 64, "frameTicks": 2, "anchor": [66, 24]},
+    {"key": "fell_beast_left_3", "id": 2, "sheet": "fx/fell_beast_left_3.png", "palette": "fx/fell_beast_palette.png", "width": 72, "height": 64, "frameTicks": 2, "anchor": [-6, 24]},
+    {"key": "fell_beast_right_0", "id": 2, "sheet": "fx/fell_beast_right_0.png", "palette": "fx/fell_beast_palette.png", "width": 72, "height": 64, "frameTicks": 2, "anchor": [77, 88]},
+    {"key": "fell_beast_right_1", "id": 2, "sheet": "fx/fell_beast_right_1.png", "palette": "fx/fell_beast_palette.png", "width": 72, "height": 64, "frameTicks": 2, "anchor": [5, 88]},
+    {"key": "fell_beast_right_2", "id": 2, "sheet": "fx/fell_beast_right_2.png", "palette": "fx/fell_beast_palette.png", "width": 72, "height": 64, "frameTicks": 2, "anchor": [77, 24]},
+    {"key": "fell_beast_right_3", "id": 2, "sheet": "fx/fell_beast_right_3.png", "palette": "fx/fell_beast_palette.png", "width": 72, "height": 64, "frameTicks": 2, "anchor": [5, 24]}
   ],
   "effects": [
     {"key": "preview_pool", "id": 0, "name": "Shadow pool", "layers": [{"asset": "shadow_pool", "attachment": "fixed", "layer": "behind"}]},
@@ -38,6 +46,8 @@
     {"key": "sam_pan_clang", "id": 16, "name": "Pan clang", "layers": [{"asset": "sam_pan_clang", "attachment": "fixed", "layer": "front"}]},
     {"key": "sam_rope_lasso", "id": 17, "name": "Rope lasso", "layers": [{"asset": "sam_rope_lasso", "attachment": "fixed", "layer": "behind"}]},
     {"key": "sam_rope_knot", "id": 18, "name": "Rope knot", "layers": [{"asset": "sam_rope_knot", "attachment": "fixed", "layer": "front"}]},
-    {"key": "sam_pan_bonk", "id": 19, "name": "Pan bonk", "layers": [{"asset": "sam_pan_clang", "attachment": "fixed"}, {"shape": "star_bloom", "color": "gold", "frameTicks": 3, "attachment": "fixed"}, {"shape": "wide_ring", "color": "white", "frameTicks": 3, "layer": "behind", "attachment": "fixed"}]}
+    {"key": "sam_pan_bonk", "id": 19, "name": "Pan bonk", "layers": [{"asset": "sam_pan_clang", "attachment": "fixed"}, {"shape": "star_bloom", "color": "gold", "frameTicks": 3, "attachment": "fixed"}, {"shape": "wide_ring", "color": "white", "frameTicks": 3, "layer": "behind", "attachment": "fixed"}]},
+    {"key": "fell_beast_left", "id": 20, "name": "Fell Beast left", "layers": [{"asset": "fell_beast_left_0", "attachment": "fixed", "layer": "front"}, {"asset": "fell_beast_left_1", "attachment": "fixed", "layer": "front"}, {"asset": "fell_beast_left_2", "attachment": "fixed", "layer": "front"}, {"asset": "fell_beast_left_3", "attachment": "fixed", "layer": "front"}]},
+    {"key": "fell_beast_right", "id": 21, "name": "Fell Beast right", "layers": [{"asset": "fell_beast_right_0", "attachment": "fixed", "layer": "front"}, {"asset": "fell_beast_right_1", "attachment": "fixed", "layer": "front"}, {"asset": "fell_beast_right_2", "attachment": "fixed", "layer": "front"}, {"asset": "fell_beast_right_3", "attachment": "fixed", "layer": "front"}]}
   ]
 }

@@ -208,6 +208,9 @@ own skills, stats, palette and gear.
 - Its skills terrify and stun foes.
 - Slain foes can rise as **thralls** that fight for it.
 - It gains Spirit only from its kills, not from regeneration or pickups.
+- Spirit starts each mission at a quarter (full with Ringbound), and the meter shows it from the first frame
+  after a respawn.
+- Loading a save restores full health and clears Burden, the stock corruption meter.
 
 **Three builds:** Thralls (raise and command the dead), Assassin (shadowstep and knife work), Fear (terror and
 control).
@@ -215,6 +218,17 @@ control).
 | Page 1 actives | Page 2 actives |
 | --- | --- |
 | Morgul Blade, Cry of the Nazgul, The Unseen World, Fell Beast, No Living Man, Black Breath | Command of the Nine, Shadowstep, Shadow of Mordor, Black Sacrifice, Will of Sauron |
+
+**Fell Beast** is a visible dive. A dark steed made from the stock flying Nazgul crosses the screen in front of the
+wraith (left or right, by facing) and strikes each foe in its band once as it passes, with the damage, terror and
+stun of the old instant sweep. The Fell Rider's Spurs double the band and terrify. The beast is a four-piece
+144x128 sprite, see [skill effects](skill-effects.md#large-effects).
+
+**Thralls** drop a swing the moment their target dies or leaves their reach, then turn on the nearest living foe.
+The stock ghost AI finishes its whole swing first, which left thralls standing still hitting nothing.
+
+**Icons:** all 29 skills use full-color custom art (see the icon recipe in
+[`howto-heroes-skills.md`](wip-docs/howto-heroes-skills.md)).
 
 Page 1 passives: Servant of the Ring, Shadow Hunger, Wraith Form, Fear's Reach, Lord of Terror, Witch-king's Mace,
 Morgul Sorcery, Undying Malice, Ringbound.

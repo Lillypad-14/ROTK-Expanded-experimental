@@ -454,3 +454,11 @@ Read `fx-catalog.md` before giving a skill a visual. API: `hacks/lib/fx_kit.h` (
 `hackLib_fxTimed`, `hackLib_fxAt`, `hackLib_fxEnemyAnim`, `hackLib_fxHold`). Preview shapes,
 palettes and enemy anims with `hacks/tools/fx_palette.py`. Effects can fail to spawn (NULL), so
 the skill logic must never depend on them.
+
+### Large single icons and mixed sheets (2026-10-24)
+- Sheets from the image generator do not have 4:3 frames. Scale by the ring: scale = ring width in pixels / 26, and use a frame origin of (ring center x - 16 * scale, ring center y - 12 * scale). `fit` only searches +-12 source pixels, so guess well. Preview before building.
+- A single big icon: `slice IMG OUT --grid "X:Y:SCALE" --names name`. Wraithbreath.png used `93:26:39.5`, Wraithsword.png `35:35:38.3`.
+- Sheets used for the Ringwraith (names are in the order of the sheet, row by row):
+  - `Wraithimproved2.png`, 9x3: `--grid "15,224,433,642,850,1059,1268,1477,1685:123,340,562:6.5"`
+  - `Wraithimproved3.png`, 8x3: `--grid "20,254,489,723,957,1192,1426,1660:110,345,575:7.33"`
+- Replacing a few icons: slice only those names into the hero's icons folder (`-` skips a slot), then run `build` over the whole folder, which regroups the colors of all icons. `preview` the folder afterwards, since a shared color group can dull an icon.

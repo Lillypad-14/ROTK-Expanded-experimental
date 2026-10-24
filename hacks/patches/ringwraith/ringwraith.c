@@ -1,4 +1,5 @@
 #include "patches/ringwraith/ringwraith.h"
+#include "patches/ringwraith/ringwraith_kit.h"
 #include "font.h"
 #include "gfx.h"
 #include "mission.h"
@@ -72,10 +73,43 @@ asm(".section .text\n"
     "    mov  r5, r8\n"
     "    ldr  r3, =actor_player_updateHandSprites + 8\n"
     "    bx   r3\n"
+    "    .pool\n"
+    ".balign 4\n"
+    ".global ringwraith_original_scene_gameplay_healAllPlayers\n"
+    ".thumb_func\n"
+    "ringwraith_original_scene_gameplay_healAllPlayers:\n"
+    "    push {r4-r7, lr}\n"
+    "    mov  r7, r9\n"
+    "    mov  r6, r8\n"
+    "    push {r6, r7}\n"
+    "    ldr  r3, =scene_gameplay_healAllPlayers + 8\n"
+    "    bx   r3\n"
     "    .pool\n");
 
 void ringwraith_original_player_initHeroStats(u32 heroId, u32 playerIndex);
 void ringwraith_original_actor_player_updateHandSprites(Actor *actor);
+void ringwraith_original_scene_gameplay_healAllPlayers(void);
+
+/**
+ * The wraith's own rules block healing from outside its drains, so it is told the game's
+ * full heal at a save load or menu launch is allowed. Burden is not reset on a zone change, so
+ * a load clears it here instead of carrying it over from the previous session.
+ *
+ * REPLACES (whole function): scene_gameplay_healAllPlayers.
+ */
+void ringwraith_healAllPlayers(void)
+{
+    u8 p;
+
+    ringwraith_kitSetFullHeal(TRUE);
+    ringwraith_original_scene_gameplay_healAllPlayers();
+    ringwraith_kitSetFullHeal(FALSE);
+    for (p = 0; p < 2; p++)
+    {
+        PLAYER(p).corruption = 0;
+        player_addCorruption(p, 0);
+    }
+}
 
 /**
  * The stock switch skips unknown heroes, so the Ringwraith's stats are written first.

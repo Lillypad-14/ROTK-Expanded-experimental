@@ -151,9 +151,31 @@ static u8 resolveColor(HackLibFxColor color)
     return index;
 }
 
+u8 hackLib_fxCap;
+
+/** TRUE when hackLib_fxCap effects are already alive. */
+static bool32 atFxCap(void)
+{
+    Actor *actor;
+    u32 live = 0;
+
+    if (hackLib_fxCap == 0)
+    {
+        return FALSE;
+    }
+    for (actor = g_ActorListMain.head; actor != NULL; actor = actor->next)
+    {
+        if (actor->actionState == ACTOR_STATE_FX_ATTACHED && ++live >= hackLib_fxCap)
+        {
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
 static bool validRequest(Actor *on, u8 shape, u8 layer)
 {
-    return on != NULL && shape < FX_SHAPE_COUNT && layer <= FX_LAYER_FRONT;
+    return on != NULL && shape < FX_SHAPE_COUNT && layer <= FX_LAYER_FRONT && !atFxCap();
 }
 
 static bool validAnimation(const SpriteAnimation *animation, u8 frameTicks)
@@ -261,7 +283,7 @@ Actor *hackLib_fxAura(Actor *on, u8 aura, HackLibFxColor color, s32 frames, u8 l
     Actor *fx;
 
     if (on == NULL || aura >= FX_AURA_COUNT || layer > FX_LAYER_FRONT || frames <= 0 ||
-        frames > 32767)
+        frames > 32767 || atFxCap())
     {
         return NULL;
     }

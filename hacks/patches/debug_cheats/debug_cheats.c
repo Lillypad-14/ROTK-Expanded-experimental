@@ -3,6 +3,9 @@
 #include "player.h"
 #include "stats.h"
 #include "variables.h"
+#if HACK_gauntlet
+#include "patches/gauntlet/gauntlet.h"
+#endif
 #if HACK_skill_expansion
 #include "patches/skill_expansion/skill_expansion_gimli.h"
 #endif
@@ -48,8 +51,12 @@ static void showUnspentPoints(u8 playerIndex)
 void debugCheats_playerTick(u8 playerIndex)
 {
     Player *player = &PLAYER(playerIndex);
+    bool32 progressionCheats = TRUE;
+#if HACK_gauntlet
+    progressionCheats = !gauntlet_isRunning();
+#endif
 
-    if (g_DebugCheatsState.maxLevel && player->level < DEBUG_CHEATS_MAX_LEVEL)
+    if (progressionCheats && g_DebugCheatsState.maxLevel && player->level < DEBUG_CHEATS_MAX_LEVEL)
     {
         s32 levels = DEBUG_CHEATS_MAX_LEVEL - player->level;
         s32 skillPoints = levels;
@@ -72,12 +79,14 @@ void debugCheats_playerTick(u8 playerIndex)
         g_PlayerHuds[playerIndex].flags.p |= PLAYERHUD_FLAG_XP_DIRTY;
         showUnspentPoints(playerIndex);
     }
-    if (g_DebugCheatsState.skillPoints && player->skillPoints < DEBUG_CHEATS_POINTS)
+    if (progressionCheats && g_DebugCheatsState.skillPoints &&
+        player->skillPoints < DEBUG_CHEATS_POINTS)
     {
         player->skillPoints = DEBUG_CHEATS_POINTS;
         showUnspentPoints(playerIndex);
     }
-    if (g_DebugCheatsState.attributePoints && player->attributePoints < DEBUG_CHEATS_POINTS)
+    if (progressionCheats && g_DebugCheatsState.attributePoints &&
+        player->attributePoints < DEBUG_CHEATS_POINTS)
     {
         player->attributePoints = DEBUG_CHEATS_POINTS;
         showUnspentPoints(playerIndex);
@@ -93,7 +102,7 @@ void debugCheats_playerTick(u8 playerIndex)
         player->currentSpirit = PLAYER_STAT(playerIndex, STAT_MAX_SPIRIT);
     }
 #if HACK_skill_expansion
-    if (g_DebugCheatsState.maxKills)
+    if (progressionCheats && g_DebugCheatsState.maxKills)
     {
         skillExpansion_gimliRaiseTally(playerIndex, DEBUG_CHEATS_KILLS);
     }

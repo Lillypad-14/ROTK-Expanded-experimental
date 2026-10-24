@@ -14,6 +14,9 @@ extern const SkillExpansionHeroKit RingwraithHeroKit;
 extern Actor *ringwraith_kitEnemyAttacker;
 
 void ringwraith_kitReset(u8 playerIndex);
+
+/** While on, the wraith accepts the game's full heal for a fresh scene start. */
+void ringwraith_kitSetFullHeal(bool32 on);
 void ringwraith_kitTick(u8 playerIndex, Actor *playerActor);
 void ringwraith_tickThrall(Actor *thrall);
 

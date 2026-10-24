@@ -18,7 +18,7 @@
 - `taskkill` of mGBA.exe kills every instance, including another session's. Copy a new ROM only after mGBA is closed.
 
 ## Modcode RAM budget
-- `MODCODE_BSS` starts at 0x0203f5a0 and runs to 0x0203ffff (`hacks/layout.cfg`). It holds all patch globals. Overflow fails the link with `modcode .bss exceeds its RAM budget`. Check the start with `arm-none-eabi-nm build/hack.elf | grep modcode_bss`. The test-arena build is the tightest, so build it too (`make test-arena`).
+- `MODCODE_BSS` starts at 0x0203f560 (moved 64 B down on 2026-10-24 for the Gauntlet; the main build's .bss now starts at 0x0203f590) and runs to 0x0203ffff (`hacks/layout.cfg`). It holds all patch globals. Overflow fails the link with `modcode .bss exceeds its RAM budget`. Check the start with `arm-none-eabi-nm build/hack.elf | grep modcode_bss`. The test-arena build is the tightest, so build it too (`make test-arena`).
 - The slice comes from the top of the game heap (`g_HeapArena` 0x02002640). `mod_ram.c` calls `memory_addHeap(0, g_HeapArena, __modcode_bss_start)`, so every byte given to .bss is a byte taken from the heap. The budget start moved down by 64 B on 2026-10-23 so the test arena links. The heap only shrinks when a build actually uses that room: the main build still starts .bss at 0x0203f5e0, so its heap is unchanged.
 - Heap headroom: `memory_diagnostics.c` tracks `peakTop` (the highest heap byte ever allocated) and `heapEnd`. Debug page > Allocations shows `Room:` (heapEnd - peakTop). Expect a few hundred bytes. If it nears 0, stop growing .bss.
 - Guard: `modRam_bssGuard` (2 words, first in .bss via `.bss.guard` in hack.ld) is armed at boot. A heap overrun into .bss breaks it, and Allocations then shows `GUARD!`. The test arena reports it as `bssGuardIntact`.
@@ -230,3 +230,38 @@ actor_applyTypeDefaults loads a player's sprite palette from ObjPalettes[0x21 + 
 - `drawTitle` clears the full header row (cols 0..29), or the "Page x/y" counter lingers on the stock screen.
 - To find free tiles: dump 0x06008000..0x0600E000 and the four screen maps, then list tile indices no map references.
 - Limits for page authors are in docs/mod-options.md (title ~14 chars, help 2 x ~26 chars, max 6 entries with help).
+
+## RNG trap
+- `rng_mod(n)` returns 0..n INCLUSIVE (`src/c/rng_mod.c`). For a table index use `rng_mod(n - 1)` (the Gauntlet wraps it as `gauntlet_randBelow`). Older patch code may still assume 0..n-1.
+- A ROM that boots straight into gameplay (test boots) must call `rng_reseed()`. The main menu does it in normal play, and without it every roll returns 0.
+
+## Mod scene between gameplay maps
+- Leaving gameplay for a mod scene runs `scene_gameplay_parkWorld` (the scene id is not in its stock list). If the scene goes on to load a different map, call `scene_gameplay_discardParkedWorld()` in its enter, then request `SCENE_ID_GAMEPLAY` with `GAMEPLAY_MODE_START` (keeps HP) or `GAMEPLAY_MODE_START_HEALED`. Example: `hacks/patches/gauntlet/gauntlet_scene.c`.
+- UiPalette bank 0 text colors for `font_setStyle`: 0 white, 3 yellow, 6 red, 9 green. Registering `BonusMapMenuPaletteCycles` pulses color 0, which fades it to brown mid-cycle.
+
+## Screenshots of a running ROM
+- Scratch recipe: launch mGBA visibly (`-3`), grab the window client rect with `CopyFromScreen` once a second, tile the PNGs into a contact sheet. Self-driving test ROMs (gauntletTest_config) make this hands-off.
+
+## Menu panels and portraits in a mod scene
+- `hacks/patches/gauntlet/gauntlet_ui.c`: framed panels and highlight bars on BG1 (charbase 0 from tile 192, screenbase 2, priority 2), tiles generated at runtime into VRAM with 32-bit writes. The language-select backdrop art uses only palette bank 3 and tiles 1..69 of charbase 0.
+- Dialog portraits (`DialogPortrait*BgAsset`, 7x8 tiles, 16 colors, no map): `gfx_unknown08011bc0(layer, asset, tileOffset, paletteBank)` loads the palette into bank `(flags2 >> 4) + paletteBank` and decompresses the tiles into that layer's charbase at tileOffset. Write the map yourself. From pixel row 24 down they include the dialog box (a colored line, then a checker), which the Gauntlet trims from the edges.
+- `player_rebuildStats` does NOT refresh `baseStats.maxHp`. Recompute it with `player_computeMaxHp` first when Health changes.
+
+## Respawn, heal and Burden hooks (2026-10-24)
+- `scene_gameplay_healAllPlayers` (0x08032434) heals HP and Spirit to max for start modes 4..7 (see `GameplayMode` in include/scene/gameplay.h). A hero that restricts `player_addHp` or `player_addSpirit` needs a flag around it: see `ringwraith_healAllPlayers`. The thunk replays its 8-byte prologue: `push {r4-r7,lr}; mov r7,r9; mov r6,r8; push {r6,r7}`.
+- Death with no revive reloads the mission in `GAMEPLAY_MODE_START`, which does not heal. Revives call `player_addHp(p, maxHp / 2)` after writing currentHp = 0.
+- `Player.corruption` is Frodo's Burden. skill_expansion.asm NOPs the two stock resets so it carries between zones; the heal hook clears it on load.
+- Changing `currentSpirit` or `currentHp` directly never refreshes the HUD. Set `PLAYERHUD_FLAG_SPIRIT_DIRTY` (spirit) on `g_PlayerHuds[p].flags.p`.
+
+## Stock ghost AI (thralls, Aragorn's ghosts)
+- Behavior 0x20 handler 0x0800512c. State 8 pursues until the target is within byte 0x92, then enters state 3 (swing). State 3 holds still until `ACTOR_FLAG_ANIMATION_END`, then goes to 0x3d (death) for ghosts. The AI target is `GhostState.target` and the stock drops it beyond 160 px.
+- `hackLib_tickPersistentGhost` (lib/summon.h) is the generic recovery. `ringwraith_tickThrall` adds an early exit from the swing.
+
+## Per-effect state without BSS
+- `MODCODE_BSS` has zero spare bytes now (the hack build starts exactly at 0x0203f560). A new static fails the link. Keep state in the effect actor's `as.combat` fields instead: venomDuration (s16 counter), storedDamage (u16), playerIndex, comboState[]. Offsets at 0x1d..0x27 are the spawn position pair, leave them.
+- Replace `fx->tickCallback`, loop the animation with `sprite_setAnimationFrame(fx, 0)` on `ACTOR_FLAG_ANIMATION_END`, call `fx_tickAttachment(fx)` and `hackLib_fxRemove(fx)` to end, and move it with `hackLib_fxDetach(fx, &pos)` each tick.
+- A multi-layer effect from `hackLib_playEffect(id, on, &pos, &handle)` returns one actor per layer in `handle.actors[]`.
+
+## Tool traps
+- The Bash tool unescapes a doubled backslash inside heredoc Python, so a C string ending in a backslash-n escape, written from Python, lands as a real newline. Make C string edits with the Edit tool.
+- `make test-arena` replaces `build/hack.elf` and the main objects. Run `make hack` again afterwards.

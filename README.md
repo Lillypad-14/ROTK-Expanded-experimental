@@ -89,6 +89,7 @@ Start at the [documentation index](docs/README.md) for player, contributor and t
 - [Heroes](docs/heroes.md): every hero's idea, mechanic and skills.
 - [Mod options](docs/mod-options.md): every mod options page, all Twists and their values.
 - [Engine changes](docs/engine-changes.md): hooks, memory and save layout, the skill system and the combat system.
+- [Performance](docs/performance.md): measured slowdown improvements and how to reproduce the benchmarks.
 - [Pipeline](docs/pipeline.md): from Ghidra to byte matching, patch building, testing and release.
 - [Expansion changes](docs/expanded-changes.md): hero content, engine systems, tooling and known testing limits.
 - [Decompilation status](docs/decompilation.md): what the counts mean and how byte verification works.

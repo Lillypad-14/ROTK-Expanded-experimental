@@ -6,6 +6,9 @@
 #include "rng.h"
 #include "stats.h"
 #include "variables.h"
+#if HACK_gauntlet
+#include "patches/gauntlet/gauntlet.h"
+#endif
 
 #define TWISTS_TAG 0x54 // a blank (0xFF) or foreign area never reads as written
 #define TWISTS_FRAMES_PER_SECOND 60
@@ -275,7 +278,12 @@ void twists_original_awardXp(s16 xp);
 void twists_awardXp(s16 xp)
 {
     s32 percent = XpPercents[g_Twists.xpGain] + (currentOmen() == OMEN_BOUNTY ? 100 : 0);
-    s32 scaled = xp * percent / 100;
+    s32 scaled;
+
+#if HACK_gauntlet
+    percent = percent * gauntlet_xpPercent() / 100;
+#endif
+    scaled = xp * percent / 100;
 
     twists_original_awardXp(scaled > 0x7fff ? 0x7fff : scaled);
 }

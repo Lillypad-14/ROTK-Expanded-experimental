@@ -2,6 +2,7 @@
 #include "actor/enemySpawner.h"
 #include "game.h"
 #include "gba_io.h"
+#include "lib/mission_scripts.h"
 #include "lib/movement.h"
 #include "lib/profile.h"
 #include "lib/summon_registry.h"
@@ -25,6 +26,9 @@
 #include "variables.h"
 #if HACK_fast_waitstates
 #include "patches/fast_waitstates/fast_waitstates.h"
+#endif
+#if HACK_experimental
+#include "patches/experimental/experimental.h"
 #endif
 
 #if !HACK_debug_cheats || !HACK_skill_expansion
@@ -165,11 +169,15 @@ void testArena_boot(void)
     }
     g_DebugCheatsState = (struct DebugCheatsState){.tag = DEBUG_CHEATS_TAG};
     g_GameFlags.p = GAME_FLAG_BONUS_MAP_ACTIVE;
+    hackLib_suppressMissionScripts = TRUE;
     g_MissionVariant = 0;
     g_MissionSpawnPoint[0] = g_MissionSpawnPoint[1] = 0;
     *g_TestArena = (TestArenaControl){.magic = 0x41524e41, .version = 3, .level = 1};
 #if HACK_fast_waitstates
     fastWaitstates_apply();
+#endif
+#if HACK_experimental
+    experimental_useDefaults();
 #endif
     game_requestSceneChangeWithArgs(SCENE_ID_GAMEPLAY, GAMEPLAY_MODE_START_HEALED,
                                     MISSION_ISENGARD_CAMPSITE);

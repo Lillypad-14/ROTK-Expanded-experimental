@@ -11,6 +11,7 @@
 
 u8 testTags[16], testRefs[16];
 GameFlags g_GameFlags;
+ActorList g_ActorListMain;
 u16 *g_ObjPaletteSnapshot;
 u32 g_PaletteWriteCount;
 static const u16 colors[16];

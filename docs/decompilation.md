@@ -97,8 +97,9 @@ These buffers are named in `config/data.cfg`, rather than treated as free memory
 The dispatcher has a word-sized return type, matching the original generated code.
 
 The remaining sprite target is `sprite_composeOam` at `0x08002484`.
-Its `sprite_composeFrame` helper at `0x08002cd8` also still needs a matched C implementation.
-No new IWRAM placement patch or measured speed gain is included in this groundwork.
+Its `sprite_composeFrame` helper at `0x08002cd8` is matched (884 bytes), including affine scaling, flips, clipping, priority adjustment and OAM submission.
+These byte-matched ports alone add no new IWRAM placement.
+The separate [OBJ tile-search optimization](performance.md) changes an existing ARM/IWRAM routine and has measured stress-test gains.
 Placement still requires a verified memory range and equivalent behavior across gameplay, overlays and co-op.
 
 Four sprite dependencies are also matched: `actor_getFrameGfx` (36 bytes), `sprite_getFrameCompression` (50 bytes), and the two upload routines in `sprite_uploadFrame.c` (224 bytes combined).

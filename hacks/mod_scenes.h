@@ -23,6 +23,9 @@ enum ModSceneRow
 #if HACK_mod_save
     MOD_SCENE_ROW_SAVE_MIGRATE,
 #endif
+#if HACK_gauntlet
+    MOD_SCENE_ROW_GAUNTLET,
+#endif
     MOD_SCENE_ROW_COUNT,
 };
 

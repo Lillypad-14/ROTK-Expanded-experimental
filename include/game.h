@@ -41,6 +41,7 @@ enum GameFlag
     // finishes, cleared by scene_mainMenu_enter; the save serializer keeps the slot's
     // story progress in g_SaveParkedProgress like GAME_FLAG_BONUS_MAP_ACTIVE
     GAME_FLAG_COOP_LEVEL_SELECTED = 1 << 14,
+    GAME_FLAG_16 = 1 << 16,
     GAME_FLAG_18 = 1 << 18,
     // request that the scene being faded into runs as an overlay menu;
     // scene_gameplay_exit turns it into GAME_FLAG_OVERLAY, the overlay scene's init
@@ -51,6 +52,7 @@ enum GameFlag
     // leaving the main-list actors intact underneath; the overlay scene's exit handler
     // clears it
     GAME_FLAG_OVERLAY = 1 << 22,
+    GAME_FLAG_25 = 1 << 25,
     // corruption meter tiers, set by the corruption update (0x0802623c) at meter 51 / 81 /
     // 91: tier 1 buffs all enemies (+25% accuracy/defense, +50% HP/damage), tier 2 has no
     // consumer, tier 3 makes the corruption HUD actor spawn a Nazgul at the player

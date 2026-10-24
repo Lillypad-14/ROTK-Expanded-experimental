@@ -1,0 +1,2 @@
+.thumb
+hookReplaceR3 sprite_composeFrame, fastSprite_composeFrame

@@ -40,12 +40,20 @@ def test_cpu_sample_name(pc: int, expected: str) -> None:
 @pytest.mark.parametrize(
     ("sampling", "sampled"), [(False, False), (True, False), (True, True)]
 )
+@pytest.mark.parametrize("custom_paths", [False, True])
 def test_completed_run_without_cpu_samples(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, sampling: bool, sampled: bool
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    sampling: bool,
+    sampled: bool,
+    custom_paths: bool,
 ) -> None:
     build = tmp_path / "build"
     build.mkdir()
-    (build / "test_arena.gba").write_bytes(bytes(24))
+    rom = tmp_path / "custom.gba" if custom_paths else build / "test_arena.gba"
+    elf = tmp_path / "custom.elf" if custom_paths else build / "test_arena.elf"
+    rom.write_bytes(bytes(24))
+    elf.touch()
     emulator = tmp_path / "emulator.exe"
     emulator.touch()
     output = tmp_path / "report"
@@ -71,6 +79,8 @@ def test_completed_run_without_cpu_samples(
     monkeypatch.setattr(arena_bench.subprocess, "Popen", Process)
     monkeypatch.setattr(arena_bench.time, "sleep", lambda duration: None)
     arguments = ["arena_bench", "--emulator", str(emulator), "--output", str(output)]
+    if custom_paths:
+        arguments += ["--rom", str(rom), "--elf", str(elf)]
     if not sampling:
         arguments.append("--no-samples")
     monkeypatch.setattr("sys.argv", arguments)

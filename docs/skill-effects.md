@@ -28,6 +28,16 @@ GIF timing approximates 30 game ticks per second.
 The included shadow-pool sheet is exported from the existing shared shadow-pool effect as an editable example.
 Existing hand-authored FX assets remain available.
 
+## Large effects
+
+A frame holds at most 2304 tile bytes, so a larger effect is cut into pieces that play as the layers of one effect.
+Give each piece asset its own `anchor`, which may be negative or past the frame (-128..128), so the pieces line up
+when they spawn at one position, and share a `palette` strip so they use one OBJ palette slot.
+
+Fell Beast is four 72x64 pieces (a 144x128 canvas) of the stock flying Nazgul, shrunk and darkened.
+`hacks/tools/fell_beast_art.py` writes the sheets and `make hack-fx` runs it. They are cut from game art, so they
+are generated from your own ROM and ignored by git.
+
 ## Effect recipes
 
 An effect has a consecutive `id`, a unique `key`, a short display `name` and one to four simultaneous `layers`.

@@ -1024,6 +1024,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 2, 4, 6, 8, 10, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_THE_PRECIOUS,
+                RINGWRAITH_ICON(ServantOfTheRing)
                 .description = "Servant of the Ring (Level @1) - Each kill feeds you +3/level more "
                                "Spirit, and each foe you terrify +1/level more.",
             },
@@ -1039,6 +1040,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 4, 6, 8, 10, 12, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_FEARLESS,
+                RINGWRAITH_ICON(LordOfTerror)
                 .description =
                     "Lord of Terror (Level @1) - Hits add +5/level Dread. Frightened foes "
                     "deal 4%/level less damage.",
@@ -1047,12 +1049,14 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 2, 5, 8, 11, 14, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_DIRTY_CLAWS,
+                RINGWRAITH_ICON(ShadowHunger)
                 .description = "Shadow Hunger (Level @1) - Your drains heal +20%/level more.",
             },
         [SKILL_EXPANSION_PASSIVE_MORGUL_SORCERY - PASSIVE_SKILL_COUNT] =
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 6, 8, 10, 12, 14, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_SERVANT_OF_THE_SECRET_FIRE,
+                RINGWRAITH_ICON(MorgulSorcery)
                 .description =
                     "Morgul Sorcery (Level @1) - Thralls linger +3s/level. One more thrall "
                     "may serve you at levels 2 and 4.",
@@ -1061,6 +1065,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 3, 6, 9, 12, 15, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_KEEN_EYES,
+                RINGWRAITH_ICON(FearsReach)
                 .description =
                     "Fear's Reach (Level @1) - Your aura of dread spreads +10/level wider.",
             },
@@ -1068,6 +1073,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 5, 7, 9, 11, 13, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_DEATH_STRIKE,
+                RINGWRAITH_ICON(WitchKingsMace)
                 .description = "Witch-king's Mace (Level @1) - Melee deals +6%/level to frightened "
                                "foes, doubled against the terrified.",
             },
@@ -1075,6 +1081,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 13, 15, 17, 19, 21, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_LAST_STAND,
+                RINGWRAITH_ICON(UndyingMalice)
                 .description = "Undying Malice (Level @1) - No Living Man lasts +1s/level and its "
                                "kills heal +3%/level more.",
             },
@@ -1082,6 +1089,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             {
                 ELITE_PASSIVE(1, 15, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_SPIRIT_OF_MIDDLE_EARTH,
+                RINGWRAITH_ICON(Ringbound)
                 .description =
                     "Ringbound (Level @1) - Begin missions at full Spirit. The Unseen World "
                     "refunds half its cost.",
@@ -1090,6 +1098,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 15, 17, 19, 21, 23, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_NIMBLE,
+                RINGWRAITH_ICON(Fading)
                 .description = "Fading (Level @1) - The Unseen World lasts +0.5s/level and refunds "
                                "10%/level of its cost.",
             },
@@ -1097,6 +1106,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 16, 18, 20, 22, 24, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_RAGE_OF_THE_NORTH,
+                RINGWRAITH_ICON(HostOfAngmar)
                 .description = "Host of Angmar (Level @1) - One more thrall/level may serve you.",
             },
         [SKILL_EXPANSION_PASSIVE_DREAD_LORD - PASSIVE_SKILL_COUNT] =
@@ -1111,6 +1121,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 18, 20, 22, 24, 26, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_DIRTY_CLAWS,
+                RINGWRAITH_ICON(FeastOfFear)
                 .description =
                     "Feast of Fear (Level @1) - Slaying a terrified foe heals 2%/level of "
                     "your health and grants +2 Spirit/level.",
@@ -1119,6 +1130,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 19, 21, 23, 25, 27, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_LAST_STAND,
+                RINGWRAITH_ICON(GravePact)
                 .description = "Grave Pact (Level @1) - Thralls linger +1s/level. A fading thrall "
                                "bursts for 6 +3/level damage and Dread.",
             },
@@ -1126,6 +1138,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 20, 22, 24, 26, 28, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_DEATH_STRIKE,
+                RINGWRAITH_ICON(KnifeInTheDark)
                 .description = "Knife in the Dark (Level @1) - An Unseen kill hides you again for "
                                "0.75s +0.25s/level.",
             },
@@ -1141,6 +1154,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             {
                 ELITE_PASSIVE(1, 31, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_BLADEMASTER,
+                RINGWRAITH_ICON(DeathFromShadow)
                 .description = "Death from Shadow (Level @1) - Unseen blows deal x5 instead of x3, "
                                "but seen blows deal 40% less.",
             },

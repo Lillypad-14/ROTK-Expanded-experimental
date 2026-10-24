@@ -6,6 +6,7 @@ This repository combines the original-game decompilation with the experimental R
 | --- | --- |
 | Pick up the work where it stands | [Status](status.md) |
 | Learn each hero's mechanic and skills | [Heroes](heroes.md) |
+| Play and test the map-based dungeon prototype | [Gauntlet](gauntlet.md) |
 | See every mod options page and Twist | [Mod options](mod-options.md) |
 | Understand what Expanded changes | [Expansion overview](expanded-changes.md), then [engine changes](engine-changes.md) |
 | See how the combat system was extended | [Engine changes: combat](engine-changes.md#combat-system) |
@@ -18,6 +19,7 @@ This repository combines the original-game decompilation with the experimental R
 | Add or change hero abilities | [Shared ability support](ability-support.md) and [hero authoring notebook](wip-docs/howto-heroes-skills.md) |
 | Create effect artwork | [Skill effects](skill-effects.md) and [Effect Studio](effect-editor.md) |
 | Define cast timing and projectiles | [Skill deliveries](skill-deliveries.md) |
+| Measure and reduce slowdown | [Performance changes](performance.md) and [busy-fight benchmark](test-arena.md#busy-fight-benchmark) |
 | Test gameplay changes | [Test arena](test-arena.md), [Ability Bench](ability-bench.md) and [combat validation](combat-validation.md) |
 | Review the four-hero upgrade audit | [Hero move checks](hero-move-checks.md) |
 | Follow source naming and layout | [Conventions](conventions.md) |

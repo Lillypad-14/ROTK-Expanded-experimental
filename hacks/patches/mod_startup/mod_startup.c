@@ -18,6 +18,9 @@
 #if HACK_test_arena
 #include "patches/test_arena/test_arena.h"
 #endif
+#if HACK_gauntlet
+#include "patches/gauntlet/gauntlet_test.h"
+#endif
 #if HACK_loot_qol
 #include "patches/loot_qol/loot_qol.h"
 #endif
@@ -29,6 +32,9 @@
 #endif
 #if HACK_fast_waitstates
 #include "patches/fast_waitstates/fast_waitstates.h"
+#endif
+#if HACK_experimental
+#include "patches/experimental/experimental.h"
 #endif
 
 /**
@@ -54,6 +60,9 @@ static void runTasks(void)
 #endif
 #if HACK_fast_waitstates
     fastWaitstates_apply();
+#endif
+#if HACK_experimental
+    experimental_loadState();
 #endif
 }
 
@@ -114,6 +123,15 @@ void modStartup_initBoot(void)
 #if HACK_test_arena
     testArena_boot();
 #else
+#if HACK_gauntlet
+    if (gauntletTest_isActive())
+    {
+        // The test boot loads the template save, which the boot tasks then read.
+        gauntletTest_boot();
+        runTasks();
+        return;
+    }
+#endif
     requestFirstScene();
 #endif
 }

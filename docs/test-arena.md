@@ -71,6 +71,9 @@ uv run python hacks/tools/arena_bench.py --emulator "C:/path/to/mGBA.exe" `
   --hero 2 --crowd 16 --ticks 1200 --output build/arena-runs/bench-01
 ```
 
+Use `--rom` and `--elf` to benchmark a particular arena build and its matching symbols.
+See [performance changes](performance.md) for the tile-search comparison.
+
 It patches `benchTicks`, `benchCrowd` and `benchSample` into a copy of the arena ROM.
 The arena keeps `--crowd` orc archers alive around the player, refills HP and Spirit, clears skill cooldowns, and casts whatever is castable every tick.
 After a 60 tick warmup it measures `--ticks` ticks and prints `ARENA_BENCH` and one `ARENA_PROFILE` line per `HackLibProfileSection`.

@@ -285,6 +285,8 @@ static void turnPage(u8 playerIndex)
 // Free BG palette banks of the tree scene. Page 2 tiles of build N draw with bank
 // BUILD_PALETTE_FIRST + N - 1, so each build keeps its own art ramp.
 #define BUILD_PALETTE_FIRST 9
+// Page 2 tiles without a build. Builds 1..6 and icon color groups 0..5 use banks 9..14.
+#define NO_BUILD_PALETTE 15
 #define TREE_MAP_WIDTH 32
 #define MAP_PALETTE_SHIFT 12
 
@@ -339,19 +341,16 @@ static void moveTileToBank(const Vector2Int *pos, u32 from, u32 to)
 
 /**
  * Page 2 only: give the tile at `pos` the art ramp of `build` in that build's own palette bank and
- * point the tile's icon map entries at it. Tiles without a build share the drawn bank.
+ * point the tile's icon map entries at it.
  */
 static void tintTileForBuild(const void *asset, u32 paletteNumber, const Vector2Int *pos, u8 build)
 {
     const u8 *header = asset;
     u32 buildBank;
 
-    if (build == SKILL_EXPANSION_BUILD_NONE)
-    {
-        tintAssetPalette(asset, paletteNumber, skillExpansion_buildArtRamp(build, FALSE));
-        return;
-    }
-    buildBank = BUILD_PALETTE_FIRST + build - 1;
+    // Every tile draws into the same bank, so a tint there would recolor the whole page.
+    buildBank = build == SKILL_EXPANSION_BUILD_NONE ? NO_BUILD_PALETTE
+                                                    : BUILD_PALETTE_FIRST + build - 1;
     tintAssetPalette(asset, buildBank - (header[1] >> 4),
                      skillExpansion_buildArtRamp(build, FALSE));
     if (skillExpansion_treePage == 0)
