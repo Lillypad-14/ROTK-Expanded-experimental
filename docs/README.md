@@ -7,6 +7,7 @@ This repository combines the original-game decompilation with the experimental R
 | Pick up the work where it stands | [Status](status.md) |
 | Learn each hero's mechanic and skills | [Heroes](heroes.md) |
 | Play and test the map-based dungeon prototype | [Gauntlet](gauntlet.md) |
+| Browse boon effects, duos and hero-specific rewards | [Gauntlet boon catalog](gauntlet-boons.md) |
 | See every mod options page and Twist | [Mod options](mod-options.md) |
 | Understand what Expanded changes | [Expansion overview](expanded-changes.md), then [engine changes](engine-changes.md) |
 | See how the combat system was extended | [Engine changes: combat](engine-changes.md#combat-system) |

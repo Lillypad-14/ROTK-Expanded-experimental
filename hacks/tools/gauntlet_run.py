@@ -28,7 +28,16 @@ ROOM_FIELDS = (
     "allocFailures",
     "bssGuardIntact",
 )
-OVER_FIELDS = ("room", "kills", "boons", "rerollsLeft", "heapRoom", "allocFailures", "bssGuardIntact")
+ENTRY_FIELDS = ("roomType", "map", "candidate", "x", "y", "clear")
+OVER_FIELDS = (
+    "room",
+    "kills",
+    "boons",
+    "rerollsLeft",
+    "heapRoom",
+    "allocFailures",
+    "bssGuardIntact",
+)
 
 
 def config_offset(elf: Path, nm: str) -> int:
@@ -41,18 +50,49 @@ def config_offset(elf: Path, nm: str) -> int:
 
 
 def patch_rom(
-    rom: bytes, offset: int, rooms: int, hero: int, probe: bool, unlocks: bool = False
+    rom: bytes,
+    offset: int,
+    rooms: int,
+    hero: int,
+    probe: bool,
+    unlocks: bool = False,
+    boons: bool = False,
 ) -> bytes:
     if struct.unpack_from("<4I", rom, offset) != (0, 0, 0, 0):
         raise ValueError("ROM test config does not hold the expected defaults")
     patched = bytearray(rom)
-    struct.pack_into("<4I", patched, offset, rooms, hero, int(probe), int(unlocks))
+    struct.pack_into(
+        "<4I",
+        patched,
+        offset,
+        rooms,
+        hero,
+        int(probe),
+        int(unlocks) | (int(boons) << 1),
+    )
     return bytes(patched)
 
 
 def parse_log(text: str) -> dict:
-    result = dict(booted=False, rooms=[], over=None, done=False, stuck=[])
+    result = dict(
+        booted=False,
+        rooms=[],
+        over=None,
+        done=False,
+        stuck=[],
+        errors=[],
+        entries=[],
+        variants=[],
+        backdrops=[],
+    )
     for line in text.splitlines():
+        if (
+            "Illegal opcode" in line
+            or "Stub software interrupt" in line
+            or "Unimplemented BIOS" in line
+        ):
+            result["errors"].append(line.strip())
+            break
         _, marker, payload = line.partition("GAUNTLET_")
         if not marker:
             continue
@@ -65,6 +105,14 @@ def parse_log(text: str) -> dict:
             result["booted"] = True
         elif kind == "ROOM" and len(numbers) == len(ROOM_FIELDS):
             result["rooms"].append(dict(zip(ROOM_FIELDS, numbers)))
+        elif kind == "ENTRY" and len(numbers) == len(ENTRY_FIELDS):
+            result["entries"].append(dict(zip(ENTRY_FIELDS, numbers)))
+        elif kind == "BACKDROP" and len(numbers) == 4:
+            result["backdrops"].append(
+                dict(zip(("mission", "effect", "control", "frame"), numbers))
+            )
+        elif kind == "VARIANT" and len(numbers) == 2:
+            result["variants"].append(dict(zip(("modifier", "rarity"), numbers)))
         elif kind == "OVER" and len(numbers) == len(OVER_FIELDS):
             result["over"] = dict(zip(OVER_FIELDS, numbers))
         elif kind == "STUCK" and numbers:
@@ -78,7 +126,9 @@ def run(emulator: Path, rom: bytes, offset: int, hero: int, args, output: Path) 
     run_dir = output / f"hero-{hero}-{HERO_NAMES[hero].lower()}"
     run_dir.mkdir(parents=True, exist_ok=True)
     test_rom = run_dir / "gauntlet.gba"
-    test_rom.write_bytes(patch_rom(rom, offset, args.rooms, hero, args.probe, args.unlocks))
+    test_rom.write_bytes(
+        patch_rom(rom, offset, args.rooms, hero, args.probe, args.unlocks, args.boons)
+    )
     log = run_dir / "mgba.log"
     log.unlink(missing_ok=True)
     command = [str(emulator)]
@@ -103,7 +153,7 @@ def run(emulator: Path, rom: bytes, offset: int, hero: int, args, output: Path) 
             time.sleep(0.5)
             if log.is_file():
                 result = parse_log(log.read_text(errors="replace"))
-                if result["done"]:
+                if result["done"] or result["errors"]:
                     break
             if process.poll() is not None:
                 break
@@ -120,8 +170,25 @@ def run(emulator: Path, rom: bytes, offset: int, hero: int, args, output: Path) 
 
 
 def report(hero: int, result: dict) -> bool:
-    ok = result["done"] and not result["stuck"]
-    print(f"== {HERO_NAMES[hero]} {result['seconds']}s {'ok' if ok else 'FAILED'}", flush=True)
+    memory_ok = all(
+        not room["landFails"] and not room["allocFailures"] and room["bssGuardIntact"]
+        for room in result["rooms"]
+    )
+    if result["over"]:
+        memory_ok &= not result["over"]["allocFailures"] and bool(
+            result["over"]["bssGuardIntact"]
+        )
+    memory_ok &= all(entry["clear"] for entry in result.get("entries", []))
+    ok = (
+        result["done"]
+        and not result["stuck"]
+        and not result.get("errors")
+        and memory_ok
+    )
+    print(
+        f"== {HERO_NAMES[hero]} {result['seconds']}s {'ok' if ok else 'FAILED'}",
+        flush=True,
+    )
     if not result["booted"]:
         print("   never booted", flush=True)
     for room in result["rooms"]:
@@ -147,6 +214,8 @@ def report(hero: int, result: dict) -> bool:
             f"rerolls left {over['rerollsLeft']}",
             flush=True,
         )
+    for error in result.get("errors", []):
+        print(f"   EMULATOR ERROR: {error}", flush=True)
     if not result["done"]:
         print("   never returned to the main menu", flush=True)
     return ok
@@ -154,15 +223,26 @@ def report(hero: int, result: dict) -> bool:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--emulator", type=Path, required=True, help="mGBA desktop executable")
+    parser.add_argument(
+        "--emulator", type=Path, required=True, help="mGBA desktop executable"
+    )
     parser.add_argument("--nm", default="arm-none-eabi-nm")
     parser.add_argument("--rom", type=Path, default=ROOT / "build/rotk_hack.gba")
     parser.add_argument("--elf", type=Path, default=ROOT / "build/hack.elf")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--heroes", type=int, nargs="*", default=[2])
-    parser.add_argument("--rooms", type=int, default=4, help="Rooms to clear before the hero falls")
-    parser.add_argument("--probe", action="store_true", help="Play every room map in table order")
-    parser.add_argument("--unlocks", action="store_true", help="Start with every unlock maxed")
+    parser.add_argument(
+        "--rooms", type=int, default=4, help="Rooms to clear before the hero falls"
+    )
+    parser.add_argument(
+        "--probe", action="store_true", help="Play every room map in table order"
+    )
+    parser.add_argument(
+        "--unlocks", action="store_true", help="Start with every unlock maxed"
+    )
+    parser.add_argument(
+        "--boons", action="store_true", help="Stress all boons and cast starting skills"
+    )
     parser.add_argument("--jobs", type=int, default=5)
     parser.add_argument("--timeout", type=int, default=900, help="Seconds per run")
     args = parser.parse_args()
@@ -170,7 +250,9 @@ def main() -> None:
     offset = config_offset(args.elf, args.nm)
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
         futures = {
-            hero: pool.submit(run, args.emulator, rom, offset, hero, args, args.output.resolve())
+            hero: pool.submit(
+                run, args.emulator, rom, offset, hero, args, args.output.resolve()
+            )
             for hero in args.heroes
         }
     results = [report(hero, futures[hero].result()) for hero in args.heroes]

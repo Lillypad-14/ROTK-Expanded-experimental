@@ -12,6 +12,9 @@
 #include "sfx.h"
 #include "terrain.h"
 #include "variables.h"
+#if HACK_gauntlet
+#include "patches/gauntlet/gauntlet_boon_effects.h"
+#endif
 
 #include "skill_delivery_data.inc"
 
@@ -191,6 +194,12 @@ bool skillDelivery_launch(u8 p, const SkillDeliveryDef *definition, const Vector
         contexts[p] = context;
     }
     delivery->definition = *definition;
+#if HACK_gauntlet
+    u16 radius = gauntletBoons_radius(PLAYER(p).ownerActor, definition->radius);
+    u16 splash = gauntletBoons_radius(PLAYER(p).ownerActor, definition->splashRadius);
+    delivery->definition.radius = radius > 128 ? 128 : radius;
+    delivery->definition.splashRadius = splash > 128 ? 128 : splash;
+#endif
     delivery->position = *position;
     delivery->velocity.x = Direction32MoveVectors[direction].x * definition->speed;
     delivery->velocity.y = Direction32MoveVectors[direction].y * definition->speed;

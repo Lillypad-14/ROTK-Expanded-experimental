@@ -18,6 +18,7 @@
 .thumb
 .if HACK_gauntlet
     .include "hacks/patches/gauntlet/gauntlet_compass_hook.asm"
+    .include "hacks/patches/gauntlet/gauntlet_entry_hook.asm"
 .endif
 .if HACK_menu_text
     .include "hacks/patches/menu_text/menu_text.asm"

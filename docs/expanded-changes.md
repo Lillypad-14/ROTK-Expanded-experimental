@@ -59,3 +59,12 @@ These checks do not certify every stock move, native animation, map, equipment c
 Run `make check-mod` for the original-game checks plus the selected hack's linked-content and host regression checks. Use `make check-hacks` for the combined patch selection, `make check-fx` for graphics tooling and `make check-hero-moves` for the focused kit checks. Dependencies and full commands are in [workflow](workflow.md).
 
 The [original changelog](romhack-changelog.md) records the upstream mod's releases. The expansion overview and inventory describe repository content, which can be newer than any published BPS. Release notes should identify the source commit, selected patches, validation performed and known limitations. Distribute BPS patches rather than ROMs.
+
+## Ringwraith second-page progression
+
+Shadowstep opens at level 10, Command of the Nine at 11, Shadow of Mordor at 12, and Black Sacrifice at 13.
+Their later ranks unlock every three levels, reaching rank five at levels 22 through 25.
+Will of Sauron unlocks at levels 16, 18, 20, 22, and 25.
+The six ranked second-page passives start at levels 10 through 15, with two levels between ranks.
+Master of the Dead, Death from Shadow, and Endless Night unlock at levels 20, 21, and 23.
+These requirements apply to learning upgrades; existing purchased ranks are preserved.

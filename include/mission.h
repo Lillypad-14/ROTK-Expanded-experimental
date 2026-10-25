@@ -296,6 +296,7 @@ typedef enum ActorType
     ACTOR_TYPE_ENEMY = 25,            // one enemy; Actor.variant is the kind: 0..2 roll one of
                                       // three units, 3.. map to a unitType via a table
                                       // @0x08283070 (kind 0xd = the flag bearer)
+    ACTOR_TYPE_PROJECTILE = 0x37,
     ACTOR_TYPE_UNKNOWN_3E = 0x3e,
     ACTOR_TYPE_UNKNOWN_4F = 0x4f,
     ACTOR_TYPE_UNKNOWN_50 = 0x50,
@@ -361,8 +362,8 @@ void mission_script_runStream(u8 streamIndex);
 void mission_script_spawnGroupAndStartStream(u8 groupIndex, u8 streamIndex);
 
 /** Compare value with operand and start the pass or fail spawn group and stream pair. */
-void mission_script_compareAndSpawn(u32 value, u32 operand, u32 op, u32 passGroup, u32 passStream, u32 failGroup,
-                                    u32 failStream);
+void mission_script_compareAndSpawn(u32 value, u32 operand, u32 op, u32 passGroup, u32 passStream,
+                                    u32 failGroup, u32 failStream);
 
 u16 mission_script_getGroupActorCount(u8 groupIndex);
 
@@ -370,7 +371,8 @@ ActorMissionParams *mission_script_getActorParams(u8 groupIndex, u8 actorIndex);
 
 Actor *mission_script_getGroupActor(u8 groupIndex, u8 actorIndex);
 
-/** Script opcode handlers (MissionScriptOpcodeHandlers[opcode - 1]); command points at the record. */
+/** Script opcode handlers (MissionScriptOpcodeHandlers[opcode - 1]); command points at the record.
+ */
 void mission_script_op01(const u8 *command);
 void mission_script_op02(const u8 *command);
 void mission_script_op03(const u8 *command);

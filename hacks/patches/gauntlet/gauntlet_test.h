@@ -15,7 +15,7 @@ typedef struct GauntletTestConfig
     u32 hero;
     // 1 to play every room map in table order instead of at random.
     u32 probeMaps;
-    // 1 to start with every unlock at max rank.
+    // Bit 0: every unlock at max rank. Bit 1: grant every boon for stress checks.
     u32 allUnlocks;
 } GauntletTestConfig;
 
@@ -35,6 +35,7 @@ void gauntletTest_tick(Actor *owner);
 /** Keys the test presses on the Gauntlet scene this tick, for an enum GauntletPage. */
 u16 gauntletTest_scenePress(u32 page, u32 cursor);
 
+void gauntletTest_roomEntered(u32 roomType, u32 map, u32 candidate, Actor *owner);
 void gauntletTest_roomCleared(u32 room, u32 mission, u32 spawned, u32 landFails, u32 purged);
 void gauntletTest_runOver(u32 room, u32 kills);
 void gauntletTest_finished(void);

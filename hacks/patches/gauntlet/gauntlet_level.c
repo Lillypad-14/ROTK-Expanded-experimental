@@ -2,6 +2,7 @@
 
 #include "font.h"
 #include "patches/gauntlet/gauntlet.h"
+#include "patches/gauntlet/gauntlet_boon_effects.h"
 #include "patches/skill_expansion/skill_expansion.h"
 #include "player.h"
 #include "rng.h"
@@ -35,6 +36,7 @@ void gauntletLevel_refreshStats(u8 playerIndex)
     PLAYER(playerIndex).baseStats.maxHp =
         player_computeMaxHp(playerIndex, PLAYER(playerIndex).baseStats);
     player_rebuildStats(playerIndex);
+    gauntletBoonEffects_statsRebuilt();
 }
 
 void gauntletLevel_settle(u8 playerIndex)

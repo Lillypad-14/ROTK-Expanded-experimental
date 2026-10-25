@@ -1096,7 +1096,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             },
         [SKILL_EXPANSION_PASSIVE_FADING - PASSIVE_SKILL_COUNT] =
             {
-                ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 15, 17, 19, 21, 23, -1),
+                ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 10, 12, 14, 16, 18, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_NIMBLE,
                 RINGWRAITH_ICON(Fading)
                 .description = "Fading (Level @1) - The Unseen World lasts +0.5s/level and refunds "
@@ -1104,14 +1104,14 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             },
         [SKILL_EXPANSION_PASSIVE_HOST_OF_ANGMAR - PASSIVE_SKILL_COUNT] =
             {
-                ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 16, 18, 20, 22, 24, -1),
+                ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 11, 13, 15, 17, 19, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_RAGE_OF_THE_NORTH,
                 RINGWRAITH_ICON(HostOfAngmar)
                 .description = "Host of Angmar (Level @1) - One more thrall/level may serve you.",
             },
         [SKILL_EXPANSION_PASSIVE_DREAD_LORD - PASSIVE_SKILL_COUNT] =
             {
-                ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 17, 19, 21, 23, 25, -1),
+                ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 12, 14, 16, 18, 20, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_FEARLESS,
                 RINGWRAITH_ICON(DreadLord).description =
                     "Dread Lord (Level @1) - Frightened foes take +4%/level damage from you "
@@ -1119,7 +1119,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             },
         [SKILL_EXPANSION_PASSIVE_FEAST_OF_FEAR - PASSIVE_SKILL_COUNT] =
             {
-                ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 18, 20, 22, 24, 26, -1),
+                ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 13, 15, 17, 19, 21, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_DIRTY_CLAWS,
                 RINGWRAITH_ICON(FeastOfFear)
                 .description =
@@ -1128,7 +1128,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             },
         [SKILL_EXPANSION_PASSIVE_GRAVE_PACT - PASSIVE_SKILL_COUNT] =
             {
-                ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 19, 21, 23, 25, 27, -1),
+                ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 14, 16, 18, 20, 22, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_LAST_STAND,
                 RINGWRAITH_ICON(GravePact)
                 .description = "Grave Pact (Level @1) - Thralls linger +1s/level. A fading thrall "
@@ -1136,7 +1136,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             },
         [SKILL_EXPANSION_PASSIVE_KNIFE_IN_THE_DARK - PASSIVE_SKILL_COUNT] =
             {
-                ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 20, 22, 24, 26, 28, -1),
+                ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 15, 17, 19, 21, 23, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_DEATH_STRIKE,
                 RINGWRAITH_ICON(KnifeInTheDark)
                 .description = "Knife in the Dark (Level @1) - An Unseen kill hides you again for "
@@ -1144,7 +1144,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             },
         [SKILL_EXPANSION_PASSIVE_MASTER_OF_THE_DEAD - PASSIVE_SKILL_COUNT] =
             {
-                ELITE_PASSIVE(1, 30, -1),
+                ELITE_PASSIVE(1, 20, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_SERVANT_OF_THE_SECRET_FIRE,
                 RINGWRAITH_ICON(MasterOfTheDead).description =
                     "Master of the Dead (Level @1) - Your thralls never fade, but your own "
@@ -1152,7 +1152,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             },
         [SKILL_EXPANSION_PASSIVE_DEATH_FROM_SHADOW - PASSIVE_SKILL_COUNT] =
             {
-                ELITE_PASSIVE(1, 31, -1),
+                ELITE_PASSIVE(1, 21, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_BLADEMASTER,
                 RINGWRAITH_ICON(DeathFromShadow)
                 .description = "Death from Shadow (Level @1) - Unseen blows deal x5 instead of x3, "
@@ -1160,7 +1160,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             },
         [SKILL_EXPANSION_PASSIVE_ENDLESS_NIGHT - PASSIVE_SKILL_COUNT] =
             {
-                ELITE_PASSIVE(1, 33, -1),
+                ELITE_PASSIVE(1, 23, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_IRON_WILL,
                 RINGWRAITH_ICON(EndlessNight).description =
                     "Endless Night (Level @1) - Dread never fades and your aura spreads "

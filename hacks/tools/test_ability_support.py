@@ -7,6 +7,11 @@ import tempfile
 
 
 def main() -> None:
+    from test_gauntlet_boons import main as test_gauntlet_boons
+    from test_gauntlet_text import main as test_gauntlet_text
+
+    test_gauntlet_boons()
+    test_gauntlet_text()
     root = Path(__file__).resolve().parents[2]
     compiler = shutil.which("clang") or shutil.which("cc")
     if compiler is None:

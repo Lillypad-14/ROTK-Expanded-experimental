@@ -246,7 +246,7 @@ static bool reset(u32 encounter)
         kit->cleanup(0, owner);
     }
     skillExpansion_eliteCleanup(0, owner);
-    skillExpansion_eliteReset(0);
+    skillExpansion_eliteReset(0, FALSE);
     if (kit != NULL && kit->reset != NULL)
     {
         kit->reset(0);

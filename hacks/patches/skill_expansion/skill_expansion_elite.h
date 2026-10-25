@@ -77,7 +77,7 @@ static inline u32 *skillExpansion_heroStateClaim(u8 playerIndex, u8 heroId, u8 c
     return block;
 }
 
-void skillExpansion_eliteReset(u8 playerIndex);
+void skillExpansion_eliteReset(u8 playerIndex, bool preserveFlame);
 void skillExpansion_eliteCleanup(u8 playerIndex, Actor *actor);
 void skillExpansion_wrapStockCallbacks(u32 heroId, u8 playerIndex);
 

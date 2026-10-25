@@ -2,6 +2,7 @@
 
 #include "game.h"
 #include "gba_io.h"
+#include "gfx.h"
 #include "lib/combat_source.h"
 #include "lib/movement.h"
 #include "memory.h"
@@ -10,6 +11,7 @@
 #include "patches/gauntlet/gauntlet_meta.h"
 #include "patches/mod_ram/memory_diagnostics.h"
 #include "patches/skill_expansion/skill_expansion_elite.h"
+#include "patches/skill_expansion/skill_expansion_runtime.h"
 #include "player.h"
 #include "rng.h"
 #include "save.h"
@@ -136,11 +138,18 @@ void gauntletTest_boot(void)
     debugPrint("GAUNTLET_BOOT");
     // The main menu seeds the gameplay stream in normal play.
     rng_reseed();
-    if (gauntletTest_config.allUnlocks)
+    if (gauntletTest_config.allUnlocks & 1)
     {
         maxUnlocks();
     }
     gauntlet_startRun(gauntletTest_config.hero);
+    if (gauntletTest_config.allUnlocks & 2)
+    {
+        for (u32 boon = 0; boon < GAUNTLET_BOON_COUNT; boon++)
+        {
+            gauntletBoons_grant(boon);
+        }
+    }
 }
 
 /** Fell the first living foe through the player's damage path, so kills award XP. */
@@ -161,57 +170,6 @@ static void killOne(Actor *owner)
     }
 }
 
-static void followRoute(Actor *owner)
-{
-    Vector2Fp16 target;
-    Vector2Fp16 next = owner->coords;
-    s32 dx;
-    s32 dy;
-    if (!gauntlet_travelTarget(&target))
-    {
-        return;
-    }
-    dx = target.x - next.x;
-    dy = target.y - next.y;
-    next.x += dx > 4 * FP16_16_ONE    ? 4 * FP16_16_ONE
-              : dx < -4 * FP16_16_ONE ? -4 * FP16_16_ONE
-                                      : dx;
-    next.y += dy > 4 * FP16_16_ONE    ? 4 * FP16_16_ONE
-              : dy < -4 * FP16_16_ONE ? -4 * FP16_16_ONE
-                                      : dy;
-    if (!hackLib_canLandAt(owner, &next))
-    {
-        Vector2Fp16 horizontal = {next.x, owner->coords.y};
-        Vector2Fp16 vertical = {owner->coords.x, next.y};
-        next = hackLib_canLandAt(owner, &horizontal) ? horizontal : vertical;
-    }
-    if (hackLib_canLandAt(owner, &next))
-    {
-        owner->renderCoords.x += next.x - owner->coords.x;
-        owner->renderCoords.y += next.y - owner->coords.y;
-        owner->coords = next;
-    }
-}
-
-static void reportRoute(Actor *owner)
-{
-    char line[DEBUG_STRING_SIZE];
-    Vector2Fp16 target = {0};
-    bool32 traveling = gauntlet_travelTarget(&target);
-    char *out = appendText(line, "GAUNTLET_NAV");
-    out = appendNumber(out, PLAYER(0).heroId);
-    out = appendNumber(out, owner->coords.x >> 16);
-    out = appendNumber(out, owner->coords.y >> 16);
-    out = appendNumber(out, target.x >> 16);
-    out = appendNumber(out, target.y >> 16);
-    out = appendNumber(out, owner->movementCollisionBox.xMin);
-    out = appendNumber(out, owner->movementCollisionBox.xMax);
-    out = appendNumber(out, owner->movementCollisionBox.yMin);
-    out = appendNumber(out, owner->movementCollisionBox.yMax);
-    appendNumber(out, traveling);
-    debugPrint(line);
-}
-
 void gauntletTest_tick(Actor *owner)
 {
     char line[DEBUG_STRING_SIZE];
@@ -226,24 +184,17 @@ void gauntletTest_tick(Actor *owner)
         return;
     }
     PLAYER(0).currentHp = PLAYER_STAT(0, STAT_MAX_HP);
-    // Stand still first: encounters must not start just because time passed.
-    if (TestState.roomTicks < 180)
+    if ((gauntletTest_config.allUnlocks & 2) && TestState.roomTicks % 90 == 0)
     {
-        Actor *cursor;
-        for (cursor = g_ActorListMain.head; cursor != NULL; cursor = cursor->next)
+        PLAYER(0).currentSpirit = PLAYER_STAT(0, STAT_MAX_SPIRIT);
+        for (u32 row = 0; row < SKILL_EXPANSION_ACTIVE_ROW_COUNT; row++)
         {
-            if (gauntlet_isLivingRunFoe(cursor) && !TestState.stuckReported)
+            if (*skillExpansion_activeLevel(0, row) != 0 && row != ACTIVE_SKILL_HERBAL_HEALING)
             {
-                appendNumber(appendText(line, "GAUNTLET_STUCK"), gauntlet_roomsCleared() + 1);
-                debugPrint(line);
-                reportRoute(owner);
-                TestState.stuckReported = TRUE;
+                skillExpansion_cast(0, row);
+                break;
             }
         }
-    }
-    else
-    {
-        followRoute(owner);
     }
     if (++TestState.killTicks >= KILL_INTERVAL)
     {
@@ -253,7 +204,6 @@ void gauntletTest_tick(Actor *owner)
     if (++TestState.roomTicks >= ROOM_TIMEOUT_TICKS && !TestState.stuckReported)
     {
         TestState.stuckReported = TRUE;
-        reportRoute(owner);
         appendNumber(appendText(line, "GAUNTLET_STUCK"), gauntlet_roomsCleared() + 1);
         debugPrint(line);
     }
@@ -273,6 +223,15 @@ u16 gauntletTest_scenePress(u32 page, u32 cursor)
     }
     if (page == GAUNTLET_PAGE_BRIEFING)
     {
+        return A_BUTTON;
+    }
+    // Map probes take the first door. Other runs move across the doors to exercise every kind.
+    if (page == GAUNTLET_PAGE_DOORS)
+    {
+        if (!gauntletTest_probesMaps() && cursor != gauntlet_roomsCleared() % GAUNTLET_DOOR_COUNT)
+        {
+            return DPAD_RIGHT;
+        }
         return A_BUTTON;
     }
     if (page == GAUNTLET_PAGE_UNLOCKS)
@@ -295,6 +254,28 @@ u16 gauntletTest_scenePress(u32 page, u32 cursor)
     return A_BUTTON;
 }
 
+void gauntletTest_roomEntered(u32 roomType, u32 map, u32 candidate, Actor *owner)
+{
+    char line[DEBUG_STRING_SIZE];
+    char *out;
+    if (!gauntletTest_isActive())
+    {
+        return;
+    }
+    out = appendText(line, "GAUNTLET_ENTRY");
+    out = appendNumber(out, roomType);
+    out = appendNumber(out, map);
+    out = appendNumber(out, candidate);
+    out = appendNumber(out, owner->coords.x >> 16);
+    out = appendNumber(out, owner->coords.y >> 16);
+    appendNumber(out, hackLib_canLandAt(owner, &owner->coords));
+    debugPrint(line);
+    out = appendText(line, "GAUNTLET_VARIANT");
+    out = appendNumber(out, gauntlet_roomDoor().modifier);
+    appendNumber(out, gauntlet_rewardRarity());
+    debugPrint(line);
+}
+
 void gauntletTest_roomCleared(u32 room, u32 mission, u32 spawned, u32 landFails, u32 purged)
 {
     char line[DEBUG_STRING_SIZE];
@@ -315,6 +296,12 @@ void gauntletTest_roomCleared(u32 room, u32 mission, u32 spawned, u32 landFails,
     out = appendNumber(out, PLAYER_STAT(0, STAT_MAX_HP));
     appendMemory(out);
     debugPrint(line);
+    out = appendText(line, "GAUNTLET_BACKDROP");
+    out = appendNumber(out, mission);
+    out = appendNumber(out, g_TransitionState.effect);
+    out = appendNumber(out, g_Bg.layers[1].control);
+    appendNumber(out, g_TransitionState.field_0x09[3]);
+    debugPrint(line);
     TestState.roomTicks = 0;
     TestState.stuckReported = FALSE;
 }
@@ -334,6 +321,10 @@ void gauntletTest_runOver(u32 room, u32 kills)
     out = appendNumber(out, gauntletBoons_ownedCount());
     out = appendNumber(out, gauntlet_rerollsLeft());
     appendMemory(out);
+    debugPrint(line);
+    out = appendText(line, "GAUNTLET_HERBS");
+    out = appendNumber(out, gauntlet_hasHerbs());
+    appendNumber(out, PLAYER(0).kingsfoilHerbs.fresh);
     debugPrint(line);
 }
 

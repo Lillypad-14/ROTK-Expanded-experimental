@@ -90,9 +90,11 @@ void skillExpansion_eliteCleanup(u8 p, Actor *actor)
     (void)p;
     (void)actor;
 }
-void skillExpansion_eliteReset(u8 p)
+static bool preservedFlame;
+void skillExpansion_eliteReset(u8 p, bool preserveFlame)
 {
     (void)p;
+    preservedFlame = preserveFlame;
 }
 void skillExpansion_initHeroLoadout(u32 hero, u32 p)
 {
@@ -267,6 +269,24 @@ static void cast(void)
 }
 int main(void)
 {
+    reset();
+    PLAYER(0).heroId = HERO_ID_ARAGORN;
+    g_ActorListMain.head = &owner;
+    skillExpansion_runtimeBegin(0, HERO_ID_ARAGORN);
+    assert(!preservedFlame);
+    skillExpansion_runtimeBegin(0, HERO_ID_ARAGORN);
+    assert(preservedFlame);
+    PLAYER(0).currentHp = 0;
+    skillExpansion_runtimeBegin(0, HERO_ID_ARAGORN);
+    assert(!preservedFlame);
+    PLAYER(0).currentHp = 50;
+    generation++;
+    skillExpansion_runtimeBegin(0, HERO_ID_ARAGORN);
+    assert(!preservedFlame);
+    skillExpansion_runtimeBegin(0, HERO_ID_GANDALF);
+    assert(!preservedFlame);
+    g_ActorListMain.head = NULL;
+    puts("PASS: live stat refresh preserves Flame charge; death and hero replacement reset it");
     reset();
     cast();
     assert(*skillExpansion_activeLevel(0, 5) == 5);

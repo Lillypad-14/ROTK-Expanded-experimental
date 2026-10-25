@@ -604,9 +604,10 @@ void skillExpansion_treeDrawPassiveTile(u8 playerIndex, u8 passiveSkillId, u8 ti
     u16 iconTiles = tile * 0x10 + 0x1ff;
     u16 levelTiles = tile * 0x10 + 0x20b;
     const void *icon = skillExpansion_getPassiveIcon(passiveSkillId);
+    const PassiveSkill *skill = skillExpansion_getPassiveSkill(passiveSkillId);
     u8 build;
 
-    if (skillExpansion_getPassiveSkill(passiveSkillId) == NULL)
+    if (skill == NULL)
     {
         drawEmptyTile(pos);
         return;
@@ -618,11 +619,12 @@ void skillExpansion_treeDrawPassiveTile(u8 playerIndex, u8 passiveSkillId, u8 ti
     build = skillExpansion_passiveBuild(passiveSkillId);
     tintAssetPalette(icon, 4, skillExpansion_buildArtRamp(build, FALSE));
     colorTile(skillExpansion_getHeroTileBgAsset(playerIndex), 4, icon, pos, build);
-    if (tile == UNIQUE_PASSIVE_TILE && skillExpansion_treePage == 0)
+    // A skill with one level shows the single square of the stock unique passive, not five.
+    if ((tile == UNIQUE_PASSIVE_TILE && skillExpansion_treePage == 0) || skill->maxLevel == 1)
     {
         if (level != 0)
         {
-            gfx_unknown080127d0(2, SkillTreeUniqueLearnedAsset, 0x28b, 5, pos->x,
+            gfx_unknown080127d0(2, SkillTreeUniqueLearnedAsset, levelTiles, 5, pos->x,
                                 pos->y + TILE_ICON_HEIGHT);
         }
         else

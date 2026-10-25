@@ -16,8 +16,8 @@
 #include "patches/skill_expansion/skill_expansion.h"
 #include "patches/skill_expansion/skill_expansion_frodo.h"
 #include "patches/skill_expansion/skill_expansion_gandalf.h"
-#include "patches/skill_expansion/skill_expansion_legolas.h"
 #include "patches/skill_expansion/skill_expansion_gimli.h"
+#include "patches/skill_expansion/skill_expansion_legolas.h"
 #include "patches/skill_expansion/skill_expansion_runtime.h"
 #include "patches/skill_expansion/skill_expansion_sam.h"
 #include "patches/skill_expansion/skill_expansion_smeagol.h"
@@ -31,6 +31,7 @@
 #endif
 #if HACK_gauntlet
 #include "patches/gauntlet/gauntlet.h"
+#include "patches/gauntlet/gauntlet_boon_effects.h"
 #include "patches/gauntlet/gauntlet_boons.h"
 #endif
 #if HACK_debug_cheats
@@ -59,7 +60,8 @@
 #define REFORGED_PERCENT 10
 #define BAR_FLASH_FRAMES 8
 #define BAR_PULSE_FRAMES 16
-// WeaponPrefixes rows borrowed for their blade glows: Fireburst for a full bar, Sunburst for the blaze.
+// WeaponPrefixes rows borrowed for their blade glows: Fireburst for a full bar, Sunburst for the
+// blaze.
 #define CHARGED_GLOW_PREFIX 150
 #define BLAZE_GLOW_PREFIX 55
 // Fire damage each melee blow adds while the Flame bar is full.
@@ -267,6 +269,15 @@ void skillExpansion_addHp(u8 playerIndex, s16 amount, bool flinchOnDamage)
     {
         return;
     }
+#if HACK_gauntlet
+    s32 adjusted = amount;
+    gauntletBoonEffects_hp(playerIndex, &adjusted, &flinchOnDamage);
+    amount = adjusted < -32767 ? -32767 : adjusted > 32767 ? 32767 : adjusted;
+    if (amount == 0)
+    {
+        flinchOnDamage = FALSE;
+    }
+#endif
     IncomingResolution *incoming = currentIncomingResolution;
     if (amount >= 0 || incoming == NULL || incoming->playerIndex != playerIndex ||
         incoming->source != hackLib_currentDamageSource())
@@ -847,7 +858,8 @@ static void huntersPatience(u8 playerIndex, EliteState *st, Actor *playerActor)
     }
 }
 
-/** Anduril's blade glows with a stock affix glow while the Flame bar is full or Flame of the West burns. */
+/** Anduril's blade glows with a stock affix glow while the Flame bar is full or Flame of the West
+ * burns. */
 static void chargedBlade(u8 playerIndex, EliteState *st)
 {
     Player *player = &PLAYER(playerIndex);
@@ -949,9 +961,14 @@ static void eliteTick(u8 playerIndex, Actor *playerActor)
     skillExpansion_legolasTick(playerIndex, playerActor);
 }
 
-void skillExpansion_eliteReset(u8 playerIndex)
+void skillExpansion_eliteReset(u8 playerIndex, bool preserveFlame)
 {
+    u8 meter = preserveFlame && isAragorn(playerIndex) ? states[playerIndex].meter : 0;
+    u16 idle = preserveFlame && isAragorn(playerIndex) ? states[playerIndex].meterIdleFrames : 0;
+
     memory_memset(&states[playerIndex], 0, sizeof(states[playerIndex]));
+    states[playerIndex].meter = meter;
+    states[playerIndex].meterIdleFrames = idle;
     skillExpansion_frodoReset(playerIndex);
     skillExpansion_smeagolReset(playerIndex);
     skillExpansion_samReset(playerIndex);
@@ -1247,7 +1264,7 @@ static HackLibDamageResult dealDamage(Actor *attacker, Actor *victim, u16 damage
     HackLibDamageSource source = {attacker,   kind,
                                   abilityRow, parent != NULL ? parent->depth + 1 : 0,
                                   elements,   elementsKnown};
-    HackLibDamageResult result = {FALSE, FALSE, 0};
+    HackLibDamageResult result = {0};
 
     if (source.depth >= HACKLIB_MAX_DAMAGE_DEPTH)
     {
@@ -1270,7 +1287,7 @@ HackLibDamageResult skillExpansion_dealElementalDamage(Actor *attacker, Actor *v
 {
     if (elements & ~HACKLIB_ELEMENT_MASK)
     {
-        return (HackLibDamageResult){FALSE, FALSE, 0};
+        return (HackLibDamageResult){0};
     }
     return dealDamage(attacker, victim, damage, kind, abilityRow, elements, TRUE);
 }
@@ -1674,15 +1691,15 @@ bool32 skillExpansion_canCastReturnOfTheKing(u8 playerIndex)
     return states[playerIndex].returnFrames == 0;
 }
 
-static const HackLibHudMeterLook FlameBarCharge = {
-    HACKLIB_HUD_COLOR_GOLD, HACKLIB_HUD_COLOR_EMBER, HACKLIB_HUD_COLOR_DARK_RED,
-    HACKLIB_HUD_COLOR_WHITE};
-static const HackLibHudMeterLook FlameBarBright = {
-    HACKLIB_HUD_COLOR_PALE_GOLD, HACKLIB_HUD_COLOR_GOLD, HACKLIB_HUD_COLOR_EMBER,
-    HACKLIB_HUD_COLOR_WHITE};
-static const HackLibHudMeterLook FlameBarGlint = {
-    HACKLIB_HUD_COLOR_WHITE, HACKLIB_HUD_COLOR_PALE_GOLD, HACKLIB_HUD_COLOR_RED,
-    HACKLIB_HUD_COLOR_WHITE};
+static const HackLibHudMeterLook FlameBarCharge = {HACKLIB_HUD_COLOR_GOLD, HACKLIB_HUD_COLOR_EMBER,
+                                                   HACKLIB_HUD_COLOR_DARK_RED,
+                                                   HACKLIB_HUD_COLOR_WHITE};
+static const HackLibHudMeterLook FlameBarBright = {HACKLIB_HUD_COLOR_PALE_GOLD,
+                                                   HACKLIB_HUD_COLOR_GOLD, HACKLIB_HUD_COLOR_EMBER,
+                                                   HACKLIB_HUD_COLOR_WHITE};
+static const HackLibHudMeterLook FlameBarGlint = {HACKLIB_HUD_COLOR_WHITE,
+                                                  HACKLIB_HUD_COLOR_PALE_GOLD,
+                                                  HACKLIB_HUD_COLOR_RED, HACKLIB_HUD_COLOR_WHITE};
 static const u8 FlameBarMarks[] = {METER_MAX / 2};
 
 void skillExpansion_aragornDrawFlameBar(u8 playerIndex)

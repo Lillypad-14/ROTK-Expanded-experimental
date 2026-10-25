@@ -313,6 +313,300 @@ static const GauntletRoutePoint Route17_2[] = {
     {860, 1116}, {860, 1084}, {860, 1052}, {860, 1020}, {860, 988},  {860, 980},
 };
 
+static const GauntletRoutePoint Route18_0[] = {
+    {84, 100},
+    {516, 492},
+    {116, 492},
+    {452, 132},
+};
+
+static const GauntletRoutePoint Route18_1[] = {
+    {252, 284},
+    {316, 548},
+    {36, 300},
+    {268, 44},
+};
+
+static const GauntletRoutePoint Route18_2[] = {
+    {540, 300},
+    {388, 380},
+    {236, 420},
+    {204, 164},
+};
+
+static const GauntletRoutePoint Route19_0[] = {
+    {172, 444},
+    {460, 180},
+    {500, 540},
+    {116, 140},
+};
+
+static const GauntletRoutePoint Route19_1[] = {
+    {372, 372},
+    {292, 100},
+    {68, 308},
+    {332, 524},
+};
+
+static const GauntletRoutePoint Route19_2[] = {
+    {276, 252},
+    {516, 324},
+    {188, 324},
+    {476, 428},
+};
+
+static const GauntletRoutePoint Route20_0[] = {
+    {1308, 92},
+    {52, 300},
+    {692, 68},
+    {332, 76},
+};
+
+static const GauntletRoutePoint Route20_1[] = {
+    {996, 180},
+    {532, 284},
+    {100, 92},
+    {516, 100},
+};
+
+static const GauntletRoutePoint Route20_2[] = {
+    {844, 124},
+    {1148, 124},
+    {188, 220},
+    {428, 164},
+};
+
+static const GauntletRoutePoint Route21_0[] = {
+    {36, 1092},
+    {988, 836},
+    {492, 884},
+    {748, 660},
+};
+
+static const GauntletRoutePoint Route21_1[] = {
+    {284, 1036},
+    {772, 876},
+    {548, 684},
+    {892, 716},
+};
+
+static const GauntletRoutePoint Route21_2[] = {
+    {180, 1148},
+    {628, 812},
+    {140, 988},
+    {372, 940},
+};
+
+static const GauntletRoutePoint Route22_0[] = {
+    {604, 836},
+    {1764, 724},
+    {1188, 812},
+    {1484, 812},
+};
+
+static const GauntletRoutePoint Route22_1[] = {
+    {892, 804},
+    {324, 820},
+    {1044, 772},
+    {748, 788},
+};
+
+static const GauntletRoutePoint Route22_2[] = {
+    {468, 788},
+    {1332, 804},
+    {1660, 748},
+    {660, 756},
+};
+
+static const GauntletRoutePoint Route23_0[] = {
+    {36, 1476},
+    {1564, 132},
+    {196, 132},
+    {1396, 1452},
+};
+
+static const GauntletRoutePoint Route23_1[] = {
+    {708, 876},
+    {876, 156},
+    {36, 788},
+    {1428, 780},
+};
+
+static const GauntletRoutePoint Route23_2[] = {
+    {684, 1516},
+    {508, 468},
+    {332, 1132},
+    {1092, 1116},
+};
+
+static const GauntletRoutePoint Route24_0[] = {
+    {180, 84},
+    {1420, 1508},
+    {1452, 116},
+    {300, 1236},
+};
+
+static const GauntletRoutePoint Route24_1[] = {
+    {964, 764},
+    {796, 172},
+    {84, 676},
+    {836, 1476},
+};
+
+static const GauntletRoutePoint Route24_2[] = {
+    {1404, 588},
+    {540, 564},
+    {1276, 1084},
+    {692, 1084},
+};
+
+static const GauntletRoutePoint Route25_0[] = {
+    {860, 1628},
+    {860, 84},
+    {52, 852},
+    {44, 1796},
+};
+
+static const GauntletRoutePoint Route25_1[] = {
+    {828, 988},
+    {308, 308},
+    {372, 1332},
+    {756, 548},
+};
+
+static const GauntletRoutePoint Route25_2[] = {
+    {460, 1732},
+    {444, 884},
+    {36, 1212},
+    {732, 1308},
+};
+
+static const GauntletRoutePoint Route26_0[] = {
+    {356, 612},
+    {756, 308},
+    {68, 404},
+    {396, 300},
+};
+
+static const GauntletRoutePoint Route26_1[] = {
+    {588, 500},
+    {252, 452},
+    {596, 348},
+    {428, 436},
+};
+
+static const GauntletRoutePoint Route26_2[] = {
+    {716, 444},
+    {180, 348},
+    {340, 508},
+    {492, 348},
+};
+
+static const GauntletRoutePoint Route27_0[] = {
+    {180, 1532},
+    {508, 1572},
+    {36, 1340},
+    {356, 1484},
+};
+
+static const GauntletRoutePoint Route27_1[] = {
+    {36, 1492},
+    {140, 1412},
+    {284, 1572},
+    {244, 1444},
+};
+
+static const GauntletRoutePoint Route27_2[] = {
+    {404, 1572},
+    {92, 1572},
+    {60, 1412},
+    {116, 1484},
+};
+
+static const GauntletRoutePoint Route28_0[] = {
+    {100, 852},
+    {1404, 28},
+    {1068, 940},
+    {564, 140},
+};
+
+static const GauntletRoutePoint Route28_1[] = {
+    {1020, 372},
+    {76, 244},
+    {572, 996},
+    {444, 572},
+};
+
+static const GauntletRoutePoint Route28_2[] = {
+    {1380, 812},
+    {796, 748},
+    {148, 564},
+    {1244, 556},
+};
+
+static const GauntletRoutePoint Route29_0[] = {
+    {44, 76},
+    {1460, 948},
+    {444, 1004},
+    {700, 356},
+};
+
+static const GauntletRoutePoint Route29_1[] = {
+    {100, 604},
+    {948, 860},
+    {332, 308},
+    {1244, 644},
+};
+
+static const GauntletRoutePoint Route29_2[] = {
+    {476, 636},
+    {948, 548},
+    {180, 884},
+    {668, 836},
+};
+
+static const GauntletRoutePoint Route30_0[] = {
+    {36, 1404},
+    {1556, 132},
+    {1468, 1564},
+    {196, 84},
+};
+
+static const GauntletRoutePoint Route30_1[] = {
+    {828, 828},
+    {740, 1564},
+    {1556, 884},
+    {876, 108},
+};
+
+static const GauntletRoutePoint Route30_2[] = {
+    {84, 740},
+    {1220, 508},
+    {460, 1156},
+    {1108, 1228},
+};
+
+static const GauntletRoutePoint Route31_0[] = {
+    {36, 604},
+    {636, 44},
+    {140, 92},
+    {444, 436},
+};
+
+static const GauntletRoutePoint Route31_1[] = {
+    {172, 364},
+    {396, 172},
+    {276, 604},
+    {628, 364},
+};
+
+static const GauntletRoutePoint Route31_2[] = {
+    {564, 204},
+    {300, 44},
+    {236, 220},
+    {156, 516},
+};
+
 const GauntletRoute GauntletRoutes[][GAUNTLET_SECTOR_COUNT] = {
     {
         {Route0_0, ARRAY_COUNT(Route0_0)},
@@ -404,6 +698,76 @@ const GauntletRoute GauntletRoutes[][GAUNTLET_SECTOR_COUNT] = {
         {Route17_1, ARRAY_COUNT(Route17_1)},
         {Route17_2, ARRAY_COUNT(Route17_2)},
     },
+    {
+        {Route18_0, ARRAY_COUNT(Route18_0)},
+        {Route18_1, ARRAY_COUNT(Route18_1)},
+        {Route18_2, ARRAY_COUNT(Route18_2)},
+    },
+    {
+        {Route19_0, ARRAY_COUNT(Route19_0)},
+        {Route19_1, ARRAY_COUNT(Route19_1)},
+        {Route19_2, ARRAY_COUNT(Route19_2)},
+    },
+    {
+        {Route20_0, ARRAY_COUNT(Route20_0)},
+        {Route20_1, ARRAY_COUNT(Route20_1)},
+        {Route20_2, ARRAY_COUNT(Route20_2)},
+    },
+    {
+        {Route21_0, ARRAY_COUNT(Route21_0)},
+        {Route21_1, ARRAY_COUNT(Route21_1)},
+        {Route21_2, ARRAY_COUNT(Route21_2)},
+    },
+    {
+        {Route22_0, ARRAY_COUNT(Route22_0)},
+        {Route22_1, ARRAY_COUNT(Route22_1)},
+        {Route22_2, ARRAY_COUNT(Route22_2)},
+    },
+    {
+        {Route23_0, ARRAY_COUNT(Route23_0)},
+        {Route23_1, ARRAY_COUNT(Route23_1)},
+        {Route23_2, ARRAY_COUNT(Route23_2)},
+    },
+    {
+        {Route24_0, ARRAY_COUNT(Route24_0)},
+        {Route24_1, ARRAY_COUNT(Route24_1)},
+        {Route24_2, ARRAY_COUNT(Route24_2)},
+    },
+    {
+        {Route25_0, ARRAY_COUNT(Route25_0)},
+        {Route25_1, ARRAY_COUNT(Route25_1)},
+        {Route25_2, ARRAY_COUNT(Route25_2)},
+    },
+    {
+        {Route26_0, ARRAY_COUNT(Route26_0)},
+        {Route26_1, ARRAY_COUNT(Route26_1)},
+        {Route26_2, ARRAY_COUNT(Route26_2)},
+    },
+    {
+        {Route27_0, ARRAY_COUNT(Route27_0)},
+        {Route27_1, ARRAY_COUNT(Route27_1)},
+        {Route27_2, ARRAY_COUNT(Route27_2)},
+    },
+    {
+        {Route28_0, ARRAY_COUNT(Route28_0)},
+        {Route28_1, ARRAY_COUNT(Route28_1)},
+        {Route28_2, ARRAY_COUNT(Route28_2)},
+    },
+    {
+        {Route29_0, ARRAY_COUNT(Route29_0)},
+        {Route29_1, ARRAY_COUNT(Route29_1)},
+        {Route29_2, ARRAY_COUNT(Route29_2)},
+    },
+    {
+        {Route30_0, ARRAY_COUNT(Route30_0)},
+        {Route30_1, ARRAY_COUNT(Route30_1)},
+        {Route30_2, ARRAY_COUNT(Route30_2)},
+    },
+    {
+        {Route31_0, ARRAY_COUNT(Route31_0)},
+        {Route31_1, ARRAY_COUNT(Route31_1)},
+        {Route31_2, ARRAY_COUNT(Route31_2)},
+    },
 };
 
-const u8 GauntletRouteEntrances[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+const u8 GauntletRouteEntrances[GAUNTLET_ROUTE_MAP_COUNT] = {0};

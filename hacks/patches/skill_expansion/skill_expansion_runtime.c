@@ -13,6 +13,9 @@
 #include "patches/skill_expansion/skill_expansion_timeline.h"
 #include "scene.h"
 #include "stats.h"
+#if HACK_gauntlet
+#include "patches/gauntlet/gauntlet_boon_effects.h"
+#endif
 #if HACK_twists
 #include "patches/twists/twists.h"
 #endif
@@ -167,6 +170,7 @@ void skillExpansion_runtimeBegin(u8 playerIndex, u8 heroId)
     Actor *actor = PLAYER(playerIndex).ownerActor;
     Actor *cursor;
     bool ownerAlive = FALSE;
+    bool preserveFlame = FALSE;
 
     hackLib_clearOwnerEffects(runtime->owner);
     hackLib_clearOwnerSummons(runtime->owner);
@@ -178,6 +182,8 @@ void skillExpansion_runtimeBegin(u8 playerIndex, u8 heroId)
     if (runtime->initialized && runtime->owner == actor && ownerAlive &&
         runtime->ownerGeneration == hackLib_actorGeneration(actor))
     {
+        // Stat rebuilds reuse the living hero and must retain accumulated Flame charge.
+        preserveFlame = runtime->heroId == heroId && PLAYER(playerIndex).currentHp > 0;
         if (runtime->kit != NULL && runtime->kit->cleanup != NULL)
         {
             runtime->kit->cleanup(playerIndex, actor);
@@ -195,7 +201,7 @@ void skillExpansion_runtimeBegin(u8 playerIndex, u8 heroId)
     runtime->heroId = heroId;
     runtime->kit = skillExpansion_getHeroKit(heroId);
     runtime->initialized = TRUE;
-    skillExpansion_eliteReset(playerIndex);
+    skillExpansion_eliteReset(playerIndex, preserveFlame);
     if (runtime->kit != NULL && runtime->kit->reset != NULL)
     {
         runtime->kit->reset(playerIndex);
@@ -261,6 +267,9 @@ void skillExpansion_finishCast(u8 playerIndex, SkillExpansionCastResult result)
     };
     SkillExpansionRuntime *runtime = &skillExpansion_runtime[playerIndex];
 
+#if HACK_gauntlet
+    bool boonPending = runtime->pending;
+#endif
     skillExpansion_gimliCastEnded(playerIndex, result == SKILL_CAST_SUCCESS);
     if (result != SKILL_CAST_SUCCESS)
     {
@@ -279,6 +288,12 @@ void skillExpansion_finishCast(u8 playerIndex, SkillExpansionCastResult result)
         runtime->pending = FALSE;
         runtime->paidSpirit = 0;
     }
+#if HACK_gauntlet
+    if (boonPending && result != SKILL_CAST_SUCCESS)
+    {
+        gauntletBoons_castResolved(playerIndex, runtime->pendingRow, FALSE);
+    }
+#endif
     runtime->lastResult = result;
 }
 
@@ -316,6 +331,9 @@ void skillExpansion_cast(u8 playerIndex, u8 row)
         player_addSpirit(playerIndex, -(s32)PLAYER_ACTIVE_SKILL(playerIndex, row).spiritCost);
     }
     runtime->paidSpirit = before - PLAYER(playerIndex).currentSpirit;
+#if HACK_gauntlet
+    gauntletBoons_castStarted(playerIndex, row, before, runtime->paidSpirit);
+#endif
     runtime->pendingRow = row;
     runtime->pending = TRUE;
     PLAYER(playerIndex).castingActiveSkill = row;
@@ -405,6 +423,9 @@ void skillExpansion_resolveTimelineCast(Actor *actor)
         }
         hackLib_swapDamageSource(previous);
     }
+#if HACK_gauntlet
+    gauntletBoons_castResolved(p, row, runtime->lastResult == SKILL_CAST_SUCCESS);
+#endif
     runtime->pending = FALSE;
     runtime->paidSpirit = 0;
 }
@@ -444,7 +465,7 @@ void skillExpansion_runtimeTick(u8 playerIndex, Actor *actor)
         runtime->paidSpirit = 0;
         runtime->feedbackDrawn = FALSE;
         memory_memset(runtime->cooldowns, 0, sizeof(runtime->cooldowns));
-        skillExpansion_eliteReset(playerIndex);
+        skillExpansion_eliteReset(playerIndex, FALSE);
         if (runtime->kit != NULL && runtime->kit->reset != NULL)
         {
             runtime->kit->reset(playerIndex);

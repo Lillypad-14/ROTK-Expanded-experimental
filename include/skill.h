@@ -316,7 +316,9 @@ typedef struct SceneInfo
 {
     u8 field_0x00[0x3c];
     u32 fadeColor;
-    u8 field_0x40[12];
+    u8 field_0x40[11];
+    // 4 uses the animated-water backdrop initialized by mission script op 26.
+    u8 backdropKind;
 } SceneInfo;
 
 Actor *skill_active_frodoTheOneRing(Actor *playerActor);

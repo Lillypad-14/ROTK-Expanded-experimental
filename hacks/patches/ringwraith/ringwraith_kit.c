@@ -19,6 +19,9 @@
 #include "sfx.h"
 #include "stats.h"
 #include "variables.h"
+#if HACK_gauntlet
+#include "patches/gauntlet/gauntlet.h"
+#endif
 
 // Dread
 #define DREAD_MAX 100
@@ -301,6 +304,7 @@ typedef struct RingwraithState
 } RingwraithState;
 
 static DreadMark *marks;
+static u8 markCapacity;
 static RingwraithState states[2];
 
 Actor *ringwraith_kitEnemyAttacker;
@@ -468,14 +472,28 @@ static DreadMark *findMark(Actor *foe)
 {
     if (marks == NULL)
     {
-        if (foe == NULL || (marks = memory_zalloc(sizeof(*marks) * DREAD_MARK_COUNT)) == NULL)
+        if (foe == NULL)
         {
             return NULL;
         }
+        u8 count = DREAD_MARK_COUNT;
+#if HACK_gauntlet
+        // A run has at most eight living foes, plus marks awaiting the next tick.
+        if (gauntlet_isRunning())
+        {
+            count = 12;
+        }
+#endif
+        marks = memory_zalloc(sizeof(*marks) * count);
+        if (marks == NULL)
+        {
+            return NULL;
+        }
+        markCapacity = count;
     }
     u32 i;
 
-    for (i = 0; i < DREAD_MARK_COUNT; i++)
+    for (i = 0; i < markCapacity; i++)
     {
         if (marks[i].actor != NULL &&
             (marks[i].generation == 0 ||
@@ -680,7 +698,7 @@ static void updateMarks(void)
         return;
     }
 
-    for (i = 0; i < DREAD_MARK_COUNT; i++)
+    for (i = 0; i < markCapacity; i++)
     {
         DreadMark *mark = &marks[i];
 
@@ -754,7 +772,7 @@ static void pulse(u8 playerIndex, Actor *playerActor)
         radius /= 2;
         auraDread *= 2;
     }
-    for (i = 0; marks != NULL && i < DREAD_MARK_COUNT && decay; i++)
+    for (i = 0; marks != NULL && i < markCapacity && decay; i++)
     {
         if (marks[i].actor != NULL && marks[i].dread != 0)
         {
@@ -769,7 +787,7 @@ static void pulse(u8 playerIndex, Actor *playerActor)
         }
     }
 
-    for (i = 0; marks != NULL && i < DREAD_MARK_COUNT; i++)
+    for (i = 0; marks != NULL && i < markCapacity; i++)
     {
         DreadMark *mark = &marks[i];
 
@@ -975,11 +993,12 @@ void ringwraith_kitReset(u8 playerIndex)
         {
             memory_free(marks);
             marks = NULL;
+            markCapacity = 0;
         }
     }
     else if (marks != NULL)
     {
-        for (i = 0; i < DREAD_MARK_COUNT; i++)
+        for (i = 0; i < markCapacity; i++)
         {
             if (marks[i].shardOwner == playerIndex)
             {
@@ -1006,6 +1025,12 @@ void ringwraith_kitTick(u8 playerIndex, Actor *playerActor)
         return;
     }
     wraithGear_refresh(playerIndex);
+    // The dead hold no Spirit.
+    if (PLAYER(playerIndex).currentHp <= 0 && PLAYER(playerIndex).currentSpirit != 0)
+    {
+        PLAYER(playerIndex).currentSpirit = 0;
+        g_PlayerHuds[playerIndex].flags.p |= PLAYERHUD_FLAG_SPIRIT_DIRTY;
+    }
     // Spirit rises only through grantSpirit, so any other rise is a mission start refill.
     if (st->lastSpirit < 0 || PLAYER(playerIndex).currentSpirit > st->lastSpirit)
     {
@@ -1614,7 +1639,10 @@ static void fellBeast(Actor *playerActor)
     u8 p = playerActor->as.combat.playerIndex;
     s32 damage = FELL_BEAST_BASE_DAMAGE + FELL_BEAST_DAMAGE_PER_LEVEL * castLevel(p);
     s32 band = fellBeastBand(p);
-    s32 dir = playerActor->facing >= DIRECTION8_SOUTHWEST && playerActor->facing <= DIRECTION8_NORTHWEST ? -1 : 1;
+    s32 dir =
+        playerActor->facing >= DIRECTION8_SOUTHWEST && playerActor->facing <= DIRECTION8_NORTHWEST
+            ? -1
+            : 1;
     Actor *foe = NULL;
 
     sfx_play(EnemySfxSets[ENEMY_TYPE_NAZGUL].attackSfx);
@@ -1943,7 +1971,7 @@ const SkillExpansionHeroKit RingwraithHeroKit = {
 // Page 2. Each baseRow lends its cast pose and cooldown bit, so each uses a different page 1 row.
 static const ActiveSkill CommandOfTheNineRow = {
     .callback = commandOfTheNine, .spiritCost = 35, CAST_FIELDS(4)};
-static const s8 CommandOfTheNineLevels[] = {16, 19, 22, 25, 28, -1};
+static const s8 CommandOfTheNineLevels[] = {11, 14, 17, 20, 23, -1};
 const SkillExpansionActiveDef RingwraithCommandOfTheNine = {
     .row = &CommandOfTheNineRow,
     .icon = RingwraithIconCommandOfTheNine,
@@ -1955,7 +1983,7 @@ const SkillExpansionActiveDef RingwraithCommandOfTheNine = {
 };
 
 static const ActiveSkill ShadowstepRow = {.spiritCost = 25, CAST_FIELDS(2)};
-static const s8 ShadowstepLevels[] = {15, 18, 21, 24, 27, -1};
+static const s8 ShadowstepLevels[] = {10, 13, 16, 19, 22, -1};
 const SkillExpansionActiveDef RingwraithShadowstep = {
     .resolve = shadowstep,
     .row = &ShadowstepRow,
@@ -1969,7 +1997,7 @@ const SkillExpansionActiveDef RingwraithShadowstep = {
 
 static const ActiveSkill ShadowOfMordorRow = {
     .callback = shadowOfMordor, .spiritCost = 50, CAST_FIELDS(4)};
-static const s8 ShadowOfMordorLevels[] = {17, 20, 23, 26, 29, -1};
+static const s8 ShadowOfMordorLevels[] = {12, 15, 18, 21, 24, -1};
 const SkillExpansionActiveDef RingwraithShadowOfMordor = {
     .row = &ShadowOfMordorRow,
     .icon = RingwraithIconShadowOfMordor,
@@ -1982,7 +2010,7 @@ const SkillExpansionActiveDef RingwraithShadowOfMordor = {
 
 static const ActiveSkill BlackSacrificeRow = {
     .callback = blackSacrifice, .spiritCost = 0, CAST_FIELDS(0)};
-static const s8 BlackSacrificeLevels[] = {18, 21, 24, 27, 30, -1};
+static const s8 BlackSacrificeLevels[] = {13, 16, 19, 22, 25, -1};
 const SkillExpansionActiveDef RingwraithBlackSacrifice = {
     .row = &BlackSacrificeRow,
     .icon = RingwraithIconBlackSacrifice,
@@ -1995,7 +2023,7 @@ const SkillExpansionActiveDef RingwraithBlackSacrifice = {
 
 static const ActiveSkill WillOfSauronRow = {
     .callback = willOfSauron, .spiritCost = 120, CAST_FIELDS(4)};
-static const s8 WillOfSauronLevels[] = {32, 34, 36, 38, 40, -1};
+static const s8 WillOfSauronLevels[] = {16, 18, 20, 22, 25, -1};
 const SkillExpansionActiveDef RingwraithWillOfSauron = {
     .row = &WillOfSauronRow,
     .icon = RingwraithIconWillOfSauron,

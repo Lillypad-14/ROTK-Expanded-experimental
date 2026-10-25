@@ -2,6 +2,10 @@
 #include "lib/actor_ref.h"
 #include "lib/profile.h"
 #include "variables.h"
+#if HACK_gauntlet
+#include "lib/combat_source.h"
+#include "patches/gauntlet/gauntlet_boon_effects.h"
+#endif
 
 bool hackLib_isLiveActor(const Actor *actor)
 {
@@ -43,6 +47,15 @@ Actor *hackLib_nextTarget(const HackLibTargetQuery *query, Actor *cursor)
     {
         return NULL;
     }
+#if HACK_gauntlet
+    HackLibTargetQuery widened = *query;
+    const HackLibDamageSource *source = hackLib_currentDamageSource();
+    if (source != NULL && source->abilityRow != HACKLIB_ABILITY_NONE)
+    {
+        widened.radius = gauntletBoons_radius(source->origin, query->radius);
+        query = &widened;
+    }
+#endif
     HackLibProfileSpan profile = hackLib_profileBegin(HACKLIB_PROFILE_TARGETS);
     cursor = cursor != NULL ? cursor->next : g_ActorListMain.head;
     for (; cursor != NULL; cursor = cursor->next)
@@ -85,6 +98,13 @@ Actor *hackLib_nextTargetAt(const Vector2Fp16 *position, Actor *exclude, u16 rad
     {
         return NULL;
     }
+#if HACK_gauntlet
+    const HackLibDamageSource *source = hackLib_currentDamageSource();
+    if (source != NULL && source->abilityRow != HACKLIB_ABILITY_NONE)
+    {
+        radius = gauntletBoons_radius(source->origin, radius);
+    }
+#endif
     HackLibProfileSpan profile = hackLib_profileBegin(HACKLIB_PROFILE_TARGETS);
     cursor = cursor != NULL ? cursor->next : g_ActorListMain.head;
     for (; cursor != NULL; cursor = cursor->next)

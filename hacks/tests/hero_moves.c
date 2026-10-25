@@ -370,7 +370,7 @@ int main(void)
         skillExpansion_smeagolTick(0, &avatar);
         assert(state(0)->strikeFrames && !(avatar.flags.p & ACTOR_FLAG_HIDDEN));
         assert(skillExpansion_smeagolDamage(0, 10, TRUE) == 30);
-        skillExpansion_smeagolOnHit(0, &foe, (HackLibDamageResult){TRUE, FALSE, 30}, TRUE);
+        skillExpansion_smeagolOnHit(0, &foe, (HackLibDamageResult){TRUE, FALSE, 30, 0}, TRUE);
         assert(!state(0)->strikeFrames);
         skillExpansion_smeagolCatchAFish(&avatar);
         assert(state(0)->catchesLeft == 1 + level / 2);

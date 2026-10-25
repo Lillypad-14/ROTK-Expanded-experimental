@@ -25,11 +25,19 @@ void gauntletUi_panel(s32 x, s32 y, s32 w, s32 h);
 /** A highlight bar over one cell row, from x for w cells. Draw it inside a panel. */
 void gauntletUi_highlight(s32 x, s32 y, s32 w);
 
+/** A framed card with a warm fill when selected. */
+void gauntletUi_card(s32 x, s32 y, s32 w, s32 h, bool selected);
+void gauntletUi_gem(s32 x, s32 y);
+
 /** The hero's portrait on the text layer, 7 x 8 cells, its top left cell at x, y. */
 void gauntletUi_portrait(u32 heroId, s32 x, s32 y);
 
 #define GAUNTLET_UI_PORTRAIT_W 7
 #define GAUNTLET_UI_PORTRAIT_H 8
+
+// Compact labels can share a screen tile without sharing glyph pixels.
+#define GAUNTLET_UI_TEXT_BACKGROUND (-1)
+#define GAUNTLET_UI_SHOP_NAME_WIDTH 96
 
 // The scene's text layer (BG2), which also holds the portrait.
 #define GAUNTLET_UI_TEXT_BGCNT (BGCNT_PRIORITY(1) | BGCNT_CHARBASE(3) | BGCNT_SCREENBASE(0x1du))

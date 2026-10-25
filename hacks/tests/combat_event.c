@@ -56,6 +56,9 @@ int main(void)
 {
     const HackLibCombatHandlers handlers = {killed, hit, resolved};
     HackLibDamageResult result = hackLib_damageResult(20, -5, TRUE);
+    assert(result.overkillDamage == 5);
+    assert(hackLib_damageResult(20, 0, TRUE).overkillDamage == 0);
+    assert(hackLib_damageResult(20, -5, FALSE).overkillDamage == 0);
     mutableEvent = hackLib_captureCombatEvent(&attacker, &victim, result, TRUE);
     assert(mutableEvent.source.kind == HACKLIB_DAMAGE_WEAPON && mutableEvent.melee);
     assert(mutableEvent.source.abilityRow == HACKLIB_ABILITY_NONE);

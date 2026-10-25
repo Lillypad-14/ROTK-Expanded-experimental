@@ -4,6 +4,9 @@
 #include "lib/status.h"
 #include "lib/summon_registry.h"
 #include "lib/targeting.h"
+#if HACK_gauntlet
+#include "patches/gauntlet/gauntlet_boons.h"
+#endif
 
 #define ABILITY_PROJECTILE_LIMIT 8
 
@@ -181,6 +184,12 @@ Actor *skillExpansion_summonGhost(Actor *owner, Vector2Fp16 *position, Actor *ta
     {
         return NULL;
     }
+#if HACK_gauntlet
+    if (gauntletBoons_has(GAUNTLET_BOON_HEIR_OF_ISILDUR))
+    {
+        lifetime = lifetime > 32767 ? 65535 : lifetime * 2;
+    }
+#endif
     return hackLib_spawnSummon(persistent ? &PersistentGhostSummon : &GhostSummon, owner, position,
                                target, lifetime, damage, cap,
                                source != NULL ? source->abilityRow : HACKLIB_ABILITY_NONE);

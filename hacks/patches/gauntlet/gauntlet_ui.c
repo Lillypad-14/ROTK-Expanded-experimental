@@ -42,6 +42,9 @@ enum PanelColor
     PANEL_HIGHLIGHT_EDGE,
     PANEL_GOLD,
     PANEL_GOLD_DARK,
+    PANEL_GEM_DARK,
+    PANEL_GEM,
+    PANEL_GEM_LIGHT,
     PANEL_COLOR_COUNT,
 };
 
@@ -55,6 +58,9 @@ static const u16 PanelColors[PANEL_COLOR_COUNT] = {
     [PANEL_HIGHLIGHT_EDGE] = RGB5(20, 14, 4),
     [PANEL_GOLD] = RGB5(30, 25, 11),
     [PANEL_GOLD_DARK] = RGB5(17, 12, 5),
+    [PANEL_GEM_DARK] = RGB5(2, 9, 7),
+    [PANEL_GEM] = RGB5(5, 23, 15),
+    [PANEL_GEM_LIGHT] = RGB5(22, 31, 23),
 };
 
 enum PanelTile
@@ -70,6 +76,16 @@ enum PanelTile
     TILE_BOTTOM_LEFT,
     TILE_BOTTOM,
     TILE_BOTTOM_RIGHT,
+    TILE_SELECTED_FILL,
+    TILE_SELECTED_TOP_LEFT,
+    TILE_SELECTED_TOP,
+    TILE_SELECTED_TOP_RIGHT,
+    TILE_SELECTED_LEFT,
+    TILE_SELECTED_RIGHT,
+    TILE_SELECTED_BOTTOM_LEFT,
+    TILE_SELECTED_BOTTOM,
+    TILE_SELECTED_BOTTOM_RIGHT,
+    TILE_GEM,
     PANEL_TILE_COUNT,
 };
 
@@ -107,12 +123,31 @@ static u32 borderPixel(s32 x, s32 y, s32 edgeX, s32 edgeY)
 
 static u32 tilePixel(u32 tile, s32 x, s32 y)
 {
+    if (tile >= TILE_SELECTED_FILL && tile <= TILE_SELECTED_BOTTOM_RIGHT)
+    {
+        static const u8 Bases[] = {TILE_FILL,        TILE_TOP_LEFT, TILE_TOP,
+                                   TILE_TOP_RIGHT,   TILE_LEFT,     TILE_RIGHT,
+                                   TILE_BOTTOM_LEFT, TILE_BOTTOM,   TILE_BOTTOM_RIGHT};
+        u32 pixel = tilePixel(Bases[tile - TILE_SELECTED_FILL], x, y);
+        return pixel == PANEL_FILL || pixel == PANEL_FILL_SHADE
+                   ? ((y & 3) == 0 ? PANEL_HIGHLIGHT_EDGE : PANEL_HIGHLIGHT)
+                   : pixel;
+    }
     switch (tile)
     {
     case TILE_FILL:
         return fillColor(y);
     case TILE_HIGHLIGHT:
         return y == 0 || y == 7 ? PANEL_HIGHLIGHT_EDGE : PANEL_HIGHLIGHT;
+    case TILE_GEM: {
+        s32 dx = x > 3 ? x - 4 : 3 - x;
+        s32 dy = y > 3 ? y - 4 : 3 - y;
+        if (dx + dy > 3)
+        {
+            return PANEL_FILL;
+        }
+        return x < 4 && y < 4 ? PANEL_GEM_LIGHT : x > y ? PANEL_GEM : PANEL_GEM_DARK;
+    }
     case TILE_TOP_LEFT:
         return borderPixel(x, y, -1, -1);
     case TILE_TOP:
@@ -281,6 +316,42 @@ void gauntletUi_highlight(s32 x, s32 y, s32 w)
     {
         setCell(col, y, PANEL_TILE_BASE + TILE_HIGHLIGHT);
     }
+}
+
+void gauntletUi_card(s32 x, s32 y, s32 w, s32 h, bool selected)
+{
+    static const u8 Selected[] = {TILE_BLANK,
+                                  TILE_SELECTED_FILL,
+                                  TILE_SELECTED_FILL,
+                                  TILE_SELECTED_TOP_LEFT,
+                                  TILE_SELECTED_TOP,
+                                  TILE_SELECTED_TOP_RIGHT,
+                                  TILE_SELECTED_LEFT,
+                                  TILE_SELECTED_RIGHT,
+                                  TILE_SELECTED_BOTTOM_LEFT,
+                                  TILE_SELECTED_BOTTOM,
+                                  TILE_SELECTED_BOTTOM_RIGHT};
+    gauntletUi_panel(x, y, w, h);
+    if (selected)
+    {
+        for (s32 row = y; row < y + h; row++)
+        {
+            for (s32 col = x; col < x + w; col++)
+            {
+                if (row < 0 || row >= MAP_WIDTH || col < 0 || col >= MAP_WIDTH)
+                {
+                    continue;
+                }
+                u32 tile = (map()[row * MAP_WIDTH + col] & 0x3ff) - PANEL_TILE_BASE;
+                setCell(col, row, PANEL_TILE_BASE + Selected[tile]);
+            }
+        }
+    }
+}
+
+void gauntletUi_gem(s32 x, s32 y)
+{
+    setCell(x, y, PANEL_TILE_BASE + TILE_GEM);
 }
 
 static const u8 *portraitAsset(u32 heroId)

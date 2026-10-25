@@ -195,7 +195,7 @@ HackLibDamageResult skillExpansion_dealDamage(Actor *attacker, Actor *target, u1
     {
         target->currentHp = 0;
     }
-    return (HackLibDamageResult){hit, killed, hit ? 10 : 0};
+    return (HackLibDamageResult){hit, killed, hit ? 10 : 0, 0};
 }
 void skillExpansion_addHp(u8 player, s16 amount, bool flinch)
 {
@@ -422,9 +422,9 @@ int main(void)
     passives[SKILL_EXPANSION_PASSIVE_TREACHERY] = 2;
     foe.actionState = ACTOR_STATE_STUNNED;
     assert(meleeDamage(0, &foe, 10) == 10 && !PLAYER(0).currentSpirit);
-    onHit(0, &avatar, &foe, (HackLibDamageResult){FALSE, FALSE, 0}, TRUE);
+    onHit(0, &avatar, &foe, (HackLibDamageResult){0}, TRUE);
     assert(!PLAYER(0).currentSpirit);
-    onHit(0, &avatar, &foe, (HackLibDamageResult){TRUE, FALSE, 10}, TRUE);
+    onHit(0, &avatar, &foe, (HackLibDamageResult){TRUE, FALSE, 10, 0}, TRUE);
     assert(PLAYER(0).currentSpirit == STAFF_HIT_SPIRIT + 4);
     assert(chargeCount(0) == 0);
     fixture();
@@ -444,7 +444,7 @@ int main(void)
     passives[SKILL_EXPANSION_PASSIVE_STAFF_OF_ORTHANC] = 1;
     passives[SKILL_EXPANSION_PASSIVE_KINDLING] = 2;
     passives[SKILL_EXPANSION_PASSIVE_VOICE_OF_COMMAND] = 3;
-    onHit(0, &avatar, &foe, (HackLibDamageResult){TRUE, FALSE, 10}, TRUE);
+    onHit(0, &avatar, &foe, (HackLibDamageResult){TRUE, FALSE, 10, 0}, TRUE);
     assert(attachment.definition == &Burn && attachment.magnitude == 2);
     assert(rangedDamage(0, &foe, 100) == 112);
     source.kind = HACKLIB_DAMAGE_PERIODIC;
@@ -479,7 +479,7 @@ int main(void)
     }
     assert(PLAYER(0).currentSpirit == 1);
     PLAYER(0).currentSpirit = PLAYER_STAT(0, STAT_MAX_SPIRIT);
-    onHit(0, &avatar, &foe, (HackLibDamageResult){TRUE, FALSE, 10}, TRUE);
+    onHit(0, &avatar, &foe, (HackLibDamageResult){TRUE, FALSE, 10, 0}, TRUE);
     assert(PLAYER(0).currentSpirit == PLAYER_STAT(0, STAT_MAX_SPIRIT));
     for (u32 failure = 0; failure < 3; failure++)
     {
@@ -563,12 +563,12 @@ int main(void)
     fixture();
     assert(cast(SARUMAN_CURSE, 1) == SKILL_CAST_SUCCESS);
     source.kind = HACKLIB_DAMAGE_PERIODIC;
-    onHit(0, &avatar, &foe, (HackLibDamageResult){TRUE, FALSE, 10}, FALSE);
+    onHit(0, &avatar, &foe, (HackLibDamageResult){TRUE, FALSE, 10, 0}, FALSE);
     assert(PLAYER(0).currentSpirit == 0);
     source.kind = HACKLIB_DAMAGE_ABILITY;
-    onHit(0, &avatar, &foe, (HackLibDamageResult){TRUE, FALSE, 0}, FALSE);
+    onHit(0, &avatar, &foe, (HackLibDamageResult){TRUE, FALSE, 0, 0}, FALSE);
     assert(PLAYER(0).currentSpirit == 0);
-    onHit(0, &avatar, &foe, (HackLibDamageResult){TRUE, FALSE, 10}, FALSE);
+    onHit(0, &avatar, &foe, (HackLibDamageResult){TRUE, FALSE, 10, 0}, FALSE);
     assert(PLAYER(0).currentSpirit == CURSE_LEAK_SPIRIT);
     puts("PASS: Saruman three-cast empowerment, damage rows, support/Echo preservation, failures, "
          "upgrades and cleanup");
