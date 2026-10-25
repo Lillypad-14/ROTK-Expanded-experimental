@@ -1,3 +1,4 @@
+#define HACK_gauntlet 1
 // 64-bit host pointers widen the actor refs in SarumanState.
 #define SKILL_EXPANSION_HERO_STATE_WORDS 32
 #include "patches/ringwraith/saruman.c"
@@ -12,6 +13,11 @@ u32 skillExpansion_heroState[2][SKILL_EXPANSION_HERO_STATE_WORDS];
 u8 skillExpansion_heroStateOwner[2];
 u8 skillExpansion_heroStateMisuse;
 void skillExpansion_noteHeroStateMisuse(void) { skillExpansion_heroStateMisuse++; }
+static bool reserveBoon;
+bool32 gauntletBoons_has(u8 boon)
+{
+    return reserveBoon && boon == GAUNTLET_BOON_RESERVED_POWER;
+}
 static Actor avatar, foe;
 static bool hasTarget = TRUE;
 static u32 burstHits = 1;
@@ -306,6 +312,21 @@ static void charge(void)
 
 int main(void)
 {
+    fixture();
+    reserveBoon = TRUE;
+    charge();
+    assert(cast(SARUMAN_FLAME, 1) == SKILL_CAST_SUCCESS);
+    assert(state(0)->spellCharges == 1);
+    cast(SARUMAN_FLAME, 1);
+    cast(SARUMAN_FLAME, 1);
+    assert(state(0)->spellCharges == EMPOWER_CAST_COUNT);
+    hasTarget = FALSE;
+    assert(cast(SARUMAN_FLAME, 1) != SKILL_CAST_SUCCESS);
+    assert(state(0)->spellCharges == EMPOWER_CAST_COUNT);
+    hasTarget = TRUE;
+    assert(cast(SARUMAN_FLAME, 1) == SKILL_CAST_SUCCESS);
+    assert(state(0)->spellCharges == 1);
+    reserveBoon = FALSE;
     fixture();
     assert(cost(SARUMAN_VOICE) == 21 && state(0)->lastRow == ROW_NONE);
     for (u32 facing = 0; facing < 5; facing++)

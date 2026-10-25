@@ -444,7 +444,23 @@ u32 skill_active_aragornSweep(Actor *actor)
 STOCK_CAST(aragornKingsCommand)
 STOCK_CAST(aragornNumenoreanWill)
 STOCK_CAST(aragornCallOfTheDead)
-STOCK_CAST(herbalHealing)
+void skill_active_herbalHealing(Actor *actor)
+{
+    u8 p = actor->as.combat.playerIndex;
+    if (PLAYER(p).kingsfoilHerbs.fresh != 0)
+    {
+        PLAYER(p).kingsfoilHerbs.fresh--;
+    }
+    else if (PLAYER(p).kingsfoilHerbs.dried != 0)
+    {
+        PLAYER(p).kingsfoilHerbs.dried--;
+    }
+    else
+    {
+        return;
+    }
+    player_addHp(p, 100, FALSE);
+}
 Actor *actor_iterateInRadius(Actor *a, Actor *cursor, s32 radius)
 {
     (void)a;
@@ -521,8 +537,46 @@ Actor *hackLib_nextTargetAt(const Vector2Fp16 *position, Actor *exclude, u16 rad
     (void)exclude;
     return actor_iterateInRadius(NULL, cursor, (s32)radius * 65536);
 }
+static void testHerbalHealing(void)
+{
+    for (u8 rank = 1; rank <= 5; rank++)
+    {
+        for (u8 dried = 0; dried <= 1; dried++)
+        {
+            resetFixture();
+            PLAYER(0).currentHp = 100;
+            PLAYER(0).activeSkillLevels[ACTIVE_SKILL_HERBAL_HEALING] = rank;
+            PLAYER(0).kingsfoilHerbs.fresh = !dried;
+            PLAYER(0).kingsfoilHerbs.dried = dried;
+            herbalHealing(&avatar);
+            assert(PLAYER(0).currentHp == 200 + (rank - 1) * 100);
+            assert(PLAYER(0).kingsfoilHerbs.fresh == 0);
+            assert(PLAYER(0).kingsfoilHerbs.dried == 0);
+            assert(states[0].meter == METER_HERB);
+        }
+    }
+    resetFixture();
+    PLAYER(0).currentHp = 100;
+    PLAYER(0).activeSkillLevels[ACTIVE_SKILL_HERBAL_HEALING] = 5;
+    herbalHealing(&avatar);
+    assert(PLAYER(0).currentHp == 100 && states[0].meter == 0);
+    PLAYER(0).currentHp = 800;
+    PLAYER(0).kingsfoilHerbs.fresh = 1;
+    herbalHealing(&avatar);
+    assert(PLAYER(0).currentHp == 1000);
+    resetFixture();
+    PLAYER(0).heroId = HERO_ID_SAM;
+    PLAYER(0).currentHp = 100;
+    PLAYER(0).activeSkillLevels[ACTIVE_SKILL_HERBAL_HEALING] = 5;
+    PLAYER_STAT(0, STAT_ACTIVE_SKILL_LEVEL_BONUS) = 1;
+    PLAYER(0).kingsfoilHerbs.fresh = 1;
+    herbalHealing(&avatar);
+    assert(PLAYER(0).currentHp == 600 && states[0].meter == 0);
+}
+
 int main(void)
 {
+    testHerbalHealing();
     resetFixture();
     eventKitEnabled = TRUE;
     foe.currentHp = 5;

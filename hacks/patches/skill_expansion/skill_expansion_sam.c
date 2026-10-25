@@ -1,3 +1,6 @@
+#if HACK_gauntlet
+#include "patches/gauntlet/gauntlet_boons.h"
+#endif
 #include "patches/skill_expansion/skill_expansion_sam.h"
 #include "fx.h"
 #include "game.h"
@@ -448,6 +451,23 @@ static void tickPlant(u8 playerIndex, SamState *st, Actor *actor, SamPlant *plan
         gardenFx(actor, plant, HACKLIB_EFFECT_SAM_HARVEST);
         sfx_play(SFX_HERB_PICKUP);
         reap(playerIndex, actor, plant, TRUE);
+#if HACK_gauntlet
+        if (playerIndex == 0 && gauntletBoons_has(GAUNTLET_BOON_SEED_BANK))
+        {
+            for (u32 i = 0; i < gardenSlots(playerIndex); i++)
+            {
+                SamPlant *other = &st->plants[i];
+                if (other != plant &&
+                    (other->kind == SAM_PLANT_TATERS || other->kind == SAM_PLANT_BRAMBLE) &&
+                    !isRipe(other))
+                {
+                    u32 growth = other->growth + RIPE_GROWTH / 4;
+                    // Let the ordinary growth tick initialize a newly ripe plant's lifetime.
+                    other->growth = growth >= RIPE_GROWTH ? RIPE_GROWTH - 1 : growth;
+                }
+            }
+        }
+#endif
         plant->kind = SAM_PLANT_NONE;
         return;
     }

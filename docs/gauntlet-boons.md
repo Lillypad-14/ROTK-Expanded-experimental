@@ -1,6 +1,6 @@
 # Gauntlet boon catalog
 
-All 80 original ideas are represented by game-compatible implementations, alongside six extra boons.
+All 80 original ideas are represented by game-compatible implementations, alongside fourteen extra boons (94 total).
 The descriptions below match the current effects. Boons are unique and reset each run.
 
 ## Adaptations
@@ -113,6 +113,29 @@ Room transitions and run cleanup free the effect workspace, clear pending echoes
 Boon ghosts keep their lifetime, owner and target in native actor state, with no separate heap registry. They share the player's four-ghost cap.
 A native killing hit must retain negative HP for Overkill to observe excess damage; a native path that clamps HP to zero has no observable excess.
 
+## Character, tradeoff, and evolving choices
+
+| Boon | Rarity | Effect | Restriction |
+| --- | --- | --- | --- |
+| Ember Dividend | Rare | Restore 15% maximum Spirit when Flame crosses from below 100 to 100. Staying at 100 cannot repeat the reward. | Aragorn |
+| Quiet Resolve | Rare | Frodo's Burden reductions remove 50% more, rounded down with at least one extra point removed. Burden gains are unchanged. | Frodo |
+| Seed Bank | Rare | Harvesting a ripe tater adds 25% of full growth to other growing taters and brambles. Normal growth initializes their ripe lifetime. | Sam |
+| Reserved Power | Epic | An empowered damaging spell retains one charge. Two further ordinary casts recharge it. Failed casts and support casts preserve readiness as usual. | Saruman |
+| Measured Power | Epic | Skill damage increases 35%, but successful skill casts have 50% longer cooldowns, rounded up, with a 1.5s minimum even for skills without a shared cooldown. Free echo follow-ups and Herbal Healing do not add cooldown. | None |
+| Steel Oath | Rare | Basic weapon and arrow attacks deal 40% more damage, while skill damage falls 25%. Secondary boon damage is unchanged. | None |
+| Apprentice's Oath | Rare | Paid successful non-herb casts refund 10% of Spirit actually paid. On the twelfth qualifying cast and afterward, refund 30%. Refunds round down. | None |
+| Veteran's Purse | Rare | Every credited kill grants one extra gem. The thirtieth kill with this boon and later kills grant three instead. The gem cap applies. | None |
+
+Evolution progress starts when the boon is acquired, persists across rooms and stat rebuilds, and resets for each run.
+The door screen's L button opens a goals panel with both counters, ownership, completion, and upgraded effects.
+Evolution also announces completion during combat.
+Canceled or failed casts, free echoes, and herb uses do not advance Apprentice's Oath.
+
+One in three reward rolls tries to reserve one slot for a compatible boon.
+This can offer the missing half of an existing duo, an unlocked duo itself, or a complementary pairing such as Measured Power with Ranger's Patience, Steel Oath with Swift Blade, or Apprentice's Oath with Overflow.
+All normal eligibility and rarity rules still apply, and the remaining choices use the ordinary pool.
+The selection screen marks compatible choices with "Build synergy (unique)".
+
 ## Verification
 
 Run `uv run python hacks/tools/test_gauntlet_boons.py` for ownership above bit 31, offer restrictions, unique grants, status ticks, slot reuse, duo spreading, overkill, stat overlays, cast repeats, wards and cleanup.
@@ -126,3 +149,14 @@ All reported zero failed placements, zero allocation failures, intact memory gua
 The full-pool Ringwraith stress minimum was 16 bytes of heap address headroom; normal reward probes retained at least 512. More RAM-heavy additions need fresh measurements.
 The host boon regressions, shared ability regressions and 91 Python tool tests passed. The progression-cheat check finished room one at level 3 with Max Level enabled, and confirmed the campaign setting still works outside a run.
 These checks cover engine stability and specific effects. Manual playtesting of timing, visuals, balance and individual native skill interactions remains necessary.
+
+### New boon validation, 2026-10-25
+
+The 94-boon host suite covers character restrictions, Flame refunds, Burden reductions, evolution thresholds, room persistence, failed/free cast exclusions, damage tradeoffs, cooldown caps, gem caps, and synergy offer restrictions.
+Sam's hero tests cover harvest growth and ripe lifetime initialization; Saruman's tests cover retained empowerment and failed-cast preservation.
+The build passed 297 core tests, 95 tool tests, native bugfix compilation, and original-ROM reconstruction verification.
+The final release passed nine emulator runs with 32 combat-room clears: five all-boon stress runs (Frodo, Aragorn, Sam, Ringwraith, Saruman) and four normal-reward runs (Frodo, Aragorn, Sam, Saruman).
+These runs reported zero allocation failures, intact memory guards, and no emulator errors.
+Eighty goals-panel round trips preserved door choices and cursor position without leaking actors or causing allocator errors.
+Native screen captures were reviewed, and the goals screen uses 126 of 320 text tiles in the host font test.
+The release ROM matches the emulator-tested copy after restoring its test configuration bytes.

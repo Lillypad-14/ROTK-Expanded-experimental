@@ -1,6 +1,8 @@
 # Where the Work Stands
 
-A starting point for anyone picking up ROTK Expanded from this repository. Last updated 2026-10-23.
+A starting point for anyone picking up ROTK Expanded from this repository. Last updated 2026-10-25.
+
+See [the latest bug audit](bug-audit.md) for the current fixes, map exclusions, and automated coverage.
 
 ## Build and Check
 

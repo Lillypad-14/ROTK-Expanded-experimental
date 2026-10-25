@@ -872,7 +872,7 @@ static const char *const AragornStockDescriptions[HERO_ACTIVE_SKILL_COUNT] = {
                                               "Warrior/level. Each ghost hit adds 2 to the Flame bar. @2 "
                                               "Spirit.",
     [ACTIVE_SKILL_HERBAL_HEALING] = "Herbal Healing (Level @1) - Heal with a Kingsfoil herb and "
-                                    "add 15 to the Flame bar. Cannot be improved.",
+                                    "add 15 to the Flame bar. Each rank after 1 adds 10% max HP healed per herb, up to +40%.",
 };
 static const char *const FrodoStockDescriptions[HERO_ACTIVE_SKILL_COUNT] = {
     [ACTIVE_SKILL_FRODO_KNIFE_TOSS] =
@@ -893,7 +893,7 @@ static const char *const FrodoStockDescriptions[HERO_ACTIVE_SKILL_COUNT] = {
 
 static const char *const GandalfStockDescriptions[HERO_ACTIVE_SKILL_COUNT] = {
     [ACTIVE_SKILL_HERBAL_HEALING] =
-        "Herbal Healing (Level @1) - Heal with a Kingsfoil herb. HOLD R at level 10+ (20 Spirit) "
+        "Herbal Healing (Level @1) - Each rank after 1 adds 10% max HP healed per herb, up to +40%. HOLD R at level 10+ (20 Spirit) "
         "to become Gandalf the White, hold R again to return to Grey.",
 };
 
@@ -902,6 +902,12 @@ const char *skillExpansion_getStockActiveDescription(u32 heroId, u32 row)
     if (row >= HERO_ACTIVE_SKILL_COUNT)
     {
         return NULL;
+    }
+    if (row == ACTIVE_SKILL_HERBAL_HEALING && heroId != HERO_ID_ARAGORN &&
+        heroId != HERO_ID_GANDALF && skillExpansion_getHeroKit(heroId) == NULL)
+    {
+        return "Herbal Healing (Level @1) - Consume one Kingsfoil herb to heal. Each rank after 1 "
+               "adds 10% max HP healed per herb, up to +40%. No Spirit cost.";
     }
     switch (heroId)
     {

@@ -38,6 +38,8 @@ u8 skillExpansion_treePage;
 
 #define LEVEL_DIGIT_HERBAL_HEALING 6
 
+static const s8 HerbalHealingRequiredLevels[] = {1, 5, 10, 15, 20, -1};
+
 #define NO_TILE 0xff
 
 // Highest first-level requirement a passive tile can have.
@@ -659,7 +661,8 @@ void skillExpansion_treeDrawActiveTile(u8 playerIndex, u8 activeSkillIndex, u8 t
         return;
     }
 
-    if (activeSkillIndex == ACTIVE_SKILL_HERBAL_HEALING &&
+    if (skillExpansion_getHeroKit(PLAYER(playerIndex).heroId) != NULL &&
+        activeSkillIndex == ACTIVE_SKILL_HERBAL_HEALING &&
         (skillExpansion_treePage == 0 || pageActiveCount(playerIndex) <= activeSkillIndex))
     {
         level = LEVEL_DIGIT_HERBAL_HEALING;
@@ -729,6 +732,14 @@ s32 skillExpansion_treeGetRequiredLevel(s32 playerIndex, s32 skill)
         else if (kit != NULL)
         {
             return kit->requiredLevels[row][PLAYER(playerIndex).activeSkillLevelsPurchased[row]];
+        }
+        if (kit == NULL && row == ACTIVE_SKILL_HERBAL_HEALING &&
+            (skillExpansion_treePage == 0 || pageActiveCount(playerIndex) <= row))
+        {
+            u32 purchased = PLAYER(playerIndex).activeSkillLevelsPurchased[row];
+            return purchased < ARRAY_COUNT(HerbalHealingRequiredLevels)
+                       ? HerbalHealingRequiredLevels[purchased]
+                       : -1;
         }
         return ActiveSkillRequiredLevels[SkillExpansionHeroSkillBlocks[heroId]][ruleRow]
                                         [PLAYER(playerIndex).activeSkillLevelsPurchased[row]];

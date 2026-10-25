@@ -1,3 +1,6 @@
+#if HACK_gauntlet
+#include "patches/gauntlet/gauntlet_boons.h"
+#endif
 #include "patches/skill_expansion/skill_expansion_elite.h"
 #include "actor/npc.h"
 #include "combat.h"
@@ -476,6 +479,12 @@ static void stokeFlame(u8 playerIndex, Actor *playerActor, s32 amount)
     if (meter >= METER_MAX)
     {
         meter = METER_MAX;
+#if HACK_gauntlet
+        if (st->meter < METER_MAX)
+        {
+            gauntletBoons_flameFilled(playerIndex);
+        }
+#endif
         if (st->meter < METER_MAX && playerActor != NULL)
         {
             hackLib_fxBurst(playerActor, FX_SHAPE_STAR_BLOOM, FX_COLOR_GOLD, FX_LAYER_FRONT);
@@ -1549,7 +1558,7 @@ static void numenoreanWill(Actor *playerActor)
     states[p].willFrames = WILL_FRAMES_PER_LEVEL * castLevel(p);
 }
 
-/** Herbal Healing. Aragorn's Kingsfoil stokes the Flame. */
+/** Heal with Kingsfoil. Higher ranks add maximum-HP healing. */
 static void herbalHealing(Actor *playerActor)
 {
     u8 p = playerActor->as.combat.playerIndex;
@@ -1559,6 +1568,25 @@ static void herbalHealing(Actor *playerActor)
     if (PLAYER(p).kingsfoilHerbs.fresh < before.fresh ||
         PLAYER(p).kingsfoilHerbs.dried < before.dried)
     {
+        u32 level = skillExpansion_effectiveActiveLevel(p, ACTIVE_SKILL_HERBAL_HEALING);
+        if (level > ACTIVE_SKILL_MAX_LEVEL)
+        {
+            level = ACTIVE_SKILL_MAX_LEVEL;
+        }
+        if (level > 1)
+        {
+            s32 bonus = PLAYER_STAT(p, STAT_MAX_HP) * (level - 1) / 10;
+            s32 missingHp = PLAYER_STAT(p, STAT_MAX_HP) - PLAYER(p).currentHp;
+
+            if (bonus > missingHp)
+            {
+                bonus = missingHp;
+            }
+            if (bonus > 0)
+            {
+                player_addHp(p, bonus, FALSE);
+            }
+        }
         stokeFlame(p, playerActor, METER_HERB);
     }
 }
@@ -1568,13 +1596,13 @@ void skillExpansion_wrapStockCallbacks(u32 heroId, u8 playerIndex)
 {
     ActiveSkill *rows = skillExpansion_players[playerIndex].activeSkills;
 
+    rows[ACTIVE_SKILL_HERBAL_HEALING].callback = herbalHealing;
     if (heroId == HERO_ID_ARAGORN)
     {
         rows[ACTIVE_SKILL_ARAGORN_SWEEP].callback = sweep;
         rows[ACTIVE_SKILL_ARAGORN_KINGS_COMMAND].callback = kingsCommand;
         rows[ACTIVE_SKILL_ARAGORN_NUMENOREAN_WILL].callback = numenoreanWill;
         rows[ACTIVE_SKILL_ARAGORN_CALL_OF_THE_DEAD].callback = callOfTheDead;
-        rows[ACTIVE_SKILL_HERBAL_HEALING].callback = herbalHealing;
     }
     else if (heroId == HERO_ID_FRODO)
     {

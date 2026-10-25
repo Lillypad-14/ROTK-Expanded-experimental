@@ -55,6 +55,7 @@ typedef struct GauntletBoonEffects
     s16 statApplied[4];
     Vector2Fp16 fissure;
     u16 idle;
+    u16 paidSpirit;
     u8 tick;
     u8 cooldownFraction;
     u8 attackFraction;
@@ -397,10 +398,8 @@ void gauntletBoonEffects_roomEnd(void)
     {
         for (u32 i = 0; i < 4; i++)
         {
-            if (PLAYER_STAT(0, indices[i]) == Extra.statApplied[i])
-            {
-                PLAYER_STAT(0, indices[i]) = Extra.statBase[i];
-            }
+            // BUG: Gear can change the stat after the last tick without removing its overlay.
+            PLAYER_STAT(0, indices[i]) -= Extra.statApplied[i] - Extra.statBase[i];
         }
         PLAYER(0).combatFlags.p |= PLAYER_COMBAT_FLAG_MOVE_SPEED_DIRTY;
     }
@@ -438,9 +437,14 @@ static void statTick(u8 player)
     for (u32 i = 0; i < 4; i++)
     {
         s16 current = PLAYER_STAT(player, indices[i]);
-        if (!Extra.statsReady || current != Extra.statApplied[i])
+        if (!Extra.statsReady)
         {
             Extra.statBase[i] = current;
+        }
+        else if (current != Extra.statApplied[i])
+        {
+            // BUG: Incremental equipment changes already include the previous boon overlay.
+            Extra.statBase[i] += current - Extra.statApplied[i];
         }
         Extra.statApplied[i] = Extra.statBase[i] + bonuses[i];
         if (indices[i] == STAT_MAX_HP && Extra.statApplied[i] < 1)
@@ -675,6 +679,22 @@ s32 gauntletBoonEffects_damage(u8 player, Actor *victim, s32 amount)
          (victim->unitType >= ENEMY_TYPE_SPIDER && victim->unitType <= ENEMY_TYPE_SPIDER_SMALL)))
     {
         amount = amount * 130 / 100;
+    }
+    bool primary = source != NULL && source->kind != HACKLIB_DAMAGE_SECONDARY;
+    if (primary && skill && HAS(MEASURED_POWER))
+    {
+        amount = amount * 135 / 100;
+    }
+    if (primary && HAS(STEEL_OATH))
+    {
+        if (skill)
+        {
+            amount = amount * 75 / 100;
+        }
+        else if (source->kind == HACKLIB_DAMAGE_WEAPON || source->kind == HACKLIB_DAMAGE_PROJECTILE)
+        {
+            amount = amount * 140 / 100;
+        }
     }
     if (skill && Extra.rowPower[source->abilityRow] != 0)
     {
@@ -951,6 +971,7 @@ void gauntletBoons_castStarted(u8 player, u8 row, s32 before, s32 paid)
     {
         return;
     }
+    Extra.paidSpirit = paid > 65535 ? 65535 : paid > 0 ? paid : 0;
     Extra.previousRitualRow = Extra.ritualRow;
     Extra.previousRitual = Extra.ritual;
     Extra.previousWeave = Extra.weave;
@@ -992,12 +1013,33 @@ void gauntletBoons_castResolved(u8 player, u8 row, bool success)
     {
         if (!Extra.echoing)
         {
+            Extra.paidSpirit = 0;
             Extra.ritualRow = Extra.previousRitualRow;
             Extra.ritual = Extra.previousRitual;
             Extra.weave = Extra.previousWeave;
             Extra.rowPower[row] = Extra.previousPower;
         }
         return;
+    }
+    bool herb = row == ACTIVE_SKILL_HERBAL_HEALING &&
+                skillExpansion_getHeroKit(PLAYER(player).heroId) == NULL;
+    if (!Extra.echoing)
+    {
+        if (!herb)
+        {
+            gauntletBoons_paidCast(player, Extra.paidSpirit);
+            if (HAS(MEASURED_POWER))
+            {
+                u32 ticks = skillExpansion_runtime[player].cooldowns[row];
+                if (ticks < SECOND)
+                {
+                    ticks = SECOND;
+                }
+                ticks += (ticks + 1) / 2;
+                skillExpansion_runtime[player].cooldowns[row] = ticks > 65535 ? 65535 : ticks;
+            }
+        }
+        Extra.paidSpirit = 0;
     }
     if (HAS(WRAITH_FORM))
     {
@@ -1010,7 +1052,7 @@ void gauntletBoons_castResolved(u8 player, u8 row, bool success)
                         FX_LAYER_BEHIND);
     }
     Actor *owner = PLAYER(player).ownerActor;
-    if (row != ACTIVE_SKILL_HERBAL_HEALING && HAS(ECHO_CAST) && !Extra.echoing &&
+    if (!herb && HAS(ECHO_CAST) && !Extra.echoing &&
         gauntlet_randBelow(100) < 20)
     {
         Extra.echoRow = row;

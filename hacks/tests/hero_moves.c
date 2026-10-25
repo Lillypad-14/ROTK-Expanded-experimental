@@ -14,11 +14,20 @@ static Actor *testNextEnemy(Actor *owner, Actor *cursor);
 #define findNextEnemy testNextEnemy
 #define asm(...)
 #if TEST_SAM
+#define HACK_gauntlet 1
 #include "patches/skill_expansion/skill_expansion_sam.c"
 #else
 #include "patches/skill_expansion/skill_expansion_smeagol.c"
 #endif
 #undef asm
+
+#if TEST_SAM
+static bool seedBankBoon;
+bool32 gauntletBoons_has(u8 boon)
+{
+    return seedBankBoon && boon == GAUNTLET_BOON_SEED_BANK;
+}
+#endif
 
 PlayerGlobals g_PlayerGlobals;
 u16 g_PlayerKeysCurrent[2], g_PlayerKeysPressed[2], g_PlayerKeysReleased[2];
@@ -263,6 +272,22 @@ static void resetFixture(void)
 int main(void)
 {
 #if TEST_SAM
+    resetFixture();
+    seedBankBoon = TRUE;
+    SamState *garden = state(0);
+    garden->plants[0] = (SamPlant){.kind = SAM_PLANT_TATERS, .growth = RIPE_GROWTH,
+        .life = 100, .level = 1, .x = 100, .y = 100, .pulseFrames = 10};
+    garden->plants[1] = (SamPlant){.kind = SAM_PLANT_BRAMBLE, .growth = 100,
+        .life = 0, .level = 1, .x = 120, .y = 100, .pulseFrames = 10};
+    garden->plants[2] = (SamPlant){.kind = SAM_PLANT_TATERS, .growth = RIPE_GROWTH - 10,
+        .life = 0, .level = 1, .x = 150, .y = 100, .pulseFrames = 10};
+    tickPlant(0, garden, &avatar, &garden->plants[0]);
+    assert(garden->plants[0].kind == SAM_PLANT_NONE);
+    assert(garden->plants[1].growth == 100 + RIPE_GROWTH / 4);
+    assert(garden->plants[2].growth == RIPE_GROWTH - 1);
+    tickPlant(0, garden, &avatar, &garden->plants[2]);
+    assert(garden->plants[2].growth == RIPE_GROWTH && garden->plants[2].life > 0);
+    seedBankBoon = FALSE;
     for (u8 level = 1; level <= 5; level++)
     {
         resetFixture();

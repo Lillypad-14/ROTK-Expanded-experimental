@@ -174,11 +174,16 @@ static bool32 meetsHeroRequirements(u8 playerIndex, Actor *actor, u32 ruleRow)
         switch (ruleRow)
         {
         case ACTIVE_SKILL_GANDALF_SWORD_OF_POWER:
-            // BUG: Unique swords have item type UNIQUE, so they cannot cast Sword of Power.
-            return mainHandType <= ITEM_TYPE_SWORD_1H;
+            // BUG: Unique weapons share one item type but retain their native weapon family.
+            return mainHandType <= ITEM_TYPE_SWORD_1H ||
+                   (mainHandType == ITEM_TYPE_UNIQUE &&
+                    (ITEM_BASE_METADATA(PLAYER(playerIndex).inventory.slots.mainhand).flags.p &
+                     ITEM_FAMILY_SWORD));
         case ACTIVE_SKILL_GANDALF_LIGHTSTRIKE:
-            // BUG: Unique staves have item type UNIQUE, so they cannot cast Lightstrike.
-            return offhandType == ITEM_TYPE_STAFF;
+            return offhandType == ITEM_TYPE_STAFF ||
+                   (offhandType == ITEM_TYPE_UNIQUE &&
+                    (ITEM_BASE_METADATA(PLAYER(playerIndex).inventory.slots.offhand).flags.p &
+                     ITEM_FAMILY_STAFF));
         }
         return TRUE;
     case HERO_ID_EOWYN:
@@ -187,7 +192,10 @@ static bool32 meetsHeroRequirements(u8 playerIndex, Actor *actor, u32 ruleRow)
         case ACTIVE_SKILL_EOWYN_DOUBLE_STRIKE:
             return mainHandType != ITEM_TYPE_EMPTY;
         case ACTIVE_SKILL_EOWYN_SHIELD_BASH:
-            return offhandType == ITEM_TYPE_SHIELD;
+            return offhandType == ITEM_TYPE_SHIELD ||
+                   (offhandType == ITEM_TYPE_UNIQUE &&
+                    (ITEM_BASE_METADATA(PLAYER(playerIndex).inventory.slots.offhand).flags.p &
+                     ITEM_FAMILY_SHIELD));
         }
         return TRUE;
     case HERO_ID_GIMLI:

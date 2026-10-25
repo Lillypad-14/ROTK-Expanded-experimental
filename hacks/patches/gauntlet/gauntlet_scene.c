@@ -314,9 +314,16 @@ static void drawPick(s32 tile)
     }
     else
     {
-        out = appendText(buffer, "Owned: ");
-        out = appendNumber(out, gauntletBoons_stacks(offer(ARG_CURSOR)));
-        appendText(out, "/1 -> 1/1 (unique)");
+        if (gauntletBoons_isSynergy(offer(ARG_CURSOR)))
+        {
+            appendText(buffer, "Build synergy (unique)");
+        }
+        else
+        {
+            out = appendText(buffer, "Owned: ");
+            out = appendNumber(out, gauntletBoons_stacks(offer(ARG_CURSOR)));
+            appendText(out, "/1 -> 1/1 (unique)");
+        }
     }
     tile = drawText(tile, COLOR_WHITE, (FULL_X + 1) * CELL + 4, 132, buffer, 0);
     if (DetailNext != NULL || DetailStart != NULL)
@@ -614,7 +621,7 @@ static void drawDoors(s32 tile)
     tile = drawText(tile, COLOR_NORMAL, 12, TITLE_Y, "CHOOSE A DOOR", 0);
     appendNumber(appendText(buffer, "Room "), gauntlet_roomsCleared() + 1);
     tile = drawText(tile, COLOR_WHITE, 228, 5, buffer, 2);
-    tile = drawText(tile, COLOR_WHITE, 139, 5, "Select: Shop", 1);
+    tile = drawText(tile, COLOR_WHITE, 140, 5, "Select:Shop L:Goals", 1);
     gauntletUi_panel(FULL_X, DOOR_DETAIL_Y, FULL_W, DOOR_DETAIL_H);
     for (slot = 0; slot < GAUNTLET_DOOR_COUNT; slot++)
     {
@@ -637,6 +644,35 @@ static void drawDoors(s32 tile)
         drawParagraph(tile, FULL_X, FULL_W, (DOOR_DETAIL_Y + 1) * CELL, 3 * CELL,
                       doorDetail(&door, buffer));
     }
+}
+
+static void drawBoonGoals(s32 tile)
+{
+    static const u8 Goals[] = {GAUNTLET_BOON_APPRENTICES_OATH, GAUNTLET_BOON_VETERANS_PURSE};
+    char buffer[100];
+
+    tile = drawText(tile, COLOR_NORMAL, CENTER_X, TITLE_Y, "BOON GOALS", 1);
+    for (u32 i = 0; i < ARRAY_COUNT(Goals); i++)
+    {
+        u8 boon = Goals[i];
+        bool owned = gauntletBoons_stacks(boon) != 0;
+        bool evolved = owned && gauntletBoons_goalProgress(boon) >= gauntletBoons_goalTarget(boon);
+        s32 y = 32 + i * 48;
+        char *out;
+
+        gauntletUi_panel(FULL_X, 3 + i * 6, FULL_W, 6);
+        tile = drawText(tile, owned ? COLOR_YELLOW : COLOR_WHITE, 20, y,
+                        gauntletBoons_name(boon), 0);
+        out = appendText(buffer, owned ? evolved ? "Evolved: " : "Progress: " : "Not owned: ");
+        out = appendNumber(out, gauntletBoons_goalProgress(boon));
+        out = appendText(out, "/");
+        out = appendNumber(out, gauntletBoons_goalTarget(boon));
+        appendText(out, i == 0 ? " paid casts" : " kills");
+        tile = drawText(tile, evolved ? COLOR_GREEN : COLOR_WHITE, 20, y + 12, buffer, 0);
+        tile = drawText(tile, COLOR_WHITE, 20, y + 24,
+                        i == 0 ? "Spirit refund: 10% -> 30%" : "Extra gems per kill: 1 -> 3", 0);
+    }
+    drawText(tile, COLOR_WHITE, CENTER_X, 144, "B / L: back to doors", 1);
 }
 
 static void drawBriefing(s32 tile)
@@ -942,6 +978,9 @@ static void drawScreen(void)
     case GAUNTLET_PAGE_BRIEFING:
         drawBriefing(2);
         break;
+    case GAUNTLET_PAGE_BOON_GOALS:
+        drawBoonGoals(2);
+        break;
     case GAUNTLET_PAGE_DOORS:
         drawDoors(2);
         break;
@@ -1151,7 +1190,14 @@ static void tickPick(u16 keys)
 
 static void tickDoors(u16 keys)
 {
-    if (keys & SELECT_BUTTON)
+    if (keys & L_BUTTON)
+    {
+        clearSprites();
+        ARG_PAGE = GAUNTLET_PAGE_BOON_GOALS;
+        drawScreen();
+        sfx_play(SFX_MENU_CONFIRM);
+    }
+    else if (keys & SELECT_BUTTON)
     {
         u32 selected = ARG_CURSOR;
         gauntletShop_open();
@@ -1389,6 +1435,15 @@ void gauntlet_sceneTick(void)
             {
                 sfx_play(SFX_MENU_CONFIRM);
                 gauntlet_enterNextRoom();
+            }
+            break;
+        case GAUNTLET_PAGE_BOON_GOALS:
+            if (keys & (B_BUTTON | L_BUTTON))
+            {
+                ARG_PAGE = GAUNTLET_PAGE_DOORS;
+                drawScreen();
+                spawnDoorSprites();
+                sfx_play(SFX_MENU_BACK);
             }
             break;
         case GAUNTLET_PAGE_DOORS:

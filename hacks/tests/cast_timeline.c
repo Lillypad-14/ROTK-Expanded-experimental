@@ -270,6 +270,12 @@ static void cast(void)
 int main(void)
 {
     reset();
+    skillExpansion_cast(0, 5);
+    assert(releases == 1 && !skillExpansion_runtime[0].pending);
+    skillExpansion_completeCast(&owner);
+    assert(releases == 1);
+    assert(PLAYER(0).currentSpirit == 90);
+    reset();
     PLAYER(0).heroId = HERO_ID_ARAGORN;
     g_ActorListMain.head = &owner;
     skillExpansion_runtimeBegin(0, HERO_ID_ARAGORN);

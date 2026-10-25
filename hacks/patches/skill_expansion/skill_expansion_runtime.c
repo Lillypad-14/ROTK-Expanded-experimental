@@ -368,6 +368,11 @@ void skillExpansion_resolveTimelineCast(Actor *actor)
     }
     u8 row = PLAYER(p).castingActiveSkill;
     SkillExpansionRuntime *runtime = &skillExpansion_runtime[p];
+    // BUG: Repeated animation callbacks must not resolve an already completed cast again.
+    if (!runtime->pending)
+    {
+        return;
+    }
     const SkillExpansionActiveDef *def = skillExpansion_activeDef(p, row);
     SkillExpansionResolver resolver = def != NULL ? def->resolve : NULL;
     const SkillDeliveryDef *delivery = def != NULL ? def->delivery : NULL;

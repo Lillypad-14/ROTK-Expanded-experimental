@@ -109,6 +109,9 @@ The living-enemy cap is unchanged for all these variants.
 ## Herbs
 
 Heroes that have Herbal Healing (every hero except the Ringwraith and Saruman) start the run with it and three fresh herbs.
+Each rank after 1 adds healing equal to 10% of maximum HP per herb, on top of the herb's normal healing: +10% at rank 2, +20% at rank 3, +30% at rank 4, and +40% at rank 5.
+A successful use still consumes one fresh or dried herb, costs no Spirit, and cannot heal above maximum HP.
+Campaign upgrades unlock at hero levels 5, 10, 15, and 20.
 The pouch carries over between rooms and holds ten.
 New runs clear both native and expanded skill ranks before granting starters and hub bonuses. Frodo also retains his native starting Ring ability.
 Starting skill controls are initialized for both cast cycling and quick select. The initial selection is a learned offensive skill, and starting quick slots never point to unavailable skills.
@@ -134,9 +137,12 @@ Long descriptions stay inside the detail panel. Right advances to more text and 
 
 ## Boons
 
-The pool contains 86 unique boons: the adapted 80-idea catalog plus six additional boons.
-Eight duos require both parent boons, and six hero-specific offers require the matching hero.
+The pool contains 94 unique boons: the adapted 80-idea catalog plus fourteen additional boons.
+Eight duos require both parent boons, and ten hero-specific offers require the matching hero.
 See [the boon catalog](gauntlet-boons.md) for exact effects and prerequisites.
+One third of reward rolls try to include an eligible boon that complements an owned boon, without changing the rarity floor, prerequisites, uniqueness, or one-legendary limit.
+The reward screen labels those choices as build synergies.
+Press L on the door screen to see both evolving boons' progress and upgraded effects, then B or L to return to the same selected door.
 
 Status and cast workspaces are allocated only when an owned boon needs them and freed before room transitions.
 Eight enemies can carry run statuses, four secondary or delayed targets can wait at once, and ghost summons share a cap of four.
@@ -144,7 +150,9 @@ These limits keep encounters bounded on the GBA. Optional effects refuse new wor
 
 ## Map coverage
 
-Twenty-nine maps are in the rotation, with twelve entry candidates per map sampled from connected floor.
+Twenty-eight maps are in the rotation, with twelve entry candidates per map sampled from connected floor.
+Door pictures are shared room-kind or enemy-theme artwork, not individual map previews.
+Normal selection avoids the current map and duplicate combat maps within one door set, but does not keep a run-wide visited-map history.
 Each entry is checked against the current hero and a 49 by 38 pixel clearance box, with nearby floor adjustments up to 16 pixels.
 Coordinates are stored in [gauntlet_routes.c](../hacks/patches/gauntlet/gauntlet_routes.c).
 
@@ -153,7 +161,7 @@ Coordinates are stored in [gauntlet_routes.c](../hacks/patches/gauntlet/gauntlet
 | 1 | Isengard, Flooded Field, Fangorn, Moria, Treasure Hoard, Balin's Tomb, Ice Caves, Gorgoroth, Gorgoroth Hills, Ithilien, Cirith Ungol, Ungol Stairs, Fangorn Copse, Entwash |
 | 2 | Dimholt Glen, Uruk Hatchery, Orthanc Base, Edoras Fields |
 | 3 | Mount Doom Foot, Mount Doom Slopes, Dark Paths |
-| 4 | Anduin, Anduin Docks, Dunharrow, Minas Tirith, Corsair Deck, Corsair Hold, North Fields, Haradrim Camp |
+| 4 | Anduin, Anduin Docks, Dunharrow, Corsair Deck, Corsair Hold, North Fields, Haradrim Camp |
 
 Helm's Deep Valley and Morgul Vale remain outside the rotation because their reachable entrance areas did not provide
 enough open floor with story scripts suppressed. Their route entries are empty, and both random selection and the map probe skip them.
@@ -179,7 +187,8 @@ A `GAUNTLET_VARIANT` line records its modifier and minimum boon rarity.
 A `GAUNTLET_BACKDROP` line records the mission, native backdrop effect, BG1 control, and animation frame at room clear.
 The runner rejects blocked player entries alongside enemy placement failures and emulator faults.
 The earlier 30-map pool passed combat and placement probes, but those checks did not establish visual correctness.
-City Streets is excluded after a visual capture reproduced corrupt terrain.
+City Streets and Minas Tirith (Gates) are excluded after visual captures reproduced corrupt terrain.
+These exclusions avoid broken rooms; their native terrain initialization is not repaired.
 Seven additional heroes passed mixed-door runs covering Battle, Elite, Skirmish, and Onslaught.
 Shrine equipment uses the native base-item, prefix, suffix, and inventory routines.
 These runs do not replace manual checks of enemy pursuit, encounter balance or the feel of a room.

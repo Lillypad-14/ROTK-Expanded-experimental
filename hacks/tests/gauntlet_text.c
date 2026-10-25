@@ -90,7 +90,10 @@ static void checkCardBudget(const char *romPath, u32 styleTable)
     font_setStyle(FONT_STYLE_8PX_B, 0, GAUNTLET_UI_TEXT_BACKGROUND);
     s32 tile = font_drawString(2, 12, 8, "CHOOSE A DOOR", 0);
     tile = font_drawString(tile, 228, 5, "Room 999", 2);
-    tile = font_drawString(tile, 139, 5, "Select: Shop", 1);
+    tile = font_drawString(tile, 140, 5, "Select:Shop L:Goals", 1);
+    u32 hintWidth = font_getStringWidth("Select:Shop L:Goals");
+    assert(140 - hintWidth / 2 >= 12 + font_getStringWidth("CHOOSE A DOOR"));
+    assert(140 + (hintWidth + 1) / 2 <= 228 - font_getStringWidth("Room 999"));
     font_setStyle(FONT_STYLE_8PX_B, 0, GAUNTLET_UI_TEXT_BACKGROUND);
     for (u32 slot = 0; slot < 3; slot++)
     {
@@ -105,6 +108,21 @@ static void checkCardBudget(const char *romPath, u32 styleTable)
     assert(*description == '\0');
     assert(tile <= 320);
     printf("PASS: real-font door layout fits its panel and tile budget (%d/320 tiles)\n", tile);
+    font_setRenderTarget(screen, (u8 *)tiles, FALSE);
+    s32 goalsTile = font_drawString(2, 120, 8, "BOON GOALS", 1);
+    for (u32 i = 0; i < 2; i++)
+    {
+        s32 y = 32 + i * 48;
+        goalsTile = font_drawString(goalsTile, 20, y,
+            i == 0 ? "Apprentice's Oath" : "Veteran's Purse", 0);
+        goalsTile = font_drawString(goalsTile, 20, y + 12,
+            i == 0 ? "Not owned: 12/12 paid casts" : "Not owned: 30/30 kills", 0);
+        goalsTile = font_drawString(goalsTile, 20, y + 24,
+            i == 0 ? "Spirit refund: 10% -> 30%" : "Extra gems per kill: 1 -> 3", 0);
+    }
+    goalsTile = font_drawString(goalsTile, 120, 144, "B / L: back to doors", 1);
+    assert(goalsTile <= 320);
+    printf("PASS: boon goals fit text budget (%d/320 tiles)\n", goalsTile);
     char *shrine = "No fight. Gain random equipment, scaled to run depth. "
                    "Equipped or stored in your pack. Full pack: 1 boon reroll instead.";
     tile = font_drawLinesInBox(2, 20, 128, 200, 24, &shrine, 0);

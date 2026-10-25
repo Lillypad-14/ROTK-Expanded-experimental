@@ -1,3 +1,6 @@
+#if HACK_gauntlet
+#include "patches/gauntlet/gauntlet_boons.h"
+#endif
 #include "patches/skill_expansion/skill_expansion_frodo.h"
 #include "enemy.h"
 #include "fx.h"
@@ -277,6 +280,9 @@ static inline s32 burden(u8 playerIndex)
 
 static void addBurden(u8 playerIndex, s32 amount)
 {
+#if HACK_gauntlet
+    amount = gauntletBoons_burdenChange(playerIndex, amount);
+#endif
     player_addCorruption(playerIndex, amount);
     // Large changes can skip the stock tier flag transitions.
     s32 now = burden(playerIndex);

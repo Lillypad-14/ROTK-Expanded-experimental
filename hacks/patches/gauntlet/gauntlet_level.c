@@ -266,6 +266,17 @@ void gauntletLevel_progress(u8 playerIndex, u8 offer, char *out)
         current = *baseStat(playerIndex, offer - LEVEL_OFFER_STAT);
         gain = STAT_OFFER_POINTS;
     }
+    else if (offer == ACTIVE_SKILL_HERBAL_HEALING &&
+             skillExpansion_getHeroKit(PLAYER(playerIndex).heroId) == NULL)
+    {
+        current = *skillExpansion_activeLevel(playerIndex, offer);
+        out = appendText(out, "Extra heal: +");
+        out = appendNumber(out, current > 1 ? (current - 1) * 10 : 0);
+        out = appendText(out, "% -> +");
+        out = appendNumber(out, current * 10);
+        appendText(out, "% max HP");
+        return;
+    }
     else if (offer < SKILL_EXPANSION_ACTIVE_ROW_COUNT)
     {
         out = appendText(out, "Skill rank");

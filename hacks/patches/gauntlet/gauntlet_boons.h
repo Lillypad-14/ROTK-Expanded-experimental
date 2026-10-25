@@ -92,7 +92,15 @@ enum GauntletBoonId
     GAUNTLET_BOON_SPREADING_DREAD,
     GAUNTLET_BOON_VOICE_OF_COMMAND,
     GAUNTLET_BOON_HEIR_OF_ISILDUR,
-    GAUNTLET_BOON_COUNT,
+    GAUNTLET_BOON_EMBER_DIVIDEND = 86,
+    GAUNTLET_BOON_QUIET_RESOLVE = 87,
+    GAUNTLET_BOON_SEED_BANK = 88,
+    GAUNTLET_BOON_RESERVED_POWER = 89,
+    GAUNTLET_BOON_MEASURED_POWER = 90,
+    GAUNTLET_BOON_STEEL_OATH = 91,
+    GAUNTLET_BOON_APPRENTICES_OATH = 92,
+    GAUNTLET_BOON_VETERANS_PURSE = 93,
+    GAUNTLET_BOON_COUNT = 94,
 };
 
 enum GauntletRarity
@@ -157,3 +165,12 @@ bool32 gauntletBoons_has(u8 boon);
 
 /** TRUE when an owned boon needs the effect workspace. */
 bool32 gauntletBoons_hasExpanded(void);
+
+/** Successful paid casts advance the evolving refund boon once. */
+void gauntletBoons_paidCast(u8 playerIndex, s32 paid);
+u32 gauntletBoons_goalProgress(u8 boon);
+u32 gauntletBoons_goalTarget(u8 boon);
+/** Whether this candidate complements an owned boon. */
+bool32 gauntletBoons_isSynergy(u8 boon);
+void gauntletBoons_flameFilled(u8 playerIndex);
+s32 gauntletBoons_burdenChange(u8 playerIndex, s32 amount);

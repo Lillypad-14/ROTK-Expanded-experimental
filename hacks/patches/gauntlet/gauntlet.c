@@ -400,9 +400,10 @@ static void applyUnlocks(void)
 
 static bool32 isMapAvailable(u32 map)
 {
-    // City Streets has corrupt terrain in fresh Gauntlet loads.
+    // Fresh Gauntlet captures show corrupt terrain on both Minas Tirith maps.
     return GauntletRoutes[map][0].count != 0 &&
-           RoomMaps[map].mission != MISSION_MINAS_TIRITH_BATTLEMENTS_STREETS;
+           RoomMaps[map].mission != MISSION_MINAS_TIRITH_BATTLEMENTS_STREETS &&
+           RoomMaps[map].mission != MISSION_MINAS_TIRITH_BATTLEMENTS_GATES;
 }
 
 /** A map for the current room: unlocked by now, and not the map just played. */

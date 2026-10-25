@@ -286,6 +286,28 @@ static const GauntletBoon Boons[GAUNTLET_BOON_COUNT] = {
          RARITY_EPIC, 0, 0, 10},
     [GAUNTLET_BOON_HEIR_OF_ISILDUR] = {"Heir of Isildur", "Your ghost summons last twice as long.",
                                        RARITY_EPIC, 0, 0, 3},
+    [GAUNTLET_BOON_EMBER_DIVIDEND] = {"Ember Dividend",
+        "Aragorn: each time Flame reaches 100, restore 15% max Spirit.", RARITY_RARE, 0, 0, 3},
+    [GAUNTLET_BOON_QUIET_RESOLVE] = {"Quiet Resolve",
+        "Frodo: Burden reductions remove 50% more, minimum 1 extra.", RARITY_RARE, 0, 0, 1},
+    [GAUNTLET_BOON_SEED_BANK] = {"Seed Bank",
+        "Sam: harvesting a ripe tater adds 25% growth to your other growing plants.",
+        RARITY_RARE, 0, 0, 7},
+    [GAUNTLET_BOON_RESERVED_POWER] = {"Reserved Power",
+        "Saruman: empowered spells leave 1 charge instead of 0. Failed casts keep charges.",
+        RARITY_EPIC, 0, 0, 10},
+    [GAUNTLET_BOON_MEASURED_POWER] = {"Measured Power",
+        "Skills deal 35% more damage. Successful cast cooldowns are 50% longer, minimum 1.5s.",
+        RARITY_EPIC, 0, 0, 0},
+    [GAUNTLET_BOON_STEEL_OATH] = {"Steel Oath",
+        "Basic weapon attacks deal 40% more damage. Skill damage is reduced by 25%.",
+        RARITY_RARE, 0, 0, 0},
+    [GAUNTLET_BOON_APPRENTICES_OATH] = {"Apprentice's Oath",
+        "Successful casts refund 10% of Spirit paid. After 12 paid casts, refund 30%. Free casts "
+        "and herbs do not count. L on doors: goals.", RARITY_RARE, 0, 0, 0},
+    [GAUNTLET_BOON_VETERANS_PURSE] = {"Veteran's Purse",
+        "Kills grant 1 extra gem. After 30 kills with this boon, kills grant 3 gems instead. "
+        "L on doors: goals.", RARITY_RARE, 0, 0, 0},
 };
 
 static const char *const RarityNames[] = {"Common", "Rare", "Epic", "Legendary"};
@@ -325,6 +347,8 @@ struct GauntletBoonState
     u8 still;
     // bit 0: Second Life spent this run
     u8 runSpent;
+    u8 apprenticeCasts;
+    u8 veteranKills;
 };
 
 #define SPENT_SECOND_WIND 1
@@ -433,6 +457,99 @@ const char *gauntletBoons_description(u8 boon)
     return boon < GAUNTLET_BOON_COUNT ? Boons[boon].description : "";
 }
 
+u32 gauntletBoons_goalProgress(u8 boon)
+{
+    return boon == GAUNTLET_BOON_APPRENTICES_OATH ? Boon.apprenticeCasts
+           : boon == GAUNTLET_BOON_VETERANS_PURSE ? Boon.veteranKills : 0;
+}
+
+u32 gauntletBoons_goalTarget(u8 boon)
+{
+    return boon == GAUNTLET_BOON_APPRENTICES_OATH ? 12
+           : boon == GAUNTLET_BOON_VETERANS_PURSE ? 30 : 0;
+}
+
+void gauntletBoons_paidCast(u8 playerIndex, s32 paid)
+{
+    if (playerIndex != 0 || paid <= 0 || !gauntletBoons_has(GAUNTLET_BOON_APPRENTICES_OATH))
+    {
+        return;
+    }
+    if (Boon.apprenticeCasts < 12 && ++Boon.apprenticeCasts == 12)
+    {
+        skillExpansion_feedback(playerIndex, "Apprentice's Oath evolved!");
+    }
+    s32 cap = PLAYER_STAT(playerIndex, STAT_MAX_SPIRIT);
+    if (gauntletBoons_has(GAUNTLET_BOON_OVERFLOW))
+    {
+        cap = cap * 3 / 2;
+    }
+    s32 spirit = PLAYER(playerIndex).currentSpirit + paid * (Boon.apprenticeCasts >= 12 ? 30 : 10) / 100;
+    if (PLAYER(playerIndex).currentSpirit < cap)
+    {
+        PLAYER(playerIndex).currentSpirit = spirit > cap ? cap : spirit;
+    }
+}
+
+void gauntletBoons_flameFilled(u8 playerIndex)
+{
+    if (playerIndex == 0 && gauntletBoons_has(GAUNTLET_BOON_EMBER_DIVIDEND))
+    {
+        s32 cap = PLAYER_STAT(playerIndex, STAT_MAX_SPIRIT);
+        s32 spirit = PLAYER(playerIndex).currentSpirit + cap * 15 / 100;
+        if (PLAYER(playerIndex).currentSpirit < cap)
+        {
+            PLAYER(playerIndex).currentSpirit = spirit > cap ? cap : spirit;
+        }
+    }
+}
+
+s32 gauntletBoons_burdenChange(u8 playerIndex, s32 amount)
+{
+    if (playerIndex == 0 && amount < 0 && gauntletBoons_has(GAUNTLET_BOON_QUIET_RESOLVE))
+    {
+        amount += amount / 2 != 0 ? amount / 2 : -1;
+    }
+    return amount;
+}
+
+// A pair in either direction can guide an offer. Parent requirements still apply.
+static const u8 SynergyPairs[][2] = {
+    {GAUNTLET_BOON_CHAIN_LIGHTNING, GAUNTLET_BOON_CORPSE_BLAST},
+    {GAUNTLET_BOON_EMBER_TRAIL, GAUNTLET_BOON_HASTE_LOOP},
+    {GAUNTLET_BOON_ECHO_CAST, GAUNTLET_BOON_SPLIT_SHOT},
+    {GAUNTLET_BOON_THORNS, GAUNTLET_BOON_SECOND_WIND},
+    {GAUNTLET_BOON_CARADHRAS_CHILL, GAUNTLET_BOON_SHATTER},
+    {GAUNTLET_BOON_BARROW_VENOM, GAUNTLET_BOON_PLAGUE_SPREADER},
+    {GAUNTLET_BOON_EXECUTIONER, GAUNTLET_BOON_OVERKILL},
+    {GAUNTLET_BOON_BIG_GAME, GAUNTLET_BOON_AVALANCHE},
+    {GAUNTLET_BOON_MEASURED_POWER, GAUNTLET_BOON_RANGERS_PATIENCE},
+    {GAUNTLET_BOON_STEEL_OATH, GAUNTLET_BOON_SWIFT_BLADE},
+    {GAUNTLET_BOON_APPRENTICES_OATH, GAUNTLET_BOON_OVERFLOW},
+};
+
+bool32 gauntletBoons_isSynergy(u8 boon)
+{
+    if (boon >= GAUNTLET_BOON_COUNT)
+    {
+        return FALSE;
+    }
+    if (Boons[boon].parentA != 0 && Boons[boon].parentB != 0 &&
+        owns(Boons[boon].parentA - 1) && owns(Boons[boon].parentB - 1))
+    {
+        return TRUE;
+    }
+    for (u32 i = 0; i < ARRAY_COUNT(SynergyPairs); i++)
+    {
+        if ((SynergyPairs[i][0] == boon && owns(SynergyPairs[i][1])) ||
+            (SynergyPairs[i][1] == boon && owns(SynergyPairs[i][0])))
+        {
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
 static bool32 eligible(u8 boon)
 {
     return (Boons[boon].parentA == 0 || owns(Boons[boon].parentA - 1)) &&
@@ -508,6 +625,33 @@ void gauntletBoons_roll(u8 offers[GAUNTLET_OFFER_COUNT], u8 minRarity)
     bool32 legendary = FALSE;
     u8 boon;
 
+    // One in three rolls reserves the first slot for a compatible build choice.
+    if (gauntlet_randBelow(3) == 0)
+    {
+        u32 candidates = 0;
+        for (boon = 0; boon < GAUNTLET_BOON_COUNT; boon++)
+        {
+            if (!owns(boon) && eligible(boon) && Boons[boon].rarity >= minRarity &&
+                gauntletBoons_isSynergy(boon))
+            {
+                candidates++;
+            }
+        }
+        if (candidates != 0)
+        {
+            u32 pick = gauntlet_randBelow(candidates);
+            for (boon = 0; boon < GAUNTLET_BOON_COUNT; boon++)
+            {
+                if (!owns(boon) && eligible(boon) && Boons[boon].rarity >= minRarity &&
+                    gauntletBoons_isSynergy(boon) && pick-- == 0)
+                {
+                    offers[filled++] = boon;
+                    legendary = Boons[boon].rarity == RARITY_LEGENDARY;
+                    break;
+                }
+            }
+        }
+    }
     for (attempt = 0; attempt < 64 && filled < GAUNTLET_OFFER_COUNT; attempt++)
     {
         u8 rarity;
@@ -943,6 +1087,15 @@ void gauntlet_combatEvent(u8 playerIndex, const HackLibCombatEvent *event)
     if (!event->result.killed)
     {
         return;
+    }
+    if (gauntletBoons_has(GAUNTLET_BOON_VETERANS_PURSE))
+    {
+        if (Boon.veteranKills < 30 && ++Boon.veteranKills == 30)
+        {
+            skillExpansion_feedback(playerIndex, "Veteran's Purse evolved!");
+        }
+        u32 gems = PLAYER(playerIndex).gems + (Boon.veteranKills >= 30 ? 3 : 1);
+        PLAYER(playerIndex).gems = gems > 65535 ? 65535 : gems;
     }
     onKill(playerIndex, owner);
     if (owns(GAUNTLET_BOON_BLOODTHIRST))

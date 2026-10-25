@@ -35,6 +35,7 @@ enum GauntletPage
     GAUNTLET_PAGE_SHOP_ITEM = 8,
     GAUNTLET_PAGE_SHOP_SELL = 9,
     GAUNTLET_PAGE_SHOP_SELL_ITEM = 10,
+    GAUNTLET_PAGE_BOON_GOALS = 11,
 };
 
 /** The kinds of room a door leads to. */

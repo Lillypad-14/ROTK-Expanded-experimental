@@ -30,6 +30,8 @@ static Actor actors[12];
 static ActiveSkill activeSkills[SKILL_EXPANSION_ACTIVE_ROW_COUNT];
 static u32 generations[12];
 static bool running = TRUE;
+static bool customKit;
+static const SkillExpansionHeroKit TestKit = {0};
 static u32 randomValue, kills, projectiles, echoes, summons;
 static const HackLibDamageSource *source;
 
@@ -79,7 +81,7 @@ bool actor_isStunnable(Actor *actor)
 const SkillExpansionHeroKit *skillExpansion_getHeroKit(u32 hero)
 {
     (void)hero;
-    return NULL;
+    return customKit ? &TestKit : NULL;
 }
 bool32 skillExpansion_isFoe(Actor *actor)
 {
@@ -230,6 +232,7 @@ static void reset(void)
         generations[i]++;
     }
     running = TRUE;
+    customKit = FALSE;
     source = NULL;
     randomValue = kills = projectiles = echoes = summons = 0;
     PLAYER(0).ownerActor = &actors[0];
@@ -258,8 +261,173 @@ static void hit(Actor *target, bool killed, s32 overkill)
     gauntlet_combatEvent(0, &event);
 }
 
+static void testNewBoons(void)
+{
+    reset();
+    gauntletBoons_grant(GAUNTLET_BOON_EMBER_DIVIDEND);
+    PLAYER(0).heroId = HERO_ID_ARAGORN;
+    PLAYER(0).currentSpirit = 0;
+    gauntletBoons_flameFilled(0);
+    assert(PLAYER(0).currentSpirit == 15);
+    PLAYER(0).currentSpirit = 99;
+    gauntletBoons_flameFilled(0);
+    assert(PLAYER(0).currentSpirit == 100);
+    PLAYER(0).heroId = HERO_ID_SAM;
+    PLAYER(0).currentSpirit = 0;
+    gauntletBoons_flameFilled(0);
+    assert(PLAYER(0).currentSpirit == 0);
+    reset();
+    gauntletBoons_grant(GAUNTLET_BOON_QUIET_RESOLVE);
+    assert(gauntletBoons_burdenChange(0, -1) == -2);
+    assert(gauntletBoons_burdenChange(0, -10) == -15);
+    assert(gauntletBoons_burdenChange(0, 10) == 10);
+    assert(gauntletBoons_burdenChange(1, -10) == -10);
+    PLAYER(0).heroId = HERO_ID_SAM;
+    assert(gauntletBoons_burdenChange(0, -10) == -10);
+    reset();
+    gauntletBoons_grant(GAUNTLET_BOON_APPRENTICES_OATH);
+    for (u32 i = 0; i < 12; i++)
+    {
+        PLAYER(0).currentSpirit = 50;
+        gauntletBoons_castStarted(0, 0, 70, 20);
+        gauntletBoons_castResolved(0, 0, TRUE);
+        assert(gauntletBoons_goalProgress(GAUNTLET_BOON_APPRENTICES_OATH) == i + 1);
+        assert(PLAYER(0).currentSpirit == (i == 11 ? 56 : 52));
+    }
+    gauntletBoons_roomStart();
+    assert(gauntletBoons_goalProgress(GAUNTLET_BOON_APPRENTICES_OATH) == 12);
+    assert(gauntletBoons_goalTarget(GAUNTLET_BOON_APPRENTICES_OATH) == 12);
+    gauntletBoons_castStarted(0, 0, 50, 20);
+    gauntletBoons_castResolved(0, 0, FALSE);
+    assert(gauntletBoons_goalProgress(GAUNTLET_BOON_APPRENTICES_OATH) == 12);
+    reset();
+    gauntletBoons_grant(GAUNTLET_BOON_APPRENTICES_OATH);
+    gauntletBoons_castStarted(0, 0, 50, 20);
+    gauntletBoons_castResolved(0, 0, FALSE);
+    gauntletBoons_castStarted(0, 0, 50, 0);
+    gauntletBoons_castResolved(0, 0, TRUE);
+    gauntletBoons_castStarted(0, ACTIVE_SKILL_HERBAL_HEALING, 50, 20);
+    gauntletBoons_castResolved(0, ACTIVE_SKILL_HERBAL_HEALING, TRUE);
+    assert(gauntletBoons_goalProgress(GAUNTLET_BOON_APPRENTICES_OATH) == 0);
+    gauntletBoons_castStarted(0, 0, 50, 20);
+    Extra.echoing = TRUE;
+    gauntletBoons_castResolved(0, 0, TRUE);
+    Extra.echoing = FALSE;
+    assert(gauntletBoons_goalProgress(GAUNTLET_BOON_APPRENTICES_OATH) == 0);
+    gauntletBoons_castResolved(0, 0, TRUE);
+    assert(gauntletBoons_goalProgress(GAUNTLET_BOON_APPRENTICES_OATH) == 1);
+    gauntletBoons_reset();
+    assert(gauntletBoons_goalProgress(GAUNTLET_BOON_APPRENTICES_OATH) == 0);
+    reset();
+    gauntletBoons_grant(GAUNTLET_BOON_VETERANS_PURSE);
+    for (u32 i = 0; i < 30; i++)
+    {
+        hit(&actors[1], TRUE, 0);
+    }
+    assert(PLAYER(0).gems == 32);
+    assert(gauntletBoons_goalProgress(GAUNTLET_BOON_VETERANS_PURSE) == 30);
+    gauntletBoons_roomStart();
+    hit(&actors[1], TRUE, 0);
+    assert(PLAYER(0).gems == 35);
+    PLAYER(0).gems = 65534;
+    hit(&actors[1], TRUE, 0);
+    assert(PLAYER(0).gems == 65535);
+    reset();
+    gauntletBoons_grant(GAUNTLET_BOON_MEASURED_POWER);
+    HackLibDamageSource skill = {&actors[0], HACKLIB_DAMAGE_ABILITY, 0, 0, 0, TRUE};
+    source = &skill;
+    assert(gauntletBoonEffects_damage(0, &actors[1], 100) == 135);
+    source = NULL;
+    gauntletBoons_castStarted(0, 0, 100, 10);
+    skillExpansion_runtime[0].cooldowns[0] = 31;
+    gauntletBoons_castResolved(0, 0, TRUE);
+    assert(skillExpansion_runtime[0].cooldowns[0] == 47);
+    gauntletBoons_castStarted(0, 0, 100, 10);
+    gauntletBoons_castResolved(0, 0, FALSE);
+    assert(skillExpansion_runtime[0].cooldowns[0] == 47);
+    skillExpansion_runtime[0].cooldowns[0] = 0;
+    gauntletBoons_castStarted(0, 0, 100, 10);
+    gauntletBoons_castResolved(0, 0, TRUE);
+    assert(skillExpansion_runtime[0].cooldowns[0] == 45);
+    skillExpansion_runtime[0].cooldowns[0] = 65535;
+    gauntletBoons_castStarted(0, 0, 100, 10);
+    gauntletBoons_castResolved(0, 0, TRUE);
+    assert(skillExpansion_runtime[0].cooldowns[0] == 65535);
+    reset();
+    gauntletBoons_grant(GAUNTLET_BOON_STEEL_OATH);
+    source = &skill;
+    assert(gauntletBoonEffects_damage(0, &actors[1], 100) == 75);
+    skill.kind = HACKLIB_DAMAGE_WEAPON;
+    skill.abilityRow = HACKLIB_ABILITY_NONE;
+    assert(gauntletBoonEffects_damage(0, &actors[1], 100) == 140);
+    skill.kind = HACKLIB_DAMAGE_SECONDARY;
+    assert(gauntletBoonEffects_damage(0, &actors[1], 100) == 100);
+    source = NULL;
+    reset();
+    gauntletBoons_grant(GAUNTLET_BOON_ECHO_CAST);
+    assert(gauntletBoons_isSynergy(GAUNTLET_BOON_SPLIT_SHOT));
+    assert(!eligible(GAUNTLET_BOON_VOLLEY_ECHO));
+    u8 offers[3];
+    gauntletBoons_roll(offers, RARITY_RARE);
+    assert(offers[0] == GAUNTLET_BOON_SPLIT_SHOT);
+    assert(offers[0] != offers[1] && offers[1] != offers[2] && offers[0] != offers[2]);
+    gauntletBoons_roll(offers, RARITY_LEGENDARY);
+    assert(Boons[offers[0]].rarity == RARITY_LEGENDARY);
+    for (u32 i = GAUNTLET_BOON_EMBER_DIVIDEND; i <= GAUNTLET_BOON_RESERVED_POWER; i++)
+    {
+        reset();
+        for (u32 hero = 0; hero < 10; hero++)
+        {
+            PLAYER(0).heroId = hero;
+            assert(!!eligible(i) == (hero + 1 == Boons[i].heroPlusOne));
+        }
+    }
+}
+
+static void testEquipmentStatChanges(void)
+{
+    reset();
+    gauntletBoons_grant(GAUNTLET_BOON_KEEN_EYE);
+    gauntletBoons_grant(GAUNTLET_BOON_FLEETFOOT);
+    gauntletBoons_grant(GAUNTLET_BOON_DWARF_GOLD);
+    gauntletBoons_grant(GAUNTLET_BOON_THE_ONE_RING);
+    gauntletBoons_roomStart();
+    gauntletBoonEffects_tick(0, &actors[0]);
+    assert(PLAYER_STAT(0, STAT_CRIT_CHANCE_PERCENT) == 10);
+    PLAYER_STAT(0, STAT_CRIT_CHANCE_PERCENT) += 5;
+    PLAYER_STAT(0, STAT_SPEED_PERCENT) += 7;
+    PLAYER_STAT(0, STAT_EXTRA_GEMS_PERCENT) += 9;
+    PLAYER_STAT(0, STAT_MAX_HP) += 20;
+    gauntletBoonEffects_tick(0, &actors[0]);
+    assert(PLAYER_STAT(0, STAT_CRIT_CHANCE_PERCENT) == 15);
+    assert(PLAYER_STAT(0, STAT_SPEED_PERCENT) == 19);
+    assert(PLAYER_STAT(0, STAT_EXTRA_GEMS_PERCENT) == 49);
+    assert(PLAYER_STAT(0, STAT_MAX_HP) == 218);
+    // A second gear swap followed immediately by exit must still remove the overlay.
+    PLAYER_STAT(0, STAT_CRIT_CHANCE_PERCENT) -= 2;
+    gauntletBoonEffects_roomEnd();
+    assert(PLAYER_STAT(0, STAT_CRIT_CHANCE_PERCENT) == 3);
+    assert(PLAYER_STAT(0, STAT_SPEED_PERCENT) == 7);
+    assert(PLAYER_STAT(0, STAT_EXTRA_GEMS_PERCENT) == 9);
+    assert(PLAYER_STAT(0, STAT_MAX_HP) == 220);
+}
+
 int main(void)
 {
+    testEquipmentStatChanges();
+    reset();
+    customKit = TRUE;
+    PLAYER(0).heroId = 9;
+    gauntletBoons_grant(GAUNTLET_BOON_ECHO_CAST);
+    gauntletBoons_castStarted(0, ACTIVE_SKILL_HERBAL_HEALING, 100, 10);
+    gauntletBoons_castResolved(0, ACTIVE_SKILL_HERBAL_HEALING, TRUE);
+    assert(Extra.echoTicks == SECOND / 2);
+    reset();
+    gauntletBoons_grant(GAUNTLET_BOON_ECHO_CAST);
+    gauntletBoons_castStarted(0, ACTIVE_SKILL_HERBAL_HEALING, 100, 0);
+    gauntletBoons_castResolved(0, ACTIVE_SKILL_HERBAL_HEALING, TRUE);
+    assert(Extra.echoTicks == 0);
+    testNewBoons();
     reset();
     u8 fallbackOffers[GAUNTLET_OFFER_COUNT];
     assert(gauntletBoons_rollBestAvailable(fallbackOffers, RARITY_EPIC) == RARITY_EPIC);

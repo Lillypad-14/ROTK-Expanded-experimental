@@ -1,3 +1,6 @@
+#if HACK_gauntlet
+#include "patches/gauntlet/gauntlet_boons.h"
+#endif
 #include "lib/fx_kit.h"
 #include "lib/timed_effect.h"
 #include "patches/ringwraith/saruman_icons.h"
@@ -858,7 +861,11 @@ static SkillExpansionCastResult resolve(Actor *actor)
         }
         if (empowered)
         {
+#if HACK_gauntlet
+            st->spellCharges = player == 0 && gauntletBoons_has(GAUNTLET_BOON_RESERVED_POWER) ? 1 : 0;
+#else
             st->spellCharges = 0;
+#endif
             grantSpirit(player,
                         RING_LORE_SPIRIT * passiveLevel(player, SKILL_EXPANSION_PASSIVE_RING_LORE) +
                             (passiveLevel(player, SKILL_EXPANSION_PASSIVE_HEAD_OF_THE_COUNCIL)

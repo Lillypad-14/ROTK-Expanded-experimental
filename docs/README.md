@@ -21,6 +21,7 @@ This repository combines the original-game decompilation with the experimental R
 | Create effect artwork | [Skill effects](skill-effects.md) and [Effect Studio](effect-editor.md) |
 | Define cast timing and projectiles | [Skill deliveries](skill-deliveries.md) |
 | Measure and reduce slowdown | [Performance changes](performance.md) and [busy-fight benchmark](test-arena.md#busy-fight-benchmark) |
+| Review the latest bug pass | [October 25 bug audit](bug-audit.md) |
 | Test gameplay changes | [Test arena](test-arena.md), [Ability Bench](ability-bench.md) and [combat validation](combat-validation.md) |
 | Review the four-hero upgrade audit | [Hero move checks](hero-move-checks.md) |
 | Follow source naming and layout | [Conventions](conventions.md) |
