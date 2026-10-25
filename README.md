@@ -4,8 +4,8 @@ An experimental content mod for _The Lord of the Rings: The Return of the King_ 
 [lotr-gba-re/rotk](https://github.com/lotr-gba-re/rotk) decompilation and ROM hack framework.
 
 > [!important]
-> **All credit for the foundation goes to [RagingCactus](https://github.com/RagingCactus)** and the
-> [lotr-gba-re/rotk](https://github.com/lotr-gba-re/rotk) project: the reverse engineering, the byte-matched
+> **Credit for the foundation goes to [RagingCactus](https://github.com/RagingCactus)** and the
+> [lotr-gba-re/rotk](https://github.com/lotr-gba-re/rotk) project and discord community: the reverse engineering, the byte-matched
 > decompilation, the `rotkit` toolkit, the modular hack build, and the original patches (extra save slots, mod
 > options, loot QoL, chapter select, fast fades, and more).
 > This repository adds experimental content on top of that work. Please support and contribute to the original project
