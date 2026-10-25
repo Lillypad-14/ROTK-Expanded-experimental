@@ -16,8 +16,9 @@ See [the latest bug audit](bug-audit.md) for the current fixes, map exclusions, 
      --output build/arena-runs/sweep-01
    ```
 
-   Expected today: every row ok or "not castable", except Frodo row 3, Gandalf row 0 and Eowyn rows 1 and 2,
-   whose stock cooldowns outlast the default 150 tick wait.
+   Some native buffs and cooldowns last longer than the default 150-tick wait, so a rejected second cast needs investigation before calling it a gameplay failure.
+   In the latest 360-tick sweep, Eowyn row 2 needed a 900-tick follow-up, which passed.
+   Empty rows and unmet equipment or target requirements are reported as "not castable". See [the audit](bug-audit.md).
 4. `uv run --group dev pytest hacks/tools -q` runs the host tests.
 5. For performance work, `hacks/tools/arena_bench.py` measures lag in a busy fight and samples the CPU. See
    [test-arena.md](test-arena.md).
@@ -26,15 +27,16 @@ See [the latest bug audit](bug-audit.md) for the current fixes, map exclusions, 
 
 | Area | State |
 | --- | --- |
-| Page 2 skill trees | Built for all ten heroes, with custom icon art. See [heroes.md](heroes.md). |
+| Page 2 skill trees | Built for nine heroes, with custom icon art. Eowyn retains her stock kit. See [heroes.md](heroes.md). |
 | Gandalf "The Grey and the White" | Built, waiting on a full playtest and balance pass. |
 | Legolas "The Glint" | Built, waiting on a full playtest. |
 | Ringwraith (hero 8) | Built with page 2 and wraith gear. Some thrall and ghost behaviors rest on unverified assumptions. |
-| Saruman (hero 9) | Spell visual rework, ground shockwave and balance pass built. In-game check of every spell pending. |
+| Saruman (hero 9) | Reworked spells, empowerment and balance changes. Host and automated emulator checks passed; full manual visual and balance testing remains. |
+| Gauntlet | v0.6: 94 boons, gear buy/sell shop, evolution goals and 28 available maps. Both Minas Tirith maps are excluded for corrupt terrain. See [Gauntlet](gauntlet.md). |
 | Twists, Debug, Unlocks pages | Done. See [mod-options.md](mod-options.md). |
 | Engine health | Hero state ownership checks, heap Room telemetry and BSS guard words. The sweep reports all of them. |
 | Performance | `fast_obj_tiles` improves native tile-search work within its existing IWRAM buffer. Measured stress-test gains are modest and scene-dependent. See [performance](performance.md). |
-| Decompilation | See [decomp-handoff.md](decomp-handoff.md) and [decompilation.md](decompilation.md). |
+| Decompilation | 711 C functions in 356 source regions; 1,059 mapped functions. See [current decompilation status](decompilation.md) and the [generated inventory](source-inventory.md). |
 
 ## Next Steps
 

@@ -20,23 +20,23 @@ The source covers parts of actors and sprites, combat and player stats, active/p
 
 ## What this fork added
 
-Compared with the upstream base (commit `b4f8637`), counted from the repository files:
+Compared with the upstream base (commit `b4f8637`), counted from the repository files on 2026-10-25:
 
 | | Upstream | This fork |
 | --- | --- | --- |
-| C source files in `src/c/` | 51 | 350 |
-| Regions in `config/split.cfg` | 253 | 552 |
-| Mapped functions in `config/functions.cfg` | 772 | 1051 |
-| Data symbols in `config/data.cfg` | 356 | 483 |
+| C source files in `src/c/` | 51 | 356 |
+| Regions in `config/split.cfg` | 253 | 558 |
+| Mapped functions in `config/functions.cfg` | 772 | 1059 |
+| Handwritten data symbols in `config/data.cfg` | 356 | 487 |
 
-The 299 new C files, by system:
+The 305 new C files, by system:
 
 | System | Files | Highlights |
 | --- | --- | --- |
 | Mission scripts | 85 | 63 script opcode handlers, plus the block, stream, waypoint, spawn-group and actor-record loaders |
-| Actors | 39 | Allocation, movement, collision, death, stun, knockback, aggro, enemy spawners |
+| Actors | 41 | Allocation, movement, collision, death, stun, knockback, aggro, enemy spawners |
 | Scenes | 38 | Shop, skill tree, new game, copyright and logo screens, victory |
-| Sprites | 29 | OAM entries and affine matrices, palette and cell caches, animation binding |
+| Sprites | 33 | OAM entries and affine matrices, palette and cell caches, animation binding |
 | Graphics | 27 | BG layers, scrolling, rotation and zoom, color effects, palette fades and cycles |
 | Skills | 17 | Active skill ticks and spirit costs |
 | Player | 16 | HUD, stats and scripted player actors |
@@ -58,6 +58,8 @@ Tooling changes:
   matching these functions.
 
 ## Measuring progress
+
+On 2026-10-25, coverage reported **711 C function definitions in 356 source regions, 89,644 compiled bytes, and 1,059 mapped functions**. The regenerated inventory lists 348 mapped functions without C and 202 non-C reconstruction regions. The latest original-ROM verification matched all 558 manifest regions and the whole-ROM SHA-1.
 
 On 2026-10-23, `make coverage` reported 704 C function definitions in 350 source regions, 86,452 compiled bytes and 1,051 mapped functions. The [2026-10-22 handoff](decomp-handoff.md) reported 569 C definitions, 251 C regions and 72,292 compiled code bytes. Those are dated results, not live counters. Regenerate the inventory for current source counts.
 

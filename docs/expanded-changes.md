@@ -2,12 +2,21 @@
 
 This describes the experimental expansion present in the source tree. It is not a release announcement or a promise that every feature has passed full gameplay testing. The original decompilation, toolkit and Vanilla+ patches are credited to RagingCactus and [lotr-gba-re/rotk](https://github.com/lotr-gba-re/rotk), as described in the root README.
 
+## Current release summary
+
+[v0.6-experimental](https://github.com/Lillypad-14/ROTK-Expanded-experimental/releases/tag/v0.6-experimental) includes the latest boon and bug-fix pass.
+Gauntlet has 94 boons, including four new character choices, two tradeoffs, and two evolving boons. Some offers favor compatible choices; L on the doors screen opens the goals panel.
+The gear shop supports buying and selling. Door descriptions explain rewards, modifiers, and map names.
+The available pool is 28 maps; City Streets and Minas Tirith (Gates) are excluded because screen captures reproduced corrupted terrain.
+Herbal Healing ranks 2 through 5 add 10% through 40% maximum HP healing per herb on top of normal healing.
+See [Gauntlet](gauntlet.md), [the boon catalog](gauntlet-boons.md), and [the current bug audit](bug-audit.md) for exact behavior and testing limits.
+
 ## Hero content
 
 For each hero's idea, mechanic and full skill list, see [heroes](heroes.md). For the hooks behind them, see
 [engine changes](engine-changes.md).
 
-Expanded adds a second skill page and hero-specific mechanics. Skill definitions, descriptions, upgrade wiring and cast policies live in [`skill_expansion_content.c`](../hacks/patches/skill_expansion/skill_expansion_content.c). This is the current source for individual moves and prerequisites. The [skill-tree notebook](wip-docs/skill-tree.md) contains design context that may differ from the implementation.
+Expanded adds a second skill page and hero-specific mechanics for nine heroes. Eowyn retains her stock kit. Skill definitions, descriptions, upgrade wiring and cast policies live in [`skill_expansion_content.c`](../hacks/patches/skill_expansion/skill_expansion_content.c). This is the current source for individual moves and prerequisites. The [skill-tree notebook](wip-docs/skill-tree.md) contains design context that may differ from the implementation.
 
 | Hero | Expansion mechanic | Implementation |
 | --- | --- | --- |
@@ -52,7 +61,9 @@ Generated includes and binary assets are build outputs. Edit the content manifes
 
 The Sam, Smeagol, Aragorn and Saruman audit corrected omitted equipment active-skill bonuses, Sam's missed-hit secondary effects and inherited weapon requirements, stale actor references for marks/bait/curses, and shared targeting behavior. See [hero move checks](hero-move-checks.md) for the exact automated and emulator coverage.
 
-These checks do not certify every stock move, native animation, map, equipment combination or co-op interaction. The final audit emulator smoke attempt was interrupted by a debugger hang. Normal-control encounters, visual lifetimes, multiplayer and hardware still need community testing.
+The earlier four-hero audit ended with an interrupted emulator smoke attempt; it is historical coverage, not the latest status.
+The 2026-10-25 audit subsequently completed all-hero ability sweeps, shop debugger checks, and 280 combat-room clears across all ten heroes and the 28 available maps with every boon granted. It also corrected stat-boon overlays after equipment changes, duplicate cast completion, custom sixth-slot Echo Cast eligibility, and unique equipment requirements.
+See [the current bug audit](bug-audit.md) for exact coverage and limits. Normal-control encounters, complete visual behavior, multiplayer and hardware still need community testing.
 
 ## Validation and release scope
 

@@ -7,7 +7,7 @@ lives in the kit files linked under each hero.
 
 ## How the expanded skill tree works
 
-- Every expanded hero keeps the stock page 1 and gains a **page 2**: six more active skills and nine more passives.
+- Every expanded hero keeps the stock page 1 and gains a **page 2**: up to six more active skills and nine more passives.
   Press **L / R** on the skill tree to flip pages.
 - Each page is laid out as **three columns, one per build**, color-coded on the tree.
 - Page 2 skills unlock between hero levels 10 and 25.
@@ -17,7 +17,8 @@ lives in the kit files linked under each hero.
 - Most heroes have a **HUD bar** between the HP and Spirit bars that shows their mechanic.
 
 Status key: **tested** means played in an emulator with that ROM build. **Untested** means it builds and passes the
-host checks but has not been played yet.
+host checks but has not had a manual gameplay pass.
+All ten heroes completed the automated ability and Gauntlet checks in the [2026-10-25 audit](bug-audit.md); those checks do not certify every move, visual effect, or balance choice.
 
 ## At a glance
 
@@ -28,10 +29,10 @@ host checks but has not been played yet.
 | [Sam](#sam) | Samwise's Garden | Plant taters and brambles that grow, ripen and wilt. Ripe taters pelt foes, harvests restore Spirit | tested |
 | [Smeagol](#smeagol) | Gollum's Grip | Grip builds toward 100. Then Gollum takes over for two seconds at double damage | tested |
 | [Gimli](#gimli) | The Tally | Page 2 is bought with kills. Every 10 kills charges a free, stronger cast | tested |
-| [Gandalf](#gandalf) | The Grey and the White | Hold R to swap form. Grey saves Spirit, White burns it for power | untested |
-| [Legolas](#legolas) | The Glint | Release Overdraw on the glint for a True Shot. Chain them into a streak | untested |
+| [Gandalf](#gandalf) | The Grey and the White | Hold R to swap form. Grey saves Spirit, White burns it for power | automated emulator checks; manual pass pending |
+| [Legolas](#legolas) | The Glint | Release Overdraw on the glint for a True Shot. Chain them into a streak | automated emulator checks; manual pass pending |
 | [Ringwraith](#ringwraith) | Dread | New hero. Terrify and stun foes, then raise the slain as thralls | mostly tested |
-| [Saruman](#saruman) | Empowered spells | Cast three spells, then empower the next damaging spell | host tested; rework needs playtesting |
+| [Saruman](#saruman) | Empowered spells | Cast three spells, then empower the next damaging spell | host and automated emulator checks; manual pass pending |
 | Eowyn | none yet | Stock kit. Page 2 is not built yet | stock |
 
 ---

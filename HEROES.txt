@@ -1,12 +1,12 @@
 ROTK EXPANDED - HERO MECHANICS
 ==============================
 
-Every hero has a second skill page. Press L or R on the skill tree to switch pages.
+Every hero except Eowyn has a second skill page. Press L or R on the skill tree to switch pages.
 From level 21, you get 2 skill points per level.
 
 
 ARAGORN - Flame of Anduril
-  Hitting, stunning and marking enemies fills a green Flame bar.
+  Hitting, stunning and marking enemies fills the Flame bar.
   Spend the Flame on his new skills to make Anduril blaze.
 
 FRODO - Burden
@@ -25,7 +25,7 @@ SMEAGOL - Gollum's Grip
 
 GIMLI - The Tally
   Gimli counts his kills.
-  His second page is bought with kills as well as skill points.
+  His second page uses kill thresholds instead of skill points.
   Every 10 kills, his next skill is free and hits 50% harder.
 
 GANDALF - The Grey and the White

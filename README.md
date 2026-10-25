@@ -14,20 +14,21 @@ An experimental content mod for _The Lord of the Rings: The Return of the King_ 
 
 ## What this mod adds
 
-- **Second skill page for every hero except Eowyn** (hers is not built yet). Twelve active rows and eighteen passives per hero, with three color-coded
+- **Second skill page for every hero except Eowyn** (hers is not built yet). Expanded active and passive skill trees have three color-coded
   builds per page and a unique mechanic per hero:
   - Aragorn, Frodo (Burden meter on the HUD), Sam ("Samwise's Garden"), Smeagol ("Gollum's Grip"),
     Gimli ("The Tally"), Gandalf ("The Grey and the White", hold R to swap form), Legolas ("The Glint", timed
     Overdraw release for True Shots).
 - **New playable heroes.** Ringwraith (hero 8, built from the Nazgul model, with its own gear) and Saruman
   (empowered spells).
+- **Gauntlet dungeon mode.** Existing maps, randomized doors and encounters, a gear buy/sell shop, 94 boons, character-specific rewards, and evolving boon goals. The current pool has 28 available maps. See [Gauntlet](docs/gauntlet.md) and [the boon catalog](docs/gauntlet-boons.md).
 - **Twists.** Playthrough modifier pages in the mod options. See [mod options](docs/mod-options.md).
 - **Debug cheats and Unlocks pages** for testing.
 - **Content toolkit** in `hacks/lib/`: FX kit (stock effects, recolors, sprite tints, custom PNG effects), combat
   events, targeting, movement, status effects, timed zones, summons, HUD meters and cast timelines.
 - Engine and save changes needed for all of the above (skill system, skill tree screen, combat and per-frame hooks).
 
-Most of this is **untested on hardware and only lightly tested in emulators**. Expect bugs and balance problems.
+The v0.6 audit passed 280 automated combat-room clears across all ten heroes and the 28 available maps, plus ability, shop, memory and host regression checks. Manual balance, complete visual, campaign and hardware testing remain open. See [the audit and its limits](docs/bug-audit.md).
 
 ## Heroes
 
@@ -54,21 +55,21 @@ Alongside the mod, this fork continues RagingCactus's decompilation: rewriting t
 compiles back to the exact same bytes. Every recovered function is checked against the original ROM, and the
 rebuilt ROM is byte-identical to the original (SHA-1 `ec3d126d37ea6e2ad7030d8a99cf87c6e46c03fd`).
 
-| | Upstream base | This fork (2026-10-23) |
+| | Upstream base | This fork (2026-10-25) |
 | --- | --- | --- |
-| C source files | 51 | 350 |
-| Decompiled C functions | not counted | 704 (86,452 bytes of compiled code) |
-| Mapped functions (named, with or without C) | 772 | 1,051 |
-| Data symbols | 356 | 483 |
+| C source files | 51 | 356 |
+| Decompiled C functions | not counted | 711 (89,644 compiled bytes) |
+| Mapped functions (named, with or without C) | 772 | 1,059 |
+| Handwritten data symbols (`config/data.cfg`) | 356 | 487 |
 
 What this fork decompiled, by system:
 
 | System | Files | Highlights |
 | --- | --- | --- |
 | Mission scripts | 85 | 63 script opcode handlers and the mission file loaders |
-| Actors | 39 | Allocation, movement, collision, death, stun, knockback, aggro, enemy spawners |
+| Actors | 41 | Allocation, movement, collision, death, stun, knockback, aggro, enemy spawners |
 | Scenes | 38 | Shop, skill tree, new game, logo screens, victory |
-| Sprites | 29 | OAM, affine matrices, palette and cell caches, animation binding |
+| Sprites | 33 | OAM, affine matrices, palette and cell caches, animation binding |
 | Graphics | 27 | BG layers, scrolling, rotation and zoom, color effects, palette fades |
 | Skills, player, RNG, effects | 51 | Active skill ticks, HUD and stats, the gameplay RNG, particles and status effects |
 | Multiplayer, EEPROM, text, sound, save and others | 30 | |
@@ -100,7 +101,7 @@ The inventory can be regenerated with `uv run python tools/documentation_invento
 
 ## Playing it
 
-1. Get `hack.bps` from the [latest release](../../releases/latest).
+1. Get `ROTK-Expanded-experimental-v0.6.bps` from the [v0.6 experimental release](https://github.com/Lillypad-14/ROTK-Expanded-experimental/releases/tag/v0.6-experimental).
 2. You need your own legally dumped EU/US ROM (SHA-1 `ec3d126d37ea6e2ad7030d8a99cf87c6e46c03fd`).
 3. Apply the patch with [RomPatcher.js](https://www.marcrobledo.com/RomPatcher.js/) and play in mGBA or similar.
 

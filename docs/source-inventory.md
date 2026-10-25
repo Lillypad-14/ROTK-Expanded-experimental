@@ -5,7 +5,7 @@ This is a source inventory, not a fresh byte-match or runtime test result.
 
 - 711 distinct non-inline C function names in 356 source files.
 - 356 C regions in the reconstruction manifest.
-- 1058 mapped original-game function symbols, including 347 without a C definition.
+- 1059 mapped original-game function symbols, including 348 without a C definition.
 - 202 other manifest regions, including carved data and generated assets.
 
 The mapped symbol list is incomplete. These counts cannot establish a full-game decompilation percentage.
@@ -540,6 +540,7 @@ Mapped names may be provisional. A symbol or header prototype alone is not a dec
 | `0x08031634` | thumb | `scene_gameplay_enter` |
 | `0x08031e44` | thumb | `scene_gameplay_tick` |
 | `0x080323c8` | thumb | `scene_gameplay_discardParkedWorld` |
+| `0x08032434` | thumb | `scene_gameplay_healAllPlayers` |
 | `0x080325d8` | thumb | `actor_missionWarp_createFromMission` |
 | `0x080337c8` | thumb | `actor_projectile_create` |
 | `0x08033dd8` | thumb | `actor_updateBgPriorityFromTerrain` |
@@ -950,11 +951,13 @@ Selection comes from `hacks/patches.cfg`. A directory's presence does not mean i
 | `debug_cheats` | Enabled | [hacks/patches/debug_cheats](../hacks/patches/debug_cheats) |
 | `demo_pages` | Not selected | [hacks/patches/demo_pages](../hacks/patches/demo_pages) |
 | `demo_table_patch` | Not selected | [hacks/patches/demo_table_patch](../hacks/patches/demo_table_patch) |
+| `experimental` | Enabled | [hacks/patches/experimental](../hacks/patches/experimental) |
 | `fast_fade` | Enabled | [hacks/patches/fast_fade](../hacks/patches/fast_fade) |
 | `fast_oam` | Enabled | [hacks/patches/fast_oam](../hacks/patches/fast_oam) |
 | `fast_obj_tiles` | Enabled | [hacks/patches/fast_obj_tiles](../hacks/patches/fast_obj_tiles) |
 | `fast_sprite` | Not selected | [hacks/patches/fast_sprite](../hacks/patches/fast_sprite) |
 | `fast_waitstates` | Enabled | [hacks/patches/fast_waitstates](../hacks/patches/fast_waitstates) |
+| `gauntlet` | Enabled | [hacks/patches/gauntlet](../hacks/patches/gauntlet) |
 | `item_descriptions` | Enabled | [hacks/patches/item_descriptions](../hacks/patches/item_descriptions) |
 | `loot_qol` | Enabled | [hacks/patches/loot_qol](../hacks/patches/loot_qol) |
 | `menu_text` | Enabled | [hacks/patches/menu_text](../hacks/patches/menu_text) |
@@ -982,11 +985,13 @@ These implement new behavior and hooks rather than byte-matched original-game C.
 | `debug_cheats` | [hacks/patches/debug_cheats/ability_bench.c](../hacks/patches/debug_cheats/ability_bench.c), [hacks/patches/debug_cheats/combat_lab_stats.c](../hacks/patches/debug_cheats/combat_lab_stats.c), [hacks/patches/debug_cheats/debug_cheats.c](../hacks/patches/debug_cheats/debug_cheats.c), [hacks/patches/debug_cheats/debug_lab.c](../hacks/patches/debug_cheats/debug_lab.c), [hacks/patches/debug_cheats/delivery_preview.c](../hacks/patches/debug_cheats/delivery_preview.c), [hacks/patches/debug_cheats/effect_preview.c](../hacks/patches/debug_cheats/effect_preview.c) |
 | `demo_pages` | [hacks/patches/demo_pages/demo_pages.c](../hacks/patches/demo_pages/demo_pages.c) |
 | `demo_table_patch` | [hacks/patches/demo_table_patch/tables.c](../hacks/patches/demo_table_patch/tables.c) |
+| `experimental` | [hacks/patches/experimental/camera_ease.c](../hacks/patches/experimental/camera_ease.c), [hacks/patches/experimental/experimental.c](../hacks/patches/experimental/experimental.c), [hacks/patches/experimental/frame_pacing.c](../hacks/patches/experimental/frame_pacing.c) |
 | `fast_fade` | [hacks/patches/fast_fade/fast_fade.c](../hacks/patches/fast_fade/fast_fade.c) |
 | `fast_oam` | Assembly/data only |
 | `fast_obj_tiles` | Assembly/data only |
 | `fast_sprite` | [hacks/patches/fast_sprite/fast_sprite.c](../hacks/patches/fast_sprite/fast_sprite.c) |
 | `fast_waitstates` | [hacks/patches/fast_waitstates/fast_waitstates.c](../hacks/patches/fast_waitstates/fast_waitstates.c) |
+| `gauntlet` | [hacks/patches/gauntlet/gauntlet.c](../hacks/patches/gauntlet/gauntlet.c), [hacks/patches/gauntlet/gauntlet_boon_effects.c](../hacks/patches/gauntlet/gauntlet_boon_effects.c), [hacks/patches/gauntlet/gauntlet_boons.c](../hacks/patches/gauntlet/gauntlet_boons.c), [hacks/patches/gauntlet/gauntlet_level.c](../hacks/patches/gauntlet/gauntlet_level.c), [hacks/patches/gauntlet/gauntlet_meta.c](../hacks/patches/gauntlet/gauntlet_meta.c), [hacks/patches/gauntlet/gauntlet_routes.c](../hacks/patches/gauntlet/gauntlet_routes.c), [hacks/patches/gauntlet/gauntlet_scene.c](../hacks/patches/gauntlet/gauntlet_scene.c), [hacks/patches/gauntlet/gauntlet_shop.c](../hacks/patches/gauntlet/gauntlet_shop.c), [hacks/patches/gauntlet/gauntlet_test.c](../hacks/patches/gauntlet/gauntlet_test.c), [hacks/patches/gauntlet/gauntlet_ui.c](../hacks/patches/gauntlet/gauntlet_ui.c) |
 | `item_descriptions` | [hacks/patches/item_descriptions/item_descriptions.c](../hacks/patches/item_descriptions/item_descriptions.c) |
 | `loot_qol` | [hacks/patches/loot_qol/auto_loot.c](../hacks/patches/loot_qol/auto_loot.c), [hacks/patches/loot_qol/loot_filter.c](../hacks/patches/loot_qol/loot_filter.c), [hacks/patches/loot_qol/loot_qol.c](../hacks/patches/loot_qol/loot_qol.c) |
 | `menu_text` | [hacks/patches/menu_text/menu_text.c](../hacks/patches/menu_text/menu_text.c) |
@@ -1019,6 +1024,7 @@ See [shared ability support](ability-support.md) for contracts and [the change o
 - [hacks/lib/hex.h](../hacks/lib/hex.h)
 - [hacks/lib/hud_meter.h](../hacks/lib/hud_meter.h)
 - [hacks/lib/lr_button_indicators.h](../hacks/lib/lr_button_indicators.h)
+- [hacks/lib/mission_scripts.h](../hacks/lib/mission_scripts.h)
 - [hacks/lib/movement.h](../hacks/lib/movement.h)
 - [hacks/lib/profile.h](../hacks/lib/profile.h)
 - [hacks/lib/skill_fx.h](../hacks/lib/skill_fx.h)
@@ -1041,9 +1047,12 @@ Test modules describe automated coverage, not full hardware or emulator certific
 - [hacks/tools/check_oam_submit.py](../hacks/tools/check_oam_submit.py)
 - [hacks/tools/check_obj_tile_search.py](../hacks/tools/check_obj_tile_search.py)
 - [hacks/tools/check_sprite_compose.py](../hacks/tools/check_sprite_compose.py)
+- [hacks/tools/check_sprite_oam_compose.py](../hacks/tools/check_sprite_oam_compose.py)
 - [hacks/tools/effect_editor.py](../hacks/tools/effect_editor.py)
+- [hacks/tools/fell_beast_art.py](../hacks/tools/fell_beast_art.py)
 - [hacks/tools/fx_palette.py](../hacks/tools/fx_palette.py)
 - [hacks/tools/fx_sprite.py](../hacks/tools/fx_sprite.py)
+- [hacks/tools/gauntlet_run.py](../hacks/tools/gauntlet_run.py)
 - [hacks/tools/ground_shockwave.py](../hacks/tools/ground_shockwave.py)
 - [hacks/tools/hero_registry.py](../hacks/tools/hero_registry.py)
 - [hacks/tools/sam_fx_art.py](../hacks/tools/sam_fx_art.py)
@@ -1053,6 +1062,7 @@ Test modules describe automated coverage, not full hardware or emulator certific
 - [hacks/tools/skill_icon_art.py](../hacks/tools/skill_icon_art.py)
 - [hacks/tools/skill_text_fit.py](../hacks/tools/skill_text_fit.py)
 - [hacks/tools/test_ability_support.py](../hacks/tools/test_ability_support.py)
+- [hacks/tools/test_active_requirements.py](../hacks/tools/test_active_requirements.py)
 - [hacks/tools/test_arena_bench.py](../hacks/tools/test_arena_bench.py)
 - [hacks/tools/test_arena_run.py](../hacks/tools/test_arena_run.py)
 - [hacks/tools/test_cast_timelines.py](../hacks/tools/test_cast_timelines.py)
@@ -1061,6 +1071,10 @@ Test modules describe automated coverage, not full hardware or emulator certific
 - [hacks/tools/test_effect_editor.py](../hacks/tools/test_effect_editor.py)
 - [hacks/tools/test_engine_content.py](../hacks/tools/test_engine_content.py)
 - [hacks/tools/test_fx_resources.py](../hacks/tools/test_fx_resources.py)
+- [hacks/tools/test_gauntlet_boons.py](../hacks/tools/test_gauntlet_boons.py)
+- [hacks/tools/test_gauntlet_run.py](../hacks/tools/test_gauntlet_run.py)
+- [hacks/tools/test_gauntlet_shop.py](../hacks/tools/test_gauntlet_shop.py)
+- [hacks/tools/test_gauntlet_text.py](../hacks/tools/test_gauntlet_text.py)
 - [hacks/tools/test_hero_moves.py](../hacks/tools/test_hero_moves.py)
 - [hacks/tools/test_skill_deliveries.py](../hacks/tools/test_skill_deliveries.py)
 - [hacks/tools/test_skill_fx.py](../hacks/tools/test_skill_fx.py)
