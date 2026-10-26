@@ -1,6 +1,8 @@
 # Where the Work Stands
 
-A starting point for anyone picking up ROTK Expanded from this repository. Last updated 2026-10-25.
+A starting point for anyone picking up ROTK Expanded from this repository. Last updated 2026-10-26.
+
+The v0.7 source adds Eowyn's experimental Against the Dark page-two kit. The older audit predates that kit and does not certify its behavior.
 
 See [the latest bug audit](bug-audit.md) for the current fixes, map exclusions, and automated coverage.
 
@@ -27,7 +29,7 @@ See [the latest bug audit](bug-audit.md) for the current fixes, map exclusions, 
 
 | Area | State |
 | --- | --- |
-| Page 2 skill trees | Built for nine heroes, with custom icon art. Eowyn retains her stock kit. See [heroes.md](heroes.md). |
+| Page 2 skill trees | Built for all ten heroes. Eowyn's new kit uses stock icons and remains experimental. See [heroes.md](heroes.md). |
 | Gandalf "The Grey and the White" | Built, waiting on a full playtest and balance pass. |
 | Legolas "The Glint" | Built, waiting on a full playtest. |
 | Ringwraith (hero 8) | Built with page 2 and wraith gear. Some thrall and ghost behaviors rest on unverified assumptions. |

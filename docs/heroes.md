@@ -33,9 +33,17 @@ All ten heroes completed the automated ability and Gauntlet checks in the [2026-
 | [Legolas](#legolas) | The Glint | Release Overdraw on the glint for a True Shot. Chain them into a streak | automated emulator checks; manual pass pending |
 | [Ringwraith](#ringwraith) | Dread | New hero. Terrify and stun foes, then raise the slain as thralls | mostly tested |
 | [Saruman](#saruman) | Empowered spells | Cast three spells, then empower the next damaging spell | host and automated emulator checks; manual pass pending |
-| Eowyn | none yet | Stock kit. Page 2 is not built yet | stock |
+| [Eowyn](#eowyn) | Against the Dark | Odds rise with danger. Rohirrim can build Gallop and spend it on a strike | experimental; manual pass pending |
 
 ---
+
+## Eowyn
+
+**Against the Dark:** her page-two Odds meter reacts to nearby threats, larger foes, Nazgul and missing health. It moves through Steady, Grim, Desperate and Hopeless tiers. Rohirrim can learn Gallop, building steps by running and spending them on a melee hit.
+
+The six active skills are Death-Seeker's Strike, Come and Face Me!, Lance of the Mark, Stand Over the Fallen, Hope Rekindled and I Am No Man!. They add an HP-cost strike, pull/stun, Gallop lunge, defensive ally support, Odds-based healing and a high-danger ultimate. Nine new passive IDs support the kit.
+
+Definitions and level requirements are in [skill_expansion_content.c](../hacks/patches/skill_expansion/skill_expansion_content.c), with behavior in [skill_expansion_eowyn.c](../hacks/patches/skill_expansion/skill_expansion_eowyn.c). The kit currently uses stock icons. It builds and passes content checks, but complete manual combat, balance and co-op testing remain pending. Earlier automated audits predate this kit.
 
 ## Aragorn
 

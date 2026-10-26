@@ -7,6 +7,7 @@
 #include "memory.h"
 #include "patches/skill_expansion/skill_delivery.h"
 #include "patches/skill_expansion/skill_expansion_elite.h"
+#include "patches/skill_expansion/skill_expansion_eowyn.h"
 #include "patches/skill_expansion/skill_expansion_frodo.h"
 #include "patches/skill_expansion/skill_expansion_gimli.h"
 #include "patches/skill_expansion/skill_expansion_legolas.h"
@@ -142,6 +143,7 @@ void skillExpansion_tickHud(s32 playerIndex)
         skillExpansion_frodoDrawBurdenBar(playerIndex);
         skillExpansion_aragornDrawFlameBar(playerIndex);
         skillExpansion_gimliDrawTallyBar(playerIndex);
+        skillExpansion_eowynDrawHud(playerIndex);
         if (kit != NULL && kit->drawHud != NULL)
         {
             kit->drawHud(playerIndex);

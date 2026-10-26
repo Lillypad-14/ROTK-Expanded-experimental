@@ -6,6 +6,7 @@
 #include "patches/skill_expansion/sam_icons.h"
 #include "patches/skill_expansion/skill_expansion.h"
 #include "patches/skill_expansion/skill_expansion_elite.h"
+#include "patches/skill_expansion/skill_expansion_eowyn.h"
 #include "patches/skill_expansion/skill_expansion_frodo.h"
 #include "patches/skill_expansion/skill_expansion_gandalf.h"
 #include "patches/skill_expansion/skill_expansion_gimli.h"
@@ -65,6 +66,11 @@
 #define LEGOLAS_NOCK_CAST_FIELDS                                                                   \
     .field_0x20 = 2, .castFlags = {.d = {.forcePose0 = 1}}, .field_0x22 = 5,                       \
     .castTriggerFrame = 0, .field_0x24 = 0xff
+#define EOWYN_STRIKE_CAST_FIELDS                                                                   \
+    .field_0x20 = 2, .castFlags = {0}, .field_0x22 = 5, .castTriggerFrame = 4, .field_0x24 = 0xff
+#define EOWYN_CRY_CAST_FIELDS                                                                      \
+    .field_0x20 = 2, .castFlags = {.d = {.forcePose0 = 1}}, .field_0x22 = 5,                       \
+    .castTriggerFrame = 0, .field_0x24 = 0xff
 #define GANDALF_BUFF_CAST_FIELDS                                                                   \
     .field_0x20 = 2, .castFlags = {.d = {.forcePose0 = 1}}, .field_0x22 = 5,                       \
     .castTriggerFrame = 0, .field_0x24 = 0xff
@@ -104,6 +110,14 @@ static const SkillExpansionCastPolicy BlindingAuraPosePolicy = {
 static const SkillExpansionCastPolicy FriendOfMirkwoodPosePolicy = {
     ACTIVE_SKILL_LEGOLAS_FRIEND_OF_MIRKWOOD + 1, SKILL_EXPANSION_RULE_NONE,
     SKILL_EXPANSION_RULE_NONE, 0};
+static const SkillExpansionCastPolicy DoubleStrikePosePolicy = {
+    ACTIVE_SKILL_EOWYN_DOUBLE_STRIKE + 1, SKILL_EXPANSION_RULE_NONE, SKILL_EXPANSION_RULE_NONE, 0};
+static const SkillExpansionCastPolicy ShieldmaidenPosePolicy = {
+    ACTIVE_SKILL_EOWYN_SHIELDMAIDEN_OF_ROHAN + 1, SKILL_EXPANSION_RULE_NONE,
+    SKILL_EXPANSION_RULE_NONE, 0};
+static const SkillExpansionCastPolicy EorlingasPosePolicy = {
+    ACTIVE_SKILL_EOWYN_FORTH_EORLINGAS + 1, SKILL_EXPANSION_RULE_NONE, SKILL_EXPANSION_RULE_NONE,
+    0};
 static const SkillExpansionCastPolicy GwaihirPosePolicy = {ACTIVE_SKILL_GANDALF_SUMMON_GWAIHIR + 1,
                                                            SKILL_EXPANSION_RULE_NONE,
                                                            SKILL_EXPANSION_RULE_NONE, 0};
@@ -788,6 +802,106 @@ static const SkillExpansionActiveDef GandalfShallNotPass = {
     .policy = &GwaihirPosePolicy,
 };
 
+// Eowyn's rows show her stock icons until they get art of their own.
+static const ActiveSkill EowynDeathSeekerRow = {
+    .spiritCost = 0,
+    EOWYN_STRIKE_CAST_FIELDS,
+};
+static const s8 EowynDeathSeekerLevels[] = {10, 13, 16, 19, 22, -1};
+static const SkillExpansionActiveDef EowynDeathSeeker = {
+    .row = &EowynDeathSeekerRow,
+    .icon = ActiveSkillEowynDoubleStrikeIcon,
+    .requiredLevels = EowynDeathSeekerLevels,
+    .description = "Death-Seeker's Strike (Level @1) - Despair. Pay 10% of your HP to strike the "
+                   "nearest foe for 14 +6/level, +25% per tier. No Spirit.",
+    .resolve = skillExpansion_eowynDeathSeeker,
+    .canCast = skillExpansion_canCastEowynDeathSeeker,
+    .baseRow = ACTIVE_SKILL_EOWYN_DOUBLE_STRIKE,
+    .policy = &DoubleStrikePosePolicy,
+};
+
+static const ActiveSkill EowynComeAndFaceMeRow = {
+    .spiritCost = 20,
+    EOWYN_CRY_CAST_FIELDS,
+};
+static const s8 EowynComeAndFaceMeLevels[] = {11, 14, 17, 20, 23, -1};
+static const SkillExpansionActiveDef EowynComeAndFaceMe = {
+    .row = &EowynComeAndFaceMeRow,
+    .icon = ActiveSkillEowynShieldBashIcon,
+    .requiredLevels = EowynComeAndFaceMeLevels,
+    .description = "Come and Face Me! (Level @1) - Shieldmaiden. Drag near foes in and stun them. "
+                   "For 4s take 5% less damage per foe, up to 30%. @2 Spirit.",
+    .resolve = skillExpansion_eowynComeAndFaceMe,
+    .baseRow = ACTIVE_SKILL_EOWYN_FORTH_EORLINGAS,
+    .policy = &EorlingasPosePolicy,
+};
+
+static const ActiveSkill EowynLanceRow = {
+    .spiritCost = 20,
+    EOWYN_STRIKE_CAST_FIELDS,
+};
+static const s8 EowynLanceLevels[] = {12, 15, 18, 21, 24, -1};
+static const SkillExpansionActiveDef EowynLance = {
+    .row = &EowynLanceRow,
+    .icon = ActiveSkillEowynRohanSprintIcon,
+    .requiredLevels = EowynLanceLevels,
+    .description = "Lance of the Mark (Level @1) - Rohirrim. Lunge for 12 +6/level. Spends Gallop, "
+                   "+30% per step, a full Gallop pierces. Else +20%/tier. @2 Spirit.",
+    .resolve = skillExpansion_eowynLance,
+    .baseRow = ACTIVE_SKILL_EOWYN_DOUBLE_STRIKE,
+    .policy = &DoubleStrikePosePolicy,
+};
+
+static const ActiveSkill EowynStandOverTheFallenRow = {
+    .spiritCost = 30,
+    EOWYN_CRY_CAST_FIELDS,
+};
+static const s8 EowynStandOverTheFallenLevels[] = {13, 16, 19, 22, 25, -1};
+static const SkillExpansionActiveDef EowynStandOverTheFallen = {
+    .row = &EowynStandOverTheFallenRow,
+    .icon = ActiveSkillEowynShieldmaidenOfRohanIcon,
+    .requiredLevels = EowynStandOverTheFallenLevels,
+    .description = "Stand Over the Fallen (Level @1) - Shieldmaiden. Hold your ground 3s "
+                   "+0.5s/level, sending back 40% +5%/level of hits. Guards a near ally. @2 Spirit.",
+    .resolve = skillExpansion_eowynStandOverTheFallen,
+    .canCast = skillExpansion_canCastEowynStand,
+    .baseRow = ACTIVE_SKILL_EOWYN_SHIELDMAIDEN_OF_ROHAN,
+    .policy = &ShieldmaidenPosePolicy,
+};
+
+static const ActiveSkill EowynHopeRekindledRow = {
+    .spiritCost = 25,
+    EOWYN_CRY_CAST_FIELDS,
+};
+static const s8 EowynHopeRekindledLevels[] = {14, 17, 20, 23, 25, -1};
+static const SkillExpansionActiveDef EowynHopeRekindled = {
+    .row = &EowynHopeRekindledRow,
+    .icon = ActiveSkillEowynHerbalHealingIcon,
+    .requiredLevels = EowynHopeRekindledLevels,
+    .description = "Hope Rekindled (Level @1) - Rohirrim. Heal 2% +0.5%/level of max HP per point "
+                   "of Odds. The worse it looks, the more you heal. @2 Spirit.",
+    .resolve = skillExpansion_eowynHopeRekindled,
+    .baseRow = ACTIVE_SKILL_EOWYN_SHIELDMAIDEN_OF_ROHAN,
+    .policy = &ShieldmaidenPosePolicy,
+};
+
+static const ActiveSkill EowynNoManRow = {
+    .spiritCost = 60,
+    EOWYN_CRY_CAST_FIELDS,
+};
+static const s8 EowynNoManLevels[] = {18, 20, 22, 24, 25, -1};
+static const SkillExpansionActiveDef EowynNoMan = {
+    .row = &EowynNoManRow,
+    .icon = ActiveSkillEowynForthEorlingasIcon,
+    .requiredLevels = EowynNoManLevels,
+    .description = "I Am No Man! (Level @1) - Only when Desperate or worse. Stun near foes, then "
+                   "8s +2s/level Hopeless and fearless, x2 vs Nazgul and big foes. @2 Spirit.",
+    .resolve = skillExpansion_eowynNoMan,
+    .canCast = skillExpansion_canCastEowynNoMan,
+    .baseRow = ACTIVE_SKILL_EOWYN_FORTH_EORLINGAS,
+    .policy = &EorlingasPosePolicy,
+};
+
 const SkillExpansionActiveDef *const SkillExpansionActiveDefs[SKILL_EXPANSION_HERO_COUNT]
                                                              [SKILL_EXPANSION_NEW_ACTIVE_COUNT] = {
                                                                  [HERO_ID_ARAGORN] =
@@ -852,6 +966,15 @@ const SkillExpansionActiveDef *const SkillExpansionActiveDefs[SKILL_EXPANSION_HE
                                                                          &GimliBookOfGrudges,
                                                                          &GimliStillCounting,
                                                                      },
+                                                                 [HERO_ID_EOWYN] =
+                                                                     {
+                                                                         &EowynDeathSeeker,
+                                                                         &EowynComeAndFaceMe,
+                                                                         &EowynLance,
+                                                                         &EowynStandOverTheFallen,
+                                                                         &EowynHopeRekindled,
+                                                                         &EowynNoMan,
+                                                                     },
 
 };
 
@@ -897,6 +1020,18 @@ static const char *const GandalfStockDescriptions[HERO_ACTIVE_SKILL_COUNT] = {
         "to become Gandalf the White, hold R again to return to Grey.",
 };
 
+static const char *const EowynStockDescriptions[HERO_ACTIVE_SKILL_COUNT] = {
+    [ACTIVE_SKILL_EOWYN_ROHAN_SPRINT] =
+        "Rohan Sprint (Level @1) - Run 50% faster, +10%/level after 1, +1 Defense/level. "
+        "Gallop: +2 steps, built twice as fast for 5s. @2 Spirit.",
+    [ACTIVE_SKILL_EOWYN_SHIELD_BASH] =
+        "Shield Bash (Level @1) - Bash foes for 12 +1/level and stun them. From hero level 10 "
+        "the stun lasts longer at each Odds tier. @2 Spirit.",
+    [ACTIVE_SKILL_EOWYN_FORTH_EORLINGAS] =
+        "Forth Eorlingas! (Level @1) - 30% +10%/level chance to stun each foe near you. From hero "
+        "level 10 it lifts your Odds one tier for 8s. @2 Spirit.",
+};
+
 const char *skillExpansion_getStockActiveDescription(u32 heroId, u32 row)
 {
     if (row >= HERO_ACTIVE_SKILL_COUNT)
@@ -917,6 +1052,8 @@ const char *skillExpansion_getStockActiveDescription(u32 heroId, u32 row)
         return FrodoStockDescriptions[row];
     case HERO_ID_GANDALF:
         return GandalfStockDescriptions[row];
+    case HERO_ID_EOWYN:
+        return EowynStockDescriptions[row];
     }
     return NULL;
 }
@@ -1771,6 +1908,78 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
                 .icon = LegolasIconUnshaken,
                 .description = "Unshaken (Level @1) - Grace. Hits no longer break your draw.",
             },
+        [SKILL_EXPANSION_PASSIVE_SEEKING_DEATH - PASSIVE_SKILL_COUNT] =
+            {
+                ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 10, 12, 14, 16, 18, -1),
+                .iconPassiveSkillId = PASSIVE_SKILL_DEATH_STRIKE,
+                .description =
+                    "Seeking Death (Level @1) - Despair. Missing HP counts double toward your "
+                    "Odds. Death-Seeker's Strike costs 1%/level less HP.",
+            },
+        [SKILL_EXPANSION_PASSIVE_UNBOWED - PASSIVE_SKILL_COUNT] =
+            {
+                ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 11, 13, 15, 17, 19, -1),
+                .iconPassiveSkillId = PASSIVE_SKILL_FEARLESS,
+                .description =
+                    "Unbowed (Level @1) - Shieldmaiden. Fear can't drain your Spirit. Take "
+                    "3%/level less damage per tier above Steady.",
+            },
+        [SKILL_EXPANSION_PASSIVE_RIDERS_OF_THE_MARK - PASSIVE_SKILL_COUNT] =
+            {
+                ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 12, 14, 16, 18, 20, -1),
+                .iconPassiveSkillId = PASSIVE_SKILL_FLEET_OF_FOOT,
+                .description =
+                    "Riders of the Mark (Level @1) - Rohirrim. Running builds Gallop. Your next "
+                    "blow spends it, +15% per step. Builds 15%/level faster.",
+            },
+        [SKILL_EXPANSION_PASSIVE_NOTHING_LEFT_TO_LOSE - PASSIVE_SKILL_COUNT] =
+            {
+                ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 14, 16, 18, 20, 22, -1),
+                .iconPassiveSkillId = PASSIVE_SKILL_BERSERKER,
+                .description =
+                    "Nothing Left to Lose (Level @1) - Despair. While Desperate or Hopeless, "
+                    "your hits heal you 2%/level of the damage dealt.",
+            },
+        [SKILL_EXPANSION_PASSIVE_HOLD_FAST - PASSIVE_SKILL_COUNT] =
+            {
+                ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 15, 17, 19, 21, 23, -1),
+                .iconPassiveSkillId = PASSIVE_SKILL_HARDY,
+                .description =
+                    "Hold Fast (Level @1) - Shieldmaiden. While Hopeless you never flinch, and "
+                    "no hit takes more than 30% -3%/level of your max HP.",
+            },
+        [SKILL_EXPANSION_PASSIVE_TRAMPLE - PASSIVE_SKILL_COUNT] =
+            {
+                ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 16, 18, 20, 22, 24, -1),
+                .iconPassiveSkillId = PASSIVE_SKILL_SHIELD_OFFENSE,
+                .description =
+                    "Trample (Level @1) - Rohirrim. At 3+ Gallop steps, running into a foe hits "
+                    "it for 4 +2/level and staggers it.",
+            },
+        [SKILL_EXPANSION_PASSIVE_DAWN_OVER_THE_PELENNOR - PASSIVE_SKILL_COUNT] =
+            {
+                ELITE_PASSIVE(1, 20, -1),
+                .iconPassiveSkillId = PASSIVE_SKILL_GALADRIELS_BLESSING,
+                .description =
+                    "Dawn Over the Pelennor (Level @1) - Despair. Falling from Hopeless back to "
+                    "Steady heals 30% and restores 50 Spirit. Every 30s.",
+            },
+        [SKILL_EXPANSION_PASSIVE_DOOM_OF_THE_WITCH_KING - PASSIVE_SKILL_COUNT] =
+            {
+                ELITE_PASSIVE(1, 21, -1),
+                .iconPassiveSkillId = PASSIVE_SKILL_WRAITHSLAYER,
+                .description =
+                    "Doom of the Witch-king (Level @1) - Shieldmaiden. Never feared. Nazgul deal "
+                    "you half damage, and you deal them double.",
+            },
+        [SKILL_EXPANSION_PASSIVE_RIDE_TO_RUIN - PASSIVE_SKILL_COUNT] =
+            {
+                ELITE_PASSIVE(1, 23, -1),
+                .iconPassiveSkillId = PASSIVE_SKILL_LAST_STAND,
+                .description =
+                    "Ride to Ruin (Level @1) - Rohirrim. A full Gallop blow also sends out a "
+                    "shockwave, wider while Hopeless.",
+            },
 };
 
 const u8 SkillExpansionPassiveIds[SKILL_EXPANSION_HERO_COUNT][SKILL_EXPANSION_NEW_PASSIVE_COUNT] = {
@@ -1824,15 +2033,15 @@ const u8 SkillExpansionPassiveIds[SKILL_EXPANSION_HERO_COUNT][SKILL_EXPANSION_NE
         },
     [HERO_ID_EOWYN] =
         {
-            PASSIVE_SKILL_FEARLESS,
-            PASSIVE_SKILL_ACCURACY,
-            PASSIVE_SKILL_DEATH_STRIKE,
-            PASSIVE_SKILL_BLADEMASTER,
-            PASSIVE_SKILL_LUCK,
-            PASSIVE_SKILL_ORCSLAYER,
-            PASSIVE_SKILL_HARDY,
-            PASSIVE_SKILL_LAST_STAND,
-            PASSIVE_SKILL_GALADRIELS_BLESSING,
+            SKILL_EXPANSION_PASSIVE_SEEKING_DEATH,
+            SKILL_EXPANSION_PASSIVE_UNBOWED,
+            SKILL_EXPANSION_PASSIVE_RIDERS_OF_THE_MARK,
+            SKILL_EXPANSION_PASSIVE_NOTHING_LEFT_TO_LOSE,
+            SKILL_EXPANSION_PASSIVE_HOLD_FAST,
+            SKILL_EXPANSION_PASSIVE_TRAMPLE,
+            SKILL_EXPANSION_PASSIVE_DAWN_OVER_THE_PELENNOR,
+            SKILL_EXPANSION_PASSIVE_DOOM_OF_THE_WITCH_KING,
+            SKILL_EXPANSION_PASSIVE_RIDE_TO_RUIN,
         },
     [HERO_ID_GIMLI] =
         {
@@ -1898,6 +2107,13 @@ static const u8 GimliActiveBuilds[SKILL_EXPANSION_NEW_ACTIVE_COUNT] = {
     SKILL_EXPANSION_BUILD_GOOD, SKILL_EXPANSION_BUILD_TRICKS, SKILL_EXPANSION_BUILD_EVIL,
 };
 
+// Eowyn's page 2 rows laid out Despair | Shieldmaiden | Rohirrim, then Shieldmaiden | Rohirrim,
+// then the ultimate.
+static const u8 EowynActiveBuilds[SKILL_EXPANSION_NEW_ACTIVE_COUNT] = {
+    SKILL_EXPANSION_BUILD_EVIL, SKILL_EXPANSION_BUILD_GOOD,   SKILL_EXPANSION_BUILD_TRICKS,
+    SKILL_EXPANSION_BUILD_GOOD, SKILL_EXPANSION_BUILD_TRICKS, SKILL_EXPANSION_BUILD_EVIL,
+};
+
 // Aragorn's page 2 rows laid out Ranger | Dead | King, then Ranger | King.
 static const u8 AragornActiveBuilds[SKILL_EXPANSION_NEW_ACTIVE_COUNT] = {
     SKILL_EXPANSION_BUILD_TRICKS, SKILL_EXPANSION_BUILD_DEAD, SKILL_EXPANSION_BUILD_GOOD,
@@ -1935,6 +2151,10 @@ u8 skillExpansion_activeBuild(u32 heroId, u32 row)
     if (heroId == HERO_ID_SAM)
     {
         return SamActiveBuilds[row - SKILL_EXPANSION_FIRST_NEW_ACTIVE_ROW];
+    }
+    if (heroId == HERO_ID_EOWYN)
+    {
+        return EowynActiveBuilds[row - SKILL_EXPANSION_FIRST_NEW_ACTIVE_ROW];
     }
     if (heroId == HERO_ID_GIMLI)
     {
@@ -2017,6 +2237,9 @@ u8 skillExpansion_passiveBuild(u32 passiveSkillId)
     case SKILL_EXPANSION_PASSIVE_ELF_SIGHT:
     case SKILL_EXPANSION_PASSIVE_STEADY_HAND:
     case SKILL_EXPANSION_PASSIVE_UNERRING:
+    case SKILL_EXPANSION_PASSIVE_UNBOWED:
+    case SKILL_EXPANSION_PASSIVE_HOLD_FAST:
+    case SKILL_EXPANSION_PASSIVE_DOOM_OF_THE_WITCH_KING:
         return SKILL_EXPANSION_BUILD_GOOD;
     case SKILL_EXPANSION_PASSIVE_WEIGHT_OF_THE_RING:
     case SKILL_EXPANSION_PASSIVE_RINGS_HUNGER:
@@ -2033,6 +2256,9 @@ u8 skillExpansion_passiveBuild(u32 passiveSkillId)
     case SKILL_EXPANSION_PASSIVE_GRUDGEBEARER:
     case SKILL_EXPANSION_PASSIVE_BLOOD_ON_THE_AXE:
     case SKILL_EXPANSION_PASSIVE_DURINS_FOLK:
+    case SKILL_EXPANSION_PASSIVE_SEEKING_DEATH:
+    case SKILL_EXPANSION_PASSIVE_NOTHING_LEFT_TO_LOSE:
+    case SKILL_EXPANSION_PASSIVE_DAWN_OVER_THE_PELENNOR:
         return SKILL_EXPANSION_BUILD_EVIL;
     case SKILL_EXPANSION_PASSIVE_RIDDLES_IN_THE_DARK:
     case SKILL_EXPANSION_PASSIVE_TRICKSY_HOBBIT:
@@ -2055,6 +2281,9 @@ u8 skillExpansion_passiveBuild(u32 passiveSkillId)
     case SKILL_EXPANSION_PASSIVE_SWIFT_NOCK:
     case SKILL_EXPANSION_PASSIVE_FLETCHER:
     case SKILL_EXPANSION_PASSIVE_TWIN_NOCK:
+    case SKILL_EXPANSION_PASSIVE_RIDERS_OF_THE_MARK:
+    case SKILL_EXPANSION_PASSIVE_TRAMPLE:
+    case SKILL_EXPANSION_PASSIVE_RIDE_TO_RUIN:
         return SKILL_EXPANSION_BUILD_TRICKS;
     case SKILL_EXPANSION_PASSIVE_RESTLESS_DEAD:
     case SKILL_EXPANSION_PASSIVE_THE_DEAD_RIDE:

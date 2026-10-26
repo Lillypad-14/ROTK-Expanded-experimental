@@ -14,7 +14,7 @@ An experimental content mod for _The Lord of the Rings: The Return of the King_ 
 
 ## What this mod adds
 
-- **Second skill page for every hero except Eowyn** (hers is not built yet). Expanded active and passive skill trees have three color-coded
+- **Second skill page for every hero**, including Eowyn's experimental Against the Dark kit. Expanded active and passive skill trees have three color-coded
   builds per page and a unique mechanic per hero:
   - Aragorn, Frodo (Burden meter on the HUD), Sam ("Samwise's Garden"), Smeagol ("Gollum's Grip"),
     Gimli ("The Tally"), Gandalf ("The Grey and the White", hold R to swap form), Legolas ("The Glint", timed
@@ -34,7 +34,7 @@ The v0.6 audit passed 280 automated combat-room clears across all ten heroes and
 
 Quick version: [HEROES.txt](HEROES.txt).
 
-Each hero below has a second skill page with three builds and a mechanic of its own. Eowyn keeps her stock kit for now. Full rundowns with every skill are in
+Each hero below has a second skill page with three builds and a mechanic of its own. Eowyn's new page uses Odds tiers and Gallop and still needs manual balance testing. Full rundowns with every skill are in
 **[docs/heroes.md](docs/heroes.md)**.
 
 | Hero | Mechanic | In short |
@@ -101,7 +101,7 @@ The inventory can be regenerated with `uv run python tools/documentation_invento
 
 ## Playing it
 
-1. Get `ROTK-Expanded-experimental-v0.6.bps` from the [v0.6 experimental release](https://github.com/Lillypad-14/ROTK-Expanded-experimental/releases/tag/v0.6-experimental).
+1. Get `ROTK-Expanded-experimental-v0.7.bps` from the [v0.7 experimental release](https://github.com/Lillypad-14/ROTK-Expanded-experimental/releases/tag/v0.7-experimental).
 2. You need your own legally dumped EU/US ROM (SHA-1 `ec3d126d37ea6e2ad7030d8a99cf87c6e46c03fd`).
 3. Apply the patch with [RomPatcher.js](https://www.marcrobledo.com/RomPatcher.js/) and play in mGBA or similar.
 

@@ -339,6 +339,52 @@ void skillExpansion_frodoWrapStockCallbacks(u8 p, ActiveSkill *rows)
     (void)p;
     (void)rows;
 }
+void skillExpansion_eowynReset(u8 p)
+{
+    (void)p;
+}
+void skillExpansion_eowynCleanup(u8 p, Actor *a)
+{
+    (void)p;
+    (void)a;
+}
+void skillExpansion_eowynTick(u8 p, Actor *a)
+{
+    (void)p;
+    (void)a;
+}
+s32 skillExpansion_eowynDamage(u8 p, Actor *a, s32 damage, bool melee)
+{
+    (void)p;
+    (void)a;
+    (void)melee;
+    return damage;
+}
+s32 skillExpansion_eowynIncomingDamage(u8 p, Actor *a, s32 damage)
+{
+    (void)p;
+    (void)a;
+    return damage;
+}
+bool skillExpansion_eowynFlinch(u8 p, bool flinchOnDamage)
+{
+    (void)p;
+    return flinchOnDamage;
+}
+void skillExpansion_eowynOnHit(u8 p, Actor *attacker, Actor *victim, HackLibDamageResult result,
+                               bool melee)
+{
+    (void)p;
+    (void)attacker;
+    (void)victim;
+    (void)result;
+    (void)melee;
+}
+void skillExpansion_eowynWrapStockCallbacks(u8 p, ActiveSkill *rows)
+{
+    (void)p;
+    (void)rows;
+}
 s32 skillExpansion_original_combat_computePveDamage(Actor *a, Actor *b, bool crit)
 {
     (void)a;

@@ -62,6 +62,10 @@ void skillExpansion_gimliDrawTallyBar(u8 p)
 {
     (void)p;
 }
+void skillExpansion_eowynDrawHud(u8 p)
+{
+    (void)p;
+}
 void skillExpansion_gimliCastStarted(u8 p)
 {
     (void)p;

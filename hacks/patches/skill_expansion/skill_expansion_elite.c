@@ -17,6 +17,7 @@
 #include "memory.h"
 #include "mission.h"
 #include "patches/skill_expansion/skill_expansion.h"
+#include "patches/skill_expansion/skill_expansion_eowyn.h"
 #include "patches/skill_expansion/skill_expansion_frodo.h"
 #include "patches/skill_expansion/skill_expansion_gandalf.h"
 #include "patches/skill_expansion/skill_expansion_gimli.h"
@@ -304,8 +305,11 @@ void skillExpansion_addHp(u8 playerIndex, s16 amount, bool flinchOnDamage)
         damage = skillExpansion_gandalfIncomingDamage(
             playerIndex, source != NULL ? source->origin : NULL, damage);
         damage = skillExpansion_legolasIncomingDamage(playerIndex, damage);
+        damage = skillExpansion_eowynIncomingDamage(
+            playerIndex, source != NULL ? source->origin : NULL, damage);
         flinchOnDamage = skillExpansion_gimliFlinch(playerIndex, flinchOnDamage);
         flinchOnDamage = skillExpansion_legolasFlinch(playerIndex, flinchOnDamage);
+        flinchOnDamage = skillExpansion_eowynFlinch(playerIndex, flinchOnDamage);
         if (damage <= 0)
         {
             return;
@@ -968,6 +972,7 @@ static void eliteTick(u8 playerIndex, Actor *playerActor)
     skillExpansion_gimliTick(playerIndex, playerActor);
     skillExpansion_gandalfTick(playerIndex, playerActor);
     skillExpansion_legolasTick(playerIndex, playerActor);
+    skillExpansion_eowynTick(playerIndex, playerActor);
 }
 
 void skillExpansion_eliteReset(u8 playerIndex, bool preserveFlame)
@@ -984,6 +989,7 @@ void skillExpansion_eliteReset(u8 playerIndex, bool preserveFlame)
     skillExpansion_gimliReset(playerIndex);
     skillExpansion_gandalfReset(playerIndex);
     skillExpansion_legolasReset(playerIndex);
+    skillExpansion_eowynReset(playerIndex);
 }
 
 void skillExpansion_eliteCleanup(u8 playerIndex, Actor *actor)
@@ -994,6 +1000,7 @@ void skillExpansion_eliteCleanup(u8 playerIndex, Actor *actor)
     skillExpansion_gimliCleanup(playerIndex, actor);
     skillExpansion_gandalfCleanup(playerIndex, actor);
     skillExpansion_legolasCleanup(playerIndex, actor);
+    skillExpansion_eowynCleanup(playerIndex, actor);
     if (states[playerIndex].ambushFrames != 0)
     {
         endAmbush(&states[playerIndex], actor);
@@ -1047,6 +1054,7 @@ s32 skillExpansion_computePveDamage(Actor *attacker, Actor *victim, bool crit)
     damage = skillExpansion_samDamage(p, damage, TRUE);
     damage = skillExpansion_gimliDamage(p, victim, damage);
     damage = skillExpansion_gandalfDamage(p, victim, damage, TRUE);
+    damage = skillExpansion_eowynDamage(p, victim, damage, TRUE);
     {
         const SkillExpansionHeroKit *kit = skillExpansion_getHeroKit(PLAYER(p).heroId);
         if (kit != NULL && kit->meleeDamage != NULL)
@@ -1095,6 +1103,7 @@ static void combatHit(const HackLibCombatEvent *event, void *context)
     }
     skillExpansion_frodoOnHit(p, event->victim, event->result, event->melee);
     skillExpansion_smeagolOnHit(p, event->victim, event->result, event->melee);
+    skillExpansion_eowynOnHit(p, event->attacker, event->victim, event->result, event->melee);
 }
 
 static void combatResolved(const HackLibCombatEvent *event, void *context)
@@ -1343,6 +1352,7 @@ static HackLibDamageResult resolveRangedHit(Actor *attacker, Actor *victim, u16 
     baseDamage = skillExpansion_gimliDamage(p, victim, baseDamage);
     baseDamage = skillExpansion_gandalfDamage(p, victim, baseDamage, FALSE);
     baseDamage = skillExpansion_legolasDamage(p, victim, baseDamage, FALSE);
+    baseDamage = skillExpansion_eowynDamage(p, victim, baseDamage, FALSE);
     {
         const SkillExpansionHeroKit *kit = skillExpansion_getHeroKit(PLAYER(p).heroId);
         if (kit != NULL && kit->rangedDamage != NULL)
@@ -1607,6 +1617,10 @@ void skillExpansion_wrapStockCallbacks(u32 heroId, u8 playerIndex)
     else if (heroId == HERO_ID_FRODO)
     {
         skillExpansion_frodoWrapStockCallbacks(playerIndex, rows);
+    }
+    else if (heroId == HERO_ID_EOWYN)
+    {
+        skillExpansion_eowynWrapStockCallbacks(playerIndex, rows);
     }
 }
 

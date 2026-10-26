@@ -45,3 +45,5 @@ The [source inventory](source-inventory.md) is generated from the checkout and c
 The [decompilation handoff](decomp-handoff.md) records a particular development session. Its local tooling details and next-task list are historical context rather than a current installation guide.
 
 [Saruman spell balance](saruman-balance.md) lists current costs, damage and resource refunds.
+
+Current patch: [v0.7 release notes and validation limits](release-v0.7.md).
