@@ -3,6 +3,7 @@
 #include "game.h"
 #include "lib/actor_ref.h"
 #include "lib/movement.h"
+#include "lib/pc_host.h"
 #include "lib/profile.h"
 #include "lib/summon_registry.h"
 #include "lib/timed_effect.h"
@@ -175,6 +176,76 @@ u32 debugLab_prepareEncounter(u8 p, u8 kind)
     }
     skillExpansion_feedback(p, "Combat Lab ready");
     return spawned;
+}
+
+#define STRESS_SPAWNS_PER_FRAME 16
+#define STRESS_GRID_COLUMNS 19
+#define STRESS_GRID_ROWS 13
+#define STRESS_GRID_STEP 12
+
+static bool stressActive;
+static u16 stressCursor;
+
+// PC host stress test: spawn the requested number of orc archers on a grid covering the screen
+// around the player, and keep the player alive from then on.
+static void tickStress(u8 p)
+{
+    volatile PcHostInfo *info = hackLib_pcHostInfoWritable();
+    Actor *owner = PLAYER(p).ownerActor;
+    Actor spawner = {0};
+    u32 spawned = 0;
+    u32 attempts;
+
+    if (owner == NULL)
+    {
+        return;
+    }
+    if (stressActive)
+    {
+        PLAYER(p).currentHp = PLAYER_STAT(p, STAT_MAX_HP);
+    }
+    if (info == NULL || info->version < 2 || info->stressSpawn == 0)
+    {
+        return;
+    }
+    stressActive = TRUE;
+    spawner.coords = owner->coords;
+    for (attempts = 0; attempts < STRESS_SPAWNS_PER_FRAME * 2 && spawned < STRESS_SPAWNS_PER_FRAME &&
+                       info->stressSpawn != 0;
+         attempts++)
+    {
+        u32 cell = stressCursor++ % (STRESS_GRID_COLUMNS * STRESS_GRID_ROWS);
+        s32 column = (s32)(cell % STRESS_GRID_COLUMNS) - STRESS_GRID_COLUMNS / 2;
+        s32 row = (s32)(cell / STRESS_GRID_COLUMNS) - STRESS_GRID_ROWS / 2;
+        Vector2Fp16 preferred = {owner->coords.x + column * STRESS_GRID_STEP * FP16_16_ONE,
+                                 owner->coords.y + row * STRESS_GRID_STEP * FP16_16_ONE};
+        Vector2Fp16 landing;
+        Actor *foe;
+
+        if (column == 0 && row == 0)
+        {
+            continue;
+        }
+        // Spawn ID 19 is the native ordinary orc archer.
+        foe = actor_enemySpawner_spawnChild(19, &spawner);
+        if (foe == NULL)
+        {
+            info->stressSpawn = 0;
+            return;
+        }
+        foe->parentActor = NULL;
+        foe->recordGroup = foe->recordIndex = 0xff;
+        if (!hackLib_findLanding(foe, &preferred, &landing))
+        {
+            foe->flags.p |= ACTOR_FLAG_PENDING_REMOVE;
+            continue;
+        }
+        foe->renderCoords.x += landing.x - foe->coords.x;
+        foe->renderCoords.y += landing.y - foe->coords.y;
+        foe->coords = landing;
+        info->stressSpawn--;
+        spawned++;
+    }
 }
 
 Actor *debugLab_getTarget(u8 index)
@@ -375,6 +446,7 @@ void debugLab_playerTick(u8 playerIndex)
         spawnRequest = refillRequest = clearRequest = 0;
         return;
     }
+    tickStress(playerIndex);
     if (clearRequest)
     {
         clearRequest = 0;

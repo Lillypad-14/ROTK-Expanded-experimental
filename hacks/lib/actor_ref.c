@@ -1,4 +1,5 @@
 #include "lib/actor_ref.h"
+#include "lib/pc_host.h"
 #include "memory.h"
 #include "variables.h"
 #include <stdint.h>
@@ -10,24 +11,24 @@ static s32 actorIndex(Actor *actor)
 {
     uintptr_t address = (uintptr_t)actor;
     uintptr_t base = (uintptr_t)g_ActorPoolMain;
+    u32 mainCapacity = hackLib_mainActorCapacity();
     uintptr_t offset;
 
     if (actor == NULL)
     {
         return -1;
     }
-    if (base != 0 && address >= base && address < base + sizeof(ActorPoolMain))
+    if (base != 0 && address >= base && address < base + mainCapacity * sizeof(Actor))
     {
         offset = address - base;
         return offset % sizeof(Actor) == 0 ? (s32)(offset / sizeof(Actor)) : -1;
     }
     base = (uintptr_t)g_ActorPoolOverlay;
-    if (base != 0 && address >= base && address < base + sizeof(ActorPoolOverlay))
+    if (base != 0 && address >= base &&
+        address < base + hackLib_overlayActorCapacity() * sizeof(Actor))
     {
         offset = address - base;
-        return offset % sizeof(Actor) == 0
-                   ? (s32)(ACTOR_POOL_MAIN_CAPACITY + offset / sizeof(Actor))
-                   : -1;
+        return offset % sizeof(Actor) == 0 ? (s32)(mainCapacity + offset / sizeof(Actor)) : -1;
     }
     return -1;
 }
@@ -42,8 +43,8 @@ void hackLib_noteActorAllocated(Actor *actor)
     }
     if (generations == NULL)
     {
-        generations =
-            memory_zalloc((ACTOR_POOL_MAIN_CAPACITY + ACTOR_POOL_OVERLAY_CAPACITY) * sizeof(u32));
+        generations = memory_zalloc((hackLib_mainActorCapacity() + hackLib_overlayActorCapacity()) *
+                                    sizeof(u32));
         if (generations == NULL)
         {
             return;
