@@ -176,8 +176,6 @@ typedef struct LegolasState
 _Static_assert(sizeof(LegolasState) <= sizeof(skillExpansion_heroState[0]),
                "LegolasState exceeds the hero state");
 
-extern u8 skillExpansion_treePage;
-
 static inline LegolasState *state(u8 playerIndex)
 {
     return (LegolasState *)skillExpansion_heroStateClaim(playerIndex, HERO_ID_LEGOLAS,
@@ -682,11 +680,6 @@ static void writeCosts(u8 playerIndex)
                             passiveLevel(playerIndex, SKILL_EXPANSION_PASSIVE_SWIFT_NOCK);
     u32 i;
 
-    // The skill tree swaps the pages' rows while it shows page 2.
-    if (skillExpansion_treePage != 0)
-    {
-        return;
-    }
     for (i = 0; i < SKILL_EXPANSION_NEW_ACTIVE_COUNT; i++)
     {
         if (sx->activeDefs[i] != NULL)

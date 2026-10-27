@@ -9,6 +9,12 @@
 /** Boot task (runTasks): load the persisted settings, an untagged area becomes the defaults. */
 void twists_loadState(void);
 
+// Bytes of the persisted settings, the size of the save area's twistsState.
+#define TWISTS_STATE_SIZE 17
+
+/** The live settings' bytes. A co-op client replaces them with the host's for the session. */
+u8 *twists_stateBytes(void);
+
 /** Gameplay start for one player: clear the run state and roll the level's omen. */
 void twists_missionBegin(u8 playerIndex);
 

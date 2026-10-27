@@ -50,6 +50,12 @@ typedef struct MpMessageArgs
  */
 void multiplayer_queueMessage(u8 msgId, MpMessageArgs args);
 
+/**
+ * Handle this frame's message from each player, the console's own included, by message id. A
+ * message whose sequence matches the player's previous one is skipped.
+ */
+void multiplayer_dispatchMessages(void);
+
 /** Full link-subsystem reset (SIO registers, message pools). */
 void multiplayer_resetLink(void);
 /** Start/poll a link session for playerCount players. Returns 5 = busy, 7 = aborted/timeout. */

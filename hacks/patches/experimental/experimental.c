@@ -150,6 +150,11 @@ void experimental_useDefaults(void)
     applyState();
 }
 
+void experimental_applyState(void)
+{
+    applyState();
+}
+
 #if HACK_mod_options
 static const char *const ExperimentalOffOnNames[2] = {"Off", "On"};
 static const char *const ExperimentalVoiceCapNames[5] = {"Off", "16", "12", "8", "6"};

@@ -55,7 +55,8 @@ The save is extended without breaking upstream saves:
 - **Region 6:** one 144-byte versioned record per slot that stores page 2 purchases, extra active rows, passives
   and quick-select rows by skill id (tag `0x73`, version 1). Records stay valid when skills are reordered.
 - `scene_saveLoadMenu_loadSlot` and `loadPeerSlot` are wrapped so a slot's expanded state loads with it, including
-  co-op peers.
+  co-op peers. After the stock co-op slot exchange, each console sends its player's page 2 ranks, cycle flags and
+  quick-select rows in link message `0x0b` (`skill_expansion_coop.h`) before the peer's slot loads.
 
 `_Static_assert`s in `save_layout.h` fail the build if the regions overrun the save chip.
 

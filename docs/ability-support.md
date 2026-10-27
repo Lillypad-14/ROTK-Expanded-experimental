@@ -327,7 +327,7 @@ Native pickup and interaction text has priority over these messages.
 - Verify both granting and removing equipment modifiers, including native derived stats.
 - Check the linker RAM budget before adding mutable state.
 
-The linker permits 2560 bytes of permanent mod BSS and forbids initialized writable data because there is no startup copy routine.
+The linker permits 2768 bytes of permanent mod BSS and forbids initialized writable data because there is no startup copy routine.
 It packs BSS against the top of EWRAM and ends the native heap at the actual linked BSS start.
 Unused budget remains available to native allocations.
 Effects and summons allocate bounded pools only while needed.
@@ -337,7 +337,7 @@ Nested calls and larger 8bpp tile buffers retain ordinary heap allocation.
 Actor references carry allocation generations, so reusing an actor slot cannot revive an old effect, summon or projectile attachment.
 The generation table uses 1184 heap bytes and retains them for the session.
 Use the linked section sizes as the current budget, not a hardcoded estimate.
-Co-op state transport requires separate work before claiming expanded hero state is synchronized.
+Co-op sends skill tree actions and each slot's page 2 record over the link (`skill_expansion_coop.h`). Other expanded hero state has no transport yet.
 
 ## Verification
 

@@ -41,6 +41,9 @@ void experimental_loadState(void);
 /** Test arena boot: start from the factory defaults without reading the save. */
 void experimental_useDefaults(void);
 
+/** Apply g_ExperimentalState after a co-op client replaced it with the host's. */
+void experimental_applyState(void);
+
 /** Replaces the player position getter that gfx_updatePlayerCameraScroll reads. */
 void cameraEase_getPlayerPosition(Vector2Fp16 *out, u8 playerIndex);
 

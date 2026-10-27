@@ -11,6 +11,7 @@
 #include "patches/mod_options/mod_options.h"
 #include "combat.h"
 #include "font.h"
+#include "game.h"
 #include "gba_io.h"
 #include "gfx.h"
 #include "input.h"
@@ -489,13 +490,19 @@ u32 modOptions_moveCursorHook(void)
 /**
  * scene_optionsMenu_adjustValue hook: on the mod page, adjust and commit the row. Stock
  * rows - volumes, toggles, the difficulty selector, and the action/pseudo rows' no-op -
- * are the original's.
+ * are the original's. Co-op plays with the host's mod options, so they can't change there.
  */
 u32 modOptions_adjustValueHook(void)
 {
     if (getMode() != MOD_OPTIONS_MODE_MOD)
     {
         return FALSE;
+    }
+    if (g_GameFlags.p & GAME_FLAG_COOP_ACTIVE)
+    {
+        sfx_stop(g_OptionsSfxHandle);
+        g_OptionsSfxHandle = sfx_play(SFX_MENU_ERROR);
+        return TRUE;
     }
     if (MOD_OPTIONS_PAGE_COUNT > 0 && SCENE_ARG_OPTIONS_CURSOR < currentPage()->entryCount &&
         currentPage()->entries[SCENE_ARG_OPTIONS_CURSOR].label != NULL)

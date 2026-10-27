@@ -1,15 +1,29 @@
 #include "patches/skill_expansion/skill_expansion_save.h"
 #include "patches/skill_expansion/skill_expansion.h"
+#include "patches/skill_expansion/skill_expansion_coop.h"
 #include "patches/skill_expansion/skill_expansion_save_format.h"
 
 #if HACK_mod_save
 
 #include "memory.h"
+#include "multiplayer.h"
 #include "patches/mod_save/save_layout.h"
 #include "patches/mod_save/save_slots.h"
 #include "patches/mod_save/save_sram.h"
 #include "scene/saveLoadMenu.h"
 #include "variables.h"
+#if HACK_debug_cheats
+#include "patches/debug_cheats/debug_cheats.h"
+#endif
+#if HACK_experimental
+#include "patches/experimental/experimental.h"
+#endif
+#if HACK_loot_qol
+#include "patches/loot_qol/loot_qol.h"
+#endif
+#if HACK_twists
+#include "patches/twists/twists.h"
+#endif
 
 // SkillExpansionSaveRecord.tag of a record that holds data. Blank SRAM reads as 0xFF.
 #define SAVE_RECORD_TAG 0x5e
@@ -331,36 +345,247 @@ void skillExpansion_loadSlot(u32 playerIndex)
     g_LastSaveSlot = slotIndex;
 }
 
+// A player's page 2 record holds what the stock co-op slot exchange leaves out: the new rows'
+// bought ranks, then their cycle flags, the new slots' bought ranks and the full quick-select rows,
+// which the stock slot stores in 3 bits each.
+#define PAGE2_RECORD_SIZE \
+    (2 * SKILL_EXPANSION_NEW_ACTIVE_COUNT + SKILL_EXPANSION_NEW_PASSIVE_COUNT + QUICK_SELECT_SLOT_COUNT)
+
+// Multiplayer ID of the console whose global mod options a co-op session plays with.
+#define SESSION_OPTIONS_HOST 0
+
+#if HACK_loot_qol
+#define LOOT_QOL_OPTION_BYTES sizeof(g_LootQolState)
+#else
+#define LOOT_QOL_OPTION_BYTES 0
+#endif
+#if HACK_debug_cheats
+#define DEBUG_CHEATS_OPTION_BYTES sizeof(g_DebugCheatsState)
+#else
+#define DEBUG_CHEATS_OPTION_BYTES 0
+#endif
+#if HACK_twists
+#define TWISTS_OPTION_BYTES TWISTS_STATE_SIZE
+#else
+#define TWISTS_OPTION_BYTES 0
+#endif
+#if HACK_experimental
+#define EXPERIMENTAL_OPTION_BYTES sizeof(g_ExperimentalState)
+#else
+#define EXPERIMENTAL_OPTION_BYTES 0
+#endif
+
+// The global mod options that change how the game plays. Each console loads its own save's at
+// boot, so a co-op client takes the host's for the session to simulate the same game.
+#define SESSION_OPTIONS_SIZE \
+    (LOOT_QOL_OPTION_BYTES + DEBUG_CHEATS_OPTION_BYTES + TWISTS_OPTION_BYTES + EXPERIMENTAL_OPTION_BYTES)
+
+// A console's record: its player's page 2 record, then its session options.
+#define PEER_RECORD_SIZE (PAGE2_RECORD_SIZE + SESSION_OPTIONS_SIZE)
+
+// Record bytes per SKILL_EXPANSION_MP_PEER_RECORD message, after the chunk index.
+#define PEER_RECORD_CHUNK_SIZE (SKILL_EXPANSION_MP_DATA_SIZE - 1)
+#define PEER_RECORD_CHUNK_COUNT                                                                    \
+    ((PEER_RECORD_SIZE + PEER_RECORD_CHUNK_SIZE - 1) / PEER_RECORD_CHUNK_SIZE)
+#define PEER_RECORD_ALL_CHUNKS ((1 << PEER_RECORD_CHUNK_COUNT) - 1)
+
+_Static_assert(PEER_RECORD_CHUNK_COUNT <= 8, "peerRecordChunks has a bit per chunk");
+
+// Frames the slot exchange waits for the peer's record before loading its slot without one.
+#define PEER_RECORD_TIMEOUT_FRAMES 120
+
+// The peer's quick-select rows from its record. The rest of the record goes straight into its
+// player, where loading its slot keeps it.
+static u8 peerQuickSelect[QUICK_SELECT_SLOT_COUNT];
+
+// Bit n set: chunk n of the peer's record has arrived.
+static u8 peerRecordChunks;
+
+// Chunks of this console's record sent in the current slot exchange.
+static u8 sentRecordChunks;
+
+// Frames the current slot exchange has waited for the peer's record.
+static u8 peerRecordWaitFrames;
+
+/** Byte `index` of this console's session options. */
+static u8 *sessionOptionByte(u32 index)
+{
+#if HACK_loot_qol
+    if (index < LOOT_QOL_OPTION_BYTES)
+    {
+        return (u8 *)&g_LootQolState + index;
+    }
+    index -= LOOT_QOL_OPTION_BYTES;
+#endif
+#if HACK_debug_cheats
+    if (index < DEBUG_CHEATS_OPTION_BYTES)
+    {
+        return (u8 *)&g_DebugCheatsState + index;
+    }
+    index -= DEBUG_CHEATS_OPTION_BYTES;
+#endif
+#if HACK_twists
+    if (index < TWISTS_OPTION_BYTES)
+    {
+        return twists_stateBytes() + index;
+    }
+    index -= TWISTS_OPTION_BYTES;
+#endif
+#if HACK_experimental
+    return (u8 *)&g_ExperimentalState + index;
+#else
+    (void)index;
+    return NULL;
+#endif
+}
+
+/** Byte `index` of player p's record, with the quick-select rows in `quickSelect`. */
+static u8 *recordByte(u8 p, u32 index, u8 *quickSelect)
+{
+    if (index >= PAGE2_RECORD_SIZE)
+    {
+        return sessionOptionByte(index - PAGE2_RECORD_SIZE);
+    }
+    if (index < SKILL_EXPANSION_NEW_ACTIVE_COUNT)
+    {
+        return skillExpansion_activePurchased(p, SKILL_EXPANSION_FIRST_NEW_ACTIVE_ROW + index);
+    }
+    index -= SKILL_EXPANSION_NEW_ACTIVE_COUNT;
+    if (index < SKILL_EXPANSION_NEW_ACTIVE_COUNT)
+    {
+        return skillExpansion_activeCycleEnabled(p, SKILL_EXPANSION_FIRST_NEW_ACTIVE_ROW + index);
+    }
+    index -= SKILL_EXPANSION_NEW_ACTIVE_COUNT;
+    if (index < SKILL_EXPANSION_NEW_PASSIVE_COUNT)
+    {
+        return (u8 *)skillExpansion_passivePurchased(p, HERO_PASSIVE_SKILL_COUNT + index);
+    }
+    return &quickSelect[index - SKILL_EXPANSION_NEW_PASSIVE_COUNT];
+}
+
+void skillExpansion_peerRecordReceive(u8 sender, const u8 *data)
+{
+    u32 chunk = data[0];
+    u32 i;
+
+    if (chunk >= PEER_RECORD_CHUNK_COUNT)
+    {
+        return;
+    }
+    for (i = 0; i < PEER_RECORD_CHUNK_SIZE; i++)
+    {
+        u32 index = chunk * PEER_RECORD_CHUNK_SIZE + i;
+
+        // Only the host's session options apply.
+        if (index < PAGE2_RECORD_SIZE ||
+            (index < PEER_RECORD_SIZE && sender == SESSION_OPTIONS_HOST))
+        {
+            *recordByte(sender, index, peerQuickSelect) = data[1 + i];
+        }
+    }
+    peerRecordChunks |= 1 << chunk;
+}
+
+static void sendRecordChunk(u32 chunk)
+{
+    u8 p = multiplayer_getMultiPlayerId();
+    u8 data[SKILL_EXPANSION_MP_DATA_SIZE];
+    u32 i;
+
+    memory_memset(data, 0, sizeof(data));
+    data[0] = chunk;
+    for (i = 0; i < PEER_RECORD_CHUNK_SIZE; i++)
+    {
+        u32 index = chunk * PEER_RECORD_CHUNK_SIZE + i;
+
+        if (index < PEER_RECORD_SIZE)
+        {
+            data[1 + i] = *recordByte(p, index, PLAYER(p).quickSelectActiveSkills);
+        }
+    }
+    skillExpansion_coopSend(SKILL_EXPANSION_MP_PEER_RECORD, data);
+}
+
 /**
- * The peer's record isn't sent over the link, so its new rows and slots load empty.
+ * Once the stock co-op slot exchange is done, send this console's record and wait for the peer's
+ * before the stock tick loads the peer's slot.
+ *
+ * @return TRUE to skip the stock tick this frame
+ */
+bool32 skillExpansion_saveMenuTickHook(void)
+{
+    u32 linkMessages;
+
+    if (SCENE_ARG_SAVE_LOAD_STATE != SAVE_LOAD_STATE_COOP_SLOT_EXCHANGE)
+    {
+        // The peer's record can't arrive yet: it waits for this console's slot.
+        peerRecordChunks = 0;
+        sentRecordChunks = 0;
+        peerRecordWaitFrames = 0;
+        return FALSE;
+    }
+    linkMessages = multiplayer_getMessageMask();
+    if ((linkMessages & MP_MSG_FLAG_PEER_READY) == 0 ||
+        (linkMessages & MP_MSG_FLAG_LOCAL_READY) == 0)
+    {
+        return FALSE;
+    }
+    if (sentRecordChunks < PEER_RECORD_CHUNK_COUNT)
+    {
+        sendRecordChunk(sentRecordChunks++);
+        return TRUE;
+    }
+    if (peerRecordChunks != PEER_RECORD_ALL_CHUNKS &&
+        peerRecordWaitFrames < PEER_RECORD_TIMEOUT_FRAMES)
+    {
+        peerRecordWaitFrames++;
+        return TRUE;
+    }
+    return FALSE;
+}
+
+/**
+ * Keep the peer's new rows and slots from its record, or empty them when none arrived. A client
+ * applies the host's session options, which came with the record.
  *
  * REPLACES (whole function): scene_saveLoadMenu_loadPeerSlot.
  */
 void skillExpansion_loadPeerSlot(u32 playerIndex)
 {
     u8 p = playerIndex;
+    bool valid = peerRecordChunks == PEER_RECORD_ALL_CHUNKS;
     u8 quickSelect[QUICK_SELECT_SLOT_COUNT];
     u32 i;
 
     save_deserializePlayer(g_MpPeerSaveSlot.words, p);
     for (i = 0; i < SKILL_EXPANSION_NEW_PASSIVE_COUNT; i++)
     {
-        *skillExpansion_passivePurchased(p, HERO_PASSIVE_SKILL_COUNT + i) = 0;
+        s8 *purchased = skillExpansion_passivePurchased(p, HERO_PASSIVE_SKILL_COUNT + i);
+
+        *purchased = valid ? clampLevel(*purchased) : 0;
     }
     for (i = 0; i < SKILL_EXPANSION_NEW_ACTIVE_COUNT; i++)
     {
         u32 row = SKILL_EXPANSION_FIRST_NEW_ACTIVE_ROW + i;
+        u8 *purchased = skillExpansion_activePurchased(p, row);
+        u8 *cycleEnabled = skillExpansion_activeCycleEnabled(p, row);
 
-        *skillExpansion_activePurchased(p, row) = 0;
-        *skillExpansion_activeCycleEnabled(p, row) = 1;
+        *purchased = valid ? clampLevel(*purchased) : 0;
+        *cycleEnabled = valid ? *cycleEnabled != 0 : 1;
     }
     for (i = 0; i < QUICK_SELECT_SLOT_COUNT; i++)
     {
-        quickSelect[i] = PLAYER(p).quickSelectActiveSkills[i];
+        quickSelect[i] = valid ? peerQuickSelect[i] : PLAYER(p).quickSelectActiveSkills[i];
     }
     save_loadSlotState(p);
     applyQuickSelect(p, quickSelect);
     g_LastSaveSlot = SCENE_ARG_SAVE_LOAD_SELECTED_SLOT;
+#if HACK_experimental
+    if (valid && p == SESSION_OPTIONS_HOST)
+    {
+        experimental_applyState();
+    }
+#endif
 }
 
 #endif

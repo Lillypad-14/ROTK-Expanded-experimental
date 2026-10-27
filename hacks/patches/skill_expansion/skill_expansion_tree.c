@@ -7,20 +7,26 @@
 #include "mission.h"
 #include "multiplayer.h"
 #include "patches/skill_expansion/skill_expansion.h"
+#include "patches/skill_expansion/skill_expansion_coop.h"
 #include "patches/skill_expansion/skill_expansion_gimli.h"
 #include "scene.h"
+#include "scene/gameplay.h"
 #include "scene/skillTree.h"
 #include "sfx.h"
 #include "sprite.h"
 #include "text.h"
 
-// Skill tree page 2: active rows 7..12 and passive slots 9..17. Turning the page swaps them with
-// rows 0..5 and slots 0..8 of the active player, so the stock tree code draws and buys them. Row 12
-// takes Herbal Healing's slot only for heroes that have one. The swap is undone when the tree
-// exits.
+// Skill tree page 2: active rows 7..12 and passive slots 9..17. While page 2 shows, the tree swaps
+// them with rows 0..5 and slots 0..8 of the active player around its input handling and drawing,
+// so the stock tree code draws them. Row 12 takes Herbal Healing's slot only for heroes that have
+// one. Actor ticks, the HUD and co-op messages run between the swaps and see every row in its own
+// place, so purchases are applied by unswapped row and both co-op consoles apply the same ones.
 
-// 0: stock skills. 1: new skills swapped into the stock rows and slots.
+// 0: stock skills. 1: the new skills, swapped in while the tree handles input and draws.
 u8 skillExpansion_treePage;
+
+// TRUE when an applied action changed the active player's tree, which redraws on its next tick.
+static bool redrawPending;
 
 // Tile coordinates to a sprite_setPosition coordinate.
 #define TILE_TO_SPRITE_POS(tile) ((tile) << 19)
@@ -108,7 +114,14 @@ static u32 rowOnOtherPage(u8 playerIndex, u32 row)
     return row;
 }
 
-static void swapPages(u8 playerIndex)
+/** Where a row the tree shows sits outside the page swap. */
+static u32 unswappedRow(u8 playerIndex, u32 row)
+{
+    return skillExpansion_treePage != 0 ? rowOnOtherPage(playerIndex, row) : row;
+}
+
+/** Swap page 2's rows and slots with the stock ones. Swapping twice restores them. */
+static void swapRows(u8 playerIndex)
 {
     SkillExpansionPlayer *sx = &skillExpansion_players[playerIndex];
     u32 count = pageActiveCount(playerIndex);
@@ -155,15 +168,11 @@ static void swapPages(u8 playerIndex)
         PLAYER(playerIndex).selectedActiveSkill.cycleSkillIndex =
             rowOnOtherPage(playerIndex, PLAYER(playerIndex).selectedActiveSkill.cycleSkillIndex);
     }
-
-    skillExpansion_treePage ^= 1;
 }
 
 static bool canTurnPage(u8 playerIndex)
 {
-    return (g_GameFlags.p & GAME_FLAG_COOP_ACTIVE) == 0 &&
-           (multiplayer_getMessageMask() & MP_MSG_FLAG_2) == 0 &&
-           PLAYER(playerIndex).activeSkills == skillExpansion_players[playerIndex].activeSkills;
+    return PLAYER(playerIndex).activeSkills == skillExpansion_players[playerIndex].activeSkills;
 }
 
 static bool activeRowIsEmpty(u8 playerIndex, u32 row)
@@ -177,8 +186,13 @@ static bool tallyPage(u8 playerIndex)
     return skillExpansion_treePage != 0 && skillExpansion_gimliUsesTally(playerIndex);
 }
 
-/** Kills the bought page 2 ranks cost, each at the kill requirement it was listed with. */
-static u32 tallySpent(u8 playerIndex)
+/**
+ * Kills the bought page 2 ranks cost, each at the kill requirement it was listed with.
+ *
+ * @param firstRow the row page 2's first active skill is in, 0 while swapped in
+ * @param firstSlot the slot page 2's first passive skill is in, 0 while swapped in
+ */
+static u32 tallySpent(u8 playerIndex, u32 firstRow, u32 firstSlot)
 {
     u32 spent = 0;
     u32 i;
@@ -187,7 +201,7 @@ static u32 tallySpent(u8 playerIndex)
     for (i = 0; i < pageActiveCount(playerIndex); i++)
     {
         const SkillExpansionActiveDef *def = skillExpansion_players[playerIndex].activeDefs[i];
-        u32 purchased = *skillExpansion_activePurchased(playerIndex, i);
+        u32 purchased = *skillExpansion_activePurchased(playerIndex, firstRow + i);
 
         if (def == NULL || def->requiredLevels == NULL)
         {
@@ -200,25 +214,32 @@ static u32 tallySpent(u8 playerIndex)
     }
     for (i = 0; i < SKILL_EXPANSION_NEW_PASSIVE_COUNT; i++)
     {
-        s8 purchased = *skillExpansion_passivePurchased(playerIndex, i);
+        u32 slot = firstSlot + i;
+        s8 purchased = *skillExpansion_passivePurchased(playerIndex, slot);
 
         for (rank = 0; (s32)rank < purchased && rank < PASSIVE_SKILL_MAX_LEVEL; rank++)
         {
-            spent += skillExpansion_getPassiveRequiredLevel(PLAYER(playerIndex).passiveSkillIds[i],
-                                                            rank) *
+            spent += skillExpansion_getPassiveRequiredLevel(
+                         skillExpansion_players[playerIndex].passiveSkillIds[slot], rank) *
                      GIMLI_TALLY_KILLS_PER_STEP;
         }
     }
     return spent;
 }
 
-/** Tally kills not yet spent on page 2 ranks. */
-static u32 tallyKills(u8 playerIndex)
+/** Tally kills not yet spent on page 2 ranks. The parameters are as for tallySpent. */
+static u32 unspentTally(u8 playerIndex, u32 firstRow, u32 firstSlot)
 {
-    u32 spent = tallySpent(playerIndex);
+    u32 spent = tallySpent(playerIndex, firstRow, firstSlot);
     u32 kills = PLAYER(playerIndex).killCount;
 
     return kills > spent ? kills - spent : 0;
+}
+
+/** Tally kills not yet spent, while page 2 is swapped in. */
+static u32 tallyKills(u8 playerIndex)
+{
+    return unspentTally(playerIndex, 0, 0);
 }
 
 /** The points box: skill points, or Tally marks on a Tally page. */
@@ -260,11 +281,11 @@ static void placeCursor(void)
                        TILE_TO_SPRITE_POS(pos->y));
 }
 
-static void turnPage(u8 playerIndex)
+/** Draw the points box, both grids and the quick-select markers. */
+static void drawPage(u8 playerIndex)
 {
     u32 i;
 
-    swapPages(playerIndex);
     drawPoints(playerIndex);
     scene_skillTree_drawPassiveGrid(playerIndex);
     scene_skillTree_drawActiveGrid(playerIndex);
@@ -275,6 +296,13 @@ static void turnPage(u8 playerIndex)
             placeQuickSelectMarker(playerIndex, i);
         }
     }
+}
+
+static void turnPage(u8 playerIndex)
+{
+    swapRows(playerIndex);
+    skillExpansion_treePage ^= 1;
+    drawPage(playerIndex);
 }
 
 // BG asset header flag for a 16-color palette following the 2-byte header.
@@ -695,66 +723,108 @@ void skillExpansion_treeDrawActiveTile(u8 playerIndex, u8 activeSkillIndex, u8 t
 }
 
 /**
- * Page 2 rows use their base row's level requirements. Empty rows and slots can't be bought.
+ * Level the next rank of an active row needs, or -1 when it's maxed. Page 2 rows without their own
+ * requirements use their base row's.
+ *
+ * @param row a stock row, used when def is NULL
+ * @param def the row's page 2 definition, or NULL for a stock row
+ * @param purchased the row's bought ranks
+ */
+static s32 activeRequiredLevel(u8 playerIndex, u32 row, const SkillExpansionActiveDef *def,
+                               u32 purchased)
+{
+    HeroId heroId = PLAYER(playerIndex).heroId;
+    const SkillExpansionHeroKit *kit = skillExpansion_getHeroKit(heroId);
+    u32 ruleRow = row;
+
+    if (def != NULL)
+    {
+        if (def->requiredLevels != NULL)
+        {
+            return def->requiredLevels[purchased];
+        }
+        ruleRow = def->baseRow;
+    }
+    else if (kit != NULL)
+    {
+        return kit->requiredLevels[row][purchased];
+    }
+    else if (row == ACTIVE_SKILL_HERBAL_HEALING)
+    {
+        return purchased < ARRAY_COUNT(HerbalHealingRequiredLevels)
+                   ? HerbalHealingRequiredLevels[purchased]
+                   : -1;
+    }
+    return ActiveSkillRequiredLevels[SkillExpansionHeroSkillBlocks[heroId]][ruleRow][purchased];
+}
+
+/** Level the next rank of a passive skill needs, or -1 when it's maxed or not the hero's. */
+static s32 passiveRequiredLevel(u8 playerIndex, u32 passiveSkillId)
+{
+    u8 slot = skillExpansion_findPassiveSlot(playerIndex, passiveSkillId);
+
+    if (slot == SKILL_EXPANSION_PASSIVE_SLOT_NONE)
+    {
+        return -1;
+    }
+    return skillExpansion_getPassiveRequiredLevel(
+        passiveSkillId, *skillExpansion_passivePurchased(playerIndex, slot));
+}
+
+/**
+ * Empty rows and slots can't be bought.
  *
  * REPLACES (whole function): scene_skillTree_getRequiredLevel.
  */
 s32 skillExpansion_treeGetRequiredLevel(s32 playerIndex, s32 skill)
 {
-    HeroId heroId = PLAYER(playerIndex).heroId;
-    const SkillExpansionHeroKit *kit = skillExpansion_getHeroKit(heroId);
+    const SkillExpansionActiveDef *def = NULL;
+    u32 row = skill;
 
-    if (SCENE_ARG_SKILL_TREE_GRID == SKILL_TREE_GRID_ACTIVE)
+    if (SCENE_ARG_SKILL_TREE_GRID != SKILL_TREE_GRID_ACTIVE)
     {
-        u32 row = skill;
-        u32 ruleRow = row;
-
-        if (row >= SKILL_TREE_ACTIVE_TILE_COUNT || heroId >= SKILL_EXPANSION_HERO_COUNT ||
-            activeRowIsEmpty(playerIndex, row))
+        return passiveRequiredLevel(playerIndex, skill);
+    }
+    if (row >= SKILL_TREE_ACTIVE_TILE_COUNT ||
+        PLAYER(playerIndex).heroId >= SKILL_EXPANSION_HERO_COUNT ||
+        activeRowIsEmpty(playerIndex, row))
+    {
+        return -1;
+    }
+    if (skillExpansion_treePage != 0 && row < pageActiveCount(playerIndex))
+    {
+        def = skillExpansion_players[playerIndex].activeDefs[row];
+        if (def == NULL)
         {
             return -1;
         }
-        if (skillExpansion_treePage != 0 && row < pageActiveCount(playerIndex))
-        {
-            const SkillExpansionActiveDef *def =
-                skillExpansion_players[playerIndex].activeDefs[row];
-
-            if (def == NULL)
-            {
-                return -1;
-            }
-            if (def->requiredLevels != NULL)
-            {
-                return def->requiredLevels[PLAYER(playerIndex).activeSkillLevelsPurchased[row]];
-            }
-            ruleRow = def->baseRow;
-        }
-        else if (kit != NULL)
-        {
-            return kit->requiredLevels[row][PLAYER(playerIndex).activeSkillLevelsPurchased[row]];
-        }
-        if (kit == NULL && row == ACTIVE_SKILL_HERBAL_HEALING &&
-            (skillExpansion_treePage == 0 || pageActiveCount(playerIndex) <= row))
-        {
-            u32 purchased = PLAYER(playerIndex).activeSkillLevelsPurchased[row];
-            return purchased < ARRAY_COUNT(HerbalHealingRequiredLevels)
-                       ? HerbalHealingRequiredLevels[purchased]
-                       : -1;
-        }
-        return ActiveSkillRequiredLevels[SkillExpansionHeroSkillBlocks[heroId]][ruleRow]
-                                        [PLAYER(playerIndex).activeSkillLevelsPurchased[row]];
     }
-    else
+    return activeRequiredLevel(playerIndex, row, def,
+                               PLAYER(playerIndex).activeSkillLevelsPurchased[row]);
+}
+
+/** As skillExpansion_treeGetRequiredLevel for an active row, with page 2 not swapped in. */
+static s32 unswappedRowRequiredLevel(u8 playerIndex, u32 row)
+{
+    const SkillExpansionActiveDef *def = skillExpansion_activeDef(playerIndex, row);
+
+    if (PLAYER(playerIndex).heroId >= SKILL_EXPANSION_HERO_COUNT)
     {
-        u8 slot = skillExpansion_findPassiveSlot(playerIndex, skill);
-
-        if (slot == SKILL_EXPANSION_PASSIVE_SLOT_NONE)
-        {
-            return -1;
-        }
-        return skillExpansion_getPassiveRequiredLevel(
-            skill, *skillExpansion_passivePurchased(playerIndex, slot));
+        return -1;
     }
+    if (row >= SKILL_TREE_ACTIVE_TILE_COUNT &&
+        (row < SKILL_EXPANSION_FIRST_NEW_ACTIVE_ROW ||
+         row >= SKILL_EXPANSION_FIRST_NEW_ACTIVE_ROW + pageActiveCount(playerIndex) ||
+         def == NULL || !canTurnPage(playerIndex)))
+    {
+        return -1;
+    }
+    if (activeRowIsEmpty(playerIndex, row))
+    {
+        return -1;
+    }
+    return activeRequiredLevel(playerIndex, row, def,
+                               *skillExpansion_activePurchased(playerIndex, row));
 }
 
 /**
@@ -839,78 +909,211 @@ void skillExpansion_treeDrawDescription(void)
     font_drawLines(0x3d, 0x10, 0x83, 0xd0, (char *)description, 0);
 }
 
-/** Buy a rank of the page 2 skill under the cursor with a Tally mark. */
-static void buyWithTally(u8 playerIndex)
+/**
+ * Whether a rank that needs player level `required` can be paid for.
+ *
+ * @param tally TRUE to pay with Tally marks, else with a skill point
+ * @param unspentKills the Tally kills left when tally is TRUE
+ */
+static bool canPay(u8 playerIndex, s32 required, bool tally, u32 unspentKills)
 {
-    u32 tile = SCENE_ARG_SKILL_TREE_CURSOR;
-    bool active = SCENE_ARG_SKILL_TREE_GRID == SKILL_TREE_GRID_ACTIVE;
-    u32 skill;
-    s32 required;
-
-    if (active)
+    if (required == -1)
     {
-        if (tile >= pageActiveCount(playerIndex) || activeRowIsEmpty(playerIndex, tile))
-        {
-            sfx_play(SFX_MENU_ERROR);
-            return;
-        }
-        skill = tile;
+        return FALSE;
     }
-    else if (SCENE_ARG_SKILL_TREE_GRID == SKILL_TREE_GRID_PASSIVE)
+    if (tally)
     {
-        skill = g_SkillTreePassiveTileSkillIds[tile];
-        if (skillExpansion_findPassiveSlot(playerIndex, skill) == SKILL_EXPANSION_PASSIVE_SLOT_NONE)
-        {
-            sfx_play(SFX_MENU_ERROR);
-            return;
-        }
+        return unspentKills >= (u32)required * GIMLI_TALLY_KILLS_PER_STEP;
     }
-    else
-    {
-        return;
-    }
-    required = skillExpansion_treeGetRequiredLevel(playerIndex, skill);
-    if (required == -1 || tallyKills(playerIndex) < (u32)required * GIMLI_TALLY_KILLS_PER_STEP)
-    {
-        sfx_play(SFX_MENU_ERROR);
-        return;
-    }
-    if (active)
-    {
-        skill_active_addLevels(playerIndex, skill, 1);
-        skillExpansion_treeDrawActiveTile(playerIndex, skill, tile,
-                                          *skillExpansion_activeLevel(playerIndex, skill));
-    }
-    else
-    {
-        u8 slot;
-
-        skill_passive_addLevels(playerIndex, skill, 1);
-        slot = skillExpansion_findPassiveSlot(playerIndex, skill);
-        skillExpansion_treeDrawPassiveTile(playerIndex, skill, tile,
-                                           *skillExpansion_passiveApplied(playerIndex, slot));
-    }
-    drawPoints(playerIndex);
-    drawTitle(playerIndex);
-    skillExpansion_treeDrawDescription();
-    sfx_play(active ? SFX_SKILL_TREE_BUY_ACTIVE : SFX_SKILL_TREE_BUY_PASSIVE);
+    return PLAYER(playerIndex).skillPoints != 0 && required <= PLAYER(playerIndex).level + 1;
 }
 
 /**
- * Buy with a Tally mark on a Tally page, else with a skill point.
+ * Apply a skill tree action to a player's skills, with page 2 not swapped in. Co-op consoles run
+ * it for both players' actions, so it checks a purchase again: a second press can be sent before
+ * the first one is applied.
+ *
+ * @param data the action's SKILL_EXPANSION_MP_DATA_SIZE bytes, see enum SkillExpansionMpKind
+ * @param local TRUE for this console's player, whose tree shows the result
+ */
+void skillExpansion_treeApply(u8 playerIndex, u8 kind, const u8 *data, bool local)
+{
+    bool tally =
+        (kind == SKILL_EXPANSION_MP_BUY_ACTIVE || kind == SKILL_EXPANSION_MP_BUY_PASSIVE) &&
+        data[1] != 0;
+    u32 unspentKills = 0;
+    s32 sfxId = -1;
+    u32 i;
+
+    if (tally)
+    {
+        if (!skillExpansion_gimliUsesTally(playerIndex))
+        {
+            return;
+        }
+        unspentKills = unspentTally(playerIndex, SKILL_EXPANSION_FIRST_NEW_ACTIVE_ROW,
+                                    HERO_PASSIVE_SKILL_COUNT);
+    }
+
+    switch (kind)
+    {
+    case SKILL_EXPANSION_MP_BUY_ACTIVE:
+        if ((tally && data[0] < SKILL_EXPANSION_FIRST_NEW_ACTIVE_ROW) ||
+            !canPay(playerIndex, unswappedRowRequiredLevel(playerIndex, data[0]), tally,
+                    unspentKills))
+        {
+            sfxId = SFX_MENU_ERROR;
+            break;
+        }
+        skill_active_addLevels(playerIndex, data[0], 1);
+        if (!tally)
+        {
+            scene_skillTree_spendSkillPoint(playerIndex);
+        }
+        sfxId = SFX_SKILL_TREE_BUY_ACTIVE;
+        break;
+
+    case SKILL_EXPANSION_MP_BUY_PASSIVE:
+        if ((tally &&
+             skillExpansion_findPassiveSlot(playerIndex, data[0]) < HERO_PASSIVE_SKILL_COUNT) ||
+            !canPay(playerIndex, passiveRequiredLevel(playerIndex, data[0]), tally, unspentKills))
+        {
+            sfxId = SFX_MENU_ERROR;
+            break;
+        }
+        skill_passive_addLevels(playerIndex, data[0], 1);
+        if (!tally)
+        {
+            scene_skillTree_spendSkillPoint(playerIndex);
+        }
+        sfxId = SFX_SKILL_TREE_BUY_PASSIVE;
+        break;
+
+    case SKILL_EXPANSION_MP_TOGGLE_CYCLE:
+        if (data[0] < SKILL_EXPANSION_ACTIVE_ROW_COUNT)
+        {
+            u8 *cycleEnabled = skillExpansion_activeCycleEnabled(playerIndex, data[0]);
+
+            *cycleEnabled = *cycleEnabled == 0;
+            sfxId = SFX_MENU_CONFIRM;
+        }
+        break;
+
+    case SKILL_EXPANSION_MP_QUICK_SELECT:
+        for (i = 0; i < 3; i++)
+        {
+            if (data[i] >= SKILL_EXPANSION_ACTIVE_ROW_COUNT)
+            {
+                return;
+            }
+        }
+        for (i = 0; i < 3; i++)
+        {
+            PLAYER(playerIndex).quickSelectActiveSkills[i] = data[i];
+        }
+        break;
+
+    default:
+        return;
+    }
+
+    if (local)
+    {
+        if (sfxId != -1)
+        {
+            sfx_play(sfxId);
+        }
+        if (sfxId != SFX_MENU_ERROR)
+        {
+            redrawPending = TRUE;
+        }
+    }
+}
+
+/** TRUE when the tree's actions go to both co-op consoles as link messages. */
+static bool isLinked(void)
+{
+    return (g_GameFlags.p & GAME_FLAG_COOP_ACTIVE) != 0;
+}
+
+/** Redraw the tree after an applied action changed it. Page 2 is swapped in if it shows. */
+static void redrawIfPending(u8 playerIndex)
+{
+    if (!redrawPending)
+    {
+        return;
+    }
+    redrawPending = FALSE;
+    drawPage(playerIndex);
+    skillExpansion_treeDrawDescription();
+}
+
+/**
+ * Apply an action of the active player now, or send it to both co-op consoles. Page 2 is swapped
+ * in if it shows.
+ */
+static void submit(u8 playerIndex, u8 kind, const u8 *data)
+{
+    if (isLinked())
+    {
+        skillExpansion_coopSend(kind, data);
+        return;
+    }
+    if (skillExpansion_treePage != 0)
+    {
+        swapRows(playerIndex);
+    }
+    skillExpansion_treeApply(playerIndex, kind, data, TRUE);
+    if (skillExpansion_treePage != 0)
+    {
+        swapRows(playerIndex);
+    }
+    redrawIfPending(playerIndex);
+}
+
+/**
+ * Buy a rank of the skill under the cursor: with a Tally mark on a Tally page, else with a skill
+ * point.
  *
  * REPLACES (whole function): scene_skillTree_handleA.
  */
 void skillExpansion_treeHandleA(void)
 {
     u8 playerIndex = g_PlayerGlobals.activePlayerIndex;
+    u32 tile = SCENE_ARG_SKILL_TREE_CURSOR;
+    bool tally = tallyPage(playerIndex);
+    u8 data[SKILL_EXPANSION_MP_DATA_SIZE];
+    u8 kind;
+    s32 required;
 
-    if (tallyPage(playerIndex))
+    memory_memset(data, 0, sizeof(data));
+    if (SCENE_ARG_SKILL_TREE_GRID == SKILL_TREE_GRID_ACTIVE)
     {
-        buyWithTally(playerIndex);
+        kind = SKILL_EXPANSION_MP_BUY_ACTIVE;
+        data[0] = unswappedRow(playerIndex, tile);
+        // Herbal Healing can stay on a Tally page, but isn't bought with the Tally.
+        required = tally && tile >= pageActiveCount(playerIndex)
+                       ? -1
+                       : skillExpansion_treeGetRequiredLevel(playerIndex, tile);
+    }
+    else if (SCENE_ARG_SKILL_TREE_GRID == SKILL_TREE_GRID_PASSIVE)
+    {
+        kind = SKILL_EXPANSION_MP_BUY_PASSIVE;
+        data[0] = g_SkillTreePassiveTileSkillIds[tile];
+        required = skillExpansion_treeGetRequiredLevel(playerIndex, data[0]);
+    }
+    else
+    {
+        sfx_play(SFX_MENU_ERROR);
         return;
     }
-    scene_skillTree_buySkill(playerIndex);
+    data[1] = tally;
+    if (!canPay(playerIndex, required, tally, tally ? tallyKills(playerIndex) : 0))
+    {
+        sfx_play(SFX_MENU_ERROR);
+        return;
+    }
+    submit(playerIndex, kind, data);
 }
 
 /**
@@ -977,7 +1180,118 @@ void skillExpansion_treeAssignQuickSelect(void)
 }
 
 /**
- * Turn back to the stock page, then run the stock exit.
+ * Select on an active tile: take the row out of the cast cycle or put it back, or bind it to the
+ * next quick-select slot when quick select is on.
+ *
+ * REPLACES (whole function): scene_skillTree_handleSelect.
+ */
+void skillExpansion_treeHandleSelect(void)
+{
+    u8 playerIndex = g_PlayerGlobals.activePlayerIndex;
+    u8 *slots = PLAYER(playerIndex).quickSelectActiveSkills;
+    u8 data[SKILL_EXPANSION_MP_DATA_SIZE];
+    u8 bound[3];
+    bool changed = FALSE;
+    u32 i;
+
+    if (SCENE_ARG_SKILL_TREE_GRID != SKILL_TREE_GRID_ACTIVE)
+    {
+        return;
+    }
+    memory_memset(data, 0, sizeof(data));
+    if (!g_SaveGlobals.d.optionsFlags.d.quickSkillSelect)
+    {
+        data[0] = unswappedRow(playerIndex, SCENE_ARG_SKILL_TREE_CURSOR);
+        submit(playerIndex, SKILL_EXPANSION_MP_TOGGLE_CYCLE, data);
+        return;
+    }
+    memory_memcpy(bound, slots, sizeof(bound));
+    skillExpansion_treeAssignQuickSelect();
+    if (!isLinked())
+    {
+        return;
+    }
+    // The markers move now, but both consoles bind the rows when the message is applied.
+    for (i = 0; i < 3; i++)
+    {
+        changed |= slots[i] != bound[i];
+        data[i] = unswappedRow(playerIndex, slots[i]);
+        slots[i] = bound[i];
+    }
+    if (changed)
+    {
+        skillExpansion_coopSend(SKILL_EXPANSION_MP_QUICK_SELECT, data);
+    }
+}
+
+/**
+ * The stock tick, with page 2 swapped in only while the tree handles input, so the actor ticks
+ * see every row in its own place.
+ *
+ * REPLACES (whole function): scene_skillTree_tick.
+ */
+void skillExpansion_treeTick(void)
+{
+    u32 linkMessages = multiplayer_getMessageMask();
+    u8 playerIndex = g_PlayerGlobals.activePlayerIndex;
+    u32 keys = MENU_KEYS_PRESSED(playerIndex);
+    // Grid values 3 and 4 don't leave for the backpack or the stats page with L and R.
+    bool canLeave = (u32)(SCENE_ARG_SKILL_TREE_GRID - 3) >= 2;
+    u32 i;
+
+    if (linkMessages & MP_MSG_FLAG_2)
+    {
+        for (i = 0; i < g_PlayerGlobals.activePlayerCount; i++)
+        {
+            mission_tickCameraPan(i);
+            gfx_updatePlayerCameraScroll(i);
+        }
+    }
+
+    if (skillExpansion_treePage != 0)
+    {
+        swapRows(playerIndex);
+    }
+    redrawIfPending(playerIndex);
+    if (keys & A_BUTTON)
+    {
+        skillExpansion_treeHandleA();
+    }
+    else if (keys & DPAD_ANY)
+    {
+        skillExpansion_treeHandleDpad();
+    }
+    else if ((keys & (L_BUTTON | R_BUTTON)) && canLeave)
+    {
+        g_GameFlags.p |= GAME_FLAG_REQUEST_OVERLAY;
+        game_requestSceneChange((keys & L_BUTTON) ? SCENE_ID_BACKPACK : SCENE_ID_CHARACTER_STATS);
+        sfx_play(SFX_MENU_CURSOR_MOVE);
+    }
+    else if (keys & (B_BUTTON | START_BUTTON))
+    {
+        game_requestSceneChangeWithArgs(SCENE_ID_GAMEPLAY, GAMEPLAY_MODE_RESUME,
+                                        g_CurrentMissionId);
+        sfx_play(SFX_MENU_BACK);
+    }
+    else if (keys & SELECT_BUTTON)
+    {
+        skillExpansion_treeHandleSelect();
+    }
+    if (skillExpansion_treePage != 0)
+    {
+        swapRows(playerIndex);
+    }
+
+    actor_tickAll();
+    if (linkMessages & MP_MSG_FLAG_2)
+    {
+        game_tickFxAndHuds();
+    }
+    sprite_endFrame();
+}
+
+/**
+ * Show the stock page again on the next visit, then run the stock exit.
  *
  * REPLACES (whole function): scene_skillTree_exit.
  */
@@ -985,10 +1299,7 @@ void skillExpansion_treeExit(void)
 {
     SceneId next;
 
-    if (skillExpansion_treePage != 0)
-    {
-        swapPages(g_PlayerGlobals.activePlayerIndex);
-    }
+    skillExpansion_treePage = 0;
 
     if ((g_GameFlags.p & GAME_FLAG_COOP_ACTIVE) == 0 ||
         game_getNextSceneId() == SCENE_ID_GRIPTONITE_LOGO || (g_GameFlags.p & GAME_FLAG_31) != 0)

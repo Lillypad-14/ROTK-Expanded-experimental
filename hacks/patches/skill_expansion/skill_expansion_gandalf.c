@@ -305,8 +305,6 @@ _Static_assert(sizeof(GandalfState) <= sizeof(skillExpansion_heroState[0]),
 // TRUE once each player has swapped forms since power on, which ends the swap hint.
 static bool swapLearned[2];
 
-extern u8 skillExpansion_treePage;
-
 static inline GandalfState *state(u8 playerIndex)
 {
     return (GandalfState *)skillExpansion_heroStateClaim(playerIndex, HERO_ID_GANDALF,
@@ -640,11 +638,6 @@ static void writeCosts(u8 playerIndex, GandalfState *st)
                         : 0;
     u32 row;
 
-    // The skill tree swaps the pages' rows while it shows page 2.
-    if (skillExpansion_treePage != 0)
-    {
-        return;
-    }
     for (row = 0; row < SKILL_EXPANSION_ACTIVE_ROW_COUNT; row++)
     {
         s32 cost;

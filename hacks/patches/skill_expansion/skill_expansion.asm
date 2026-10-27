@@ -47,6 +47,16 @@ hookReplace scene_skillTree_drawPassiveGrid, skillExpansion_treeDrawPassiveGrid
 hookReplace scene_skillTree_getRequiredLevel, skillExpansion_treeGetRequiredLevel
 hookReplace scene_skillTree_createQuickSelectMarkers, skillExpansion_treeCreateQuickSelectMarkers
 hookReplace scene_skillTree_assignQuickSelect, skillExpansion_treeAssignQuickSelect
+hookReplace scene_skillTree_tick, skillExpansion_treeTick
+hookReplace scene_skillTree_handleSelect, skillExpansion_treeHandleSelect
+
+; Co-op message SKILL_EXPANSION_MP_MSG: id switch cases in the sender and the dispatcher.
+; was: .word SKILL_EXPANSION_QUEUE_SWITCH_END (an id without payload)
+.org SKILL_EXPANSION_QUEUE_SWITCH_TABLE + (SKILL_EXPANSION_MP_MSG - 1) * 4
+    .word skill_expansion_mp_pack_hook
+; was: .word SKILL_EXPANSION_DISPATCH_SWITCH_END (an ignored id)
+.org SKILL_EXPANSION_DISPATCH_SWITCH_TABLE + SKILL_EXPANSION_MP_MSG * 4
+    .word skill_expansion_mp_receive_hook
 
 hookReplace player_updateHudSkillPalette, skillExpansion_hudUpdateSkillPalette
 hookReplace player_tickHud, skillExpansion_tickHud

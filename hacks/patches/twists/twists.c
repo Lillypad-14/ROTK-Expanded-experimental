@@ -111,6 +111,13 @@ static struct TwistsState g_Twists;
 static u8 g_Fate;
 static TwistsRuntime runtimes[2];
 
+_Static_assert(sizeof(struct TwistsState) == TWISTS_STATE_SIZE, "twists state size");
+
+u8 *twists_stateBytes(void)
+{
+    return (u8 *)&g_Twists;
+}
+
 void twists_loadState(void)
 {
     GLOBAL_MOD_OPTIONS_READ(twistsState, &g_Twists);

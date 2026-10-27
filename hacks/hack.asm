@@ -64,6 +64,9 @@
     hookTrampolineR3 actor_lootPile_create, loot_filter_hook
     hookTrampoline actor_lootPile_tick, auto_loot_hook
 .endif
+.if HACK_skill_expansion && HACK_mod_save
+    hookTrampoline scene_saveLoadMenu_tick, skill_expansion_save_menu_tick_hook
+.endif
 .if HACK_mod_options
     hookTrampoline scene_optionsMenu_tick, mod_options_tick_hook
     hookTrampoline scene_optionsMenu_drawRow, mod_options_draw_row_hook

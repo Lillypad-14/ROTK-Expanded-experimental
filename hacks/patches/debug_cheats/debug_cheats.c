@@ -38,10 +38,7 @@ static u8 addPoints(u8 points, s32 amount)
 
 static void showUnspentPoints(u8 playerIndex)
 {
-    if (playerIndex == ACTIVE_PLAYER_INDEX)
-    {
-        PLAYER(playerIndex).statusFlags.p |= PLAYER_STATUS_FLAG_UNSPENT_POINTS;
-    }
+    PLAYER(playerIndex).statusFlags.p |= PLAYER_STATUS_FLAG_UNSPENT_POINTS;
     if (g_PlayerHuds[playerIndex].skillPanelState == PLAYERHUD_SKILL_PANEL_IDLE)
     {
         g_PlayerHuds[playerIndex].skillPanelState = PLAYERHUD_SKILL_PANEL_DRAW_UNSPENT_POINTS;
