@@ -113,6 +113,15 @@ static const struct ModOptionsPage ModOptionsPages[] = {
 #define MOD_OPTIONS_ROW_TILE_BASE(row) ((row) * 0x19 + 0xf6)
 #define MOD_OPTIONS_ROW_Y(row) ((row) * 0x10 + 0x20)
 
+// Help text in place of the entry's while co-op is active.
+static const char CoopLockedDesc[] = "Player 1's settings apply\nduring co-op.";
+
+/** Co-op plays with the host's mod options, so they can't change while it is active. */
+static bool32 isLocked(void)
+{
+    return (g_GameFlags.p & GAME_FLAG_COOP_ACTIVE) != 0;
+}
+
 static u32 getMode(void)
 {
     if (g_ModOptionsMode == MOD_OPTIONS_MODE_MOD)
@@ -275,7 +284,7 @@ static void drawModRow(s32 row, s32 cursor)
     tileBase = drawText(MOD_OPTIONS_ROW_TILE_BASE(row), MOD_OPTIONS_LABEL_X + entry->labelIndent,
                         MOD_OPTIONS_ROW_Y(row), (char *)entry->label, color);
     drawText(tileBase, MOD_OPTIONS_VALUE_X, MOD_OPTIONS_ROW_Y(row),
-             (char *)entry->valueNames[entry->get()], color);
+             (char *)entry->valueNames[entry->get()], isLocked() ? 6 : color);
 }
 
 /** Draw one line of an entry's help text on a free bottom row. */
@@ -312,12 +321,20 @@ static void drawDescription(s32 row, s32 cursor)
     const struct ModOptionsPage *page = currentPage();
     s32 first = page->entryCount < MOD_OPTIONS_DESC_FIRST_ROW ? MOD_OPTIONS_DESC_FIRST_ROW
                                                               : page->entryCount;
+    const char *desc = isLocked() ? CoopLockedDesc : NULL;
 
-    if (row < first || cursor >= page->entryCount || page->entries[cursor].desc == NULL)
+    if (row < first || cursor >= page->entryCount)
     {
         return;
     }
-    drawDescLine(page->entries[cursor].desc, row - first, row);
+    if (desc == NULL)
+    {
+        desc = page->entries[cursor].desc;
+    }
+    if (desc != NULL)
+    {
+        drawDescLine(desc, row - first, row);
+    }
 }
 
 /** Redraw the help rows for a new cursor row. */
@@ -490,7 +507,7 @@ u32 modOptions_moveCursorHook(void)
 /**
  * scene_optionsMenu_adjustValue hook: on the mod page, adjust and commit the row. Stock
  * rows - volumes, toggles, the difficulty selector, and the action/pseudo rows' no-op -
- * are the original's. Co-op plays with the host's mod options, so they can't change there.
+ * are the original's.
  */
 u32 modOptions_adjustValueHook(void)
 {
@@ -498,7 +515,7 @@ u32 modOptions_adjustValueHook(void)
     {
         return FALSE;
     }
-    if (g_GameFlags.p & GAME_FLAG_COOP_ACTIVE)
+    if (isLocked())
     {
         sfx_stop(g_OptionsSfxHandle);
         g_OptionsSfxHandle = sfx_play(SFX_MENU_ERROR);

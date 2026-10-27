@@ -6,7 +6,7 @@ saved in the global mod options area and apply to every save slot.
 
 In co-op, both players play with the host's (player 1's) Loot QoL, Debug cheats, Twists and Experimental settings, so
 both consoles simulate the same game. The other player's save keeps its own settings. Mod options can't be changed
-during a co-op session.
+during a co-op session: their values show greyed out, with a note in place of the help text.
 
 ## Pages
 
