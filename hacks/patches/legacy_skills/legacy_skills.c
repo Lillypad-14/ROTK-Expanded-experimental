@@ -2,6 +2,9 @@
 #error "legacy_skills requires skill_expansion and mod_save"
 #endif
 
+#include "actor.h"
+#include "combat.h"
+#include "fx.h"
 #include "memory.h"
 #include "patches/legacy_skills/legacy_skills.h"
 #include "patches/mod_save/save_layout.h"
@@ -10,6 +13,8 @@
 #include "patches/skill_expansion/skill_expansion.h"
 #include "lib/pc_host.h"
 #include "player.h"
+#include "sfx.h"
+#include "spriteAnimation.h"
 #include "scene.h"
 #include "scene/saveLoadMenu.h"
 #include "skill.h"
@@ -147,13 +152,120 @@ void legacySkills_applyPassives(u8 playerIndex)
 
 #if SKILL_EXPANSION_LEGACY_ACTIVE_COUNT
 
-// A legacy active: the ROTK skill it casts (a stock callback run on a copy of its row) and its
-// Spirit cost in The Two Towers.
+// A legacy active: its row's definition (the stock row it takes its cast pose and table row from)
+// and its Spirit cost in The Two Towers. It casts `cast`, a port of the Two Towers skill, or else
+// the definition's stock callback, a ROTK skill standing in.
 typedef struct LegacyActive
 {
     const SkillExpansionActiveDef *def;
     u16 spiritCost;
+    ActiveSkillCallback cast;
 } LegacyActive;
+
+// A Two Towers animation the PC host converted, by its Two Towers address, or NULL.
+static const SpriteAnimation *twoTowersSprite(u32 address)
+{
+    const TwoTowersData *data = hackLib_twoTowersData();
+
+    if (data == NULL || data->sprites == NULL)
+    {
+        return NULL;
+    }
+    for (u32 i = 0; i < data->spriteCount; i++)
+    {
+        if (data->sprites[i * 2] == address)
+        {
+            return (const SpriteAnimation *)data->sprites[i * 2 + 1];
+        }
+    }
+    return NULL;
+}
+
+static u8 castingLevel(Actor *playerActor)
+{
+    u8 playerIndex = playerActor->as.combat.playerIndex;
+
+    return *skillExpansion_activeLevel(playerIndex, PLAYER(playerIndex).castingActiveSkill);
+}
+
+// Zap (Gandalf; Two Towers 0x08018FD4, its tick 0x080191F0, hit 0x080115E0): a bolt that flies
+// for 30 frames and bursts on the first foe it hits for 5 + 2 per level.
+#define ZAP_DAMAGE_BASE 5
+#define ZAP_DAMAGE_PER_LEVEL 2
+#define ZAP_SPEED 0x50000
+#define ZAP_LIFETIME 30
+#define ZAP_IMPACT 0x080501C8u
+// the bolt by facing
+static const u32 ZapSprites[8] = {
+    0x08050138u, 0x08050148u, 0x08050148u, 0x08050148u,
+    0x08050158u, 0x08050158u, 0x08050168u, 0x08050168u,
+};
+// the projectile spawner's arguments for a thrown knife: no target, its palette bank, no slot
+#define PROJECTILE_ANIMATION_SET 1
+#define PROJECTILE_AIMED 1
+#define PROJECTILE_PALETTE_BANK 2
+#define PROJECTILE_NO_SLOT -1
+#define FOE_HITTABLE_FLAGS 0x10040400
+// Lightstrike's cast sound until the Two Towers sounds are ported
+#define ZAP_SOUND 0x5a
+
+static void zapTick(Actor *fx)
+{
+    // the impact plays out where it hit, then the bolt is gone
+    if (fx->triggerCallbacks[0] == NULL)
+    {
+        fx->actionStateTimer = (fx->flags.p & ACTOR_FLAG_ANIMATION_END) ? 0 : ZAP_LIFETIME;
+    }
+    if (fx->parentActor->actionState == ACTOR_STATE_UNKNOWN_2D)
+    {
+        fx->actionState = ACTOR_STATE_UNKNOWN_04;
+    }
+    actor_unknown08045584(fx);
+}
+
+static void zapHit(Actor *fx, Actor *other)
+{
+    const SpriteAnimation *impact = twoTowersSprite(ZAP_IMPACT);
+
+    if (!(other->flags.p & FOE_HITTABLE_FLAGS))
+    {
+        return;
+    }
+    combat_applyPveRangedHit(fx->parentActor, other, *(u16 *)&fx->as.combat.head.scripted.params[0]);
+    fx->triggerCallbacks[0] = NULL;
+    fx->renderFollowTarget = other;
+    fx->velocity.x = 0;
+    fx->velocity.y = 0;
+    if (impact != NULL)
+    {
+        sprite_setAnimation(fx, impact);
+    }
+}
+
+static void castZap(Actor *playerActor)
+{
+    u8 level = castingLevel(playerActor);
+    Actor *fx = fx_unknown08043d74(playerActor, 0, PROJECTILE_ANIMATION_SET, PROJECTILE_AIMED,
+                                   PROJECTILE_PALETTE_BANK, PROJECTILE_NO_SLOT);
+    const SpriteAnimation *bolt;
+
+    if (fx == NULL)
+    {
+        return;
+    }
+    bolt = twoTowersSprite(ZapSprites[fx->facing & 7]);
+    if (bolt != NULL)
+    {
+        sprite_setAnimation(fx, bolt);
+    }
+    actor_setVelocityFromDirection8(&fx->velocity, fx->flags.p, fx->facing, ZAP_SPEED);
+    fx->actionStateTimer = ZAP_LIFETIME;
+    fx->tickCallback = zapTick;
+    fx->triggerCallbacks[0] = zapHit;
+    fx->parentActor = playerActor;
+    *(u16 *)&fx->as.combat.head.scripted.params[0] = ZAP_DAMAGE_BASE + ZAP_DAMAGE_PER_LEVEL * level;
+    sfx_play(ZAP_SOUND);
+}
 
 // Lightstrike returns its bolt, which the cast does not need.
 static void castLightstrike(Actor *playerActor)
@@ -166,6 +278,8 @@ static void castLightstrike(Actor *playerActor)
 LEGACY_DEF(LegacyHealing, skill_active_herbalHealing, ACTIVE_SKILL_HERBAL_HEALING);
 LEGACY_DEF(LegacyGandalfShield, skill_active_gandalfShield, ACTIVE_SKILL_GANDALF_SHIELD);
 LEGACY_DEF(LegacyGandalfLightstrike, castLightstrike, ACTIVE_SKILL_GANDALF_LIGHTSTRIKE);
+// a port: Lightstrike's cast pose and requirements, its own cast
+static const SkillExpansionActiveDef LegacyGandalfZap = {.baseRow = ACTIVE_SKILL_GANDALF_LIGHTSTRIKE};
 LEGACY_DEF(LegacyGandalfBlindingAura, skill_active_gandalfBlindingAura,
            ACTIVE_SKILL_GANDALF_BLINDING_AURA);
 LEGACY_DEF(LegacyGandalfGwaihir, skill_active_gandalfSummonGwaihir,
@@ -178,7 +292,7 @@ static const LegacyActive HeroActives[LEGACY_HERO_COUNT][SKILL_EXPANSION_LEGACY_
         {
             {&LegacyHealing, 8},             // Magical Healing
             {&LegacyGandalfShield, 10},      // Shield
-            {&LegacyGandalfLightstrike, 3},  // Zap
+            {&LegacyGandalfZap, 3, castZap}, // Zap
             {&LegacyGandalfBlindingAura, 8}, // Sunburst
             {&LegacyGandalfLightstrike, 5},  // Fireworks: stand-in until it has its own cast
             {&LegacyGandalfGwaihir, 12},     // Summon Eagle
@@ -292,7 +406,8 @@ void legacySkills_buildRows(u8 heroId, u8 playerIndex)
         }
         memory_memcpy(&sx->activeSkills[row], &sx->activeSkills[def->baseRow], sizeof(ActiveSkill));
         sx->activeSkills[row].spiritCost = actives[i].spiritCost;
-        sx->activeSkills[row].callback = skillExpansion_castStockCallback;
+        sx->activeSkills[row].callback =
+            actives[i].cast != NULL ? actives[i].cast : skillExpansion_castStockCallback;
         sx->activeSkillIcons[row] = iconsBuilt ? (const void *)&icons[first - 2 + i]
                                                : sx->activeSkillIcons[def->baseRow];
         sx->activeDefs[row - SKILL_EXPANSION_FIRST_NEW_ACTIVE_ROW] = def;

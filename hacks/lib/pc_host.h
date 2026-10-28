@@ -104,6 +104,10 @@ typedef struct TwoTowersData
     // per hero, its 11 skills' icon art as ROTK skill icon tiles (32x24, 4bpp, the art in colors
     // 8..13 and the rest 0)
     const u8 *skillArt;
+    // {Two Towers address, ROTK SpriteAnimation pointer} per Two Towers animation the PC host
+    // converted
+    const u32 *sprites;
+    u32 spriteCount;
 } TwoTowersData;
 
 static inline const TwoTowersData *hackLib_twoTowersData(void)
