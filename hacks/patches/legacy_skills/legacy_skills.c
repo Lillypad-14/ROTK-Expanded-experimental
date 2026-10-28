@@ -18,6 +18,7 @@
 #include "spriteAnimation.h"
 #include "scene.h"
 #include "scene/saveLoadMenu.h"
+#include "scene/skillTree.h"
 #include "skill.h"
 #include "stats.h"
 #include "text.h"
@@ -120,13 +121,36 @@ static bool32 readRecord(u8 record[LEGACY_SKILL_SAVE_RECORD_SIZE])
     return record[0] == LEGACY_SKILL_RECORD_TAG;
 }
 
+#if SKILL_EXPANSION_LEGACY_ACTIVE_COUNT
+// The legacy skill record of the character player 0 plays, record[0] != tag when it has none.
+// Purchases change it; the slot gets it when the game is saved.
+static u8 loadedRecord[LEGACY_SKILL_SAVE_RECORD_SIZE];
+#endif
+
+// The legacy skill record of the character player 0 plays, FALSE when it has none. The PC edition
+// builds it with the skill rows, before the passives apply.
+static bool32 playedRecord(u8 record[LEGACY_SKILL_SAVE_RECORD_SIZE])
+{
+#if SKILL_EXPANSION_LEGACY_ACTIVE_COUNT
+    memory_memcpy(record, loadedRecord, LEGACY_SKILL_SAVE_RECORD_SIZE);
+    return record[0] == LEGACY_SKILL_RECORD_TAG;
+#else
+    return readRecord(record);
+#endif
+}
+
+static s32 passiveValue(const LegacyPassiveStat *stat, s32 level)
+{
+    return stat->base + stat->perLevel * level / stat->divisor;
+}
+
 void legacySkills_applyPassives(u8 playerIndex)
 {
     u8 record[LEGACY_SKILL_SAVE_RECORD_SIZE];
     const LegacyHeroPassives *passives;
 
     // A co-op partner's record stays on the other console.
-    if (playerIndex != 0 || g_PlayerGlobals.activePlayerCount > 1 || !readRecord(record) ||
+    if (playerIndex != 0 || g_PlayerGlobals.activePlayerCount > 1 || !playedRecord(record) ||
         record[1] != PLAYER(playerIndex).heroId || record[1] >= LEGACY_HERO_COUNT)
     {
         return;
@@ -144,8 +168,7 @@ void legacySkills_applyPassives(u8 playerIndex)
             const LegacyPassiveStat *stat = &passives->stats[skill][i];
             if (stat->stat != STAT_NONE)
             {
-                skill_passive_addStat(playerIndex, stat->stat,
-                                      stat->base + stat->perLevel * level / stat->divisor);
+                skill_passive_addStat(playerIndex, stat->stat, passiveValue(stat, level));
             }
         }
     }
@@ -199,11 +222,19 @@ static void setSprite(Actor *fx, u32 animation)
     }
 }
 
+// The level a legacy skill casts at: its Two Towers level, which goes past the stock curves' five.
 static u8 castingLevel(Actor *playerActor)
 {
     u8 playerIndex = playerActor->as.combat.playerIndex;
+    u32 row = PLAYER(playerIndex).castingActiveSkill;
 
-    return *skillExpansion_activeLevel(playerIndex, PLAYER(playerIndex).castingActiveSkill);
+    if (legacySkills_loaded(playerIndex) && row >= SKILL_EXPANSION_FIRST_LEGACY_ACTIVE_ROW &&
+        row < SKILL_EXPANSION_FIRST_LEGACY_ACTIVE_ROW + SKILL_EXPANSION_LEGACY_ACTIVE_COUNT)
+    {
+        return legacySkills_level(HeroPassives[loadedRecord[1]].count + row -
+                                  SKILL_EXPANSION_FIRST_LEGACY_ACTIVE_ROW);
+    }
+    return *skillExpansion_activeLevel(playerIndex, row);
 }
 
 // Zap (Gandalf; Two Towers 0x08018FD4, its tick 0x080191F0, hit 0x080115E0): a bolt that flies
@@ -600,9 +631,6 @@ static const LegacyActive HeroActives[LEGACY_HERO_COUNT][SKILL_EXPANSION_LEGACY_
         },
 };
 
-// The legacy skill record of the character player 0 plays, record[0] != tag when it has none.
-static u8 loadedRecord[LEGACY_SKILL_SAVE_RECORD_SIZE];
-
 // A ROTK skill icon: a BG asset header (raw 4bpp tiles, no palette) and 4x3 tiles.
 #define SKILL_ICON_HEADER_SIZE 4
 #define SKILL_ICON_WIDTH 32
@@ -665,6 +693,21 @@ static void buildIcons(u32 heroId, const u8 *frame)
     iconsBuilt = TRUE;
 }
 
+// Set legacy active `i`'s purchased and current level and its Spirit cost, which scales with the
+// Two Towers level. The stock curves have five levels, so the row's levels stop there.
+static void setRowLevel(u8 playerIndex, u32 i, u8 level)
+{
+    SkillExpansionPlayer *sx = &skillExpansion_players[playerIndex];
+    const LegacyActive *active = &HeroActives[loadedRecord[1]][i];
+    u32 row = SKILL_EXPANSION_FIRST_LEGACY_ACTIVE_ROW + i;
+    u8 rowLevel = level > LEGACY_SKILL_LEVEL_MAX ? 0 : level > ACTIVE_SKILL_MAX_LEVEL ? ACTIVE_SKILL_MAX_LEVEL : level;
+
+    sx->activeSkills[row].spiritCost =
+        active->spiritCost + active->spiritPerLevel * (level > LEGACY_SKILL_LEVEL_MAX ? 0 : level);
+    *skillExpansion_activePurchased(playerIndex, row) = rowLevel;
+    *skillExpansion_activeLevel(playerIndex, row) = rowLevel;
+}
+
 void legacySkills_buildRows(u8 heroId, u8 playerIndex)
 {
     SkillExpansionPlayer *sx = &skillExpansion_players[playerIndex];
@@ -685,10 +728,17 @@ void legacySkills_buildRows(u8 heroId, u8 playerIndex)
     {
         return;
     }
-    if (!readRecord(loadedRecord) || loadedRecord[1] != heroId || heroId >= LEGACY_HERO_COUNT)
+    if (heroId >= LEGACY_HERO_COUNT)
     {
         loadedRecord[0] = LEGACY_SKILL_RECORD_EMPTY;
         return;
+    }
+    // Every Two Towers hero has the page; one not imported from The Two Towers starts with no ranks.
+    if (!readRecord(loadedRecord) || loadedRecord[1] != heroId)
+    {
+        memory_memset(loadedRecord, 0, sizeof(loadedRecord));
+        loadedRecord[0] = LEGACY_SKILL_RECORD_TAG;
+        loadedRecord[1] = heroId;
     }
     buildIcons(heroId, sx->activeSkillIcons[0]);
     actives = HeroActives[heroId];
@@ -705,17 +755,13 @@ void legacySkills_buildRows(u8 heroId, u8 playerIndex)
             continue;
         }
         memory_memcpy(&sx->activeSkills[row], &sx->activeSkills[def->baseRow], sizeof(ActiveSkill));
-        sx->activeSkills[row].spiritCost =
-            actives[i].spiritCost + actives[i].spiritPerLevel * (level > ACTIVE_SKILL_MAX_LEVEL ? ACTIVE_SKILL_MAX_LEVEL : level);
         sx->activeSkills[row].callback =
             actives[i].cast != NULL ? actives[i].cast : skillExpansion_castStockCallback;
         sx->activeSkillIcons[row] = iconsBuilt ? (const void *)&icons[first - 2 + i]
                                                : sx->activeSkillIcons[def->baseRow];
         sx->activeDefs[row - SKILL_EXPANSION_FIRST_NEW_ACTIVE_ROW] = def;
         *skillExpansion_activeCycleEnabled(playerIndex, row) = TRUE;
-        // The stock curves have five levels.
-        *skillExpansion_activePurchased(playerIndex, row) =
-            level > LEGACY_SKILL_LEVEL_MAX ? 0 : level > ACTIVE_SKILL_MAX_LEVEL ? ACTIVE_SKILL_MAX_LEVEL : level;
+        setRowLevel(playerIndex, i, level);
     }
 }
 
@@ -757,6 +803,80 @@ u8 legacySkills_level(u32 skill)
     u8 level = skill < LEGACY_SKILL_COUNT ? loadedRecord[2 + skill] : 0;
 
     return level > LEGACY_SKILL_LEVEL_MAX ? 0 : level;
+}
+
+// The Two Towers skill tree's rules by hero id, in the skill record's order: the player level a
+// skill's first rank needs and the skill that needs a rank first (Two Towers 0x08057780, checked at
+// 0x08039720). Further ranks cost only the skill point, up to LEGACY_SKILL_LEVEL_MAX.
+typedef struct LegacySkillRule
+{
+    u8 requiredLevel;
+    u8 prerequisite;
+} LegacySkillRule;
+
+#define NO_PREREQ 0xff
+
+static const LegacySkillRule SkillRules[LEGACY_HERO_COUNT][LEGACY_SKILL_COUNT] = {
+    // Frodo
+    {{3, NO_PREREQ}, {8, 0}, {2, NO_PREREQ}, {5, 2}, {12, 2}, {1, NO_PREREQ}, {5, 5}, {8, 5}, {1, NO_PREREQ}, {3, 8}, {5, 8}},
+    // Legolas
+    {{1, NO_PREREQ}, {5, 0}, {8, 0}, {2, NO_PREREQ}, {3, 3}, {2, NO_PREREQ}, {5, 5}, {12, 5}, {2, NO_PREREQ}, {3, 8}, {12, 9}},
+    // Aragorn
+    {{2, NO_PREREQ}, {10, 0}, {2, NO_PREREQ}, {5, 2}, {8, 2}, {1, NO_PREREQ}, {5, 5}, {10, 6}, {10, 6}, {2, NO_PREREQ}, {5, 9}},
+    // Gandalf
+    {{2, NO_PREREQ}, {5, 0}, {2, NO_PREREQ}, {12, 2}, {1, NO_PREREQ}, {3, 4}, {2, NO_PREREQ}, {5, 6}, {5, 6}, {10, 7}, {10, 8}},
+    // Eowyn
+    {{2, NO_PREREQ}, {10, 0}, {5, NO_PREREQ}, {5, 2}, {10, 2}, {1, NO_PREREQ}, {5, 5}, {8, 6}, {10, 6}, {2, NO_PREREQ}, {5, 9}},
+    // Gimli
+    {{2, NO_PREREQ}, {3, 0}, {5, 0}, {2, NO_PREREQ}, {7, 2}, {10, 2}, {2, NO_PREREQ}, {6, 6}, {10, 6}, {1, NO_PREREQ}, {5, 9}},
+};
+
+bool32 legacySkills_buy(u32 skill)
+{
+    const LegacyHeroPassives *passives;
+    const LegacySkillRule *rule;
+    u8 level;
+
+    // Legacy passives apply in single player only (legacySkills_applyPassives).
+    if (!legacySkills_loaded(0) || g_PlayerGlobals.activePlayerCount > 1 ||
+        skill >= LEGACY_SKILL_COUNT || PLAYER(0).skillPoints == 0)
+    {
+        return FALSE;
+    }
+    level = legacySkills_level(skill);
+    rule = &SkillRules[loadedRecord[1]][skill];
+    if (level >= LEGACY_SKILL_LEVEL_MAX ||
+        (level == 0 && (rule->requiredLevel > PLAYER(0).level + 1 ||
+                        (rule->prerequisite != NO_PREREQ && legacySkills_level(rule->prerequisite) == 0))))
+    {
+        return FALSE;
+    }
+    loadedRecord[2 + skill] = level + 1;
+    scene_skillTree_spendSkillPoint(0);
+    passives = &HeroPassives[loadedRecord[1]];
+    if (skill < passives->count)
+    {
+        for (u32 i = 0; i < LEGACY_PASSIVE_STATS; i++)
+        {
+            const LegacyPassiveStat *stat = &passives->stats[skill][i];
+
+            if (stat->stat == STAT_NONE)
+            {
+                continue;
+            }
+            if (level != 0)
+            {
+                skill_passive_subtractStat(0, stat->stat, passiveValue(stat, level));
+            }
+            skill_passive_addStat(0, stat->stat, passiveValue(stat, level + 1));
+        }
+    }
+    else if (skill - passives->count < SKILL_EXPANSION_LEGACY_ACTIVE_COUNT &&
+             HeroActives[loadedRecord[1]][skill - passives->count].def != NULL)
+    {
+        setRowLevel(0, skill - passives->count, level + 1);
+    }
+    return TRUE;
 }
 
 const void *legacySkills_icon(u32 skill)

@@ -750,21 +750,29 @@ static void drawLegacyPassiveGrid(u8 playerIndex)
     }
 }
 
+/** The Two Towers skill under the legacy page's cursor, or -1. */
+static s32 legacyCursorSkill(void)
+{
+    u32 tile = SCENE_ARG_SKILL_TREE_CURSOR;
+
+    if (SCENE_ARG_SKILL_TREE_GRID == SKILL_TREE_GRID_PASSIVE)
+    {
+        return legacyPassiveTileSkill(tile);
+    }
+    if (SCENE_ARG_SKILL_TREE_GRID == SKILL_TREE_GRID_ACTIVE &&
+        tile < pageActiveCount(g_PlayerGlobals.activePlayerIndex))
+    {
+        return legacySkills_passiveCount() + tile;
+    }
+    return -1;
+}
+
 /** The legacy page's description: the Two Towers text of the skill under the cursor. */
 static void drawLegacyDescription(void)
 {
-    u32 tile = SCENE_ARG_SKILL_TREE_CURSOR;
-    s32 skill = -1;
+    s32 skill = legacyCursorSkill();
     const char *text;
 
-    if (SCENE_ARG_SKILL_TREE_GRID != SKILL_TREE_GRID_ACTIVE)
-    {
-        skill = legacyPassiveTileSkill(tile);
-    }
-    else if (tile < pageActiveCount(g_PlayerGlobals.activePlayerIndex))
-    {
-        skill = legacySkills_passiveCount() + tile;
-    }
     text = skill >= 0 ? legacySkills_text(skill) : NULL;
     if (text != NULL)
     {
@@ -987,7 +995,7 @@ s32 skillExpansion_treeGetRequiredLevel(s32 playerIndex, s32 skill)
     const SkillExpansionActiveDef *def = NULL;
     u32 row = skill;
 
-    // Legacy levels come from The Two Towers, so the legacy page sells nothing.
+    // The legacy page has The Two Towers' rules (legacySkills_buy).
     if (LEGACY_PAGE_SHOWN())
     {
         return -1;
@@ -1281,9 +1289,36 @@ static void submit(u8 playerIndex, u8 kind, const u8 *data)
     redrawIfPending(playerIndex);
 }
 
+#if SKILL_EXPANSION_LEGACY_ACTIVE_COUNT
+/** Buy a rank of the Two Towers skill under the cursor. Not in co-op, where legacy skills don't apply. */
+static void legacyHandleA(u8 playerIndex)
+{
+    s32 skill = legacyCursorSkill();
+    bool32 bought;
+
+    if (skill < 0 || isLinked())
+    {
+        sfx_play(SFX_MENU_ERROR);
+        return;
+    }
+    swapShownPage(playerIndex);
+    bought = legacySkills_buy(skill);
+    swapShownPage(playerIndex);
+    if (!bought)
+    {
+        sfx_play(SFX_MENU_ERROR);
+        return;
+    }
+    sfx_play((u32)skill < legacySkills_passiveCount() ? SFX_SKILL_TREE_BUY_PASSIVE
+                                                      : SFX_SKILL_TREE_BUY_ACTIVE);
+    redrawPending = TRUE;
+    redrawIfPending(playerIndex);
+}
+#endif
+
 /**
  * Buy a rank of the skill under the cursor: with a Tally mark on a Tally page, else with a skill
- * point.
+ * point (on the legacy page, by The Two Towers' rules).
  *
  * REPLACES (whole function): scene_skillTree_handleA.
  */
@@ -1297,11 +1332,13 @@ void skillExpansion_treeHandleA(void)
     s32 required;
 
     memory_memset(data, 0, sizeof(data));
+#if SKILL_EXPANSION_LEGACY_ACTIVE_COUNT
     if (LEGACY_PAGE_SHOWN())
     {
-        sfx_play(SFX_MENU_ERROR);
+        legacyHandleA(playerIndex);
         return;
     }
+#endif
     if (SCENE_ARG_SKILL_TREE_GRID == SKILL_TREE_GRID_ACTIVE)
     {
         kind = SKILL_EXPANSION_MP_BUY_ACTIVE;
