@@ -394,6 +394,64 @@ static void castShield(Actor *playerActor)
     sfx_play(SFX_COMBAT_GANDALF_SHIELD_CAST);
 }
 
+// Sunburst (Gandalf; Two Towers 0x0803BA44, 0x08018880, its tick 0x08018AC4, hit 0x08011484): a
+// burst at Gandalf that stuns the foes within 75 pixels for 30 + 10 per level ticks, for 8 Spirit. It
+// deals no damage when cast (its damage is Flame of Anor's burst). Not yet: the 8 rotated rays it
+// sends out, which only show.
+#define SUNBURST_STUN_BASE 30
+#define SUNBURST_STUN_PER_LEVEL 10
+#define SUNBURST_LIFETIME 30
+#define SUNBURST_RADIUS 75
+#define SUNBURST_BURST 0x080500F8u
+// ROTK's on-kill sunburst sound until the Two Towers sounds are ported
+#define SUNBURST_SOUND SFX_COMBAT_SUNBURST
+
+static void sunburstTick(Actor *fx)
+{
+    // it stuns what it touches on the frame it first hits something, then stops colliding
+    if (fx->renderFollowTarget != NULL)
+    {
+        fx->flags.p &= ~ACTOR_FLAG_COLLISION_CHECK;
+    }
+    actor_unknown08045584(fx);
+}
+
+static void sunburstHit(Actor *fx, Actor *other)
+{
+    if (!(other->flags.p & FOE_HITTABLE_FLAGS))
+    {
+        return;
+    }
+    other->actionState = ACTOR_STATE_STUNNED;
+    other->actionStateTimer = *(u16 *)&fx->as.combat.head.scripted.params[0];
+    other->field_0x64[0] |= 2;
+    fx->renderFollowTarget = other;
+}
+
+static void castSunburst(Actor *playerActor)
+{
+    Actor *fx = fx_unknown08043d74(playerActor, 0, PROJECTILE_ANIMATION_SET, PROJECTILE_AIMED,
+                                   PROJECTILE_PALETTE_BANK, PROJECTILE_NO_SLOT);
+
+    if (fx == NULL)
+    {
+        return;
+    }
+    setSprite(fx, SUNBURST_BURST);
+    fx->velocity.x = 0;
+    fx->velocity.y = 0;
+    fx->parentActor = playerActor;
+    fx->renderFollowTarget = NULL;
+    fx->tickCallback = sunburstTick;
+    fx->triggerCallbacks[0] = sunburstHit;
+    fx->actionStateTimer = SUNBURST_LIFETIME;
+    fx->flags.p |= ACTOR_FLAG_RADIUS_PROXIMITY;
+    fx->interactionRadius = SUNBURST_RADIUS;
+    *(u16 *)&fx->as.combat.head.scripted.params[0] =
+        SUNBURST_STUN_BASE + SUNBURST_STUN_PER_LEVEL * castingLevel(playerActor);
+    sfx_play(SUNBURST_SOUND);
+}
+
 static void castZap(Actor *playerActor)
 {
     u8 level = castingLevel(playerActor);
@@ -429,6 +487,9 @@ static const SkillExpansionActiveDef LegacyGandalfShieldPort = {
     .baseRow = ACTIVE_SKILL_GANDALF_SHIELD,
     .canCast = shieldCanCast,
 };
+static const SkillExpansionActiveDef LegacyGandalfSunburst = {
+    .baseRow = ACTIVE_SKILL_GANDALF_BLINDING_AURA,
+};
 // Shield's pose: casting through Herbal Healing's row hangs the game
 static const SkillExpansionActiveDef LegacyGandalfHealing = {.baseRow = ACTIVE_SKILL_GANDALF_SHIELD};
 LEGACY_DEF(LegacyGandalfBlindingAura, skill_active_gandalfBlindingAura,
@@ -444,7 +505,7 @@ static const LegacyActive HeroActives[LEGACY_HERO_COUNT][SKILL_EXPANSION_LEGACY_
             {&LegacyGandalfHealing, 8, castMagicalHealing, 2}, // Magical Healing
             {&LegacyGandalfShieldPort, 10, castShield}, // Shield
             {&LegacyGandalfZap, 3, castZap}, // Zap
-            {&LegacyGandalfBlindingAura, 8}, // Sunburst
+            {&LegacyGandalfSunburst, 8, castSunburst}, // Sunburst
             {&LegacyGandalfLightstrike, 5},  // Fireworks: stand-in until it has its own cast
             {&LegacyGandalfGwaihir, 12},     // Summon Eagle
             {&LegacyGandalfBlindingAura, 20}, // Thunderstrike: stand-in until it has its own cast
