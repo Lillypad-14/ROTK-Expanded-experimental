@@ -18,7 +18,7 @@ An experimental content mod for _The Lord of the Rings: The Return of the King_ 
   builds per page and a unique mechanic per hero:
   - Aragorn, Frodo (Burden meter on the HUD), Sam ("Samwise's Garden"), Smeagol ("Gollum's Grip"),
     Gimli ("The Tally"), Gandalf ("The Grey and the White", hold R to swap form), Legolas ("The Glint", timed
-    Overdraw release for True Shots).
+    Overdraw release for True Shots), Eowyn ("Against the Dark": Odds tiers and Gallop).
 - **New playable heroes.** Ringwraith (hero 8, built from the Nazgul model, with its own gear) and Saruman
   (empowered spells).
 - **Gauntlet dungeon mode.** Existing maps, randomized doors and encounters, a gear buy/sell shop, 94 boons, character-specific rewards, and evolving boon goals. The current pool has 28 available maps. See [Gauntlet](docs/gauntlet.md) and [the boon catalog](docs/gauntlet-boons.md).
@@ -27,6 +27,10 @@ An experimental content mod for _The Lord of the Rings: The Return of the King_ 
 - **Content toolkit** in `hacks/lib/`: FX kit (stock effects, recolors, sprite tints, custom PNG effects), combat
   events, targeting, movement, status effects, timed zones, summons, HUD meters and cast timelines.
 - Engine and save changes needed for all of the above (skill system, skill tree screen, combat and per-frame hooks).
+- **PC version extras** (in [ROTK Recompiled](https://github.com/Lillypad-14/rotk-recompiled), the native PC
+  port): import heroes from a *The Two Towers* save and give the six Two Towers heroes a third skill page of
+  their Two Towers skills, HD skill icons, and the PC port's own upgrades (HD audio, 60 fps, widescreen,
+  split-screen co-op).
 
 The v0.6 audit passed 280 automated combat-room clears across all ten heroes and the 28 available maps, plus ability, shop, memory and host regression checks. Manual balance, complete visual, campaign and hardware testing remain open. See [the audit and its limits](docs/bug-audit.md).
 
@@ -48,6 +52,7 @@ Each hero below has a second skill page with three builds and a mechanic of its 
 | [Legolas](docs/heroes.md#legolas) | The Glint | Release Overdraw on the glint for a True Shot and chain a five-shot streak. |
 | [Ringwraith](docs/heroes.md#ringwraith) | Dread | **New hero.** Terrify foes and raise the slain as thralls. Own skills and gear. |
 | [Saruman](docs/heroes.md#saruman) | Empowered spells | **New hero.** Cast three spells, then your next damaging spell deals +50% damage. |
+| [Eowyn](docs/heroes.md#eowyn) | Against the Dark | Odds rise with danger, and Rohirrim build Gallop and spend it on a strike. Experimental. |
 
 ## Decompilation
 
@@ -104,6 +109,10 @@ The inventory can be regenerated with `uv run python tools/documentation_invento
 1. Get `ROTK-Expanded-experimental-v0.9.bps` from the [v0.9 experimental release](https://github.com/Lillypad-14/ROTK-Expanded-experimental/releases/tag/v0.9-experimental).
 2. You need your own legally dumped EU/US ROM (SHA-1 `ec3d126d37ea6e2ad7030d8a99cf87c6e46c03fd`).
 3. Apply the patch with [RomPatcher.js](https://www.marcrobledo.com/RomPatcher.js/) and play in mGBA or similar.
+
+**On Windows PC:** download [ROTK Recompiled](https://github.com/Lillypad-14/rotk-recompiled/releases), a native
+port with this mod built in. Pick your ROM and a GBA BIOS in its launcher and tick **Expanded**; it patches your
+ROM itself and adds the PC extras above.
 
 No ROM or game art is included in this repository.
 
