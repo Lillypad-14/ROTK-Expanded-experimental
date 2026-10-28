@@ -160,6 +160,9 @@
     .include "hacks/patches/ringwraith/ringwraith.asm"
     .include "hacks/patches/ringwraith/wraith_gear.asm"
 .endif
+.if HACK_legacy_items
+    .include "hacks/patches/legacy_items/legacy_items.asm"
+.endif
 
 ; ---------------------------------- Data-Table Patches ----------------------------------
 ; Table patches generated from hacks/tables.c by rotkit hack tablepatch.

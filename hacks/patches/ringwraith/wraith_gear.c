@@ -2,6 +2,9 @@
 
 #include "patches/ringwraith/wraith_gear.h"
 #include "patches/ringwraith/ringwraith.h"
+#if HACK_legacy_items
+#include "patches/legacy_items/legacy_items.h"
+#endif
 #include "gba_io.h"
 #include "loot.h"
 #include "memory.h"
@@ -874,6 +877,12 @@ bool32 wraithGear_isWraithItem(Item item)
 {
     const WraithItemType *type = findType(ITEM_TYPE(item));
 
+#if HACK_legacy_items
+    if (LEGACY_ITEM_IS_ROW(item))
+    {
+        return FALSE;
+    }
+#endif
     return type != NULL &&
            (item.d.baseIndex >= type->stockBaseCount || isWraithPrefix(type, item.d.prefixIndex) ||
             isWraithSuffix(item.d.suffixIndex));

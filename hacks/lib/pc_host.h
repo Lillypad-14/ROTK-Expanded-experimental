@@ -37,6 +37,8 @@ typedef struct PcHostInfo
     u32 twoTowers;
     // address of the host RAM ItemTypeInfos copy with legacy item rows, 0 without it (version 4)
     u32 itemTypeInfos;
+    // address of 4 KB of zeroed host RAM for legacy item bookkeeping, 0 without it (version 4)
+    u32 legacyScratch;
 } PcHostInfo;
 
 #define PC_HOST_DUEL_PHASE(duel) ((duel) & 3)  // 1 = fighting, 2 = won

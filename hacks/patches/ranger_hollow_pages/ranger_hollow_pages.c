@@ -35,6 +35,9 @@
 #include "sfx.h"
 #include "sprite.h"
 #include "variables.h"
+#if HACK_legacy_items
+#include "patches/legacy_items/legacy_items.h"
+#endif
 
 /** The current page. Kept while the hollow is closed for convenience when re-opening. */
 static u8 g_RangerHollowPage;
@@ -64,8 +67,16 @@ static s32 currentPage(void)
 /** Write the item slots through to the page's SRAM home. */
 static void writePage(u32 page)
 {
-    modSave_copy(SRAM_BASE + HOLLOW_PAGE_BYTE_BASE + page * HOLLOW_PAGE_SIZE,
-                 (const u8 *)ACTIVE_PLAYER.rangerHollowItems, HOLLOW_PAGE_SIZE);
+    Item items[HOLLOW_SLOT_COUNT];
+    for (u32 i = 0; i < HOLLOW_SLOT_COUNT; i++)
+    {
+        items[i] = ACTIVE_PLAYER.rangerHollowItems[i];
+    }
+#if HACK_legacy_items
+    legacyItems_dematerialize(items, HOLLOW_SLOT_COUNT);
+#endif
+    modSave_copy(SRAM_BASE + HOLLOW_PAGE_BYTE_BASE + page * HOLLOW_PAGE_SIZE, (const u8 *)items,
+                 HOLLOW_PAGE_SIZE);
 }
 
 /**
@@ -76,6 +87,9 @@ static void readPage(u32 page)
 {
     modSave_copy((u8 *)ACTIVE_PLAYER.rangerHollowItems,
                  SRAM_BASE + HOLLOW_PAGE_BYTE_BASE + page * HOLLOW_PAGE_SIZE, HOLLOW_PAGE_SIZE);
+#if HACK_legacy_items
+    legacyItems_materialize(ACTIVE_PLAYER.rangerHollowItems, HOLLOW_SLOT_COUNT);
+#endif
 }
 
 /**
