@@ -1,8 +1,8 @@
 # Where the Work Stands
 
-A starting point for anyone picking up ROTK Expanded from this repository. Last updated 2026-10-26.
+A starting point for anyone picking up ROTK Expanded from this repository. Last updated 2026-10-28.
 
-The v0.7 source adds Eowyn's experimental Against the Dark page-two kit. The older audit predates that kit and does not certify its behavior.
+The v0.8 source adds co-op support for the mod pages, per-character Vanilla or Expanded kits and Versus (Friendly Fire and Duel). v0.7 added Eowyn's experimental Against the Dark kit. The older audit predates both and does not certify their behavior.
 
 See [the latest bug audit](bug-audit.md) for the current fixes, map exclusions, and automated coverage.
 

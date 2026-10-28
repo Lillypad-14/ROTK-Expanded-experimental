@@ -4,7 +4,7 @@ This describes the experimental expansion present in the source tree. It is not 
 
 ## Current release summary
 
-[v0.7-experimental](https://github.com/Lillypad-14/ROTK-Expanded-experimental/releases/tag/v0.7-experimental) adds Eowyn's experimental Against the Dark page-two kit. The previous boon and bug-fix pass remains included.
+[v0.8-experimental](https://github.com/Lillypad-14/ROTK-Expanded-experimental/releases/tag/v0.8-experimental) adds co-op support for the mod, Vanilla or Expanded kits per hero, and Versus (Friendly Fire and Duel). Eowyn's Against the Dark kit from v0.7 and the previous boon and bug-fix pass remain included.
 Gauntlet has 94 boons, including four new character choices, two tradeoffs, and two evolving boons. Some offers favor compatible choices; L on the doors screen opens the goals panel.
 The gear shop supports buying and selling. Door descriptions explain rewards, modifiers, and map names.
 The available pool is 28 maps; City Streets and Minas Tirith (Gates) are excluded because screen captures reproduced corrupted terrain.
