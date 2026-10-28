@@ -88,6 +88,13 @@ function map is incomplete, so there is no honest "percent done" yet.
 
 Check it yourself with `make verify` (rebuilds the ROM and compares the hash) and `make coverage` (live counts).
 
+### The Two Towers
+
+Everything known about *The Two Towers* (GBA) and the tools to study it are in [two-towers/](two-towers/README.md):
+a function matcher that names Two Towers code after the ROTK functions it mirrors, a disassembler with those
+names, a save reader, an offline hero importer, and the research toward porting its levels. Every tool reads
+your own ROM; no Two Towers data is in this repository.
+
 ## Community documentation
 
 Start at the [documentation index](docs/README.md) for player, contributor and testing guides. To continue the work, start with [where the work stands](docs/status.md).
