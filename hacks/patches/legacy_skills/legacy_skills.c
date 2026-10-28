@@ -160,6 +160,8 @@ typedef struct LegacyActive
     const SkillExpansionActiveDef *def;
     u16 spiritCost;
     ActiveSkillCallback cast;
+    // Spirit the cost adds per level
+    u8 spiritPerLevel;
 } LegacyActive;
 
 // A Two Towers animation the PC host converted, by its Two Towers address, or NULL.
@@ -242,6 +244,55 @@ static void zapHit(Actor *fx, Actor *other)
     }
 }
 
+// An effect that plays `animation` on the caster once, then is gone.
+static void effectTick(Actor *fx)
+{
+    fx->coords = fx->parentActor->coords;
+    fx->actionStateTimer = (fx->flags.p & ACTOR_FLAG_ANIMATION_END) ? 0 : ZAP_LIFETIME;
+    actor_unknown08045584(fx);
+}
+
+static void spawnEffectOn(Actor *playerActor, u32 animation)
+{
+    const SpriteAnimation *sprite = twoTowersSprite(animation);
+    Actor *fx;
+
+    if (sprite == NULL)
+    {
+        return;
+    }
+    fx = fx_unknown08043d74(playerActor, 0, PROJECTILE_ANIMATION_SET, PROJECTILE_AIMED,
+                            PROJECTILE_PALETTE_BANK, PROJECTILE_NO_SLOT);
+    if (fx == NULL)
+    {
+        return;
+    }
+    sprite_setAnimation(fx, sprite);
+    fx->velocity.x = 0;
+    fx->velocity.y = 0;
+    fx->triggerCallbacks[0] = NULL;
+    fx->parentActor = playerActor;
+    fx->tickCallback = effectTick;
+}
+
+// Magical Healing (Gandalf; Two Towers 0x0803C4F8, 0x0801EA40): heals 20 + 4 per level for 8 + 2
+// per level Spirit, with a sparkle on Gandalf.
+#define MAGICAL_HEALING_BASE 20
+#define MAGICAL_HEALING_PER_LEVEL 4
+#define MAGICAL_HEALING_SPARKLE 0x080501D8u
+// the herb pickup sound until the Two Towers sounds are ported
+#define MAGICAL_HEALING_SOUND SFX_HERB_PICKUP
+
+static void castMagicalHealing(Actor *playerActor)
+{
+    u8 playerIndex = playerActor->as.combat.playerIndex;
+
+    player_addHp(playerIndex, MAGICAL_HEALING_BASE + MAGICAL_HEALING_PER_LEVEL * castingLevel(playerActor),
+                 FALSE);
+    spawnEffectOn(playerActor, MAGICAL_HEALING_SPARKLE);
+    sfx_play(MAGICAL_HEALING_SOUND);
+}
+
 static void castZap(Actor *playerActor)
 {
     u8 level = castingLevel(playerActor);
@@ -275,11 +326,12 @@ static void castLightstrike(Actor *playerActor)
 
 #define LEGACY_DEF(name, callback, base)                                                               static const SkillExpansionActiveDef name = {                                                          .stockCallback = (callback),                                                  .baseRow = (base),                                                                             }
 
-LEGACY_DEF(LegacyHealing, skill_active_herbalHealing, ACTIVE_SKILL_HERBAL_HEALING);
 LEGACY_DEF(LegacyGandalfShield, skill_active_gandalfShield, ACTIVE_SKILL_GANDALF_SHIELD);
 LEGACY_DEF(LegacyGandalfLightstrike, castLightstrike, ACTIVE_SKILL_GANDALF_LIGHTSTRIKE);
 // a port: Lightstrike's cast pose and requirements, its own cast
 static const SkillExpansionActiveDef LegacyGandalfZap = {.baseRow = ACTIVE_SKILL_GANDALF_LIGHTSTRIKE};
+// Shield's pose: casting through Herbal Healing's row hangs the game
+static const SkillExpansionActiveDef LegacyGandalfHealing = {.baseRow = ACTIVE_SKILL_GANDALF_SHIELD};
 LEGACY_DEF(LegacyGandalfBlindingAura, skill_active_gandalfBlindingAura,
            ACTIVE_SKILL_GANDALF_BLINDING_AURA);
 LEGACY_DEF(LegacyGandalfGwaihir, skill_active_gandalfSummonGwaihir,
@@ -290,7 +342,7 @@ LEGACY_DEF(LegacyGandalfGwaihir, skill_active_gandalfSummonGwaihir,
 static const LegacyActive HeroActives[LEGACY_HERO_COUNT][SKILL_EXPANSION_LEGACY_ACTIVE_COUNT] = {
     [3] =
         {
-            {&LegacyHealing, 8},             // Magical Healing
+            {&LegacyGandalfHealing, 8, castMagicalHealing, 2}, // Magical Healing
             {&LegacyGandalfShield, 10},      // Shield
             {&LegacyGandalfZap, 3, castZap}, // Zap
             {&LegacyGandalfBlindingAura, 8}, // Sunburst
@@ -405,7 +457,8 @@ void legacySkills_buildRows(u8 heroId, u8 playerIndex)
             continue;
         }
         memory_memcpy(&sx->activeSkills[row], &sx->activeSkills[def->baseRow], sizeof(ActiveSkill));
-        sx->activeSkills[row].spiritCost = actives[i].spiritCost;
+        sx->activeSkills[row].spiritCost =
+            actives[i].spiritCost + actives[i].spiritPerLevel * (level > ACTIVE_SKILL_MAX_LEVEL ? ACTIVE_SKILL_MAX_LEVEL : level);
         sx->activeSkills[row].callback =
             actives[i].cast != NULL ? actives[i].cast : skillExpansion_castStockCallback;
         sx->activeSkillIcons[row] = iconsBuilt ? (const void *)&icons[first - 2 + i]
