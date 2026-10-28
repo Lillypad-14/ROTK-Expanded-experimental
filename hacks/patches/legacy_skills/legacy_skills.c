@@ -12,6 +12,7 @@
 #include "patches/mod_save/save_sram.h"
 #include "patches/skill_expansion/skill_expansion.h"
 #include "lib/pc_host.h"
+#include "actor/shieldBubble.h"
 #include "player.h"
 #include "sfx.h"
 #include "spriteAnimation.h"
@@ -183,6 +184,21 @@ static const SpriteAnimation *twoTowersSprite(u32 address)
     return NULL;
 }
 
+/**
+ * Play a Two Towers animation on an effect. The spawner leaves its own animation script running,
+ * which would drive the frames and keep the animation from ever ending.
+ */
+static void setSprite(Actor *fx, u32 animation)
+{
+    const SpriteAnimation *sprite = twoTowersSprite(animation);
+
+    if (sprite != NULL)
+    {
+        fx->animationScriptCursor = NULL;
+        sprite_setAnimation(fx, sprite);
+    }
+}
+
 static u8 castingLevel(Actor *playerActor)
 {
     u8 playerIndex = playerActor->as.combat.playerIndex;
@@ -227,8 +243,6 @@ static void zapTick(Actor *fx)
 
 static void zapHit(Actor *fx, Actor *other)
 {
-    const SpriteAnimation *impact = twoTowersSprite(ZAP_IMPACT);
-
     if (!(other->flags.p & FOE_HITTABLE_FLAGS))
     {
         return;
@@ -238,10 +252,7 @@ static void zapHit(Actor *fx, Actor *other)
     fx->renderFollowTarget = other;
     fx->velocity.x = 0;
     fx->velocity.y = 0;
-    if (impact != NULL)
-    {
-        sprite_setAnimation(fx, impact);
-    }
+    setSprite(fx, ZAP_IMPACT);
 }
 
 // An effect that plays `animation` on the caster once, then is gone.
@@ -254,10 +265,9 @@ static void effectTick(Actor *fx)
 
 static void spawnEffectOn(Actor *playerActor, u32 animation)
 {
-    const SpriteAnimation *sprite = twoTowersSprite(animation);
     Actor *fx;
 
-    if (sprite == NULL)
+    if (twoTowersSprite(animation) == NULL)
     {
         return;
     }
@@ -267,7 +277,7 @@ static void spawnEffectOn(Actor *playerActor, u32 animation)
     {
         return;
     }
-    sprite_setAnimation(fx, sprite);
+    setSprite(fx, animation);
     fx->velocity.x = 0;
     fx->velocity.y = 0;
     fx->triggerCallbacks[0] = NULL;
@@ -293,22 +303,107 @@ static void castMagicalHealing(Actor *playerActor)
     sfx_play(MAGICAL_HEALING_SOUND);
 }
 
+// Shield (Gandalf; Two Towers 0x0803BB1C, 0x080185B4, its tick 0x0801871C): a bubble on Gandalf
+// that absorbs 50 + 20 per level damage for 750 frames, for 10 Spirit and 2 corruption per level.
+// One at a time. It absorbs through ROTK's own shield bubble (PLAYER().shieldBubble).
+#define SHIELD_ABSORB_BASE 50
+#define SHIELD_ABSORB_PER_LEVEL 20
+#define SHIELD_FRAMES 750
+#define SHIELD_CORRUPTION_PER_LEVEL 2
+#define SHIELD_FORMING 0x080500C8u
+#define SHIELD_UP 0x080500D8u
+#define SHIELD_DISSOLVING 0x080500E8u
+// the shield's phase, kept in its charge level (Gimli's shields only use that)
+#define SHIELD_PHASE_FORMING 0
+#define SHIELD_PHASE_UP 1
+#define SHIELD_PHASE_DISSOLVING 2
+
+static bool32 shieldCanCast(u8 playerIndex)
+{
+    return PLAYER(playerIndex).shieldBubble == NULL;
+}
+
+static void shieldTick(Actor *fx)
+{
+    Actor *playerActor = fx->parentActor;
+    u8 playerIndex = playerActor->as.combat.playerIndex;
+    s16 *phase = &fx->as.shieldGandalf.chargeLevel;
+    bool32 ended = (fx->flags.p & ACTOR_FLAG_ANIMATION_END) != 0;
+
+    fx->coords = playerActor->coords;
+    // an absorbed hit flashes the bubble in ROTK; it just stays up here
+    if (fx->actionState == ACTOR_STATE_SHIELD_SPENT)
+    {
+        fx->actionState = ACTOR_STATE_FX_ATTACHED;
+    }
+    if (*phase == SHIELD_PHASE_FORMING && ended)
+    {
+        *phase = SHIELD_PHASE_UP;
+        fx->actionState = ACTOR_STATE_FX_ATTACHED;
+        setSprite(fx, SHIELD_UP);
+    }
+    else if (*phase == SHIELD_PHASE_UP &&
+             (fx->as.shieldGandalf.shieldHealth <= 0 || --fx->actionStateTimer < 0))
+    {
+        *phase = SHIELD_PHASE_DISSOLVING;
+        setSprite(fx, SHIELD_DISSOLVING);
+    }
+    else if (*phase == SHIELD_PHASE_DISSOLVING && ended)
+    {
+        fx->actionState = ACTOR_STATE_UNKNOWN_04;
+    }
+    if (playerActor->actionState == ACTOR_STATE_UNKNOWN_2D)
+    {
+        fx->actionState = ACTOR_STATE_UNKNOWN_04;
+    }
+    if (fx->actionState == ACTOR_STATE_UNKNOWN_04)
+    {
+        if (PLAYER(playerIndex).shieldBubble == fx)
+        {
+            PLAYER(playerIndex).shieldBubble = NULL;
+        }
+        fx->actionStateTimer = 0;
+        actor_unknown08045584(fx);
+    }
+}
+
+static void castShield(Actor *playerActor)
+{
+    u8 playerIndex = playerActor->as.combat.playerIndex;
+    u8 level = castingLevel(playerActor);
+    Actor *fx;
+
+    player_addCorruption(playerIndex, SHIELD_CORRUPTION_PER_LEVEL * level);
+    fx = fx_unknown08043d74(playerActor, 0, PROJECTILE_ANIMATION_SET, PROJECTILE_AIMED,
+                            PROJECTILE_PALETTE_BANK, PROJECTILE_NO_SLOT);
+    if (fx == NULL)
+    {
+        return;
+    }
+    setSprite(fx, SHIELD_FORMING);
+    fx->velocity.x = 0;
+    fx->velocity.y = 0;
+    fx->triggerCallbacks[0] = NULL;
+    fx->parentActor = playerActor;
+    fx->tickCallback = shieldTick;
+    fx->actionStateTimer = SHIELD_FRAMES;
+    fx->as.shieldGandalf.followTarget = playerActor;
+    fx->as.shieldGandalf.shieldHealth = SHIELD_ABSORB_BASE + SHIELD_ABSORB_PER_LEVEL * level;
+    fx->as.shieldGandalf.chargeLevel = SHIELD_PHASE_FORMING;
+    PLAYER(playerIndex).shieldBubble = fx;
+    sfx_play(SFX_COMBAT_GANDALF_SHIELD_CAST);
+}
+
 static void castZap(Actor *playerActor)
 {
     u8 level = castingLevel(playerActor);
     Actor *fx = fx_unknown08043d74(playerActor, 0, PROJECTILE_ANIMATION_SET, PROJECTILE_AIMED,
                                    PROJECTILE_PALETTE_BANK, PROJECTILE_NO_SLOT);
-    const SpriteAnimation *bolt;
-
     if (fx == NULL)
     {
         return;
     }
-    bolt = twoTowersSprite(ZapSprites[fx->facing & 7]);
-    if (bolt != NULL)
-    {
-        sprite_setAnimation(fx, bolt);
-    }
+    setSprite(fx, ZapSprites[fx->facing & 7]);
     actor_setVelocityFromDirection8(&fx->velocity, fx->flags.p, fx->facing, ZAP_SPEED);
     fx->actionStateTimer = ZAP_LIFETIME;
     fx->tickCallback = zapTick;
@@ -326,10 +421,14 @@ static void castLightstrike(Actor *playerActor)
 
 #define LEGACY_DEF(name, callback, base)                                                               static const SkillExpansionActiveDef name = {                                                          .stockCallback = (callback),                                                  .baseRow = (base),                                                                             }
 
-LEGACY_DEF(LegacyGandalfShield, skill_active_gandalfShield, ACTIVE_SKILL_GANDALF_SHIELD);
 LEGACY_DEF(LegacyGandalfLightstrike, castLightstrike, ACTIVE_SKILL_GANDALF_LIGHTSTRIKE);
 // a port: Lightstrike's cast pose and requirements, its own cast
 static const SkillExpansionActiveDef LegacyGandalfZap = {.baseRow = ACTIVE_SKILL_GANDALF_LIGHTSTRIKE};
+static bool32 shieldCanCast(u8 playerIndex);
+static const SkillExpansionActiveDef LegacyGandalfShieldPort = {
+    .baseRow = ACTIVE_SKILL_GANDALF_SHIELD,
+    .canCast = shieldCanCast,
+};
 // Shield's pose: casting through Herbal Healing's row hangs the game
 static const SkillExpansionActiveDef LegacyGandalfHealing = {.baseRow = ACTIVE_SKILL_GANDALF_SHIELD};
 LEGACY_DEF(LegacyGandalfBlindingAura, skill_active_gandalfBlindingAura,
@@ -343,7 +442,7 @@ static const LegacyActive HeroActives[LEGACY_HERO_COUNT][SKILL_EXPANSION_LEGACY_
     [3] =
         {
             {&LegacyGandalfHealing, 8, castMagicalHealing, 2}, // Magical Healing
-            {&LegacyGandalfShield, 10},      // Shield
+            {&LegacyGandalfShieldPort, 10, castShield}, // Shield
             {&LegacyGandalfZap, 3, castZap}, // Zap
             {&LegacyGandalfBlindingAura, 8}, // Sunburst
             {&LegacyGandalfLightstrike, 5},  // Fireworks: stand-in until it has its own cast
