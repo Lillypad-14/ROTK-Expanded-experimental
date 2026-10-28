@@ -1,3 +1,6 @@
+#if HACK_legacy_skills
+#include "patches/legacy_skills/legacy_skills.h"
+#endif
 #include "patches/skill_expansion/skill_expansion.h"
 #include "stats.h"
 
@@ -117,6 +120,9 @@ void skillExpansion_passiveApplyAllLevels(u8 playerIndex)
             skillExpansion_applyStatsUpToLevel(playerIndex, slot, level);
         }
     }
+#if HACK_legacy_skills
+    legacySkills_applyPassives(playerIndex);
+#endif
 }
 
 /**
