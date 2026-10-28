@@ -101,7 +101,7 @@ The inventory can be regenerated with `uv run python tools/documentation_invento
 
 ## Playing it
 
-1. Get `ROTK-Expanded-experimental-v0.8.bps` from the [v0.8 experimental release](https://github.com/Lillypad-14/ROTK-Expanded-experimental/releases/tag/v0.8-experimental).
+1. Get `ROTK-Expanded-experimental-v0.9.bps` from the [v0.9 experimental release](https://github.com/Lillypad-14/ROTK-Expanded-experimental/releases/tag/v0.9-experimental).
 2. You need your own legally dumped EU/US ROM (SHA-1 `ec3d126d37ea6e2ad7030d8a99cf87c6e46c03fd`).
 3. Apply the patch with [RomPatcher.js](https://www.marcrobledo.com/RomPatcher.js/) and play in mGBA or similar.
 
