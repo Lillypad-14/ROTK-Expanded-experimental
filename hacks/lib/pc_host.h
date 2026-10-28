@@ -4,6 +4,7 @@
 // a GBA, where the magic never matches, so every accessor falls back to the stock sizes.
 
 #include "actor.h"
+#include "text.h"
 #include "types.h"
 
 #define PC_HOST_INFO_ADDRESS 0x12000000
@@ -13,7 +14,7 @@ typedef struct PcHostInfo
 {
     // PC_HOST_INFO_MAGIC when the PC host is present
     u32 magic;
-    // layout version, 3
+    // layout version, 4
     u32 version;
     // slots in the main actor pool (stock 0x100)
     u32 mainActors;
@@ -32,6 +33,10 @@ typedef struct PcHostInfo
     // the Versus duel's scoreboard, written by the mod every tick for the host to draw (version 3):
     // PC_HOST_DUEL_* fields, 0 outside a duel
     u32 duel;
+    // address of the TwoTowersData block, 0 when The Two Towers ROM was not found (version 4)
+    u32 twoTowers;
+    // address of the host RAM ItemTypeInfos copy with legacy item rows, 0 without it (version 4)
+    u32 itemTypeInfos;
 } PcHostInfo;
 
 #define PC_HOST_DUEL_PHASE(duel) ((duel) & 3)  // 1 = fighting, 2 = won
@@ -65,4 +70,37 @@ static inline u32 hackLib_overlayActorCapacity(void)
 {
     const volatile PcHostInfo *info = hackLib_pcHostInfo();
     return info != NULL ? info->overlayActors : ACTOR_POOL_OVERLAY_CAPACITY;
+}
+
+#define TWO_TOWERS_DATA_MAGIC 0x31445454 // "TTD1"
+
+// The Two Towers data the PC host copies from The Two Towers ROM, for items imported from Two
+// Towers saves. An item record is 16 bytes: u16 name text id, s16 gem value, then 5 pairs of u8
+// stat and s8 value, with stat 0x40 for none.
+typedef struct TwoTowersData
+{
+    // TWO_TOWERS_DATA_MAGIC
+    u32 magic;
+    // prefix records
+    const u8 *prefixes;
+    u32 prefixCount;
+    // base item records, every item type in one table
+    const u8 *baseItems;
+    u32 baseItemCount;
+    // suffix records
+    const u8 *suffixes;
+    u32 suffixCount;
+    // number of Two Towers text ids
+    u32 stringCount;
+    // per Language, NUL-terminated font strings by Two Towers text id, NULL for one not carried
+    const char *const *strings[LANGUAGE_COUNT];
+} TwoTowersData;
+
+static inline const TwoTowersData *hackLib_twoTowersData(void)
+{
+    const volatile PcHostInfo *info = hackLib_pcHostInfo();
+    if (info == NULL || info->version < 4 || info->twoTowers == 0)
+        return NULL;
+    const TwoTowersData *data = (const TwoTowersData *)info->twoTowers;
+    return data->magic == TWO_TOWERS_DATA_MAGIC ? data : NULL;
 }

@@ -257,6 +257,8 @@ Keep table entries to one line where possible.
 | active skill (move / spell)                       | active skill    | Castable active skills from the right side of the skill tree.                                                |                                             |
 | skill level added without being purchased        | temporary level | A skill level added to the gameplay-used count without increasing the purchased count.                      |                                             |
 | melee weapon damage type                          | slash / impale  | melee attacks are either slash damage (most weapons) or impale damage (e.g. daggers)                         |                                             |
+| item carried over from a Two Towers save         | legacy item     | A Two Towers item imported into ROTK, keeping its own name, stats and icon. It never drops in ROTK.         | PC edition only                             |
+| skill carried over from a Two Towers hero         | legacy skill    | One of a hero's 11 Two Towers skills, ported 1:1 to the third skill page.                                   | PC edition only                             |
 
 ### Missions, Regions, and Maps
 
