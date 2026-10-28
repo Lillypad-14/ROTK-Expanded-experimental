@@ -11,6 +11,7 @@ extern const u8 AragornIconHuntersPatience[0x184];
 extern const u8 AragornIconKingsPresence[0x184];
 extern const u8 AragornIconLordOfTheDead[0x184];
 extern const u8 AragornIconOathOfTheDead[0x184];
+extern const u8 AragornIconPathsOfTheDead[0x184];
 extern const u8 AragornIconRangersAmbush[0x184];
 extern const u8 AragornIconRestlessDead[0x184];
 extern const u8 AragornIconReturnOfTheKing[0x184];

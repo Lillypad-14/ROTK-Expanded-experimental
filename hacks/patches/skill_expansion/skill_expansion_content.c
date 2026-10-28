@@ -1,4 +1,5 @@
 #include "patches/skill_expansion/aragorn_icons.h"
+#include "patches/skill_expansion/eowyn_icons.h"
 #include "patches/skill_expansion/frodo_icons.h"
 #include "patches/skill_expansion/gandalf_icons.h"
 #include "patches/skill_expansion/gimli_icons.h"
@@ -185,6 +186,22 @@ static const SkillExpansionActiveDef AragornOathOfTheDead = {
     .requiredLevels = AragornOathOfTheDeadLevels,
     .description = "Oath of the Dead (Level @1) - Dead. Ghosts burst for 15 +8/level, stunning "
                    "foes and adding 10 to the Flame bar each. No ghosts raises one. @2 Spirit.",
+    .baseRow = ACTIVE_SKILL_ARAGORN_NUMENOREAN_WILL,
+    .policy = &NumenoreanWillPosePolicy,
+};
+
+static const ActiveSkill AragornPathsOfTheDeadRow = {
+    .callback = skillExpansion_aragornPathsOfTheDead,
+    .spiritCost = 45,
+    NUMENOREAN_WILL_CAST_FIELDS,
+};
+static const s8 AragornPathsOfTheDeadLevels[] = {15, 18, 21, 24, 25, -1};
+static const SkillExpansionActiveDef AragornPathsOfTheDead = {
+    .row = &AragornPathsOfTheDeadRow,
+    .icon = AragornIconPathsOfTheDead,
+    .requiredLevels = AragornPathsOfTheDeadLevels,
+    .description = "Paths of the Dead (Level @1) - Dead. The Army of the Dead charges ahead for 12 "
+                   "+6/level, stunning. Spends Flame, +50% at full. +20% per ghost. @2 Spirit.",
     .baseRow = ACTIVE_SKILL_ARAGORN_NUMENOREAN_WILL,
     .policy = &NumenoreanWillPosePolicy,
 };
@@ -802,7 +819,6 @@ static const SkillExpansionActiveDef GandalfShallNotPass = {
     .policy = &GwaihirPosePolicy,
 };
 
-// Eowyn's rows show her stock icons until they get art of their own.
 static const ActiveSkill EowynDeathSeekerRow = {
     .spiritCost = 0,
     EOWYN_STRIKE_CAST_FIELDS,
@@ -810,7 +826,7 @@ static const ActiveSkill EowynDeathSeekerRow = {
 static const s8 EowynDeathSeekerLevels[] = {10, 13, 16, 19, 22, -1};
 static const SkillExpansionActiveDef EowynDeathSeeker = {
     .row = &EowynDeathSeekerRow,
-    .icon = ActiveSkillEowynDoubleStrikeIcon,
+    .icon = EowynIconDeathSeekersStrike,
     .requiredLevels = EowynDeathSeekerLevels,
     .description = "Death-Seeker's Strike (Level @1) - Despair. Pay 10% of your HP to strike the "
                    "nearest foe for 14 +6/level, +25% per tier. No Spirit.",
@@ -827,7 +843,7 @@ static const ActiveSkill EowynComeAndFaceMeRow = {
 static const s8 EowynComeAndFaceMeLevels[] = {11, 14, 17, 20, 23, -1};
 static const SkillExpansionActiveDef EowynComeAndFaceMe = {
     .row = &EowynComeAndFaceMeRow,
-    .icon = ActiveSkillEowynShieldBashIcon,
+    .icon = EowynIconComeAndFaceMe,
     .requiredLevels = EowynComeAndFaceMeLevels,
     .description = "Come and Face Me! (Level @1) - Shieldmaiden. Drag near foes in and stun them. "
                    "For 4s take 5% less damage per foe, up to 30%. @2 Spirit.",
@@ -843,7 +859,7 @@ static const ActiveSkill EowynLanceRow = {
 static const s8 EowynLanceLevels[] = {12, 15, 18, 21, 24, -1};
 static const SkillExpansionActiveDef EowynLance = {
     .row = &EowynLanceRow,
-    .icon = ActiveSkillEowynRohanSprintIcon,
+    .icon = EowynIconLanceOfTheMark,
     .requiredLevels = EowynLanceLevels,
     .description = "Lance of the Mark (Level @1) - Rohirrim. Lunge for 12 +6/level. Spends Gallop, "
                    "+30% per step, a full Gallop pierces. Else +20%/tier. @2 Spirit.",
@@ -859,7 +875,7 @@ static const ActiveSkill EowynStandOverTheFallenRow = {
 static const s8 EowynStandOverTheFallenLevels[] = {13, 16, 19, 22, 25, -1};
 static const SkillExpansionActiveDef EowynStandOverTheFallen = {
     .row = &EowynStandOverTheFallenRow,
-    .icon = ActiveSkillEowynShieldmaidenOfRohanIcon,
+    .icon = EowynIconStandOverTheFallen,
     .requiredLevels = EowynStandOverTheFallenLevels,
     .description = "Stand Over the Fallen (Level @1) - Shieldmaiden. Hold your ground 3s "
                    "+0.5s/level, sending back 40% +5%/level of hits. Guards a near ally. @2 Spirit.",
@@ -876,7 +892,7 @@ static const ActiveSkill EowynHopeRekindledRow = {
 static const s8 EowynHopeRekindledLevels[] = {14, 17, 20, 23, 25, -1};
 static const SkillExpansionActiveDef EowynHopeRekindled = {
     .row = &EowynHopeRekindledRow,
-    .icon = ActiveSkillEowynHerbalHealingIcon,
+    .icon = EowynIconHopeRekindled,
     .requiredLevels = EowynHopeRekindledLevels,
     .description = "Hope Rekindled (Level @1) - Rohirrim. Heal 2% +0.5%/level of max HP per point "
                    "of Odds. The worse it looks, the more you heal. @2 Spirit.",
@@ -892,7 +908,7 @@ static const ActiveSkill EowynNoManRow = {
 static const s8 EowynNoManLevels[] = {18, 20, 22, 24, 25, -1};
 static const SkillExpansionActiveDef EowynNoMan = {
     .row = &EowynNoManRow,
-    .icon = ActiveSkillEowynForthEorlingasIcon,
+    .icon = EowynIconIAmNoMan,
     .requiredLevels = EowynNoManLevels,
     .description = "I Am No Man! (Level @1) - Only when Desperate or worse. Stun near foes, then "
                    "8s +2s/level Hopeless and fearless, x2 vs Nazgul and big foes. @2 Spirit.",
@@ -911,6 +927,7 @@ const SkillExpansionActiveDef *const SkillExpansionActiveDefs[SKILL_EXPANSION_HE
                                                                          &AragornFlameOfTheWest,
                                                                          &AragornTrackersMark,
                                                                          &AragornReturnOfTheKing,
+                                                                         &AragornPathsOfTheDead,
                                                                      },
                                                                  [HERO_ID_FRODO] =
                                                                      {
@@ -1912,6 +1929,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 10, 12, 14, 16, 18, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_DEATH_STRIKE,
+                .icon = EowynIconSeekingDeath,
                 .description =
                     "Seeking Death (Level @1) - Despair. Missing HP counts double toward your "
                     "Odds. Death-Seeker's Strike costs 1%/level less HP.",
@@ -1920,6 +1938,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 11, 13, 15, 17, 19, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_FEARLESS,
+                .icon = EowynIconUnbowed,
                 .description =
                     "Unbowed (Level @1) - Shieldmaiden. Fear can't drain your Spirit. Take "
                     "3%/level less damage per tier above Steady.",
@@ -1928,6 +1947,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 12, 14, 16, 18, 20, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_FLEET_OF_FOOT,
+                .icon = EowynIconRidersOfTheMark,
                 .description =
                     "Riders of the Mark (Level @1) - Rohirrim. Running builds Gallop. Your next "
                     "blow spends it, +15% per step. Builds 15%/level faster.",
@@ -1936,6 +1956,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 14, 16, 18, 20, 22, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_BERSERKER,
+                .icon = EowynIconNothingLeftToLose,
                 .description =
                     "Nothing Left to Lose (Level @1) - Despair. While Desperate or Hopeless, "
                     "your hits heal you 2%/level of the damage dealt.",
@@ -1944,6 +1965,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 15, 17, 19, 21, 23, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_HARDY,
+                .icon = EowynIconHoldFast,
                 .description =
                     "Hold Fast (Level @1) - Shieldmaiden. While Hopeless you never flinch, and "
                     "no hit takes more than 30% -3%/level of your max HP.",
@@ -1952,6 +1974,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             {
                 ELITE_PASSIVE(PASSIVE_SKILL_MAX_LEVEL, 16, 18, 20, 22, 24, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_SHIELD_OFFENSE,
+                .icon = EowynIconTrample,
                 .description =
                     "Trample (Level @1) - Rohirrim. At 3+ Gallop steps, running into a foe hits "
                     "it for 4 +2/level and staggers it.",
@@ -1960,6 +1983,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             {
                 ELITE_PASSIVE(1, 20, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_GALADRIELS_BLESSING,
+                .icon = EowynIconDawnOverThePelennor,
                 .description =
                     "Dawn Over the Pelennor (Level @1) - Despair. Falling from Hopeless back to "
                     "Steady heals 30% and restores 50 Spirit. Every 30s.",
@@ -1968,6 +1992,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             {
                 ELITE_PASSIVE(1, 21, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_WRAITHSLAYER,
+                .icon = EowynIconDoomOfTheWitchKing,
                 .description =
                     "Doom of the Witch-king (Level @1) - Shieldmaiden. Never feared. Nazgul deal "
                     "you half damage, and you deal them double.",
@@ -1976,6 +2001,7 @@ const SkillExpansionElitePassive SkillExpansionElitePassives[SKILL_EXPANSION_ELI
             {
                 ELITE_PASSIVE(1, 23, -1),
                 .iconPassiveSkillId = PASSIVE_SKILL_LAST_STAND,
+                .icon = EowynIconRideToRuin,
                 .description =
                     "Ride to Ruin (Level @1) - Rohirrim. A full Gallop blow also sends out a "
                     "shockwave, wider while Hopeless.",
@@ -2114,10 +2140,10 @@ static const u8 EowynActiveBuilds[SKILL_EXPANSION_NEW_ACTIVE_COUNT] = {
     SKILL_EXPANSION_BUILD_GOOD, SKILL_EXPANSION_BUILD_TRICKS, SKILL_EXPANSION_BUILD_EVIL,
 };
 
-// Aragorn's page 2 rows laid out Ranger | Dead | King, then Ranger | King.
+// Aragorn's page 2 rows laid out Ranger | Dead | King, then Ranger | King, then Dead.
 static const u8 AragornActiveBuilds[SKILL_EXPANSION_NEW_ACTIVE_COUNT] = {
     SKILL_EXPANSION_BUILD_TRICKS, SKILL_EXPANSION_BUILD_DEAD, SKILL_EXPANSION_BUILD_GOOD,
-    SKILL_EXPANSION_BUILD_TRICKS, SKILL_EXPANSION_BUILD_GOOD,
+    SKILL_EXPANSION_BUILD_TRICKS, SKILL_EXPANSION_BUILD_GOOD, SKILL_EXPANSION_BUILD_DEAD,
 };
 
 // Saruman's page 2 rows laid out Curunir | White Hand | Sharkey, then Curunir | Sharkey, then White
@@ -2183,7 +2209,7 @@ u8 skillExpansion_activeBuild(u32 heroId, u32 row)
 // a NULL icon.
 static const SkillExpansionIconColors *const IconColorTables[] = {
     AragornIconColors, FrodoIconColors,   GandalfIconColors, GimliIconColors,
-    LegolasIconColors, SamIconColors,     SmeagolIconColors,
+    LegolasIconColors, SamIconColors,     SmeagolIconColors, EowynIconColors,
 #if HACK_ringwraith
     RingwraithIconColors, SarumanIconColors,
 #endif

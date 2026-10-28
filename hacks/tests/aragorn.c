@@ -582,11 +582,38 @@ static void resetFixture(void)
     eventCount = 0;
     memset(eventOrder, 0, sizeof(eventOrder));
 }
+// TRUE: every area query finds the fixture's foe.
+static bool foeInEveryArea;
 Actor *hackLib_nextTargetAt(const Vector2Fp16 *position, Actor *exclude, u16 radius, Actor *cursor)
 {
+    if (foeInEveryArea)
+    {
+        return cursor == NULL ? &foe : NULL;
+    }
     (void)position;
     (void)exclude;
     return actor_iterateInRadius(NULL, cursor, (s32)radius * 65536);
+}
+void actor_setVelocityFromDirection8(Vector2Fp16 *velocityOut, u32 flags, s32 direction, s32 speed)
+{
+    (void)flags;
+    (void)direction;
+    velocityOut->x = speed;
+    velocityOut->y = 0;
+}
+static void testPathsOfTheDead(void)
+{
+    // every step of the charge finds the same foe here: it is hit once
+    resetFixture();
+    foeInEveryArea = TRUE;
+    *skillExpansion_activeLevel(0, PLAYER(0).castingActiveSkill) = 2;
+    states[0].meter = METER_MAX;
+    skillExpansion_aragornPathsOfTheDead(&avatar);
+    // the bar is spent; the charge's own hit stokes some back, like any of his hits
+    assert(states[0].meter < METER_MAX / 2);
+    assert(foe.currentHp ==
+           1000 - (PATHS_BASE_DAMAGE + 2 * PATHS_DAMAGE_PER_LEVEL) * (100 + PATHS_FULL_BAR_PERCENT) / 100);
+    foeInEveryArea = FALSE;
 }
 static void testHerbalHealing(void)
 {
@@ -628,6 +655,7 @@ static void testHerbalHealing(void)
 int main(void)
 {
     testHerbalHealing();
+    testPathsOfTheDead();
     resetFixture();
     eventKitEnabled = TRUE;
     foe.currentHp = 5;

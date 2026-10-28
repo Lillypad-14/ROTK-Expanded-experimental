@@ -111,6 +111,19 @@
 #define OATH_DAMAGE_PER_LEVEL 8
 #define OATH_STUN_FRAMES FRAMES_PER_SECOND
 
+// Paths of the Dead: the charge runs PATHS_STEPS circles of PATHS_RADIUS ahead of Aragorn
+#define PATHS_STEPS 4
+#define PATHS_STEP_DISTANCE 32
+#define PATHS_RADIUS 32
+#define PATHS_BASE_DAMAGE 12
+#define PATHS_DAMAGE_PER_LEVEL 6
+// extra damage from a full Flame bar (less from a partial one), and per ghost of his up to PATHS_MAX_GHOSTS
+#define PATHS_FULL_BAR_PERCENT 50
+#define PATHS_GHOST_PERCENT 20
+#define PATHS_MAX_GHOSTS 3
+#define PATHS_STUN_FRAMES FRAMES_PER_SECOND
+#define PATHS_MAX_HITS 16
+
 // Return of the King
 #define RETURN_BASE_FRAMES (10 * FRAMES_PER_SECOND)
 #define RETURN_FRAMES_PER_LEVEL (2 * FRAMES_PER_SECOND)
@@ -544,7 +557,8 @@ static inline u8 castLevel(u8 playerIndex)
     return skillExpansion_effectiveActiveLevel(playerIndex, PLAYER(playerIndex).castingActiveSkill);
 }
 
-void skillExpansion_spawnBurstFx(Actor *target, u8 variant, s32 sfx)
+/** An AoE burst effect attached to target, without a sound. */
+static void burstFx(Actor *target, u8 variant)
 {
     Actor *fx = fx_spawnOnActor(target, FX_TYPE_AOE_BURST, variant, 0);
 
@@ -553,6 +567,11 @@ void skillExpansion_spawnBurstFx(Actor *target, u8 variant, s32 sfx)
         fx->type = FX_BURST_UNK_PARAM;
         fx->tickCallback = (ActorCallback)(void *)fx_tickAttachment;
     }
+}
+
+void skillExpansion_spawnBurstFx(Actor *target, u8 variant, s32 sfx)
+{
+    burstFx(target, variant);
     sfx_play(sfx);
 }
 
@@ -1729,6 +1748,58 @@ void skillExpansion_aragornOathOfTheDead(Actor *playerActor)
     for (; ghost != NULL; ghost = nextOwnedGhost(playerActor, ghost))
     {
         ghostBurst(p, playerActor, ghost, damage, OATH_STUN_FRAMES, METER_OATH_GHOST);
+    }
+}
+
+void skillExpansion_aragornPathsOfTheDead(Actor *playerActor)
+{
+    u8 p = playerActor->as.combat.playerIndex;
+    EliteState *st = &states[p];
+    Actor *hit[PATHS_MAX_HITS];
+    Actor *ghost = NULL;
+    u32 hits = 0;
+    u32 ghosts = 0;
+    s32 percent = 100 + PATHS_FULL_BAR_PERCENT * st->meter / METER_MAX;
+    s32 damage;
+    Vector2Fp16 step;
+    Vector2Fp16 at = playerActor->coords;
+
+    while (ghosts < PATHS_MAX_GHOSTS && (ghost = nextOwnedGhost(playerActor, ghost)) != NULL)
+    {
+        ghosts++;
+    }
+    percent += PATHS_GHOST_PERCENT * ghosts;
+    damage = (PATHS_BASE_DAMAGE + PATHS_DAMAGE_PER_LEVEL * castLevel(p)) * percent / 100;
+    st->meter = 0;
+    skillExpansion_spawnBurstFx(playerActor, FX_AOE_BURST_NIGHT, SFX_COMBAT_TRIPLE_DAMAGE);
+    actor_setVelocityFromDirection8(&step, playerActor->flags.p, playerActor->facing,
+                                    PATHS_STEP_DISTANCE << 16);
+    for (u32 i = 0; i < PATHS_STEPS; i++)
+    {
+        Actor *target = NULL;
+
+        at.x += step.x;
+        at.y += step.y;
+        while ((target = hackLib_nextTargetAt(&at, NULL, PATHS_RADIUS, target)) != NULL)
+        {
+            u32 k;
+
+            if (!skillExpansion_isFoe(target) || hits == PATHS_MAX_HITS)
+            {
+                continue;
+            }
+            for (k = 0; k < hits && hit[k] != target; k++)
+            {
+            }
+            if (k < hits)
+            {
+                continue;
+            }
+            hit[hits++] = target;
+            skillExpansion_applyPveRangedHit(playerActor, target, damage);
+            stunFoe(p, target, PATHS_STUN_FRAMES);
+            burstFx(target, FX_AOE_BURST_NIGHT);
+        }
     }
 }
 

@@ -29,7 +29,7 @@ See [the latest bug audit](bug-audit.md) for the current fixes, map exclusions, 
 
 | Area | State |
 | --- | --- |
-| Page 2 skill trees | Built for all ten heroes. Eowyn's new kit uses stock icons and remains experimental. See [heroes.md](heroes.md). |
+| Page 2 skill trees | Built for all ten heroes. Eowyn's new kit has its own icons and remains experimental. See [heroes.md](heroes.md). |
 | Gandalf "The Grey and the White" | Built, waiting on a full playtest and balance pass. |
 | Legolas "The Glint" | Built, waiting on a full playtest. |
 | Ringwraith (hero 8) | Built with page 2 and wraith gear. Some thrall and ghost behaviors rest on unverified assumptions. |

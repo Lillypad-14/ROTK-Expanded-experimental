@@ -43,7 +43,7 @@ All ten heroes completed the automated ability and Gauntlet checks in the [2026-
 
 The six active skills are Death-Seeker's Strike, Come and Face Me!, Lance of the Mark, Stand Over the Fallen, Hope Rekindled and I Am No Man!. They add an HP-cost strike, pull/stun, Gallop lunge, defensive ally support, Odds-based healing and a high-danger ultimate. Nine new passive IDs support the kit.
 
-Definitions and level requirements are in [skill_expansion_content.c](../hacks/patches/skill_expansion/skill_expansion_content.c), with behavior in [skill_expansion_eowyn.c](../hacks/patches/skill_expansion/skill_expansion_eowyn.c). The kit currently uses stock icons. It builds and passes content checks, but complete manual combat, balance and co-op testing remain pending. Earlier automated audits predate this kit.
+Definitions and level requirements are in [skill_expansion_content.c](../hacks/patches/skill_expansion/skill_expansion_content.c), with behavior in [skill_expansion_eowyn.c](../hacks/patches/skill_expansion/skill_expansion_eowyn.c). The kit has its own icons. It builds and passes content checks, but complete manual combat, balance and co-op testing remain pending. Earlier automated audits predate this kit.
 
 ## Aragorn
 
@@ -63,6 +63,7 @@ sun glow of its own.
 | Tracker's Mark | Marks the nearest foe for bonus damage and double Flame. Its death stokes more. |
 | Oath of the Dead | Your ghosts burst, stunning foes and stoking Flame. With no ghosts it raises one. |
 | Return of the King | Anduril is Reforged. All skills gain a level and cost no Spirit for a while. |
+| Paths of the Dead | The Army of the Dead charges ahead, hitting and stunning every foe in its path. Spends the Flame bar (+50% from a full bar) and grows 20% per ghost of his, up to three. |
 
 Passives: Strider's Riposte (counter when an attack fails to land), Restless Dead, King's Presence (longer stuns),
 Hunter's Patience (a waited-for strike builds Flame), The Dead Ride, The Blade Reforged (doubles flame bursts),

@@ -85,6 +85,8 @@ void skillExpansion_aragornFlameOfTheWest(Actor *playerActor);
 void skillExpansion_aragornRangersAmbush(Actor *playerActor);
 void skillExpansion_aragornTrackersMark(Actor *playerActor);
 void skillExpansion_aragornOathOfTheDead(Actor *playerActor);
+/** Paths of the Dead: a spectral charge ahead of Aragorn, stronger from Flame and his ghosts. */
+void skillExpansion_aragornPathsOfTheDead(Actor *playerActor);
 void skillExpansion_aragornReturnOfTheKing(Actor *playerActor);
 
 bool32 skillExpansion_canCastFlameOfTheWest(u8 playerIndex);

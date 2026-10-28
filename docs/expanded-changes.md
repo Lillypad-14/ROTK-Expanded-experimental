@@ -16,7 +16,7 @@ See [Gauntlet](gauntlet.md), [the boon catalog](gauntlet-boons.md), and [the cur
 For each hero's idea, mechanic and full skill list, see [heroes](heroes.md). For the hooks behind them, see
 [engine changes](engine-changes.md).
 
-Expanded adds a second skill page and hero-specific mechanics for all ten heroes. Eowyn's new kit remains experimental and uses stock icons. Skill definitions, descriptions, upgrade wiring and cast policies live in [`skill_expansion_content.c`](../hacks/patches/skill_expansion/skill_expansion_content.c). This is the current source for individual moves and prerequisites. The [skill-tree notebook](wip-docs/skill-tree.md) contains design context that may differ from the implementation.
+Expanded adds a second skill page and hero-specific mechanics for all ten heroes. Eowyn's new kit remains experimental and has its own icons. Skill definitions, descriptions, upgrade wiring and cast policies live in [`skill_expansion_content.c`](../hacks/patches/skill_expansion/skill_expansion_content.c). This is the current source for individual moves and prerequisites. The [skill-tree notebook](wip-docs/skill-tree.md) contains design context that may differ from the implementation.
 
 | Hero | Expansion mechanic | Implementation |
 | --- | --- | --- |
