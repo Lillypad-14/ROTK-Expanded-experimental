@@ -66,7 +66,8 @@ union GlobalModOptionsArea {
         u8 experimentalState[2]; // experimental: struct ExperimentalState overlays these bytes
         u8 gauntletState[24]; // gauntlet: struct GauntletMeta overlays these bytes
         u8 versusState; // versus: struct VersusState overlays this byte
-        u8 reserved[GLOBAL_MOD_OPTIONS_SIZE - 46];
+        u8 legacySkillsState; // legacy_skills: LEGACY_SKILLS_OFF, any other value is on
+        u8 reserved[GLOBAL_MOD_OPTIONS_SIZE - 47];
     } d;
 };
 

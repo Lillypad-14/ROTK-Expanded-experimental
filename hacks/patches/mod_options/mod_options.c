@@ -43,6 +43,9 @@
 #if HACK_versus
 #include "patches/versus/versus.h"
 #endif
+#if HACK_legacy_skills && PC_EDITION
+#include "patches/legacy_skills/legacy_skills.h"
+#endif
 #if HACK_demo_pages
 #include "patches/demo_pages/demo_pages.h"
 #endif
@@ -95,6 +98,9 @@ static const struct ModOptionsPage ModOptionsPages[] = {
 #endif
 #if HACK_versus
     {"Versus", VersusOptions, VERSUS_OPTION_COUNT, NULL},
+#endif
+#if HACK_legacy_skills && PC_EDITION
+    {"Two Towers", LegacySkillsOptions, LEGACY_SKILLS_OPTION_COUNT, NULL},
 #endif
 #if HACK_debug_cheats
     {"Combat Lab", DebugLabOptions, DEBUG_LAB_OPTION_COUNT, NULL},

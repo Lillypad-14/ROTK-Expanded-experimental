@@ -125,6 +125,20 @@ static bool32 readRecord(u8 record[LEGACY_SKILL_SAVE_RECORD_SIZE])
 // The legacy skill record of the character player 0 plays, record[0] != tag when it has none.
 // Purchases change it; the slot gets it when the game is saved.
 static u8 loadedRecord[LEGACY_SKILL_SAVE_RECORD_SIZE];
+// The Legacy Skills option when that character was loaded. Off, its record is kept but its skills
+// and their page are not there.
+static bool shownThisGame;
+
+// The Legacy Skills mod option's byte; any other value, the blank save's 0xFF included, is on.
+#define LEGACY_SKILLS_OFF 1
+
+static bool32 optionOn(void)
+{
+    u8 state;
+
+    GLOBAL_MOD_OPTIONS_READ(legacySkillsState, &state);
+    return state != LEGACY_SKILLS_OFF;
+}
 #endif
 
 // The legacy skill record of the character player 0 plays, FALSE when it has none. The PC edition
@@ -133,7 +147,7 @@ static bool32 playedRecord(u8 record[LEGACY_SKILL_SAVE_RECORD_SIZE])
 {
 #if SKILL_EXPANSION_LEGACY_ACTIVE_COUNT
     memory_memcpy(record, loadedRecord, LEGACY_SKILL_SAVE_RECORD_SIZE);
-    return record[0] == LEGACY_SKILL_RECORD_TAG;
+    return shownThisGame && record[0] == LEGACY_SKILL_RECORD_TAG;
 #else
     return readRecord(record);
 #endif
@@ -728,6 +742,7 @@ void legacySkills_buildRows(u8 heroId, u8 playerIndex)
     {
         return;
     }
+    shownThisGame = FALSE;
     if (heroId >= LEGACY_HERO_COUNT)
     {
         loadedRecord[0] = LEGACY_SKILL_RECORD_EMPTY;
@@ -739,6 +754,12 @@ void legacySkills_buildRows(u8 heroId, u8 playerIndex)
         memory_memset(loadedRecord, 0, sizeof(loadedRecord));
         loadedRecord[0] = LEGACY_SKILL_RECORD_TAG;
         loadedRecord[1] = heroId;
+    }
+    // Off, the record still goes back to the slot on save.
+    shownThisGame = optionOn();
+    if (!shownThisGame)
+    {
+        return;
     }
     buildIcons(heroId, sx->activeSkillIcons[0]);
     actives = HeroActives[heroId];
@@ -784,7 +805,7 @@ static const u16 HeroSkillTextIds[LEGACY_HERO_COUNT] = {348, 359, 370, 381, 403,
 
 bool32 legacySkills_loaded(u8 playerIndex)
 {
-    return playerIndex == 0 && loadedRecord[0] == LEGACY_SKILL_RECORD_TAG &&
+    return playerIndex == 0 && shownThisGame && loadedRecord[0] == LEGACY_SKILL_RECORD_TAG &&
            loadedRecord[1] == PLAYER(0).heroId && loadedRecord[1] < LEGACY_HERO_COUNT;
 }
 
@@ -898,5 +919,26 @@ const char *legacySkills_text(u32 skill)
     id = HeroSkillTextIds[loadedRecord[1]] + skill;
     return id < data->stringCount ? data->strings[language][id] : NULL;
 }
+
+#if HACK_mod_options
+static const char *const OffOnNames[2] = {"Off", "On"};
+
+static u8 get_enabled(void)
+{
+    return optionOn();
+}
+
+static void set_enabled(u8 value)
+{
+    u8 state = value ? 0 : LEGACY_SKILLS_OFF;
+
+    GLOBAL_MOD_OPTIONS_WRITE(legacySkillsState, &state);
+}
+
+const struct ModOptionEntry LegacySkillsOptions[LEGACY_SKILLS_OPTION_COUNT] = {
+    {"Legacy Skills", OffOnNames, 2, 0, get_enabled, set_enabled,
+     "The Two Towers skill page.\nApplies when a game loads."},
+};
+#endif
 
 #endif

@@ -28,4 +28,11 @@ u8 legacySkills_level(u32 skill);
 const void *legacySkills_icon(u32 skill);
 // "Name (Level n) - description" in the game's language, or NULL.
 const char *legacySkills_text(u32 skill);
+
+// The mod options page: Legacy Skills on or off.
+#include "patches/mod_options/mod_options.h"
+
+#define LEGACY_SKILLS_OPTION_COUNT 1
+
+extern const struct ModOptionEntry LegacySkillsOptions[LEGACY_SKILLS_OPTION_COUNT];
 #endif
