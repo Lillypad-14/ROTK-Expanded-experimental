@@ -91,6 +91,23 @@ _Static_assert(SKILL_EXPANSION_SAVE_OFF + SKILL_EXPANSION_SAVE_SIZE <= SRAM_SIZE
 _Static_assert(SKILL_EXPANSION_ID_SAVE_OFF + SKILL_EXPANSION_ID_SAVE_SIZE <= SRAM_SIZE,
                "skill ID records overrun the save chip");
 
+// Region 7: legacy skill records, one per slot of every page (PC super game: a hero imported
+// from The Two Towers). Tag (0x01; 0xFF = none), Two Towers hero id, its 11 skill levels.
+// tools/ttt_import.py (rotk-recompiled) writes these offsets.
+#define LEGACY_SKILL_SAVE_OFF (SKILL_EXPANSION_ID_SAVE_OFF + SKILL_EXPANSION_ID_SAVE_SIZE)
+#define LEGACY_SKILL_SAVE_RECORD_SIZE 16u
+#define LEGACY_SKILL_SAVE_SIZE                                                                     \
+    (SAVE_SLOT_PAGE_COUNT * SAVE_SLOTS_PER_PAGE * LEGACY_SKILL_SAVE_RECORD_SIZE)
+
+// Region 8: the legacy item pool, global because the ranger hollow is shared. "TTLG", u16 entry
+// count, u16 reserved, then 4-byte Two Towers items. A legacy item handle (UNIQUE, base 0xFE)
+// holds an entry index; entries are never reused.
+#define LEGACY_ITEM_POOL_OFF (LEGACY_SKILL_SAVE_OFF + LEGACY_SKILL_SAVE_SIZE)
+#define LEGACY_ITEM_POOL_ENTRIES 1024u
+#define LEGACY_ITEM_POOL_SIZE (8u + LEGACY_ITEM_POOL_ENTRIES * 4u)
+_Static_assert(LEGACY_ITEM_POOL_OFF + LEGACY_ITEM_POOL_SIZE <= SRAM_SIZE,
+               "legacy regions overrun the save chip");
+
 // Save-format header magic. The base game and SavSlotPages both carry "ROTKGBA6"; the
 // current header is built entirely in C (modSave_stampHeaderMirror), so bumping the
 // version here carries every writer and validator with it.
