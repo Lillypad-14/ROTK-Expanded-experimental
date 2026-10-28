@@ -33,6 +33,11 @@ void skillExpansion_coopSend(u8 kind, const u8 *data)
     memcpy(sent[sentCount++], data, SKILL_EXPANSION_MP_DATA_SIZE);
 }
 
+bool32 skillExpansion_heroSelectTick(void)
+{
+    return FALSE;
+}
+
 static void castNothing(Actor *playerActor)
 {
     (void)playerActor;

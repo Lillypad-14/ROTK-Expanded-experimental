@@ -124,7 +124,13 @@ def main() -> None:
                 "-Wno-void-pointer-to-int-cast",
                 *(
                     f"-I{root / path}"
-                    for path in ("include", "carved/include", "build/include", "hacks")
+                    for path in (
+                        "include",
+                        "carved/include",
+                        "build/include",
+                        "build/hack_include",
+                        "hacks",
+                    )
                 ),
                 str(helpers),
                 str(root / "hacks/tests/memory_support.c"),

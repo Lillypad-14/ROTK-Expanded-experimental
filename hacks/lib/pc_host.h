@@ -6,6 +6,7 @@
 #include "actor.h"
 #include "text.h"
 #include "types.h"
+#include <stdint.h>
 
 #define PC_HOST_INFO_ADDRESS 0x12000000
 #define PC_HOST_INFO_MAGIC 0x31435052 // "RPC1"
@@ -115,6 +116,6 @@ static inline const TwoTowersData *hackLib_twoTowersData(void)
     const volatile PcHostInfo *info = hackLib_pcHostInfo();
     if (info == NULL || info->version < 4 || info->twoTowers == 0)
         return NULL;
-    const TwoTowersData *data = (const TwoTowersData *)info->twoTowers;
+    const TwoTowersData *data = (const TwoTowersData *)(uintptr_t)info->twoTowers;
     return data->magic == TWO_TOWERS_DATA_MAGIC ? data : NULL;
 }

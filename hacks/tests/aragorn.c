@@ -64,6 +64,11 @@ s32 skillExpansion_getPassiveLevel(u8 p, u8 id)
     (void)p;
     return passiveLevels[id];
 }
+bool32 skillExpansion_playerExpanded(u8 p)
+{
+    (void)p;
+    return TRUE;
+}
 static bool nativeHit = TRUE;
 static bool nativeIncomingHit, nativeCritical, nativeAbsorb, nativeRetaliate;
 static bool retaliateFromEvent, healFromEvent;

@@ -164,6 +164,11 @@ bool32 skillExpansion_isFoe(Actor *a)
 {
     return a == &foe && foe.currentHp > 0 && !(foe.flags.p & ACTOR_FLAG_PENDING_REMOVE);
 }
+bool32 skillExpansion_playerExpanded(u8 p)
+{
+    (void)p;
+    return TRUE;
+}
 bool32 skillExpansion_isPlayerAvatar(Actor *a)
 {
     return a == &avatar;

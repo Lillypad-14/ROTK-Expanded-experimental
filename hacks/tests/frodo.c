@@ -124,6 +124,11 @@ bool32 skillExpansion_isFoe(Actor *actor)
 {
     abort();
 }
+bool32 skillExpansion_playerExpanded(u8 p)
+{
+    (void)p;
+    return TRUE;
+}
 HackLibDamageResult skillExpansion_dealDamage(Actor *attacker, Actor *victim, u16 damage, u8 kind,
                                               u8 abilityRow)
 {
