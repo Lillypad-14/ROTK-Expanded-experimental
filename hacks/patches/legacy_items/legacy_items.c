@@ -6,6 +6,7 @@
 #include "patches/mod_save/save_layout.h"
 #include "patches/mod_save/save_slots.h"
 #include "patches/mod_save/save_sram.h"
+#include "font.h"
 #include "input.h"
 #include "lib/pc_host.h"
 #include "player.h"
@@ -181,10 +182,22 @@ asm(".section .text\n"
     "    mov  r5, r8\n"
     "    ldr  r3, =save_deserializePlayer + 8\n"
     "    bx   r3\n"
+    "    .pool\n"
+    ".balign 4\n"
+    ".global legacyItems_original_drawActionPanel\n"
+    ".thumb_func\n"
+    "legacyItems_original_drawActionPanel:\n"
+    "    push {r4, r5, lr}\n"
+    "    sub  sp, #8\n"
+    "    mov  r0, #2\n"
+    "    str  r0, [sp]\n"
+    "    ldr  r3, =scene_saveLoadMenu_drawActionPanel + 8\n"
+    "    bx   r3\n"
     "    .pool\n");
 
 void legacyItems_original_serializePlayer(u16 *slotBuffer, u32 mission);
 void legacyItems_original_deserializePlayer(u32 *slotBuffer, u32 playerIndex);
+void legacyItems_original_drawActionPanel(void);
 
 static LegacyItemsScratch *scratch(void)
 {
@@ -308,6 +321,8 @@ static bool32 buildRows(Item *out, u32 row, TwoTowersItem source)
 
     ItemStatRecord *baseRow = (ItemStatRecord *)&info->baseItems[row];
     clearRecord(baseRow, LEGACY_ITEMS_TEXT_ID_BASE + recordNameId(base));
+    // Two Towers gear has no level requirement: tier 1 is the lowest minimum level ROTK shows.
+    baseRow->tier = 1;
     addRecordStats(baseRow, base, damageStat);
     copyWords((ItemGfx *)&info->baseGfx[row], &info->baseGfx[legacy->templateBase],
               sizeof(ItemGfx));
@@ -830,4 +845,29 @@ bool32 legacyItems_saveMenuTick(void)
         sfx_play(SFX_MENU_CURSOR_MOVE);
     }
     return TRUE;
+}
+
+#define IMPORT_HINT_TILE 0x1c0
+#define IMPORT_HINT_X 0x60
+#define IMPORT_HINT_Y 0x8a
+
+/**
+ * Draw the action panel, with "L Import" on the Load Game menu when The Two Towers' save holds a
+ * hero.
+ *
+ * REPLACES (entry hook): scene_saveLoadMenu_drawActionPanel.
+ */
+void legacyItems_drawActionPanel(void)
+{
+    const TwoTowersData *data = hackLib_twoTowersData();
+
+    legacyItems_original_drawActionPanel();
+    if (scratch() == NULL || data == NULL ||
+        SCENE_ARG_SAVE_LOAD_STATE != SAVE_LOAD_STATE_SLOT_SELECT ||
+        SCENE_ARG_SAVE_LOAD_MODE != SAVE_LOAD_MODE_LOAD || nextSlot(data, 0, 1) == NO_SLOT)
+    {
+        return;
+    }
+    font_setStyle(FONT_STYLE_11PX_B, 3, 0);
+    font_drawString(IMPORT_HINT_TILE, IMPORT_HINT_X, IMPORT_HINT_Y, "L Import", 0);
 }
