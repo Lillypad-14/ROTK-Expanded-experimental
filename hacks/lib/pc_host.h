@@ -99,7 +99,7 @@ typedef struct TwoTowersData
     // the Two Towers save's character slots, 0x78 bytes each, zeroed for an empty one
     const u8 *saveSlots;
     u32 saveSlotCount;
-    // per base item: its backpack icon, a 16-byte SpriteAnimation (NULL tiles for none)
+    // per base item: its backpack icon in ROTK's style, a SpriteAnimation (NULL tiles for none)
     const u8 *baseItemIcons;
 } TwoTowersData;
 

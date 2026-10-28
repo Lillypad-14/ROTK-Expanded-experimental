@@ -326,6 +326,17 @@ static bool32 buildRows(Item *out, u32 row, TwoTowersItem source)
     addRecordStats(baseRow, base, damageStat);
     copyWords((ItemGfx *)&info->baseGfx[row], &info->baseGfx[legacy->templateBase],
               sizeof(ItemGfx));
+    // The Two Towers icon, redrawn in ROTK's backpack icon style by the PC host.
+    if (data->baseItemIcons != NULL)
+    {
+        const SpriteAnimation *icon =
+            (const SpriteAnimation *)data->baseItemIcons + source.d.baseIndex;
+        if (icon->tiles != NULL)
+        {
+            copyWords((SpriteAnimation *)&info->baseGfx[row].animation, icon,
+                      sizeof(SpriteAnimation));
+        }
+    }
 
     ItemMetadata *metadata = (ItemMetadata *)&info->baseMetadata[row];
     copyWords(metadata, &info->baseMetadata[legacy->templateBase], sizeof(ItemMetadata));
