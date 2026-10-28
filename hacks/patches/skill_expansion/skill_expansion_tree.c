@@ -684,7 +684,7 @@ void skillExpansion_treeDrawPassiveTile(u8 playerIndex, u8 passiveSkillId, u8 ti
 
 #if SKILL_EXPANSION_LEGACY_ACTIVE_COUNT
 // The legacy page's passive grid: the Two Towers passives, then a seventh active that has no
-// active tile. The hero's stock passive icons stand in until the Two Towers icons are converted.
+// active tile.
 
 /** The Two Towers skill a passive tile of the legacy page shows, or -1. */
 static s32 legacyPassiveTileSkill(u32 tile)
@@ -721,12 +721,16 @@ static void drawLegacyPassiveGrid(u8 playerIndex)
             drawEmptyTile(pos);
             continue;
         }
-        icon = (u32)skill < legacySkills_passiveCount()
-                   ? skillExpansion_getPassiveIcon(
-                         PLAYER(playerIndex).passiveSkillIds[skill % HERO_PASSIVE_SKILL_COUNT])
-                   : skillExpansion_players[playerIndex]
-                         .activeSkillIcons[SKILL_EXPANSION_FIRST_LEGACY_ACTIVE_ROW +
-                                           SKILL_TREE_ACTIVE_TILE_COUNT];
+        icon = legacySkills_icon(skill);
+        if (icon == NULL)
+        {
+            icon = (u32)skill < legacySkills_passiveCount()
+                       ? skillExpansion_getPassiveIcon(
+                             PLAYER(playerIndex).passiveSkillIds[skill % HERO_PASSIVE_SKILL_COUNT])
+                       : skillExpansion_players[playerIndex]
+                             .activeSkillIcons[SKILL_EXPANSION_FIRST_LEGACY_ACTIVE_ROW +
+                                               SKILL_TREE_ACTIVE_TILE_COUNT];
+        }
         if (icon == NULL)
         {
             drawEmptyTile(pos);

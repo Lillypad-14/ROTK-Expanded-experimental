@@ -189,6 +189,68 @@ static const LegacyActive HeroActives[LEGACY_HERO_COUNT][SKILL_EXPANSION_LEGACY_
 // The legacy skill record of the character player 0 plays, record[0] != tag when it has none.
 static u8 loadedRecord[LEGACY_SKILL_SAVE_RECORD_SIZE];
 
+// A ROTK skill icon: a BG asset header (raw 4bpp tiles, no palette) and 4x3 tiles.
+#define SKILL_ICON_HEADER_SIZE 4
+#define SKILL_ICON_WIDTH 32
+#define SKILL_ICON_HEIGHT 24
+#define SKILL_ICON_TILE_BYTES (SKILL_ICON_WIDTH * SKILL_ICON_HEIGHT / 2)
+#define SKILL_ICON_RAW_TILES 0x10
+#define SKILL_ICON_FRAME_COLOR_LAST 7
+
+typedef struct LegacySkillIcon
+{
+    u8 header[SKILL_ICON_HEADER_SIZE];
+    u8 tiles[SKILL_ICON_TILE_BYTES];
+} LegacySkillIcon;
+
+// The loaded hero's Two Towers skill icons, valid while iconsBuilt.
+static LegacySkillIcon icons[LEGACY_SKILL_COUNT];
+static bool iconsBuilt;
+
+static u8 *iconPixelByte(u8 *tiles, u32 x, u32 y)
+{
+    return &tiles[((y / 8) * (SKILL_ICON_WIDTH / 8) + x / 8) * 32 + (y % 8) * 4 + (x % 8) / 2];
+}
+
+/**
+ * Draw the hero's Two Towers skill icons in ROTK's style: the outer border of a stock icon (`frame`,
+ * raw tiles) around the Two Towers art the PC host converted.
+ */
+static void buildIcons(u32 heroId, const u8 *frame)
+{
+    const TwoTowersData *data = hackLib_twoTowersData();
+
+    iconsBuilt = FALSE;
+    if (data == NULL || data->skillArt == NULL || frame == NULL || frame[0] != SKILL_ICON_RAW_TILES)
+    {
+        return;
+    }
+    for (u32 skill = 0; skill < LEGACY_SKILL_COUNT; skill++)
+    {
+        const u8 *art = data->skillArt + (heroId * LEGACY_SKILL_COUNT + skill) * SKILL_ICON_TILE_BYTES;
+        LegacySkillIcon *icon = &icons[skill];
+
+        memory_memcpy(icon->header, frame, SKILL_ICON_HEADER_SIZE);
+        memory_memcpy(icon->tiles, art, SKILL_ICON_TILE_BYTES);
+        for (u32 y = 0; y < SKILL_ICON_HEIGHT; y++)
+        {
+            for (u32 x = 0; x < SKILL_ICON_WIDTH; x++)
+            {
+                u32 shift = (x & 1) * 4;
+                u8 border = (*iconPixelByte((u8 *)frame + SKILL_ICON_HEADER_SIZE, x, y) >> shift) & 0xf;
+                u8 *at = iconPixelByte(icon->tiles, x, y);
+
+                if ((x <= 1 || x >= SKILL_ICON_WIDTH - 2 || y == 0 || y == SKILL_ICON_HEIGHT - 1) &&
+                    border != 0 && border <= SKILL_ICON_FRAME_COLOR_LAST)
+                {
+                    *at = (*at & ~(0xf << shift)) | (border << shift);
+                }
+            }
+        }
+    }
+    iconsBuilt = TRUE;
+}
+
 void legacySkills_buildRows(u8 heroId, u8 playerIndex)
 {
     SkillExpansionPlayer *sx = &skillExpansion_players[playerIndex];
@@ -214,6 +276,7 @@ void legacySkills_buildRows(u8 heroId, u8 playerIndex)
         loadedRecord[0] = LEGACY_SKILL_RECORD_EMPTY;
         return;
     }
+    buildIcons(heroId, sx->activeSkillIcons[0]);
     actives = HeroActives[heroId];
     first = 2 + HeroPassives[heroId].count;
     for (u32 i = 0; i < SKILL_EXPANSION_LEGACY_ACTIVE_COUNT && first + i < 2 + LEGACY_SKILL_COUNT;
@@ -230,7 +293,8 @@ void legacySkills_buildRows(u8 heroId, u8 playerIndex)
         memory_memcpy(&sx->activeSkills[row], &sx->activeSkills[def->baseRow], sizeof(ActiveSkill));
         sx->activeSkills[row].spiritCost = actives[i].spiritCost;
         sx->activeSkills[row].callback = skillExpansion_castStockCallback;
-        sx->activeSkillIcons[row] = sx->activeSkillIcons[def->baseRow];
+        sx->activeSkillIcons[row] = iconsBuilt ? (const void *)&icons[first - 2 + i]
+                                               : sx->activeSkillIcons[def->baseRow];
         sx->activeDefs[row - SKILL_EXPANSION_FIRST_NEW_ACTIVE_ROW] = def;
         *skillExpansion_activeCycleEnabled(playerIndex, row) = TRUE;
         // The stock curves have five levels.
@@ -277,6 +341,11 @@ u8 legacySkills_level(u32 skill)
     u8 level = skill < LEGACY_SKILL_COUNT ? loadedRecord[2 + skill] : 0;
 
     return level > LEGACY_SKILL_LEVEL_MAX ? 0 : level;
+}
+
+const void *legacySkills_icon(u32 skill)
+{
+    return legacySkills_loaded(0) && iconsBuilt && skill < LEGACY_SKILL_COUNT ? &icons[skill] : NULL;
 }
 
 const char *legacySkills_text(u32 skill)
