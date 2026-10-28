@@ -1,3 +1,6 @@
+#if HACK_legacy_skills
+#include "patches/legacy_skills/legacy_skills.h"
+#endif
 #include "font.h"
 #include "game.h"
 #include "gba_io.h"
@@ -22,8 +25,20 @@
 // one. Actor ticks, the HUD and co-op messages run between the swaps and see every row in its own
 // place, so purchases are applied by unswapped row and both co-op consoles apply the same ones.
 
-// 0: stock skills. 1: the new skills, swapped in while the tree handles input and draws.
+// 0: stock skills. 1: the new skills, swapped in while the tree handles input and draws. 2 (PC
+// edition): the Two Towers skills of an imported hero, its active rows swapped in the same way.
 u8 skillExpansion_treePage;
+
+#define TREE_PAGE_STOCK 0
+#define TREE_PAGE_EXPANDED 1
+#define TREE_PAGE_LEGACY 2
+#define TREE_PAGE_COUNT 3
+
+#if SKILL_EXPANSION_LEGACY_ACTIVE_COUNT
+#define LEGACY_PAGE_SHOWN() (skillExpansion_treePage == TREE_PAGE_LEGACY)
+#else
+#define LEGACY_PAGE_SHOWN() FALSE
+#endif
 
 // TRUE when an applied action changed the active player's tree, which redraws on its next tick.
 static bool redrawPending;
@@ -89,27 +104,48 @@ static void swapU8(u8 *a, u8 *b)
 
 /** Active slots the page turn swaps: 6 when the hero has a row 12, else 5 (Herbal Healing stays).
  */
-static u32 pageActiveCount(u8 playerIndex)
+static u32 pageActiveCountOf(u8 playerIndex, u32 page)
 {
+#if SKILL_EXPANSION_LEGACY_ACTIVE_COUNT
+    // The legacy page shows the first six actives in the active grid, a seventh with the passives.
+    if (page == TREE_PAGE_LEGACY)
+    {
+        u32 count = legacySkills_activeCount();
+
+        return count < SKILL_TREE_ACTIVE_TILE_COUNT ? count : SKILL_TREE_ACTIVE_TILE_COUNT;
+    }
+#endif
+    (void)page;
     return skillExpansion_players[playerIndex].activeDefs[SKILL_EXPANSION_NEW_ACTIVE_COUNT - 1] !=
                    NULL
                ? SKILL_EXPANSION_NEW_ACTIVE_COUNT
                : SKILL_EXPANSION_NEW_ACTIVE_COUNT - 1;
 }
 
-/** The row an active skill row shows up as after turning the page. */
-static u32 rowOnOtherPage(u8 playerIndex, u32 row)
+static u32 pageActiveCount(u8 playerIndex)
 {
-    u32 count = pageActiveCount(playerIndex);
+    return pageActiveCountOf(playerIndex, skillExpansion_treePage);
+}
+
+static u32 pageFirstRow(u32 page)
+{
+    return page == TREE_PAGE_LEGACY ? SKILL_EXPANSION_FIRST_LEGACY_ACTIVE_ROW
+                                    : SKILL_EXPANSION_FIRST_NEW_ACTIVE_ROW;
+}
+
+/** The row an active skill row shows up as while `page` is swapped in, or out again. */
+static u32 rowOnPage(u8 playerIndex, u32 row, u32 page)
+{
+    u32 count = pageActiveCountOf(playerIndex, page);
+    u32 first = pageFirstRow(page);
 
     if (row < count)
     {
-        return row + SKILL_EXPANSION_FIRST_NEW_ACTIVE_ROW;
+        return row + first;
     }
-    if (row >= SKILL_EXPANSION_FIRST_NEW_ACTIVE_ROW &&
-        row < SKILL_EXPANSION_FIRST_NEW_ACTIVE_ROW + count)
+    if (row >= first && row < first + count)
     {
-        return row - SKILL_EXPANSION_FIRST_NEW_ACTIVE_ROW;
+        return row - first;
     }
     return row;
 }
@@ -117,19 +153,24 @@ static u32 rowOnOtherPage(u8 playerIndex, u32 row)
 /** Where a row the tree shows sits outside the page swap. */
 static u32 unswappedRow(u8 playerIndex, u32 row)
 {
-    return skillExpansion_treePage != 0 ? rowOnOtherPage(playerIndex, row) : row;
+    return skillExpansion_treePage != TREE_PAGE_STOCK
+               ? rowOnPage(playerIndex, row, skillExpansion_treePage)
+               : row;
 }
 
-/** Swap page 2's rows and slots with the stock ones. Swapping twice restores them. */
-static void swapRows(u8 playerIndex)
+/**
+ * Swap a page's rows (and page 2's passive slots) with the stock ones. Swapping twice restores
+ * them.
+ */
+static void swapPage(u8 playerIndex, u32 page)
 {
     SkillExpansionPlayer *sx = &skillExpansion_players[playerIndex];
-    u32 count = pageActiveCount(playerIndex);
+    u32 count = pageActiveCountOf(playerIndex, page);
     u32 i;
 
     for (i = 0; i < count; i++)
     {
-        u32 row = SKILL_EXPANSION_FIRST_NEW_ACTIVE_ROW + i;
+        u32 row = pageFirstRow(page) + i;
         ActiveSkill tmpRow;
         const void *tmpIcon;
 
@@ -147,7 +188,7 @@ static void swapRows(u8 playerIndex)
                skillExpansion_activeCycleEnabled(playerIndex, row));
     }
 
-    for (i = 0; i < SKILL_EXPANSION_NEW_PASSIVE_COUNT; i++)
+    for (i = 0; i < SKILL_EXPANSION_NEW_PASSIVE_COUNT && page == TREE_PAGE_EXPANDED; i++)
     {
         u32 slot = HERO_PASSIVE_SKILL_COUNT + i;
 
@@ -161,12 +202,21 @@ static void swapRows(u8 playerIndex)
     for (i = 0; i < 3; i++)
     {
         PLAYER(playerIndex).quickSelectActiveSkills[i] =
-            rowOnOtherPage(playerIndex, PLAYER(playerIndex).quickSelectActiveSkills[i]);
+            rowOnPage(playerIndex, PLAYER(playerIndex).quickSelectActiveSkills[i], page);
     }
     if (!g_SaveGlobals.d.optionsFlags.d.quickSkillSelect)
     {
-        PLAYER(playerIndex).selectedActiveSkill.cycleSkillIndex =
-            rowOnOtherPage(playerIndex, PLAYER(playerIndex).selectedActiveSkill.cycleSkillIndex);
+        PLAYER(playerIndex).selectedActiveSkill.cycleSkillIndex = rowOnPage(
+            playerIndex, PLAYER(playerIndex).selectedActiveSkill.cycleSkillIndex, page);
+    }
+}
+
+/** Swap the shown page in or out, around the tree's input handling and drawing. */
+static void swapShownPage(u8 playerIndex)
+{
+    if (skillExpansion_treePage != TREE_PAGE_STOCK)
+    {
+        swapPage(playerIndex, skillExpansion_treePage);
     }
 }
 
@@ -177,6 +227,46 @@ static bool canTurnPage(u8 playerIndex)
            skillExpansion_playerExpanded(playerIndex);
 }
 
+static bool pageAvailable(u8 playerIndex, u32 page)
+{
+    switch (page)
+    {
+    case TREE_PAGE_STOCK:
+        return TRUE;
+    case TREE_PAGE_EXPANDED:
+        return canTurnPage(playerIndex);
+#if SKILL_EXPANSION_LEGACY_ACTIVE_COUNT
+    case TREE_PAGE_LEGACY:
+        return PLAYER(playerIndex).activeSkills ==
+                   skillExpansion_players[playerIndex].activeSkills &&
+               legacySkills_loaded(playerIndex);
+#endif
+    }
+    return FALSE;
+}
+
+/** The page after (step 1) or before (step -1) the shown one, skipping pages the hero lacks. */
+static u32 nextPage(u8 playerIndex, s32 step)
+{
+    u32 page = skillExpansion_treePage;
+    u32 i;
+
+    for (i = 0; i < TREE_PAGE_COUNT; i++)
+    {
+        page = (page + TREE_PAGE_COUNT + step) % TREE_PAGE_COUNT;
+        if (pageAvailable(playerIndex, page))
+        {
+            return page;
+        }
+    }
+    return skillExpansion_treePage;
+}
+
+static bool canTurn(u8 playerIndex)
+{
+    return nextPage(playerIndex, 1) != skillExpansion_treePage;
+}
+
 static bool activeRowIsEmpty(u8 playerIndex, u32 row)
 {
     return PLAYER(playerIndex).activeSkills[row].callback == NULL;
@@ -185,7 +275,8 @@ static bool activeRowIsEmpty(u8 playerIndex, u32 row)
 /** TRUE while the tree shows a page 2 bought with the Tally instead of skill points. */
 static bool tallyPage(u8 playerIndex)
 {
-    return skillExpansion_treePage != 0 && skillExpansion_gimliUsesTally(playerIndex);
+    return skillExpansion_treePage == TREE_PAGE_EXPANDED &&
+           skillExpansion_gimliUsesTally(playerIndex);
 }
 
 /**
@@ -300,10 +391,17 @@ static void drawPage(u8 playerIndex)
     }
 }
 
-static void turnPage(u8 playerIndex)
+/**
+ * Turn to the next page (step 1) or the one before (step -1). Runs with the shown page swapped in,
+ * and leaves the new one swapped in.
+ */
+static void turnPage(u8 playerIndex, s32 step)
 {
-    swapRows(playerIndex);
-    skillExpansion_treePage ^= 1;
+    u32 page = nextPage(playerIndex, step);
+
+    swapShownPage(playerIndex);
+    skillExpansion_treePage = page;
+    swapShownPage(playerIndex);
     drawPage(playerIndex);
 }
 
@@ -333,7 +431,7 @@ static void tintAssetPalette(const void *asset, u32 paletteNumber, const u16 *ar
     u16 tinted[PALETTE_COLOR_COUNT];
     u32 i;
 
-    if (skillExpansion_treePage == 0 || !(header[0] & BG_ASSET_FLAG_PALETTE))
+    if (skillExpansion_treePage != TREE_PAGE_EXPANDED || !(header[0] & BG_ASSET_FLAG_PALETTE))
     {
         return;
     }
@@ -385,7 +483,7 @@ static void tintTileForBuild(const void *asset, u32 paletteNumber, const Vector2
                                                     : BUILD_PALETTE_FIRST + build - 1;
     tintAssetPalette(asset, buildBank - (header[1] >> 4),
                      skillExpansion_buildArtRamp(build, FALSE));
-    if (skillExpansion_treePage == 0)
+    if (skillExpansion_treePage != TREE_PAGE_EXPANDED)
     {
         return;
     }
@@ -436,7 +534,7 @@ void skillExpansion_treeHandleDpad(void)
     u32 oldTile = SCENE_ARG_SKILL_TREE_CURSOR & 0xff;
     u32 oldGrid = SCENE_ARG_SKILL_TREE_GRID & 0xff;
     u32 tile = oldTile;
-    bool turned = FALSE;
+    s32 turned = 0; // 1: to the next page, -1: to the one before
 
     if (oldGrid != SKILL_TREE_GRID_ACTIVE && oldGrid != SKILL_TREE_GRID_PASSIVE)
     {
@@ -447,11 +545,11 @@ void skillExpansion_treeHandleDpad(void)
     {
     case DPAD_RIGHT:
         if (oldGrid == SKILL_TREE_GRID_ACTIVE && ActiveRightEdgeTargets[oldTile] != NO_TILE &&
-            canTurnPage(playerIndex))
+            canTurn(playerIndex))
         {
             tile = ActiveRightEdgeTargets[oldTile];
             SCENE_ARG_SKILL_TREE_GRID = SKILL_TREE_GRID_PASSIVE;
-            turned = TRUE;
+            turned = 1;
         }
         else
         {
@@ -460,11 +558,11 @@ void skillExpansion_treeHandleDpad(void)
         break;
     case DPAD_LEFT:
         if (oldGrid == SKILL_TREE_GRID_PASSIVE && PassiveLeftEdgeTargets[oldTile] != NO_TILE &&
-            canTurnPage(playerIndex))
+            canTurn(playerIndex))
         {
             tile = PassiveLeftEdgeTargets[oldTile];
             SCENE_ARG_SKILL_TREE_GRID = SKILL_TREE_GRID_ACTIVE;
-            turned = TRUE;
+            turned = -1;
         }
         else
         {
@@ -482,7 +580,7 @@ void skillExpansion_treeHandleDpad(void)
     SCENE_ARG_SKILL_TREE_CURSOR = tile;
     if (turned)
     {
-        turnPage(playerIndex);
+        turnPage(playerIndex, turned);
     }
     if (turned || tile != oldTile || SCENE_ARG_SKILL_TREE_GRID != oldGrid)
     {
@@ -495,7 +593,8 @@ void skillExpansion_treeHandleDpad(void)
 /** Replace the scene title with the page label, or the Tally on a Tally page. */
 static void drawTitle(u8 playerIndex)
 {
-    static const char *const PageTitles[] = {"Skills - Page 1", "Skills - Page 2"};
+    static const char *const PageTitles[TREE_PAGE_COUNT] = {"Skills - Page 1", "Skills - Page 2",
+                                                            "The Two Towers"};
     static const char TallyPrefix[] = "Tally: ";
     static const char TallySuffix[] = " kills";
     char text[sizeof(TallyPrefix) + sizeof(TallySuffix) + 8];
@@ -574,7 +673,7 @@ static void drawPageArrows(u8 playerIndex)
     loadArrowTiles();
     for (i = 0; i < ARROW_HEIGHT_TILES; i++)
     {
-        u16 entry = canTurnPage(playerIndex) ? ARROW_FIRST_TILE + i : 0;
+        u16 entry = canTurn(playerIndex) ? ARROW_FIRST_TILE + i : 0;
 
         gfx_fillBgRect(3, DISPLAY_TILE_WIDTH - 1, ARROW_TILE_Y + i, 1, 1, entry);
         gfx_fillBgRect(3, 0, ARROW_TILE_Y + i, 1, 1, entry ? entry | SCREEN_ENTRY_HFLIP : 0);
@@ -582,6 +681,102 @@ static void drawPageArrows(u8 playerIndex)
 }
 
 void skillExpansion_treeDrawPassiveTile(u8 playerIndex, u8 passiveSkillId, u8 tile, u8 level);
+
+#if SKILL_EXPANSION_LEGACY_ACTIVE_COUNT
+// The legacy page's passive grid: the Two Towers passives, then a seventh active that has no
+// active tile. The hero's stock passive icons stand in until the Two Towers icons are converted.
+
+/** The Two Towers skill a passive tile of the legacy page shows, or -1. */
+static s32 legacyPassiveTileSkill(u32 tile)
+{
+    u32 passives = legacySkills_passiveCount();
+
+    if (tile < passives)
+    {
+        return tile;
+    }
+    if (tile == passives && legacySkills_activeCount() > SKILL_TREE_ACTIVE_TILE_COUNT)
+    {
+        return passives + SKILL_TREE_ACTIVE_TILE_COUNT;
+    }
+    return -1;
+}
+
+static void drawLegacyPassiveGrid(u8 playerIndex)
+{
+    u32 tile;
+
+    for (tile = 0; tile < SKILL_TREE_PASSIVE_TILE_COUNT; tile++)
+    {
+        const Vector2Int *pos = &SkillTreePassiveTilePositions[tile];
+        s32 skill = legacyPassiveTileSkill(tile);
+        u16 iconTiles = tile * 0x10 + 0x1ff;
+        u16 levelTiles = tile * 0x10 + 0x20b;
+        const void *icon;
+        u32 level;
+
+        g_SkillTreePassiveTileSkillIds[tile] = SKILL_EXPANSION_PASSIVE_ID_NONE;
+        if (skill < 0)
+        {
+            drawEmptyTile(pos);
+            continue;
+        }
+        icon = (u32)skill < legacySkills_passiveCount()
+                   ? skillExpansion_getPassiveIcon(
+                         PLAYER(playerIndex).passiveSkillIds[skill % HERO_PASSIVE_SKILL_COUNT])
+                   : skillExpansion_players[playerIndex]
+                         .activeSkillIcons[SKILL_EXPANSION_FIRST_LEGACY_ACTIVE_ROW +
+                                           SKILL_TREE_ACTIVE_TILE_COUNT];
+        if (icon == NULL)
+        {
+            drawEmptyTile(pos);
+            continue;
+        }
+        level = legacySkills_level(skill);
+        if (level > ACTIVE_SKILL_MAX_LEVEL)
+        {
+            level = ACTIVE_SKILL_MAX_LEVEL;
+        }
+        gfx_unknown08012808(2, skillExpansion_getHeroTileBgAsset(playerIndex), iconTiles, 4,
+                            pos->x, pos->y);
+        gfx_loadBgAsset(2, icon, iconTiles, 4, pos->x, pos->y);
+        gfx_unknown080127d0(2, SkillTreeLevelDigitAssets[level], levelTiles, 5, pos->x,
+                            pos->y + TILE_ICON_HEIGHT);
+        gfx_loadBgAsset(1, SkillTreeTileFrameAsset, 0x2ef, 0, pos->x, pos->y);
+    }
+}
+
+/** The legacy page's description: the Two Towers text of the skill under the cursor. */
+static void drawLegacyDescription(void)
+{
+    u32 tile = SCENE_ARG_SKILL_TREE_CURSOR;
+    s32 skill = -1;
+    const char *text;
+
+    if (SCENE_ARG_SKILL_TREE_GRID != SKILL_TREE_GRID_ACTIVE)
+    {
+        skill = legacyPassiveTileSkill(tile);
+    }
+    else if (tile < pageActiveCount(g_PlayerGlobals.activePlayerIndex))
+    {
+        skill = legacySkills_passiveCount() + tile;
+    }
+    text = skill >= 0 ? legacySkills_text(skill) : NULL;
+    if (text != NULL)
+    {
+        font_drawLines(0x3d, 0x10, 0x83, 0xd0, (char *)text, 0);
+    }
+}
+#else
+static void drawLegacyPassiveGrid(u8 playerIndex)
+{
+    (void)playerIndex;
+}
+
+static void drawLegacyDescription(void)
+{
+}
+#endif
 
 /** Draw the tree's passive tiles whose first level requires `level`, from tile on. */
 static u8 drawPassiveTilesAtLevel(u8 playerIndex, u8 tile, u32 level)
@@ -616,6 +811,11 @@ void skillExpansion_treeDrawPassiveGrid(u8 playerIndex)
 
     drawTitle(playerIndex);
     drawPageArrows(playerIndex);
+    if (LEGACY_PAGE_SHOWN())
+    {
+        drawLegacyPassiveGrid(playerIndex);
+        return;
+    }
     for (level = 0; level <= SKILL_EXPANSION_MAX_REQUIRED_LEVEL; level++)
     {
         tile = drawPassiveTilesAtLevel(playerIndex, tile, level);
@@ -783,6 +983,11 @@ s32 skillExpansion_treeGetRequiredLevel(s32 playerIndex, s32 skill)
     const SkillExpansionActiveDef *def = NULL;
     u32 row = skill;
 
+    // Legacy levels come from The Two Towers, so the legacy page sells nothing.
+    if (LEGACY_PAGE_SHOWN())
+    {
+        return -1;
+    }
     if (SCENE_ARG_SKILL_TREE_GRID != SKILL_TREE_GRID_ACTIVE)
     {
         return passiveRequiredLevel(playerIndex, skill);
@@ -847,6 +1052,11 @@ void skillExpansion_treeDrawDescription(void)
 
     font_setStyle(FONT_STYLE_8PX_A, 3, -1);
     gfx_fillBgRect(3, 2, 0x10, 0x1a, 4, 0);
+    if (LEGACY_PAGE_SHOWN())
+    {
+        drawLegacyDescription();
+        return;
+    }
 
     if (SCENE_ARG_SKILL_TREE_GRID == SKILL_TREE_GRID_ACTIVE)
     {
@@ -1061,15 +1271,9 @@ static void submit(u8 playerIndex, u8 kind, const u8 *data)
         skillExpansion_coopSend(kind, data);
         return;
     }
-    if (skillExpansion_treePage != 0)
-    {
-        swapRows(playerIndex);
-    }
+    swapShownPage(playerIndex);
     skillExpansion_treeApply(playerIndex, kind, data, TRUE);
-    if (skillExpansion_treePage != 0)
-    {
-        swapRows(playerIndex);
-    }
+    swapShownPage(playerIndex);
     redrawIfPending(playerIndex);
 }
 
@@ -1089,6 +1293,11 @@ void skillExpansion_treeHandleA(void)
     s32 required;
 
     memory_memset(data, 0, sizeof(data));
+    if (LEGACY_PAGE_SHOWN())
+    {
+        sfx_play(SFX_MENU_ERROR);
+        return;
+    }
     if (SCENE_ARG_SKILL_TREE_GRID == SKILL_TREE_GRID_ACTIVE)
     {
         kind = SKILL_EXPANSION_MP_BUY_ACTIVE;
@@ -1250,10 +1459,7 @@ void skillExpansion_treeTick(void)
         }
     }
 
-    if (skillExpansion_treePage != 0)
-    {
-        swapRows(playerIndex);
-    }
+    swapShownPage(playerIndex);
     redrawIfPending(playerIndex);
     if (keys & A_BUTTON)
     {
@@ -1279,10 +1485,7 @@ void skillExpansion_treeTick(void)
     {
         skillExpansion_treeHandleSelect();
     }
-    if (skillExpansion_treePage != 0)
-    {
-        swapRows(playerIndex);
-    }
+    swapShownPage(playerIndex);
 
     actor_tickAll();
     if (linkMessages & MP_MSG_FLAG_2)

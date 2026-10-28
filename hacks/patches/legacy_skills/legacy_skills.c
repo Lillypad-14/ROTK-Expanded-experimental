@@ -8,11 +8,13 @@
 #include "patches/mod_save/save_slots.h"
 #include "patches/mod_save/save_sram.h"
 #include "patches/skill_expansion/skill_expansion.h"
+#include "lib/pc_host.h"
 #include "player.h"
 #include "scene.h"
 #include "scene/saveLoadMenu.h"
 #include "skill.h"
 #include "stats.h"
+#include "text.h"
 #include "variables.h"
 
 #define LEGACY_SKILL_RECORD_TAG 0x01
@@ -249,6 +251,47 @@ void legacySkills_slotCommitted(bool32 saved)
         record = empty;
     }
     modSave_copy(recordAddress(currentSlot()), record, LEGACY_SKILL_SAVE_RECORD_SIZE);
+}
+
+// The text of each hero's first skill in The Two Towers; its 11 skills follow in record order.
+static const u16 HeroSkillTextIds[LEGACY_HERO_COUNT] = {348, 359, 370, 381, 403, 392};
+
+bool32 legacySkills_loaded(u8 playerIndex)
+{
+    return playerIndex == 0 && loadedRecord[0] == LEGACY_SKILL_RECORD_TAG &&
+           loadedRecord[1] == PLAYER(0).heroId && loadedRecord[1] < LEGACY_HERO_COUNT;
+}
+
+u32 legacySkills_passiveCount(void)
+{
+    return legacySkills_loaded(0) ? HeroPassives[loadedRecord[1]].count : 0;
+}
+
+u32 legacySkills_activeCount(void)
+{
+    return legacySkills_loaded(0) ? LEGACY_SKILL_COUNT - HeroPassives[loadedRecord[1]].count : 0;
+}
+
+u8 legacySkills_level(u32 skill)
+{
+    u8 level = skill < LEGACY_SKILL_COUNT ? loadedRecord[2 + skill] : 0;
+
+    return level > LEGACY_SKILL_LEVEL_MAX ? 0 : level;
+}
+
+const char *legacySkills_text(u32 skill)
+{
+    const TwoTowersData *data = hackLib_twoTowersData();
+    u32 language = text_getLanguage();
+    u32 id;
+
+    if (data == NULL || !legacySkills_loaded(0) || skill >= LEGACY_SKILL_COUNT ||
+        language >= LANGUAGE_COUNT)
+    {
+        return NULL;
+    }
+    id = HeroSkillTextIds[loadedRecord[1]] + skill;
+    return id < data->stringCount ? data->strings[language][id] : NULL;
 }
 
 #endif
