@@ -5,11 +5,15 @@
 #include "patches/skill_expansion/skill_expansion_timeline.h"
 
 // Replacements for the active skill level and cast-input functions over all
-// SKILL_EXPANSION_ACTIVE_ROW_COUNT rows.
+// SKILL_EXPANSION_ACTIVE_ROW_CAPACITY rows.
 
 // L cycles through the rows in this order. Herbal Healing stays last.
 static const u8 CycleOrder[] = {
-    0, 1, 2, 3, 4, 7, 8, 9, 10, 11, 12, ACTIVE_SKILL_HERBAL_HEALING,
+    0, 1, 2, 3, 4, 7, 8, 9, 10, 11, 12,
+#if SKILL_EXPANSION_LEGACY_ACTIVE_COUNT
+    13, 14, 15, 16, 17, 18, 19,
+#endif
+    ACTIVE_SKILL_HERBAL_HEALING,
 };
 
 #define CYCLE_ORDER_COUNT (sizeof(CycleOrder) / sizeof(CycleOrder[0]))
@@ -23,7 +27,7 @@ static inline void revealSkillPanel(u8 playerIndex)
 
 static inline bool rowHasCallback(u8 playerIndex, u32 row)
 {
-    return row < SKILL_EXPANSION_ACTIVE_ROW_COUNT &&
+    return row < SKILL_EXPANSION_ACTIVE_ROW_CAPACITY &&
            PLAYER_ACTIVE_SKILL(playerIndex, row).callback != NULL;
 }
 
@@ -75,7 +79,7 @@ static void addToAllRows(u8 playerIndex, u8 count, s32 delta)
 
     for (n = 0; n < count; n++)
     {
-        for (row = 0; row < SKILL_EXPANSION_ACTIVE_ROW_COUNT; row++)
+        for (row = 0; row < SKILL_EXPANSION_ACTIVE_ROW_CAPACITY; row++)
         {
             if (rowHasCallback(playerIndex, row))
             {
@@ -219,7 +223,7 @@ static bool32 meetsHeroRequirements(u8 playerIndex, Actor *actor, u32 ruleRow)
  */
 bool32 skillExpansion_activeCanCast(u8 playerIndex, u8 activeSkillIndex)
 {
-    if (playerIndex >= 2 || activeSkillIndex >= SKILL_EXPANSION_ACTIVE_ROW_COUNT ||
+    if (playerIndex >= 2 || activeSkillIndex >= SKILL_EXPANSION_ACTIVE_ROW_CAPACITY ||
         PLAYER(playerIndex).ownerActor == NULL || skillExpansion_isTimelineBusy(playerIndex))
     {
         return FALSE;
@@ -420,7 +424,7 @@ void skillExpansion_handleQuickCastModeInput(u8 playerIndex)
         PLAYER(playerIndex).selectedActiveSkill.quickSlot = slot;
         skill_active_cast(playerIndex, row);
     }
-    else if (row >= SKILL_EXPANSION_ACTIVE_ROW_COUNT ||
+    else if (row >= SKILL_EXPANSION_ACTIVE_ROW_CAPACITY ||
              (s8)*skillExpansion_activeLevel(playerIndex, row) == 0)
     {
         return;

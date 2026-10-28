@@ -1,6 +1,9 @@
 // Expand the save/load menu to handle the additional save slots by introducing pagination.
 // Ported from the original, fully assembly-based SavSlotPages ROM-hack by SuperSaiyajinStackZ.
 
+#if HACK_legacy_skills
+#include "patches/legacy_skills/legacy_skills.h"
+#endif
 #include "font.h"
 #include "game.h"
 #include "gfx.h"
@@ -282,6 +285,9 @@ void saveSlotPages_commitSlot(bool save)
     }
     save_writeSlot(&g_SaveSlots[SCENE_ARG_SAVE_LOAD_SELECTED_SLOT],
                    SCENE_ARG_SAVE_LOAD_SELECTED_SLOT);
+#if HACK_legacy_skills && PC_EDITION
+    legacySkills_slotCommitted(save);
+#endif
 
     // CHANGE START (no wipe): the stock last-save wipe is deliberately deactivated. A
     // whole-chip scan would be the faithful version; a full save wipe, if wanted, belongs

@@ -181,7 +181,7 @@ typedef struct EliteState
     s16 lastHp;
 
     // row spirit costs saved by Return of the King
-    u16 savedSpiritCosts[SKILL_EXPANSION_ACTIVE_ROW_COUNT];
+    u16 savedSpiritCosts[SKILL_EXPANSION_ACTIVE_ROW_CAPACITY];
 
     // cast level of each timed active
     u8 flameLevel;
@@ -650,7 +650,7 @@ static void endReturnOfTheKing(u8 playerIndex, EliteState *st)
 
     st->returnFrames = 0;
     skillExpansion_removeTemporaryLevels(playerIndex, RETURN_TEMPORARY_LEVELS);
-    for (row = 0; row < SKILL_EXPANSION_ACTIVE_ROW_COUNT; row++)
+    for (row = 0; row < SKILL_EXPANSION_ACTIVE_ROW_CAPACITY; row++)
     {
         skillExpansion_players[playerIndex].activeSkills[row].spiritCost =
             st->savedSpiritCosts[row];
@@ -1745,7 +1745,7 @@ void skillExpansion_aragornReturnOfTheKing(Actor *playerActor)
         st->meter = METER_MAX;
     }
     skillExpansion_addTemporaryLevels(p, RETURN_TEMPORARY_LEVELS);
-    for (row = 0; row < SKILL_EXPANSION_ACTIVE_ROW_COUNT; row++)
+    for (row = 0; row < SKILL_EXPANSION_ACTIVE_ROW_CAPACITY; row++)
     {
         st->savedSpiritCosts[row] = rows[row].spiritCost;
         rows[row].spiritCost = 0;

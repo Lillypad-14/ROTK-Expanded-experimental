@@ -21,8 +21,21 @@
 #define SKILL_EXPANSION_FIRST_NEW_ACTIVE_ROW 7
 #define SKILL_EXPANSION_NEW_ACTIVE_COUNT 6
 
+// The PC edition's legacy_skills adds the active skills of a hero imported from The Two Towers as
+// rows after the Expanded ones. Saves and co-op messages keep SKILL_EXPANSION_ACTIVE_ROW_COUNT;
+// the player's tables and the cast code hold SKILL_EXPANSION_ACTIVE_ROW_CAPACITY rows.
+#if PC_EDITION && HACK_legacy_skills
+#define SKILL_EXPANSION_LEGACY_ACTIVE_COUNT 7
+#else
+#define SKILL_EXPANSION_LEGACY_ACTIVE_COUNT 0
+#endif
+#define SKILL_EXPANSION_FIRST_LEGACY_ACTIVE_ROW SKILL_EXPANSION_ACTIVE_ROW_COUNT
+#define SKILL_EXPANSION_ACTIVE_ROW_CAPACITY                                                            (SKILL_EXPANSION_ACTIVE_ROW_COUNT + SKILL_EXPANSION_LEGACY_ACTIVE_COUNT)
+// Rows with a definition: the Expanded rows and the legacy rows.
+#define SKILL_EXPANSION_DEFINED_ACTIVE_COUNT                                                           (SKILL_EXPANSION_ACTIVE_ROW_CAPACITY - SKILL_EXPANSION_FIRST_NEW_ACTIVE_ROW)
+
 // Rows from ACTIVE_SKILL_NONE up keep their levels and cycle flags in the shadow arrays.
-#define SKILL_EXPANSION_SHADOW_ACTIVE_COUNT (SKILL_EXPANSION_ACTIVE_ROW_COUNT - ACTIVE_SKILL_NONE)
+#define SKILL_EXPANSION_SHADOW_ACTIVE_COUNT (SKILL_EXPANSION_ACTIVE_ROW_CAPACITY - ACTIVE_SKILL_NONE)
 
 #define SKILL_EXPANSION_PASSIVE_SLOT_COUNT 18
 #define SKILL_EXPANSION_NEW_PASSIVE_COUNT                                                          \
@@ -302,9 +315,9 @@ const void *skillExpansion_getHeroTileBgAsset(u8 playerIndex);
 
 typedef struct SkillExpansionPlayer
 {
-    ActiveSkill activeSkills[SKILL_EXPANSION_ACTIVE_ROW_COUNT];
-    const void *activeSkillIcons[SKILL_EXPANSION_ACTIVE_ROW_COUNT];
-    const SkillExpansionActiveDef *activeDefs[SKILL_EXPANSION_NEW_ACTIVE_COUNT];
+    ActiveSkill activeSkills[SKILL_EXPANSION_ACTIVE_ROW_CAPACITY];
+    const void *activeSkillIcons[SKILL_EXPANSION_ACTIVE_ROW_CAPACITY];
+    const SkillExpansionActiveDef *activeDefs[SKILL_EXPANSION_DEFINED_ACTIVE_COUNT];
     u8 passiveSkillIds[SKILL_EXPANSION_PASSIVE_SLOT_COUNT];
 
     s8 passiveSkillLevelsPurchased[SKILL_EXPANSION_NEW_PASSIVE_COUNT];  // passive slots 9..17
@@ -402,7 +415,7 @@ static inline u8 *skillExpansion_activeCycleEnabled(u8 playerIndex, u32 row)
 /** The new row's definition, or NULL for stock rows and empty new rows. */
 static inline const SkillExpansionActiveDef *skillExpansion_activeDef(u8 playerIndex, u32 row)
 {
-    if (row < SKILL_EXPANSION_FIRST_NEW_ACTIVE_ROW || row >= SKILL_EXPANSION_ACTIVE_ROW_COUNT)
+    if (row < SKILL_EXPANSION_FIRST_NEW_ACTIVE_ROW || row >= SKILL_EXPANSION_ACTIVE_ROW_CAPACITY)
     {
         return NULL;
     }

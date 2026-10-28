@@ -49,7 +49,7 @@ typedef struct DeliveryContext
     Delivery *head;
     HackLibActorRef owner;
     SkillDeliveryStats stats;
-    u16 cooldowns[SKILL_EXPANSION_ACTIVE_ROW_COUNT + 1];
+    u16 cooldowns[SKILL_EXPANSION_ACTIVE_ROW_CAPACITY + 1];
     bool stepping;
     bool cancelled;
 } DeliveryContext;
@@ -145,7 +145,7 @@ bool skillDelivery_launch(u8 p, const SkillDeliveryDef *definition, const Vector
                           u8 direction, u8 level, u8 abilityRow, bool cosmetic)
 {
     if (p >= 2 ||
-        (abilityRow != HACKLIB_ABILITY_NONE && abilityRow >= SKILL_EXPANSION_ACTIVE_ROW_COUNT) ||
+        (abilityRow != HACKLIB_ABILITY_NONE && abilityRow >= SKILL_EXPANSION_ACTIVE_ROW_CAPACITY) ||
         !valid(definition) || position == NULL || direction >= DIRECTION32_COUNT || level < 1 ||
         level > 5 || !skillExpansion_isPlayerAvatar(PLAYER(p).ownerActor) ||
         hackLib_actorCurrentHp(PLAYER(p).ownerActor) <= 0)
@@ -153,7 +153,7 @@ bool skillDelivery_launch(u8 p, const SkillDeliveryDef *definition, const Vector
         return FALSE;
     }
     u8 cooldownRow =
-        abilityRow == HACKLIB_ABILITY_NONE ? SKILL_EXPANSION_ACTIVE_ROW_COUNT : abilityRow;
+        abilityRow == HACKLIB_ABILITY_NONE ? SKILL_EXPANSION_ACTIVE_ROW_CAPACITY : abilityRow;
     Vector2Int worldSize;
     terrain_getWorldSize(&worldSize);
     if (position->x < 0 || position->y < 0 || (position->x >> 16) >= worldSize.x ||
@@ -481,7 +481,7 @@ void skillDelivery_tick(u8 p, Actor *owner)
         return;
     }
     context->stepping = TRUE;
-    for (u32 row = 0; row <= SKILL_EXPANSION_ACTIVE_ROW_COUNT; row++)
+    for (u32 row = 0; row <= SKILL_EXPANSION_ACTIVE_ROW_CAPACITY; row++)
     {
         if (context->cooldowns[row] != 0)
         {

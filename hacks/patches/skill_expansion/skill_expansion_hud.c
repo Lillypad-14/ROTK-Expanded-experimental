@@ -137,7 +137,7 @@ void skillExpansion_hudUpdateSkillPalette(u8 playerIndex)
     flags = &g_PlayerHuds[playerIndex].flags;
     uncastable = !canCast && !(flags->p & PLAYERHUD_FLAG_UNSPENT_POINTS);
     page2 = (u8)row >= SKILL_EXPANSION_FIRST_NEW_ACTIVE_ROW &&
-            (u8)row < SKILL_EXPANSION_ACTIVE_ROW_COUNT;
+            (u8)row < SKILL_EXPANSION_ACTIVE_ROW_CAPACITY;
 
     if (page2)
     {

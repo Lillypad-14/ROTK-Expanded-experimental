@@ -1,3 +1,6 @@
+#if HACK_legacy_skills
+#include "patches/legacy_skills/legacy_skills.h"
+#endif
 #include "patches/skill_expansion/skill_expansion.h"
 #include "game.h"
 #include "memory.h"
@@ -184,6 +187,10 @@ static void buildTables(u32 heroId, u8 playerIndex)
                       SKILL_EXPANSION_NEW_PASSIVE_COUNT);
     }
 
+#if SKILL_EXPANSION_LEGACY_ACTIVE_COUNT
+    legacySkills_buildRows(heroId, playerIndex);
+#endif
+
     PLAYER(playerIndex).activeSkills = sx->activeSkills;
     PLAYER(playerIndex).activeSkillIcons = sx->activeSkillIcons;
     PLAYER(playerIndex).passiveSkillIds = sx->passiveSkillIds;
@@ -229,7 +236,7 @@ void skillExpansion_initHeroLoadout(u32 heroId, u32 playerIndex)
     }
 #endif
 
-    for (i = 0; i < SKILL_EXPANSION_ACTIVE_ROW_COUNT; i++)
+    for (i = 0; i < SKILL_EXPANSION_ACTIVE_ROW_CAPACITY; i++)
     {
         *skillExpansion_activeLevel(p, i) = *skillExpansion_activePurchased(p, i);
     }
@@ -251,7 +258,7 @@ void skillExpansion_resetActiveSkillControls(void)
         PLAYER(p).quickSelectActiveSkills[0] = ACTIVE_SKILL_HERBAL_HEALING;
         PLAYER(p).quickSelectActiveSkills[1] = 0;
         PLAYER(p).quickSelectActiveSkills[2] = 1;
-        for (row = 0; row < SKILL_EXPANSION_ACTIVE_ROW_COUNT; row++)
+        for (row = 0; row < SKILL_EXPANSION_ACTIVE_ROW_CAPACITY; row++)
         {
             *skillExpansion_activeCycleEnabled(p, row) = row != ACTIVE_SKILL_NONE;
         }
@@ -276,7 +283,7 @@ void skillExpansion_resetActiveSkills(void)
             *skillExpansion_passivePurchased(p, i) = level;
             *skillExpansion_passiveApplied(p, i) = level;
         }
-        for (i = 0; i < SKILL_EXPANSION_ACTIVE_ROW_COUNT; i++)
+        for (i = 0; i < SKILL_EXPANSION_ACTIVE_ROW_CAPACITY; i++)
         {
             u8 rowLevel = i == ACTIVE_SKILL_NONE ? 0 : level;
 

@@ -218,7 +218,7 @@ void skillExpansion_runtimeInstall(u8 playerIndex)
     SkillExpansionRuntime *runtime = &skillExpansion_runtime[playerIndex];
     u32 row;
 
-    for (row = 0; row < SKILL_EXPANSION_ACTIVE_ROW_COUNT; row++)
+    for (row = 0; row < SKILL_EXPANSION_ACTIVE_ROW_CAPACITY; row++)
     {
         const SkillExpansionActiveDef *def = skillExpansion_activeDef(playerIndex, row);
         bool hasResolver = (def != NULL && (def->resolve != NULL || def->delivery != NULL)) ||
@@ -305,7 +305,7 @@ void skillExpansion_cast(u8 playerIndex, u8 row)
     Actor *actor;
     s32 before;
 
-    if (playerIndex >= 2 || row >= SKILL_EXPANSION_ACTIVE_ROW_COUNT ||
+    if (playerIndex >= 2 || row >= SKILL_EXPANSION_ACTIVE_ROW_CAPACITY ||
         !skillExpansion_activeCanCast(playerIndex, row))
     {
         if (playerIndex < 2)
@@ -384,7 +384,7 @@ void skillExpansion_resolveTimelineCast(Actor *actor)
         resolver = runtime->kit->resolvers[row];
     }
 
-    if (row >= SKILL_EXPANSION_ACTIVE_ROW_COUNT ||
+    if (row >= SKILL_EXPANSION_ACTIVE_ROW_CAPACITY ||
         (runtime->callbacks[row] == NULL && resolver == NULL && delivery == NULL) ||
         (runtime->pending && runtime->pendingRow != row))
     {
@@ -441,7 +441,7 @@ void skillExpansion_rejectCast(u8 playerIndex, u8 row)
 {
     const char *message = "Ability unavailable";
 
-    if (row < SKILL_EXPANSION_ACTIVE_ROW_COUNT &&
+    if (row < SKILL_EXPANSION_ACTIVE_ROW_CAPACITY &&
         PLAYER(playerIndex).currentSpirit < PLAYER_ACTIVE_SKILL(playerIndex, row).spiritCost &&
         !(g_GameFlags.p & GAME_FLAG_2))
     {
@@ -478,7 +478,7 @@ void skillExpansion_runtimeTick(u8 playerIndex, Actor *actor)
             runtime->kit->reset(playerIndex);
         }
     }
-    for (u32 row = 0; row < SKILL_EXPANSION_ACTIVE_ROW_COUNT; row++)
+    for (u32 row = 0; row < SKILL_EXPANSION_ACTIVE_ROW_CAPACITY; row++)
     {
         if (runtime->cooldowns[row] != 0)
         {

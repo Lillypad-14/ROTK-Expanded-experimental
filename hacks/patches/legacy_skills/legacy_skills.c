@@ -2,10 +2,12 @@
 #error "legacy_skills requires skill_expansion and mod_save"
 #endif
 
+#include "memory.h"
 #include "patches/legacy_skills/legacy_skills.h"
 #include "patches/mod_save/save_layout.h"
 #include "patches/mod_save/save_slots.h"
 #include "patches/mod_save/save_sram.h"
+#include "patches/skill_expansion/skill_expansion.h"
 #include "player.h"
 #include "scene.h"
 #include "scene/saveLoadMenu.h"
@@ -19,6 +21,7 @@
 #define LEGACY_HERO_COUNT 6
 #define LEGACY_PASSIVE_MAX 6
 #define LEGACY_SKILL_LEVEL_MAX 20
+#define LEGACY_SKILL_RECORD_EMPTY 0xff
 
 // One stat a legacy passive adds: base + perLevel * level / divisor at levels 1 and up.
 typedef struct LegacyPassiveStat
@@ -88,19 +91,24 @@ static const LegacyHeroPassives HeroPassives[LEGACY_HERO_COUNT] = {
       {PER_LEVEL(STAT_SPIRIT_REGEN, 1), NONE}}},
 };
 
-// The legacy skill record of the slot the player loaded, FALSE when it has none.
-static bool32 readRecord(u8 record[LEGACY_SKILL_SAVE_RECORD_SIZE])
+// The save slot the save menu has selected, else the one the player loaded.
+static u32 currentSlot(void)
 {
     u32 slot = g_SceneCurrent.id == SCENE_ID_SAVE_LOAD_MENU ? SCENE_ARG_SAVE_LOAD_SELECTED_SLOT
                                                              : g_LastSaveSlot;
-    u32 index = g_SaveSlotPage * SAVE_SLOTS_PER_PAGE + slot;
 
-    if (slot >= SAVE_SLOTS_PER_PAGE)
-    {
-        return FALSE;
-    }
-    modSave_copy(record, SRAM_BASE + LEGACY_SKILL_SAVE_OFF + index * LEGACY_SKILL_SAVE_RECORD_SIZE,
-                 LEGACY_SKILL_SAVE_RECORD_SIZE);
+    return g_SaveSlotPage * SAVE_SLOTS_PER_PAGE + slot;
+}
+
+static u8 *recordAddress(u32 slotIndex)
+{
+    return SRAM_BASE + LEGACY_SKILL_SAVE_OFF + slotIndex * LEGACY_SKILL_SAVE_RECORD_SIZE;
+}
+
+// The legacy skill record of the slot the player loaded, FALSE when it has none.
+static bool32 readRecord(u8 record[LEGACY_SKILL_SAVE_RECORD_SIZE])
+{
+    modSave_copy(record, recordAddress(currentSlot()), LEGACY_SKILL_SAVE_RECORD_SIZE);
     return record[0] == LEGACY_SKILL_RECORD_TAG;
 }
 
@@ -134,3 +142,113 @@ void legacySkills_applyPassives(u8 playerIndex)
         }
     }
 }
+
+#if SKILL_EXPANSION_LEGACY_ACTIVE_COUNT
+
+// A legacy active: the ROTK skill it casts (a stock callback run on a copy of its row) and its
+// Spirit cost in The Two Towers.
+typedef struct LegacyActive
+{
+    const SkillExpansionActiveDef *def;
+    u16 spiritCost;
+} LegacyActive;
+
+// Lightstrike returns its bolt, which the cast does not need.
+static void castLightstrike(Actor *playerActor)
+{
+    skill_active_gandalfLightstrike(playerActor);
+}
+
+#define LEGACY_DEF(name, callback, base)                                                               static const SkillExpansionActiveDef name = {                                                          .stockCallback = (callback),                                                  .baseRow = (base),                                                                             }
+
+LEGACY_DEF(LegacyHealing, skill_active_herbalHealing, ACTIVE_SKILL_HERBAL_HEALING);
+LEGACY_DEF(LegacyGandalfShield, skill_active_gandalfShield, ACTIVE_SKILL_GANDALF_SHIELD);
+LEGACY_DEF(LegacyGandalfLightstrike, castLightstrike, ACTIVE_SKILL_GANDALF_LIGHTSTRIKE);
+LEGACY_DEF(LegacyGandalfBlindingAura, skill_active_gandalfBlindingAura,
+           ACTIVE_SKILL_GANDALF_BLINDING_AURA);
+LEGACY_DEF(LegacyGandalfGwaihir, skill_active_gandalfSummonGwaihir,
+           ACTIVE_SKILL_GANDALF_SUMMON_GWAIHIR);
+
+// The Two Towers actives by hero id, in the skill record's order (after the passives). NULL: none
+// yet.
+static const LegacyActive HeroActives[LEGACY_HERO_COUNT][SKILL_EXPANSION_LEGACY_ACTIVE_COUNT] = {
+    [3] =
+        {
+            {&LegacyHealing, 8},             // Magical Healing
+            {&LegacyGandalfShield, 10},      // Shield
+            {&LegacyGandalfLightstrike, 3},  // Zap
+            {&LegacyGandalfBlindingAura, 8}, // Sunburst
+            {&LegacyGandalfLightstrike, 5},  // Fireworks: stand-in until it has its own cast
+            {&LegacyGandalfGwaihir, 12},     // Summon Eagle
+            {&LegacyGandalfBlindingAura, 20}, // Thunderstrike: stand-in until it has its own cast
+        },
+};
+
+// The legacy skill record of the character player 0 plays, record[0] != tag when it has none.
+static u8 loadedRecord[LEGACY_SKILL_SAVE_RECORD_SIZE];
+
+void legacySkills_buildRows(u8 heroId, u8 playerIndex)
+{
+    SkillExpansionPlayer *sx = &skillExpansion_players[playerIndex];
+    const LegacyActive *actives;
+    u32 first;
+
+    for (u32 i = 0; i < SKILL_EXPANSION_LEGACY_ACTIVE_COUNT; i++)
+    {
+        u32 row = SKILL_EXPANSION_FIRST_LEGACY_ACTIVE_ROW + i;
+
+        memory_memset(&sx->activeSkills[row], 0, sizeof(ActiveSkill));
+        sx->activeSkillIcons[row] = NULL;
+        sx->activeDefs[row - SKILL_EXPANSION_FIRST_NEW_ACTIVE_ROW] = NULL;
+        *skillExpansion_activePurchased(playerIndex, row) = 0;
+    }
+    // A co-op partner's record stays on the other console.
+    if (playerIndex != 0)
+    {
+        return;
+    }
+    if (!readRecord(loadedRecord) || loadedRecord[1] != heroId || heroId >= LEGACY_HERO_COUNT)
+    {
+        loadedRecord[0] = LEGACY_SKILL_RECORD_EMPTY;
+        return;
+    }
+    actives = HeroActives[heroId];
+    first = 2 + HeroPassives[heroId].count;
+    for (u32 i = 0; i < SKILL_EXPANSION_LEGACY_ACTIVE_COUNT && first + i < 2 + LEGACY_SKILL_COUNT;
+         i++)
+    {
+        const SkillExpansionActiveDef *def = actives[i].def;
+        u32 row = SKILL_EXPANSION_FIRST_LEGACY_ACTIVE_ROW + i;
+        u8 level = loadedRecord[first + i];
+
+        if (def == NULL)
+        {
+            continue;
+        }
+        memory_memcpy(&sx->activeSkills[row], &sx->activeSkills[def->baseRow], sizeof(ActiveSkill));
+        sx->activeSkills[row].spiritCost = actives[i].spiritCost;
+        sx->activeSkills[row].callback = skillExpansion_castStockCallback;
+        sx->activeSkillIcons[row] = sx->activeSkillIcons[def->baseRow];
+        sx->activeDefs[row - SKILL_EXPANSION_FIRST_NEW_ACTIVE_ROW] = def;
+        *skillExpansion_activeCycleEnabled(playerIndex, row) = TRUE;
+        // The stock curves have five levels.
+        *skillExpansion_activePurchased(playerIndex, row) =
+            level > LEGACY_SKILL_LEVEL_MAX ? 0 : level > ACTIVE_SKILL_MAX_LEVEL ? ACTIVE_SKILL_MAX_LEVEL : level;
+    }
+}
+
+void legacySkills_slotCommitted(bool32 saved)
+{
+    u8 empty[LEGACY_SKILL_SAVE_RECORD_SIZE];
+    const u8 *record = loadedRecord;
+
+    if (!saved || loadedRecord[0] != LEGACY_SKILL_RECORD_TAG ||
+        loadedRecord[1] != PLAYER(0).heroId)
+    {
+        memory_memset(empty, LEGACY_SKILL_RECORD_EMPTY, sizeof(empty));
+        record = empty;
+    }
+    modSave_copy(recordAddress(currentSlot()), record, LEGACY_SKILL_SAVE_RECORD_SIZE);
+}
+
+#endif

@@ -7,7 +7,7 @@ typedef struct SkillExpansionRuntime
     Actor *owner;
     u32 ownerGeneration;
     const SkillExpansionHeroKit *kit;
-    ActiveSkillCallback callbacks[SKILL_EXPANSION_ACTIVE_ROW_COUNT];
+    ActiveSkillCallback callbacks[SKILL_EXPANSION_ACTIVE_ROW_CAPACITY];
     u16 paidSpirit;
     u16 feedbackFrames;
     u8 pendingRow;
@@ -16,7 +16,7 @@ typedef struct SkillExpansionRuntime
     u8 heroId;
     const char *feedback;
     SkillExpansionCastResult lastResult;
-    u16 cooldowns[SKILL_EXPANSION_ACTIVE_ROW_COUNT];
+    u16 cooldowns[SKILL_EXPANSION_ACTIVE_ROW_CAPACITY];
     bool timelineCast;
     bool feedbackDrawn;
 } SkillExpansionRuntime;

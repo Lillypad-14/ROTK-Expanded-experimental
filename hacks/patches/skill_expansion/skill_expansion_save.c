@@ -331,7 +331,7 @@ static void applyQuickSelect(u8 p, const u8 *quickSelect)
     {
         u32 row = quickSelect[i];
 
-        if (row >= SKILL_EXPANSION_ACTIVE_ROW_COUNT || row == ACTIVE_SKILL_NONE ||
+        if (row >= SKILL_EXPANSION_ACTIVE_ROW_CAPACITY || row == ACTIVE_SKILL_NONE ||
             PLAYER(p).activeSkills[row].callback == NULL)
         {
             row = DefaultQuickSelectRows[i];
