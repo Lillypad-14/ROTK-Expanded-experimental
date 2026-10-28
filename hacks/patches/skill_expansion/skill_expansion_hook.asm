@@ -86,3 +86,21 @@ skill_expansion_save_menu_tick_hook:
     hookLeave
     bx   lr
 .endif
+
+; New game hero select tick: skillExpansion_newGameTick first (L switches the hero's kit), then the
+; stock tick unless it returned TRUE.
+skill_expansion_new_game_tick_hook:
+    hookEnter
+    bl   skillExpansion_newGameTick
+    cmp  r0, #0
+    bne  @@skip
+    hookLeave
+    ; push {lr} ; ldr r0,=g_NewGameState ; ldrb r0,[r0] ; cmp r0,#0
+    push {lr}
+    ldr  r0, =0x03001ab4
+    ldrb r0, [r0]
+    cmp  r0, #0
+    hookReturn scene_newGame_tick + hookTrampolineSize
+@@skip:
+    hookLeave
+    bx   lr

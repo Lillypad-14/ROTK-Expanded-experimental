@@ -458,7 +458,7 @@ static inline s32 passiveLevel(u8 playerIndex, u8 passiveSkillId)
 
 static inline bool32 isAragorn(u8 playerIndex)
 {
-    return PLAYER(playerIndex).heroId == HERO_ID_ARAGORN;
+    return PLAYER(playerIndex).heroId == HERO_ID_ARAGORN && skillExpansion_playerExpanded(playerIndex);
 }
 
 static bool isMarked(const EliteState *st, Actor *target)

@@ -312,7 +312,19 @@ typedef struct SkillExpansionPlayer
     u8 activeSkillLevelsPurchased[SKILL_EXPANSION_SHADOW_ACTIVE_COUNT]; // active rows 6..12
     u8 activeSkillLevels[SKILL_EXPANSION_SHADOW_ACTIVE_COUNT];          // active rows 6..12
     u8 activeSkillCycleEnabled[SKILL_EXPANSION_SHADOW_ACTIVE_COUNT];    // active rows 6..12
+    u8 vanillaKit;     // TRUE: this character plays its hero's vanilla kit (skill_expansion_modes.c)
+    u8 newHeroVanilla; // the kit the hero select creates a character with, TRUE = vanilla
 } SkillExpansionPlayer;
+
+// Hero kits (skill_expansion_modes.c).
+/** TRUE when player p's character plays its Expanded kit: always for Expanded-only heroes. */
+bool32 skillExpansion_playerExpanded(u8 playerIndex);
+/** The kit shown on the hero select for the hero under the cursor, TRUE = vanilla. */
+bool32 skillExpansion_heroSelectVanilla(void);
+/** Hero select input before the stock tick: L switches the kit. TRUE skips the stock tick. */
+bool32 skillExpansion_heroSelectTick(void);
+/** New game hero select input before the stock tick: L switches the kit. TRUE skips it. */
+bool32 skillExpansion_newGameTick(void);
 
 extern SkillExpansionPlayer skillExpansion_players[2];
 

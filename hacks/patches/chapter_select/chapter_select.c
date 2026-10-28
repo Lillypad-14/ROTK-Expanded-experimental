@@ -11,6 +11,7 @@
 #include "input.h"
 #include "lib/lr_button_indicators.h"
 #include "menu.h"
+#include "multiplayer.h"
 #include "mission.h"
 #include "save.h"
 #include "scene.h"
@@ -439,12 +440,22 @@ static const struct ChapterSelectRegion *currentEntry(void)
     return &currentPage()->regions[ENTRY_INDEX];
 }
 
+/**
+ * Co-op: the chapter pages that follow the co-op level select's own page. Each console reads its
+ * player's own save, so co-op unlocks every entry, and every input comes from the link's player 0
+ * keys so both consoles drive the menu the same way.
+ */
+static bool coopActive(void)
+{
+    return (g_GameFlags.p & GAME_FLAG_COOP_ACTIVE) != 0;
+}
+
 /** An entry with unlockMask 0 is always unlocked; otherwise the mask decides. */
 static bool entryUnlocked(u32 entryIndex)
 {
     u32 mask = currentPage()->regions[entryIndex].unlockMask;
 
-    return mask == 0 || (g_SaveGlobals.d.unlockFlags.p & mask) != 0;
+    return mask == 0 || coopActive() || (g_SaveGlobals.d.unlockFlags.p & mask) != 0;
 }
 
 /** Grid-slot icon position (used <<16, 16.16 fixed point): two rows of four. */
@@ -634,6 +645,13 @@ static void switchPage(bool forward)
 {
     u32 page = PAGE_INDEX;
 
+    // In co-op, paging past either end returns to the co-op level select's page.
+    if (coopActive() && (forward ? page + 1 == PAGE_COUNT : page == 0))
+    {
+        game_requestSceneChange(SCENE_ID_MULTIPLAYER_LEVEL_SELECT);
+        sfx_play(SFX_MENU_CURSOR_MOVE);
+        return;
+    }
     if (forward)
     {
         page = page + 1 < PAGE_COUNT ? page + 1 : 0;
@@ -818,7 +836,7 @@ static void onBack(void)
     switch (SCENE_ARG_BONUS_MAP_STATE)
     {
     case BONUS_MAP_STATE_MISSION_SELECT:
-        game_requestSceneChange(SCENE_ID_MAIN_MENU);
+        game_requestSceneChange(coopActive() ? SCENE_ID_MULTIPLAYER_LEVEL_SELECT : SCENE_ID_MAIN_MENU);
         break;
     case BONUS_MAP_STATE_SUB_ENTRY_SELECT:
         SCENE_ARG_BONUS_MAP_STATE = BONUS_MAP_STATE_MISSION_SELECT;
@@ -851,12 +869,17 @@ void chapterSelect_enter(void)
     gfx_setupBg(0, BonusMapMenuBgCnt0);
     gfx_setBgOffset(0, 0);
     gfx_loadBgAsset(0, BonusMapMenuBg0Asset, 1, 0, 0, 0);
+    if (PAGE_INDEX >= PAGE_COUNT)
+    {
+        SCENE_ARG_BONUS_MAP_CURSOR = 0;
+    }
     setupSprites();
     gfx_setupBg(2, BonusMapMenuBgCnt2);
     gfx_loadPalette(UiPalette, 0);
     gfx_setBgOffset(2, 0);
     SCENE_ARG_BONUS_MAP_STATE = BONUS_MAP_STATE_MISSION_SELECT;
-    SCENE_ARG_BONUS_MAP_CURSOR = 0;
+    // The page comes from the scene request (the co-op level select's L/R), entry 0.
+    SCENE_ARG_BONUS_MAP_CURSOR &= 0xff00;
     SCENE_ARG_BONUS_MAP_SUB_ENTRY = 0;
     SCENE_ARG_BONUS_MAP_DIFFICULTY = 0;
     setupCursor();
@@ -871,6 +894,41 @@ void chapterSelect_enter(void)
     actor_tickAll();
     sprite_endFrame();
     gfx_fadeInFromBlack(GFX_BLEND_ALL_TARGETS);
+    if (coopActive())
+    {
+        // As scene_multiplayerLevelSelect_enter: resume the link's key exchange after the change.
+        multiplayer_clearSessionFlag(1);
+    }
+}
+
+/** Whose B/select backs out: the active player as the ROM reads it, player 0's in co-op. */
+static u8 backPlayer(void)
+{
+    return coopActive() ? 0 : ACTIVE_PLAYER_INDEX;
+}
+
+/**
+ * Co-op level select tick, before the stock one (chapter_select_hook.asm): L/R opens the chapter
+ * pages, R at the first one, L at the last. Returns TRUE to skip the stock tick.
+ */
+bool32 chapterSelect_coopLevelSelectTick(void)
+{
+    u32 keys = PLAYER_KEYS_PRESSED(0);
+
+    // Scene args[4] is unused by the stock scene and zeroed on entry: show the L/R hints once.
+    if (g_SceneCurrent.args[4] == 0)
+    {
+        g_SceneCurrent.args[4] = 1;
+        hackLib_createLrButtonIndicatorsInMainPool();
+    }
+    if (g_SceneCurrent.args[3] == BONUS_MAP_STATE_LAUNCH_MISSION || !(keys & (L_BUTTON | R_BUTTON)))
+    {
+        return FALSE;
+    }
+    game_requestSceneChangeWithArgs(SCENE_ID_BONUS_MAP_MENU, 0,
+                                    (keys & R_BUTTON) ? 0 : (u32)(PAGE_COUNT - 1) << 8);
+    sfx_play(SFX_MENU_CURSOR_MOVE);
+    return TRUE;
 }
 
 /**
@@ -890,6 +948,17 @@ void chapterSelect_tick(void)
         g_MissionVariant = mission->variant;
         g_MissionSpawnPoint[0] = mission->spawnPoint;
         g_MissionSpawnPoint[1] = mission->spawnPoint;
+        if (coopActive())
+        {
+            // As the co-op level select launches: the variant as args[3] and the abort scene the
+            // stock launch sets.
+            game_requestSceneChangeWithArgs(SCENE_ID_GAMEPLAY, GAMEPLAY_MODE_START_VARIANT,
+                                            mission->missionId);
+            g_SceneNext.args[3] = mission->variant;
+            g_SceneNext.args[4] = mission->spawnPoint;
+            multiplayer_setAbortScene(SCENE_ID_PAUSE_MENU);
+            return;
+        }
         game_requestSceneChangeWithArgs(SCENE_ID_GAMEPLAY, GAMEPLAY_MODE_START_HEALED,
                                         mission->missionId);
         // handed to the gameplay scene as its args[3];
@@ -910,8 +979,8 @@ void chapterSelect_tick(void)
     {
         switchPage((PLAYER_KEYS_PRESSED(0) & R_BUTTON) != 0);
     }
-    else if ((PLAYER_KEYS_PRESSED(ACTIVE_PLAYER_INDEX) & B_BUTTON) != 0 ||
-             (PLAYER_KEYS_PRESSED(ACTIVE_PLAYER_INDEX) & SELECT_BUTTON) != 0)
+    else if ((PLAYER_KEYS_PRESSED(backPlayer()) & B_BUTTON) != 0 ||
+             (PLAYER_KEYS_PRESSED(backPlayer()) & SELECT_BUTTON) != 0)
     {
         onBack();
     }

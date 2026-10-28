@@ -257,7 +257,8 @@ static const Vector2Int FacingVectors[8] = {
 
 static inline bool isEowyn(u8 playerIndex)
 {
-    return playerIndex < 2 && PLAYER(playerIndex).heroId == HERO_ID_EOWYN;
+    return playerIndex < 2 && PLAYER(playerIndex).heroId == HERO_ID_EOWYN &&
+           skillExpansion_playerExpanded(playerIndex);
 }
 
 static inline bool oddsUnlocked(u8 playerIndex)

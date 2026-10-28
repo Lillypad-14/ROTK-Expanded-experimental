@@ -30,6 +30,9 @@
 
 #define QUICK_SELECT_SLOT_COUNT 3
 
+// SkillSaveRecord.reservedHeader[0] bits: the character plays its hero's vanilla kit.
+#define SKILL_SAVE_FLAG_VANILLA_KIT 0x01
+
 // New active rows in the row record. Later rows are only in the ID record.
 #define ROW_RECORD_ACTIVE_COUNT 5
 
@@ -107,6 +110,7 @@ static void writeIdRecord(const SaveSlot *slot, u32 slotNumber, u8 p)
         record.version = SKILL_SAVE_VERSION;
         record.heroId = PLAYER(p).heroId;
         record.slotChecksum = slot->d.checksum;
+        record.reservedHeader[0] = skillExpansion_players[p].vanillaKit ? SKILL_SAVE_FLAG_VANILLA_KIT : 0;
         for (i = 0; i < SKILL_EXPANSION_ACTIVE_ROW_COUNT; i++)
         {
             *activeEntry(&record, i) = (SkillSaveEntry){skillExpansion_activeId(record.heroId, i),
@@ -285,8 +289,10 @@ static void readSaveRecord(u8 p, const SaveSlot *slot, u32 slotNumber, u8 *quick
             valid ? record.quickSelectActiveSkills[i] : PLAYER(p).quickSelectActiveSkills[i];
     }
     modSave_copy((u8 *)&idRecord, idRecordAddress(slotNumber), sizeof(idRecord));
+    skillExpansion_players[p].vanillaKit = FALSE;
     if (skillExpansion_isValidSave(&idRecord, PLAYER(p).heroId, slot->d.checksum))
     {
+        skillExpansion_players[p].vanillaKit = (idRecord.reservedHeader[0] & SKILL_SAVE_FLAG_VANILLA_KIT) != 0;
         applyIdRecord(&idRecord, p, quickSelect);
     }
     else if (idRecord.tag != SKILL_SAVE_TAG)
@@ -347,9 +353,9 @@ void skillExpansion_loadSlot(u32 playerIndex)
 
 // A player's page 2 record holds what the stock co-op slot exchange leaves out: the new rows'
 // bought ranks, then their cycle flags, the new slots' bought ranks and the full quick-select rows,
-// which the stock slot stores in 3 bits each.
+// which the stock slot stores in 3 bits each, then the character's kit (vanillaKit).
 #define PAGE2_RECORD_SIZE \
-    (2 * SKILL_EXPANSION_NEW_ACTIVE_COUNT + SKILL_EXPANSION_NEW_PASSIVE_COUNT + QUICK_SELECT_SLOT_COUNT)
+    (2 * SKILL_EXPANSION_NEW_ACTIVE_COUNT + SKILL_EXPANSION_NEW_PASSIVE_COUNT + QUICK_SELECT_SLOT_COUNT + 1)
 
 // Multiplayer ID of the console whose global mod options a co-op session plays with.
 #define SESSION_OPTIONS_HOST 0
@@ -460,7 +466,12 @@ static u8 *recordByte(u8 p, u32 index, u8 *quickSelect)
     {
         return (u8 *)skillExpansion_passivePurchased(p, HERO_PASSIVE_SKILL_COUNT + index);
     }
-    return &quickSelect[index - SKILL_EXPANSION_NEW_PASSIVE_COUNT];
+    index -= SKILL_EXPANSION_NEW_PASSIVE_COUNT;
+    if (index < QUICK_SELECT_SLOT_COUNT)
+    {
+        return &quickSelect[index];
+    }
+    return &skillExpansion_players[p].vanillaKit;
 }
 
 void skillExpansion_peerRecordReceive(u8 sender, const u8 *data)
@@ -516,6 +527,10 @@ bool32 skillExpansion_saveMenuTickHook(void)
 {
     u32 linkMessages;
 
+    if (skillExpansion_heroSelectTick())
+    {
+        return TRUE;
+    }
     if (SCENE_ARG_SAVE_LOAD_STATE != SAVE_LOAD_STATE_COOP_SLOT_EXCHANGE)
     {
         // The peer's record can't arrive yet: it waits for this console's slot.
@@ -573,6 +588,7 @@ void skillExpansion_loadPeerSlot(u32 playerIndex)
         *purchased = valid ? clampLevel(*purchased) : 0;
         *cycleEnabled = valid ? *cycleEnabled != 0 : 1;
     }
+    skillExpansion_players[p].vanillaKit = valid && skillExpansion_players[p].vanillaKit != 0;
     for (i = 0; i < QUICK_SELECT_SLOT_COUNT; i++)
     {
         quickSelect[i] = valid ? peerQuickSelect[i] : PLAYER(p).quickSelectActiveSkills[i];

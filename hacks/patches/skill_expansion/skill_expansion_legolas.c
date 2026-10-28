@@ -188,7 +188,8 @@ static const Vector2Int FacingVectors[8] = {
 
 static inline bool isLegolas(u8 playerIndex)
 {
-    return playerIndex < 2 && PLAYER(playerIndex).heroId == HERO_ID_LEGOLAS;
+    return playerIndex < 2 && PLAYER(playerIndex).heroId == HERO_ID_LEGOLAS &&
+           skillExpansion_playerExpanded(playerIndex);
 }
 
 static inline bool glintUnlocked(u8 playerIndex)

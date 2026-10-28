@@ -260,7 +260,8 @@ static const Vector2Int FacingVectors[8] = {
 
 static inline bool isFrodo(u8 playerIndex)
 {
-    return playerIndex < 2 && PLAYER(playerIndex).heroId == HERO_ID_FRODO;
+    return playerIndex < 2 && PLAYER(playerIndex).heroId == HERO_ID_FRODO &&
+           skillExpansion_playerExpanded(playerIndex);
 }
 
 static inline s32 passiveLevel(u8 playerIndex, u8 passiveSkillId)

@@ -172,7 +172,9 @@ static void swapRows(u8 playerIndex)
 
 static bool canTurnPage(u8 playerIndex)
 {
-    return PLAYER(playerIndex).activeSkills == skillExpansion_players[playerIndex].activeSkills;
+    // A vanilla hero (skill_expansion_modes.c) has nothing on page 2.
+    return PLAYER(playerIndex).activeSkills == skillExpansion_players[playerIndex].activeSkills &&
+           skillExpansion_playerExpanded(playerIndex);
 }
 
 static bool activeRowIsEmpty(u8 playerIndex, u32 row)

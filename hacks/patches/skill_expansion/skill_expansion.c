@@ -121,7 +121,8 @@ const char *skillExpansion_getPassiveDescription(u32 passiveSkillId)
 static void buildTables(u32 heroId, u8 playerIndex)
 {
     SkillExpansionPlayer *sx = &skillExpansion_players[playerIndex];
-    const SkillExpansionHeroKit *kit = skillExpansion_getHeroKit(heroId);
+    const bool32 expanded = skillExpansion_playerExpanded(playerIndex);
+    const SkillExpansionHeroKit *kit = expanded ? skillExpansion_getHeroKit(heroId) : NULL;
     const void *const *stockIcons = ActiveSkillIconAssets[SkillExpansionHeroSkillBlocks[heroId]];
     const ActiveSkill *stockRows = StockActiveSkills[heroId];
     const u8 *stockPassives = StockPassiveSkillIds[heroId];
@@ -145,15 +146,16 @@ static void buildTables(u32 heroId, u8 playerIndex)
     {
         sx->activeSkillIcons[i] = stockIcons[i];
     }
-    if (kit == NULL)
+    if (kit == NULL && expanded)
     {
         skillExpansion_wrapStockCallbacks(heroId, playerIndex);
     }
 
+    // A vanilla hero keeps its stock rows and passives only.
     for (i = 0; i < SKILL_EXPANSION_NEW_ACTIVE_COUNT; i++)
     {
         const SkillExpansionActiveDef *def =
-            kit != NULL ? kit->newActives[i] : SkillExpansionActiveDefs[heroId][i];
+            !expanded ? NULL : kit != NULL ? kit->newActives[i] : SkillExpansionActiveDefs[heroId][i];
         u32 row = SKILL_EXPANSION_FIRST_NEW_ACTIVE_ROW + i;
 
         sx->activeDefs[i] = def;
@@ -170,9 +172,17 @@ static void buildTables(u32 heroId, u8 playerIndex)
     }
 
     memory_memcpy(sx->passiveSkillIds, stockPassives, HERO_PASSIVE_SKILL_COUNT);
-    memory_memcpy(&sx->passiveSkillIds[HERO_PASSIVE_SKILL_COUNT],
-                  kit != NULL ? kit->newPassiveSkillIds : SkillExpansionPassiveIds[heroId],
-                  SKILL_EXPANSION_NEW_PASSIVE_COUNT);
+    if (expanded)
+    {
+        memory_memcpy(&sx->passiveSkillIds[HERO_PASSIVE_SKILL_COUNT],
+                      kit != NULL ? kit->newPassiveSkillIds : SkillExpansionPassiveIds[heroId],
+                      SKILL_EXPANSION_NEW_PASSIVE_COUNT);
+    }
+    else
+    {
+        memory_memset(&sx->passiveSkillIds[HERO_PASSIVE_SKILL_COUNT], SKILL_EXPANSION_PASSIVE_ID_NONE,
+                      SKILL_EXPANSION_NEW_PASSIVE_COUNT);
+    }
 
     PLAYER(playerIndex).activeSkills = sx->activeSkills;
     PLAYER(playerIndex).activeSkillIcons = sx->activeSkillIcons;

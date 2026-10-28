@@ -317,7 +317,8 @@ static const Vector2Int FacingVectors[8] = {
 
 static inline bool isGandalf(u8 playerIndex)
 {
-    return playerIndex < 2 && PLAYER(playerIndex).heroId == HERO_ID_GANDALF;
+    return playerIndex < 2 && PLAYER(playerIndex).heroId == HERO_ID_GANDALF &&
+           skillExpansion_playerExpanded(playerIndex);
 }
 
 static inline bool isWhite(u8 playerIndex)

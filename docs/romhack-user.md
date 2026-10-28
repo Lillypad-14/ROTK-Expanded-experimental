@@ -85,6 +85,11 @@ Have fun finding those on your own!
 
 ![Chapter select menu allowing to choose from any path, in this case Aragorn's path](./img/chapter_select_aragorns_path_2x.png)
 
+In co-op, L/R on the "Choose your path" screen opens the same pages: R the bonus maps, L the last
+path. Paging past either end comes back to the co-op maps. Every page is unlocked in co-op, since each
+player's save unlocks different ones, and player 1 drives the menu. Story missions were made for one
+player, so some scripted scenes may not expect a second hero.
+
 ### Loot Quality of Life
 
 Loot quality of life options can be configured from the mod menu:

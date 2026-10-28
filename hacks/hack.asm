@@ -39,6 +39,9 @@
 .if HACK_skill_expansion
     .include "hacks/patches/skill_expansion/skill_expansion_hook.asm"
 .endif
+.if HACK_chapter_select
+    .include "hacks/patches/chapter_select/chapter_select_hook.asm"
+.endif
 .if HACK_ringwraith
     .include "hacks/patches/ringwraith/ringwraith_hook.asm"
 .endif
@@ -66,6 +69,12 @@
 .endif
 .if HACK_skill_expansion && HACK_mod_save
     hookTrampoline scene_saveLoadMenu_tick, skill_expansion_save_menu_tick_hook
+.endif
+.if HACK_skill_expansion
+    hookTrampoline scene_newGame_tick, skill_expansion_new_game_tick_hook
+.endif
+.if HACK_chapter_select
+    hookTrampoline scene_multiplayerLevelSelect_tick, chapter_select_coop_tick_hook
 .endif
 .if HACK_mod_options
     hookTrampoline scene_optionsMenu_tick, mod_options_tick_hook

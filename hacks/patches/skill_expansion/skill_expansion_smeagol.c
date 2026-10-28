@@ -271,7 +271,8 @@ static const char *const Barks[] = {
 
 static inline bool isSmeagol(u8 playerIndex)
 {
-    return playerIndex < 2 && PLAYER(playerIndex).heroId == HERO_ID_SMEAGOL;
+    return playerIndex < 2 && PLAYER(playerIndex).heroId == HERO_ID_SMEAGOL &&
+           skillExpansion_playerExpanded(playerIndex);
 }
 
 static inline s32 passiveLevel(u8 playerIndex, u8 passiveSkillId)

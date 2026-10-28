@@ -90,3 +90,16 @@ fixed space:
   fields in place, so older saves still load.
 
 Check every new page in mGBA. Text that does not fit shows up as cut-off words or stray glyph fragments on other rows.
+
+## Hero kits
+
+A character of one of the 8 stock heroes (Aragorn, Legolas, Gimli, Gandalf, Frodo, Sam, Smeagol,
+Eowyn) plays its Expanded kit or its vanilla one, chosen with L when it is created: on the new game
+hero select (top right: "L: Expanded kit" / "L: Vanilla kit") and on the save menu's hero select
+(bonus maps, co-op), as the slot's third line. A vanilla character plays its stock skill rows and
+passives only: no new rows or page 2, none of its hero's Expanded mechanics (Gandalf's forms,
+Legolas's quiver, Gimli's Tally, Frodo's Burden and Snare, Aragorn's Flame of the West and Elite
+passives, Sam's plants, Smeagol's tricks, Eowyn's Against the Dark) and its stock casts unwrapped.
+The kit belongs to the save slot: bit 0 of its skill record's `reservedHeader[0]`, so existing
+saves stay Expanded. Saruman and the Ringwraith exist only in Expanded and have no choice. In co-op
+each player's own character keeps its kit; the page 2 record carries it to the partner's console.

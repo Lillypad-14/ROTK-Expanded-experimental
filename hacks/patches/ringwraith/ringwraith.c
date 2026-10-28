@@ -9,6 +9,9 @@
 #include "spriteAnimation.h"
 #include "text.h"
 #include "variables.h"
+#if HACK_skill_expansion
+#include "patches/skill_expansion/skill_expansion.h"
+#endif
 
 #define NAZGUL_WALK EnemyAnimationBank_EnemyTypeNazgul_Walk
 #define NAZGUL_STAND EnemyAnimationBank_EnemyTypeNazgul_StandCopy
@@ -205,7 +208,16 @@ void ringwraith_drawSlot(u8 slot, u8 selectedSlot)
     {
         tile = font_drawString(tile, x, y, text_getString(TEXT_ID_SELECT_HERO), 1);
         y += 8;
-        font_drawString(tile, x, y, ringwraith_getHeroName(SCENE_ARG_SAVE_LOAD_CURSOR), 1);
+        tile = font_drawString(tile, x, y, ringwraith_getHeroName(SCENE_ARG_SAVE_LOAD_CURSOR), 1);
+#if HACK_skill_expansion
+        // Stock heroes can be created with their vanilla kit (skill_expansion_modes.c).
+        if (SCENE_ARG_SAVE_LOAD_CURSOR < 8)
+        {
+            y += 8;
+            font_drawString(tile, x, y,
+                            skillExpansion_heroSelectVanilla() ? "L: Vanilla kit" : "L: Expanded kit", 1);
+        }
+#endif
     }
     else
     {
