@@ -24,6 +24,9 @@
 #if HACK_twists
 #include "patches/twists/twists.h"
 #endif
+#if HACK_versus
+#include "patches/versus/versus.h"
+#endif
 
 // SkillExpansionSaveRecord.tag of a record that holds data. Blank SRAM reads as 0xFF.
 #define SAVE_RECORD_TAG 0x5e
@@ -380,11 +383,17 @@ void skillExpansion_loadSlot(u32 playerIndex)
 #else
 #define EXPERIMENTAL_OPTION_BYTES 0
 #endif
+#if HACK_versus
+#define VERSUS_OPTION_BYTES sizeof(g_VersusState)
+#else
+#define VERSUS_OPTION_BYTES 0
+#endif
 
 // The global mod options that change how the game plays. Each console loads its own save's at
 // boot, so a co-op client takes the host's for the session to simulate the same game.
 #define SESSION_OPTIONS_SIZE \
-    (LOOT_QOL_OPTION_BYTES + DEBUG_CHEATS_OPTION_BYTES + TWISTS_OPTION_BYTES + EXPERIMENTAL_OPTION_BYTES)
+    (LOOT_QOL_OPTION_BYTES + DEBUG_CHEATS_OPTION_BYTES + TWISTS_OPTION_BYTES + EXPERIMENTAL_OPTION_BYTES + \
+     VERSUS_OPTION_BYTES)
 
 // A console's record: its player's page 2 record, then its session options.
 #define PEER_RECORD_SIZE (PAGE2_RECORD_SIZE + SESSION_OPTIONS_SIZE)
@@ -438,7 +447,14 @@ static u8 *sessionOptionByte(u32 index)
     index -= TWISTS_OPTION_BYTES;
 #endif
 #if HACK_experimental
-    return (u8 *)&g_ExperimentalState + index;
+    if (index < EXPERIMENTAL_OPTION_BYTES)
+    {
+        return (u8 *)&g_ExperimentalState + index;
+    }
+    index -= EXPERIMENTAL_OPTION_BYTES;
+#endif
+#if HACK_versus
+    return (u8 *)&g_VersusState + index;
 #else
     (void)index;
     return NULL;

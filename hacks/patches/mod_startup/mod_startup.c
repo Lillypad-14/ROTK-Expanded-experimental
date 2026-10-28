@@ -36,6 +36,9 @@
 #if HACK_experimental
 #include "patches/experimental/experimental.h"
 #endif
+#if HACK_versus
+#include "patches/versus/versus.h"
+#endif
 
 /**
  * 1 = boot to the main menu, skipping the copyright/intro logo chain; 0 = the stock chain.
@@ -63,6 +66,9 @@ static void runTasks(void)
 #endif
 #if HACK_experimental
     experimental_loadState();
+#endif
+#if HACK_versus
+    versus_loadState();
 #endif
 }
 

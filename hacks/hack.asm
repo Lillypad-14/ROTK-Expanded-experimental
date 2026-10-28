@@ -45,6 +45,9 @@
 .if HACK_ringwraith
     .include "hacks/patches/ringwraith/ringwraith_hook.asm"
 .endif
+.if HACK_versus
+    .include "hacks/patches/versus/versus_hook.asm"
+.endif
 .if . > MEM_HOOK_END+1
     .error "hook region overflow - raise the HOOK budget in hacks/layout.cfg"
 .endif
@@ -72,6 +75,11 @@
 .endif
 .if HACK_skill_expansion
     hookTrampoline scene_newGame_tick, skill_expansion_new_game_tick_hook
+.endif
+.if HACK_versus
+    hookTrampoline combat_resolvePlayerAttackOnActor + 0xfc, versus_friendly_fire_hook
+    hookTrampoline 0x08015468, versus_projectile_friendly_fire_hook
+    hookTrampoline scene_gameplay_enter, versus_gameplay_enter_hook
 .endif
 .if HACK_chapter_select
     hookTrampoline scene_multiplayerLevelSelect_tick, chapter_select_coop_tick_hook
@@ -109,7 +117,7 @@
     .include "hacks/patches/gauntlet/gauntlet.asm"
 .endif
 ; Story spawn groups and scripts, switched off by hackLib_suppressMissionScripts.
-.if HACK_test_arena || HACK_gauntlet
+.if HACK_test_arena || HACK_gauntlet || HACK_versus
     hookReplace mission_script_spawnGroup, hackLib_missionSpawnGroup
     hookReplace mission_script_runStream, hackLib_missionRunStream
 .endif
@@ -144,6 +152,9 @@
 .endif
 .if HACK_twists
     .include "hacks/patches/twists/twists.asm"
+.endif
+.if HACK_versus
+    .include "hacks/patches/versus/versus.asm"
 .endif
 .if HACK_ringwraith
     .include "hacks/patches/ringwraith/ringwraith.asm"

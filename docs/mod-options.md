@@ -18,6 +18,7 @@ during a co-op session: their values show greyed out, with a note in place of th
 | Twists: Combat | Damage modifiers. See below. |
 | Twists: Vigor | Healing and resource modifiers. See below. |
 | Twists: Fate | XP and random events. See below. |
+| Versus | Player-vs-player settings for co-op. See below. |
 | Performance | Off-by-default performance experiments. See [performance](performance.md#experimental-audio). |
 | Performance 2 | Effect Cap. See [performance](performance.md#effect-cap). |
 | Combat Lab | Combat display and test encounters. See [test arena](test-arena.md). |
@@ -73,6 +74,24 @@ Omens:
 | Hearth | +2%/s HP regen. |
 | Iron Skin | -35% damage taken. |
 | The Hunt | Momentum on. |
+
+## Versus
+
+| Option | Values | Effect |
+| --- | --- | --- |
+| Duel | Off, On | Co-op missions become a duel. See below. |
+| KOs to Win | 3, 5, 7, 10 | The first player to this many knockouts wins the duel. |
+| Duel Enemies | Off, On | Keep the mission's enemies (and its story scripts) in a duel. Off, the map is empty. |
+| Duel Damage | 100%, 150%, 200%, 300% | Scales the hits the players land on each other in a duel. |
+| Friendly Fire | Grueling, Always, Never | Co-op outside a duel: whether your hits land on your partner. Grueling is the stock rule (only on Grueling difficulty). Smeagol's backstab hits allies on any setting, as in the stock game. |
+
+A hit on your partner uses the stock player-vs-player rules: accuracy against defense, parry, dodge, shield block, riposte, Thornmail, crits and knockdown. It covers the melee swing and the stock projectile and weapon-effect hits. Co-op plays with the host's settings.
+
+### Duel
+
+Press START on the co-op level select (or its chapter pages) to switch Duel on or off: the panel shows "Duel: 5 KOs" in red, and the chapter pages' title reads "Duel - ...". It's the same setting as Duel on the Versus page, and the host's console keeps it. Then pick any map. Both players start where the map puts them, with full HP, and every hit lands on the other player. A player brought to 0 HP is knocked out instead of dying: the other player scores, and after a second the knocked-out player gets back up at their starting point with full HP and Spirit and two seconds of protection. A knocked-out player can't move, attack or cast. The score shows with each knockout, and in the PC version a scoreboard stays at the top of both screens. The first to the KO target wins, and after five seconds both players go back to the co-op level select. Pause and Quit leave a duel at any time.
+
+Expanded kit skills target the other player in a duel (their projectiles, bursts and marks pick them like any foe) and their damage counts as a hit between players, scaled by Duel Damage. No single skill hit takes more than 40% of a player's max HP. Vanilla kit skills are the stock ones, which only target enemies: a vanilla kit duels with its weapons.
 
 ## Adding a page
 

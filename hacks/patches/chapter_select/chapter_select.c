@@ -21,6 +21,9 @@
 #include "sprite.h"
 #include "text.h"
 #include "variables.h"
+#if HACK_versus
+#include "patches/versus/versus.h"
+#endif
 
 /**
  * Chapter-list scroll offset: scene args slot unused by the stock scene (zeroed on scene
@@ -633,6 +636,27 @@ static void drawTitle(void)
 {
     char *str = text_getString(currentPage()->nameTextId);
 
+#if HACK_versus
+    // A co-op duel shows in the title: "Duel - <page>". The HUD text buffer is free in menus.
+    if (coopActive() && g_VersusState.duel)
+    {
+        char *out = g_PlayerHuds[0].textBuffer;
+        const char *prefix = "Duel - ";
+
+        while (*prefix != ' ')
+        {
+            *out++ = *prefix++;
+        }
+        while (*str != ' ' && out < g_PlayerHuds[0].textBuffer + sizeof(g_PlayerHuds[0].textBuffer) - 1)
+        {
+            *out++ = *str++;
+        }
+        *out = ' ';
+        str = g_PlayerHuds[0].textBuffer;
+    }
+    // The title's length changes with the switch: clear its two rows of the text layer first.
+    gfx_fillBgRect(2, 0, 0, 30, 2, 0);
+#endif
     font_setStyle(FONT_STYLE_11PX_A, 3, 0);
     font_drawString(1, 0x78, 4, str, 1);
 }
@@ -920,7 +944,16 @@ bool32 chapterSelect_coopLevelSelectTick(void)
     {
         g_SceneCurrent.args[4] = 1;
         hackLib_createLrButtonIndicatorsInMainPool();
+#if HACK_versus
+        versus_drawCoopMenuLabel();
+#endif
     }
+#if HACK_versus
+    if (g_SceneCurrent.args[3] != BONUS_MAP_STATE_LAUNCH_MISSION && versus_coopMenuTick())
+    {
+        return TRUE;
+    }
+#endif
     if (g_SceneCurrent.args[3] == BONUS_MAP_STATE_LAUNCH_MISSION || !(keys & (L_BUTTON | R_BUTTON)))
     {
         return FALSE;
@@ -965,6 +998,13 @@ void chapterSelect_tick(void)
         // the stock BonusMissionEntry.field_0x2 is 0 throughout
         g_SceneNext.args[3] = 0;
     }
+#if HACK_versus
+    else if (versus_coopMenuTick())
+    {
+        // Duel switched; the chapter pages show it in the title.
+        drawTitle();
+    }
+#endif
     // ROM asymmetry: A/d-pad read player 0's keys, B/select read the active player's.
     else if ((PLAYER_KEYS_PRESSED(0) & A_BUTTON) != 0)
     {

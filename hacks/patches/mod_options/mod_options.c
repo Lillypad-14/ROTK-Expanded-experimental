@@ -40,6 +40,9 @@
 #if HACK_experimental
 #include "patches/experimental/experimental.h"
 #endif
+#if HACK_versus
+#include "patches/versus/versus.h"
+#endif
 #if HACK_demo_pages
 #include "patches/demo_pages/demo_pages.h"
 #endif
@@ -89,6 +92,9 @@ static const struct ModOptionsPage ModOptionsPages[] = {
     {"Twists: Combat", TwistsCombatOptions, TWISTS_COMBAT_OPTION_COUNT, NULL},
     {"Twists: Vigor", TwistsVigorOptions, TWISTS_VIGOR_OPTION_COUNT, NULL},
     {"Twists: Fate", TwistsFateOptions, TWISTS_FATE_OPTION_COUNT, NULL},
+#endif
+#if HACK_versus
+    {"Versus", VersusOptions, VERSUS_OPTION_COUNT, NULL},
 #endif
 #if HACK_debug_cheats
     {"Combat Lab", DebugLabOptions, DEBUG_LAB_OPTION_COUNT, NULL},

@@ -33,6 +33,9 @@
 #if HACK_twists
 #include "patches/twists/twists.h"
 #endif
+#if HACK_versus
+#include "patches/versus/versus.h"
+#endif
 #if HACK_gauntlet
 #include "patches/gauntlet/gauntlet.h"
 #include "patches/gauntlet/gauntlet_boon_effects.h"
@@ -273,6 +276,16 @@ void skillExpansion_addHp(u8 playerIndex, s16 amount, bool flinchOnDamage)
     {
         return;
     }
+#if HACK_versus
+    if (amount < 0)
+    {
+        amount = (s16)versus_adjustHpChange(playerIndex, amount);
+        if (amount == 0)
+        {
+            return;
+        }
+    }
+#endif
 #if HACK_gauntlet
     s32 adjusted = amount;
     gauntletBoonEffects_hp(playerIndex, &adjusted, &flinchOnDamage);
@@ -366,6 +379,9 @@ void skillExpansion_addHp(u8 playerIndex, s16 amount, bool flinchOnDamage)
             break;
         }
     }
+#if HACK_versus
+    versus_afterHpChange(playerIndex);
+#endif
 }
 
 // Each original runs the 8-byte prologue that its hookReplace overwrote, then continues past it.
@@ -445,6 +461,12 @@ bool32 skillExpansion_isPlayerAvatar(Actor *actor)
  */
 bool32 skillExpansion_isFoe(Actor *actor)
 {
+#if HACK_versus
+    if (actor != NULL && skillExpansion_isPlayerAvatar(actor))
+    {
+        return versus_isDuelFoe(actor);
+    }
+#endif
     return actor != NULL && !skillExpansion_isPlayerAvatar(actor) &&
            actor->type != ACTOR_TYPE_NPC && actor->currentHp > 0 &&
            (actor->flags.p & ACTOR_FLAG_COLLISION_CHECK) &&
@@ -1288,6 +1310,16 @@ static HackLibDamageResult dealDamage(Actor *attacker, Actor *victim, u16 damage
     {
         return result;
     }
+#if HACK_versus
+    if (skillExpansion_isPlayerAvatar(victim))
+    {
+        // Only a duel opponent: the stock ranged path would treat a player as an enemy actor.
+        hackLib_swapDamageSource(&source);
+        result = versus_skillHitsPlayer(victim, damage);
+        hackLib_swapDamageSource(parent);
+        return result;
+    }
+#endif
     hackLib_swapDamageSource(&source);
     result = skillExpansion_applyRangedHitResult(attacker, victim, damage);
     hackLib_swapDamageSource(parent);
@@ -1516,6 +1548,11 @@ bool skillExpansion_resolveEnemyAttackOnPlayer(Actor *attacker, Actor *victim)
 void skillExpansion_playerTick(Actor *actor)
 {
     HackLibProfileSpan profile = hackLib_profileBegin(HACKLIB_PROFILE_PLAYER);
+#if HACK_versus
+    // Casts, deliveries and timelines run inside this tick: they act for this player.
+    u8 previousActing = versus_beginActing(
+        skillExpansion_isPlayerAvatar(actor) ? actor->as.combat.playerIndex : VERSUS_NO_PLAYER);
+#endif
     if (skillExpansion_isPlayerAvatar(actor))
     {
         HackLibProfileSpan passives = hackLib_profileBegin(HACKLIB_PROFILE_PASSIVES);
@@ -1531,8 +1568,14 @@ void skillExpansion_playerTick(Actor *actor)
 #if HACK_gauntlet
         gauntlet_playerTick(actor->as.combat.playerIndex);
 #endif
+#if HACK_versus
+        versus_playerTick(actor->as.combat.playerIndex);
+#endif
     }
     skillExpansion_original_actor_player_tick(actor);
+#if HACK_versus
+    versus_endActing(previousActing);
+#endif
     hackLib_profileEnd(profile);
 }
 
