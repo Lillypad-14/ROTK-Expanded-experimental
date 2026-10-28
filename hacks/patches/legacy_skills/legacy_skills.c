@@ -452,6 +452,101 @@ static void castSunburst(Actor *playerActor)
     sfx_play(SUNBURST_SOUND);
 }
 
+// Fireworks (Gandalf; Two Towers 0x08018280, its tick 0x08018494, hits 0x080114FC and 0x08011728):
+// a rocket that flies for 30 ticks and explodes on the first foe it hits, dealing 5 + 2 per level
+// to every foe in the blast on the frame it bursts. It is gone without a blast when it runs out.
+// The description says 10 + 2 per level; the game deals 5 + 2.
+#define FIREWORKS_DAMAGE_BASE 5
+#define FIREWORKS_DAMAGE_PER_LEVEL 2
+#define FIREWORKS_SPEED 0x50000
+#define FIREWORKS_LIFETIME 30
+#define FIREWORKS_EXPLOSION 0x08328230u
+// the rocket by facing
+static const u32 FireworksSprites[8] = {
+    0x08328208u, 0x08328210u, 0x08328218u, 0x08328220u,
+    0x08328228u, 0x08328220u, 0x08328218u, 0x08328210u,
+};
+// the rocket's phase, kept in its second parameter
+#define FIREWORKS_FLYING 0
+#define FIREWORKS_HIT 1
+#define FIREWORKS_BURSTING 2
+// stand-ins until the Two Towers sounds are ported
+#define FIREWORKS_LAUNCH_SOUND ZAP_SOUND
+#define FIREWORKS_BURST_SOUND SFX_COMBAT_FIREBURST_PROC
+
+static u16 *fxDamage(Actor *fx)
+{
+    return (u16 *)&fx->as.combat.head.scripted.params[0];
+}
+
+static u8 *fireworksPhase(Actor *fx)
+{
+    return &fx->as.combat.head.scripted.params[2];
+}
+
+static void fireworksBlastHit(Actor *fx, Actor *other)
+{
+    if (other->flags.p & FOE_HITTABLE_FLAGS)
+    {
+        combat_applyPveRangedHit(fx->parentActor, other, *fxDamage(fx));
+    }
+}
+
+static void fireworksRocketHit(Actor *fx, Actor *other)
+{
+    if ((other->flags.p & FOE_HITTABLE_FLAGS) && *fireworksPhase(fx) == FIREWORKS_FLYING)
+    {
+        *fireworksPhase(fx) = FIREWORKS_HIT;
+    }
+}
+
+static void fireworksTick(Actor *fx)
+{
+    u8 *phase = fireworksPhase(fx);
+
+    if (*phase == FIREWORKS_HIT)
+    {
+        // the blast collides on this frame only
+        *phase = FIREWORKS_BURSTING;
+        fx->velocity.x = 0;
+        fx->velocity.y = 0;
+        setSprite(fx, FIREWORKS_EXPLOSION);
+        fx->triggerCallbacks[0] = fireworksBlastHit;
+        fx->actionStateTimer = FIREWORKS_LIFETIME;
+        sfx_play(FIREWORKS_BURST_SOUND);
+    }
+    else if (*phase == FIREWORKS_BURSTING)
+    {
+        fx->flags.p &= ~ACTOR_FLAG_COLLISION_CHECK;
+        fx->actionStateTimer = (fx->flags.p & ACTOR_FLAG_ANIMATION_END) ? 0 : FIREWORKS_LIFETIME;
+    }
+    if (fx->parentActor->actionState == ACTOR_STATE_UNKNOWN_2D)
+    {
+        fx->actionState = ACTOR_STATE_UNKNOWN_04;
+    }
+    actor_unknown08045584(fx);
+}
+
+static void castFireworks(Actor *playerActor)
+{
+    Actor *fx = fx_unknown08043d74(playerActor, 0, PROJECTILE_ANIMATION_SET, PROJECTILE_AIMED,
+                                   PROJECTILE_PALETTE_BANK, PROJECTILE_NO_SLOT);
+
+    if (fx == NULL)
+    {
+        return;
+    }
+    setSprite(fx, FireworksSprites[fx->facing & 7]);
+    actor_setVelocityFromDirection8(&fx->velocity, fx->flags.p, fx->facing, FIREWORKS_SPEED);
+    fx->actionStateTimer = FIREWORKS_LIFETIME;
+    fx->tickCallback = fireworksTick;
+    fx->triggerCallbacks[0] = fireworksRocketHit;
+    fx->parentActor = playerActor;
+    *fxDamage(fx) = FIREWORKS_DAMAGE_BASE + FIREWORKS_DAMAGE_PER_LEVEL * castingLevel(playerActor);
+    *fireworksPhase(fx) = FIREWORKS_FLYING;
+    sfx_play(FIREWORKS_LAUNCH_SOUND);
+}
+
 static void castZap(Actor *playerActor)
 {
     u8 level = castingLevel(playerActor);
@@ -471,15 +566,8 @@ static void castZap(Actor *playerActor)
     sfx_play(ZAP_SOUND);
 }
 
-// Lightstrike returns its bolt, which the cast does not need.
-static void castLightstrike(Actor *playerActor)
-{
-    skill_active_gandalfLightstrike(playerActor);
-}
-
 #define LEGACY_DEF(name, callback, base)                                                               static const SkillExpansionActiveDef name = {                                                          .stockCallback = (callback),                                                  .baseRow = (base),                                                                             }
 
-LEGACY_DEF(LegacyGandalfLightstrike, castLightstrike, ACTIVE_SKILL_GANDALF_LIGHTSTRIKE);
 // a port: Lightstrike's cast pose and requirements, its own cast
 static const SkillExpansionActiveDef LegacyGandalfZap = {.baseRow = ACTIVE_SKILL_GANDALF_LIGHTSTRIKE};
 static bool32 shieldCanCast(u8 playerIndex);
@@ -506,7 +594,7 @@ static const LegacyActive HeroActives[LEGACY_HERO_COUNT][SKILL_EXPANSION_LEGACY_
             {&LegacyGandalfShieldPort, 10, castShield}, // Shield
             {&LegacyGandalfZap, 3, castZap}, // Zap
             {&LegacyGandalfSunburst, 8, castSunburst}, // Sunburst
-            {&LegacyGandalfLightstrike, 5},  // Fireworks: stand-in until it has its own cast
+            {&LegacyGandalfZap, 5, castFireworks}, // Fireworks
             {&LegacyGandalfGwaihir, 12},     // Summon Eagle
             {&LegacyGandalfBlindingAura, 20}, // Thunderstrike: stand-in until it has its own cast
         },
