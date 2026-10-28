@@ -49,6 +49,7 @@ help:
 	@echo "  HACK"
 	@echo "    hack [HACKS=...]   build build/rotk_hack.gba from selected patches (default hacks/patches.cfg)"
 	@echo "    dist [HACKS=...]   hack + emit a verified BPS -> dist/hack.bps"
+	@echo "    hack-pc [HACKS=...] the PC edition (rotk-recompiled) -> build/rotk_pc.gba, hack_pc.elf"
 	@echo "    check-hacks        ROM-free build of every patch (the pre-commit gate)"
 	@echo "    check-mod          base-ROM checks + selected hack build + content/runtime regressions"
 	@echo "    check-elemental-hook  execute the patched native elemental hook on ARM"

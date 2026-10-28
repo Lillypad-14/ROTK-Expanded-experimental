@@ -1,3 +1,4 @@
+#include "memmap.h"
 #include "patches/mod_ram/memory_diagnostics.h"
 #include "patches/mod_ram/graphics_scratch.h"
 #include "variables.h"
@@ -88,7 +89,11 @@ void modRam_initMemoryStats(void)
     memory_memset(&stats, 0, sizeof(stats));
     sampleFreeSpace();
     stats.capacity = stats.freeBytes;
+#if PC_EDITION
+    stats.heapEnd = MEM_MODCODE_BSS_END + 1;
+#else
     stats.heapEnd = (u32)__modcode_bss_start;
+#endif
 }
 
 void modRam_getMemoryStats(ModRamMemoryStats *out)

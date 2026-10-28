@@ -59,6 +59,12 @@ MODCODE_CFLAGS := -c -g3 -std=gnu11 -Wall -Wextra -mthumb -mthumb-interwork -mlo
            -Ibuild/hack_include -Ihacks $(DEF)
 ARENA_HERO ?= 2
 MODCODE_CFLAGS += -DTEST_ARENA_HERO=$(ARENA_HERO)
+# PC_EDITION=1 builds the mod for the PC port: its RAM moves to host RAM (MEM_PC_MODCODE_BSS), so
+# PC-only patches are not bound by the GBA RAM slice. The result does not run on a GBA.
+PC_EDITION ?= 0
+comma := ,
+MODCODE_CFLAGS += -DPC_EDITION=$(PC_EDITION)
+MODCODE_LDFLAGS := $(if $(filter 1,$(PC_EDITION)),-Wl$(comma)--defsym$(comma)PC_EDITION=1)
 
 # Refresh for the selected patches so file and selection changes cannot leave stale entries.
 hack-text-overrides:
@@ -106,7 +112,7 @@ hack: $(if $(SKIP_ROM_CHECK),,check-base-rom) build/game_symbols.inc build/game_
 	@# -nodefaultlibs: use the ROM libc as far as it exists
 	@# -lgcc: Do emit libgcc as the ROM used a different compiler
 	arm-none-eabi-gcc -nostartfiles -nodefaultlibs -mthumb -mthumb-interwork -T hacks/hack.ld \
-	  -Wl,-L,build -o build/hack.elf $(C_OBJS) -lgcc
+	  -Wl,-L,build $(MODCODE_LDFLAGS) -o build/hack.elf $(C_OBJS) -lgcc
 	uv run python hacks/tools/validate_abilities.py build/hack.elf rotk.gba
 	arm-none-eabi-objcopy -O binary -j .text -j .rodata build/hack.elf build/modcode.bin
 	uv run rotkit hack modcode-syms build/hack.elf build/modcode_syms.inc
@@ -115,7 +121,7 @@ hack: $(if $(SKIP_ROM_CHECK),,check-base-rom) build/game_symbols.inc build/game_
 	     -ffreestanding -fno-strict-aliasing -fno-short-enums -Iinclude -Icarved/include -Ibuild/include -Ihacks -Icarved/data $(DEF) hacks/tables.c -o build/tables.o && \
 	   uv run rotkit hack tablepatch build/tables.o build/tablepatch.asm; \
 	 else : > build/tablepatch.asm; fi
-	armips $(EQU) -strequ HACK_OUTFILE $(HACK_OUT) hacks/hack.asm
+	armips $(EQU) -equ PC_EDITION $(PC_EDITION) -strequ HACK_OUTFILE $(HACK_OUT) hacks/hack.asm
 
 dist: hack
 	uv run rotkit hack bps hack
@@ -131,6 +137,13 @@ check-mod: check check-abilities
 .PHONY: check-elemental-hook
 check-elemental-hook: hack
 	uv run --with unicorn python hacks/tools/validate_elemental_hook.py
+
+.PHONY: hack-pc
+# The PC edition (rotk-recompiled): the mod's RAM in host RAM. Its own ROM and ELF, so the GBA
+# build's files stay as they are.
+hack-pc:
+	$(MAKE) hack PC_EDITION=1 HACK_OUT=build/rotk_pc.gba
+	cp build/hack.elf build/hack_pc.elf
 
 .PHONY: test-arena
 test-arena:

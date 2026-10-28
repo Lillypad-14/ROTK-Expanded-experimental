@@ -17,16 +17,20 @@ SECTIONS
     .data : { *(.data .data.*) }
     ASSERT(SIZEOF(.data) == 0, "initialised .data unsupported (no crt0 to copy ROM->RAM)")
 
-    /* Mutable globals in the RAM slice mod_ram takes off the game heap (zeroed at boot by system_clearRam). */
-    .bss (MEM_MODCODE_BSS_END + 1 - ((SIZEOF(.bss) + 15) & ~15)) (NOLOAD) :
+    /* Mutable globals in the RAM slice mod_ram takes off the game heap (zeroed at boot by
+     * system_clearRam). The PC edition (--defsym PC_EDITION=1) puts them in the PC port's host RAM
+     * instead, which modRam_init clears. */
+    .bss (DEFINED(PC_EDITION) ? MEM_PC_MODCODE_BSS
+                              : MEM_MODCODE_BSS_END + 1 - ((SIZEOF(.bss) + 15) & ~15)) (NOLOAD) :
     {
         __modcode_bss_start = .;
         KEEP(*(.bss.guard))
         *(.bss .bss.* COMMON)
         __modcode_bss_end = .;
     }
-    ASSERT(__modcode_bss_start >= MEM_MODCODE_BSS, "modcode .bss exceeds its RAM budget")
-    ASSERT(. <= MEM_MODCODE_BSS_END + 1, "modcode .bss overflowed MEM_MODCODE_BSS (hacks/layout.cfg)")
+    ASSERT(DEFINED(PC_EDITION) || __modcode_bss_start >= MEM_MODCODE_BSS, "modcode .bss exceeds its RAM budget")
+    ASSERT(DEFINED(PC_EDITION) ? . <= MEM_PC_MODCODE_BSS_END + 1 : . <= MEM_MODCODE_BSS_END + 1,
+           "modcode .bss overflowed MEM_MODCODE_BSS or MEM_PC_MODCODE_BSS (hacks/layout.cfg)")
 
     /DISCARD/ : { *(.ARM.exidx*) *(.comment) *(.note*) *(.ARM.attributes) }
 }
