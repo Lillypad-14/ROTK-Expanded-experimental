@@ -4,12 +4,17 @@
 
 #include "patches/legacy_items/legacy_items.h"
 #include "patches/mod_save/save_layout.h"
+#include "patches/mod_save/save_slots.h"
 #include "patches/mod_save/save_sram.h"
+#include "input.h"
 #include "lib/pc_host.h"
 #include "player.h"
 #include "save.h"
+#include "scene/saveLoadMenu.h"
+#include "sfx.h"
 #include "stats.h"
 #include "text.h"
+#include "variables.h"
 
 #define TWO_TOWERS_RECORD_SIZE 16
 #define TWO_TOWERS_RECORD_STATS 5
@@ -147,6 +152,10 @@ typedef struct LegacyItemsScratch
     TwoTowersItem item[LEGACY_ITEM_ROW_COUNT];
     // a row's two prefix names, put together for legacyItems_findString
     char prefixName[LEGACY_ITEMS_NAME_LENGTH];
+    // the Load Game menu shows a Two Towers hero to import in the selected empty slot
+    u8 importing;
+    // the Two Towers save slot shown
+    u8 importSlot;
 } LegacyItemsScratch;
 
 asm(".section .text\n"
@@ -542,4 +551,283 @@ void legacyItems_deserializePlayer(u32 *slotBuffer, u32 playerIndex)
     }
     slot.d.checksum = -sum;
     legacyItems_original_deserializePlayer(slot.words, playerIndex);
+}
+
+#define TWO_TOWERS_SLOT_SIZE 0x78
+#define TWO_TOWERS_SLOT_ITEMS 15
+#define TWO_TOWERS_SLOT_SKILLS 0x3c
+#define TWO_TOWERS_SKILL_COUNT 11
+#define TWO_TOWERS_SLOT_EXPERIENCE 0x48
+#define TWO_TOWERS_SLOT_HP 0x4c
+#define TWO_TOWERS_SLOT_SPIRIT 0x4e
+#define TWO_TOWERS_SLOT_GEMS 0x50
+#define TWO_TOWERS_SLOT_KILLS 0x52
+#define TWO_TOWERS_SLOT_LEVEL 0x58
+#define TWO_TOWERS_SLOT_ATTRIBUTE_POINTS 0x59
+#define TWO_TOWERS_SLOT_SKILL_POINTS 0x5a
+#define TWO_TOWERS_SLOT_HERO 0x5b
+#define TWO_TOWERS_SLOT_ATTRIBUTES 0x5d
+#define TWO_TOWERS_HERO_COUNT 6
+#define TWO_TOWERS_WORN_SLOTS 7
+#define PRIMARY_ATTRIBUTE_COUNT 5
+#define LEGACY_SKILL_RECORD_TAG 0x01
+#define XP_LEVEL_COUNT 50
+#define NO_SLOT 0xff
+
+extern const u32 XpThresholds[XP_LEVEL_COUNT];
+
+// The ROTK inventory slot of each Two Towers worn slot: armor, necklace, cloak, shoes, helm,
+// weapon and second hand.
+static const u8 WornSlots[TWO_TOWERS_WORN_SLOTS] = {
+    INVENTORY_SLOT_ARMOR,  INVENTORY_SLOT_JEWELRY,  INVENTORY_SLOT_CLOAK,   INVENTORY_SLOT_BOOTS,
+    INVENTORY_SLOT_HELMET, INVENTORY_SLOT_MAINHAND, INVENTORY_SLOT_OFFHAND,
+};
+
+static u32 read32(const u8 *bytes)
+{
+    return bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | ((u32)bytes[3] << 24);
+}
+
+static u16 read16(const u8 *bytes)
+{
+    return bytes[0] | (bytes[1] << 8);
+}
+
+// A Two Towers save slot holding a hero ROTK knows, or NULL.
+static const u8 *twoTowersSlot(const TwoTowersData *data, u32 index)
+{
+    const u8 *slot;
+    bool32 used = FALSE;
+
+    if (index >= data->saveSlotCount)
+    {
+        return NULL;
+    }
+    slot = data->saveSlots + index * TWO_TOWERS_SLOT_SIZE;
+    for (u32 i = 0; i < TWO_TOWERS_SLOT_SIZE; i++)
+    {
+        used |= slot[i] != 0;
+    }
+    return used && slot[TWO_TOWERS_SLOT_HERO] < TWO_TOWERS_HERO_COUNT ? slot : NULL;
+}
+
+// The next used Two Towers save slot after `from` in direction `step` (1 or -1), or NO_SLOT.
+static u32 nextSlot(const TwoTowersData *data, u32 from, s32 step)
+{
+    u32 count = data->saveSlotCount;
+
+    for (u32 i = 1; i <= count; i++)
+    {
+        u32 index = (from + count + step * (s32)i) % count;
+        if (twoTowersSlot(data, index) != NULL)
+        {
+            return index;
+        }
+    }
+    return NO_SLOT;
+}
+
+// Add a Two Towers item to the legacy item pool, returning its index or -1 when the pool is full.
+static s32 poolAppend(u32 word)
+{
+    u32 header[2];
+    u32 count;
+
+    modSave_copy((u8 *)header, SRAM_BASE + LEGACY_ITEM_POOL_OFF, sizeof(header));
+    count = header[0] == LEGACY_ITEM_POOL_MAGIC ? header[1] & 0xffff : 0;
+    if (count >= LEGACY_ITEM_POOL_ENTRIES)
+    {
+        return -1;
+    }
+    modSave_copy(SRAM_BASE + LEGACY_ITEM_POOL_OFF + LEGACY_ITEM_POOL_HEADER_SIZE + count * 4,
+                 (const u8 *)&word, 4);
+    header[0] = LEGACY_ITEM_POOL_MAGIC;
+    header[1] = count + 1;
+    modSave_copy(SRAM_BASE + LEGACY_ITEM_POOL_OFF, (const u8 *)header, sizeof(header));
+    return count;
+}
+
+// ROTK's stored level and XP for a Two Towers level: the same displayed level and the same share
+// of the way to the next one. Both games use XpThresholds, but ROTK stores the level minus one.
+static void convertLevel(u32 level, u32 experience, u8 *storedLevel, u32 *storedExperience)
+{
+    u32 stored = level > 0 ? level - 1 : 0;
+
+    *storedLevel = stored;
+    if (level >= XP_LEVEL_COUNT)
+    {
+        *storedExperience = 0;
+        return;
+    }
+    *storedExperience = experience * XpThresholds[stored] / XpThresholds[level];
+    if (*storedExperience >= XpThresholds[stored])
+    {
+        *storedExperience = XpThresholds[stored] - 1;
+    }
+}
+
+// Build the selected save slot from a Two Towers hero: a fresh ROTK character of the same hero
+// with the Two Towers level, stats and points, and its items when withItems is set.
+static void buildSlot(const u8 *source, bool32 withItems)
+{
+    SaveSlot *slot = &g_SaveSlots[SCENE_ARG_SAVE_LOAD_SELECTED_SLOT];
+    u8 p = ACTIVE_PLAYER_INDEX;
+    u8 hero = source[TWO_TOWERS_SLOT_HERO];
+    Item *inventory = PLAYER(p).inventory.array;
+    u8 storedLevel;
+    u32 storedExperience;
+    u16 sum = 0;
+
+    PLAYER(p).heroId = hero;
+    player_initHeroStats(hero, p);
+    player_initHeroLoadout(hero, p);
+    for (u32 i = 0; i < ARRAY_COUNT(PLAYER(p).inventory.array); i++)
+    {
+        item_clearSlot(&inventory[i].word);
+    }
+    if (withItems)
+    {
+        for (u32 k = 0; k < TWO_TOWERS_SLOT_ITEMS; k++)
+        {
+            u32 word = read32(source + k * 4);
+            u32 at = k < TWO_TOWERS_WORN_SLOTS ? WornSlots[k]
+                                               : INVENTORY_SLOT_BACKPACK_0 + k - TWO_TOWERS_WORN_SLOTS;
+            s32 index;
+
+            if (word == 0xffffffff || (index = poolAppend(word)) < 0)
+            {
+                continue;
+            }
+            inventory[at].d.itemType = ITEM_TYPE_UNIQUE;
+            inventory[at].d.runeIndex = RUNE_NONE;
+            inventory[at].d.baseIndex = LEGACY_ITEM_HANDLE_BASE;
+            inventory[at].d.prefixIndex = index & 0xff;
+            inventory[at].d.suffixIndex = index >> 8;
+        }
+        legacyItems_materialize(inventory, ARRAY_COUNT(PLAYER(p).inventory.array));
+    }
+    save_serializePlayer(slot->halfwords, 0);
+    scene_saveLoadMenu_stampSlot();
+
+    convertLevel(source[TWO_TOWERS_SLOT_LEVEL], read32(source + TWO_TOWERS_SLOT_EXPERIENCE),
+                 &storedLevel, &storedExperience);
+    slot->d.level = storedLevel;
+    slot->d.experience = storedExperience;
+    slot->d.currentHp = read16(source + TWO_TOWERS_SLOT_HP);
+    slot->d.currentSpirit = read16(source + TWO_TOWERS_SLOT_SPIRIT);
+    slot->d.gems = read16(source + TWO_TOWERS_SLOT_GEMS);
+    slot->d.killCount = read16(source + TWO_TOWERS_SLOT_KILLS);
+    slot->d.attributePoints = source[TWO_TOWERS_SLOT_ATTRIBUTE_POINTS];
+    slot->d.skillPoints = source[TWO_TOWERS_SLOT_SKILL_POINTS];
+    for (u32 i = 0; i < PRIMARY_ATTRIBUTE_COUNT; i++)
+    {
+        (&slot->d.strength)[i] = source[TWO_TOWERS_SLOT_ATTRIBUTES + i];
+    }
+    slot->d.checksum = 0;
+    for (u32 i = 0; i < ARRAY_COUNT(slot->halfwords); i++)
+    {
+        sum += slot->halfwords[i];
+    }
+    slot->d.checksum = -sum;
+}
+
+static void redrawSelectedSlot(void)
+{
+    scene_saveLoadMenu_drawSlot(SCENE_ARG_SAVE_LOAD_SELECTED_SLOT,
+                                SCENE_ARG_SAVE_LOAD_SELECTED_SLOT);
+    scene_saveLoadMenu_refreshSlot(SCENE_ARG_SAVE_LOAD_SELECTED_SLOT);
+}
+
+static void writeSkillRecord(const u8 *source)
+{
+    u8 record[LEGACY_SKILL_SAVE_RECORD_SIZE];
+    u32 slotIndex = g_SaveSlotPage * SAVE_SLOTS_PER_PAGE + SCENE_ARG_SAVE_LOAD_SELECTED_SLOT;
+
+    for (u32 i = 0; i < LEGACY_SKILL_SAVE_RECORD_SIZE; i++)
+    {
+        record[i] = 0xff;
+    }
+    record[0] = LEGACY_SKILL_RECORD_TAG;
+    record[1] = source[TWO_TOWERS_SLOT_HERO];
+    for (u32 i = 0; i < TWO_TOWERS_SKILL_COUNT; i++)
+    {
+        record[2 + i] = source[TWO_TOWERS_SLOT_SKILLS + i];
+    }
+    modSave_copy(SRAM_BASE + LEGACY_SKILL_SAVE_OFF + slotIndex * LEGACY_SKILL_SAVE_RECORD_SIZE,
+                 record, sizeof(record));
+}
+
+/**
+ * On the Load Game menu, L on an empty slot shows the heroes of The Two Towers' save in it. Left
+ * and right pick a hero, A imports it, B or L puts the slot back.
+ *
+ * @return TRUE to skip the stock tick this frame
+ */
+bool32 legacyItems_saveMenuTick(void)
+{
+    LegacyItemsScratch *state = scratch();
+    const TwoTowersData *data = hackLib_twoTowersData();
+    u32 keys;
+    u32 next;
+
+    if (state == NULL || data == NULL || data->saveSlotCount == 0)
+    {
+        return FALSE;
+    }
+    keys = ACTIVE_MENU_KEYS_PRESSED;
+    if (!state->importing)
+    {
+        if ((keys & L_BUTTON) == 0 || SCENE_ARG_SAVE_LOAD_STATE != SAVE_LOAD_STATE_SLOT_SELECT ||
+            SCENE_ARG_SAVE_LOAD_MODE != SAVE_LOAD_MODE_LOAD)
+        {
+            return FALSE;
+        }
+        next = nextSlot(data, data->saveSlotCount - 1, 1);
+        if (save_getSlotMission(&g_SaveSlots[SCENE_ARG_SAVE_LOAD_SELECTED_SLOT]) <
+                SLOT_MISSION_EMPTY ||
+            next == NO_SLOT)
+        {
+            sfx_play(SFX_MENU_ERROR);
+            return TRUE;
+        }
+        state->importing = TRUE;
+        state->importSlot = next;
+        buildSlot(twoTowersSlot(data, next), FALSE);
+        redrawSelectedSlot();
+        sfx_play(SFX_MENU_CURSOR_MOVE);
+        return TRUE;
+    }
+    if (SCENE_ARG_SAVE_LOAD_STATE != SAVE_LOAD_STATE_SLOT_SELECT)
+    {
+        state->importing = FALSE;
+        return FALSE;
+    }
+    if (keys & (DPAD_LEFT | DPAD_RIGHT))
+    {
+        next = nextSlot(data, state->importSlot, (keys & DPAD_RIGHT) ? 1 : -1);
+        state->importSlot = next;
+        buildSlot(twoTowersSlot(data, next), FALSE);
+        redrawSelectedSlot();
+        sfx_play(SFX_MENU_CURSOR_MOVE);
+    }
+    else if (keys & A_BUTTON)
+    {
+        const u8 *source = twoTowersSlot(data, state->importSlot);
+
+        buildSlot(source, TRUE);
+        save_writeSlot(&g_SaveSlots[SCENE_ARG_SAVE_LOAD_SELECTED_SLOT],
+                       SCENE_ARG_SAVE_LOAD_SELECTED_SLOT);
+        writeSkillRecord(source);
+        state->importing = FALSE;
+        redrawSelectedSlot();
+        sfx_play(SFX_MENU_CONFIRM);
+    }
+    else if (keys & (B_BUTTON | L_BUTTON | SELECT_BUTTON))
+    {
+        save_initEmptySlot(&g_SaveSlots[SCENE_ARG_SAVE_LOAD_SELECTED_SLOT]);
+        state->importing = FALSE;
+        redrawSelectedSlot();
+        sfx_play(SFX_MENU_CURSOR_MOVE);
+    }
+    return TRUE;
 }

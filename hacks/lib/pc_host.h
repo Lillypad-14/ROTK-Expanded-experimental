@@ -96,6 +96,9 @@ typedef struct TwoTowersData
     u32 stringCount;
     // per Language, NUL-terminated font strings by Two Towers text id, NULL for one not carried
     const char *const *strings[LANGUAGE_COUNT];
+    // the Two Towers save's character slots, 0x78 bytes each, zeroed for an empty one
+    const u8 *saveSlots;
+    u32 saveSlotCount;
 } TwoTowersData;
 
 static inline const TwoTowersData *hackLib_twoTowersData(void)

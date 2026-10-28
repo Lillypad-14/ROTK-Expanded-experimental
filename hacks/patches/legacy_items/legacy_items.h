@@ -27,3 +27,5 @@ void legacyItems_materialize(Item *items, u32 count);
 void legacyItems_dematerialize(Item *items, u32 count);
 // A legacy item name for a text id, or NULL.
 const char *legacyItems_findString(s32 textId);
+// The Load Game menu's Two Towers import, run before the stock tick. TRUE skips the stock tick.
+bool32 legacyItems_saveMenuTick(void);

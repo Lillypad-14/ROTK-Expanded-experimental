@@ -1,3 +1,6 @@
+#if HACK_legacy_items
+#include "patches/legacy_items/legacy_items.h"
+#endif
 #include "patches/skill_expansion/skill_expansion_save.h"
 #include "patches/skill_expansion/skill_expansion.h"
 #include "patches/skill_expansion/skill_expansion_coop.h"
@@ -542,6 +545,13 @@ static void sendRecordChunk(u32 chunk)
 bool32 skillExpansion_saveMenuTickHook(void)
 {
     u32 linkMessages;
+
+#if HACK_legacy_items
+    if (legacyItems_saveMenuTick())
+    {
+        return TRUE;
+    }
+#endif
 
     if (skillExpansion_heroSelectTick())
     {
