@@ -14,6 +14,7 @@
 #include "lib/pc_host.h"
 #include "actor/shieldBubble.h"
 #include "player.h"
+#include "rng.h"
 #include "sfx.h"
 #include "spriteAnimation.h"
 #include "scene.h"
@@ -592,6 +593,170 @@ static void castFireworks(Actor *playerActor)
     sfx_play(FIREWORKS_LAUNCH_SOUND);
 }
 
+// Thunderstrike (Gandalf; Two Towers 0x0801E658; the storm 0x08018D7C, its tick 0x08018EC0 and its
+// pick 0x08011440; the bolt 0x08027A24 and its tick 0x08027B44): a storm around Gandalf strikes a
+// foe within 80 pixels every 4 ticks, 5 + level / 3 times, for 20 + 2 per level each, and ends when
+// no foe is in reach. Among several foes in reach each new one replaces the pick on an even roll.
+// A strike is a bolt that falls on the foe and hits when its animation ends. The storm is unseen.
+#define THUNDERSTRIKE_STRIKES_BASE 5
+#define THUNDERSTRIKE_LEVELS_PER_STRIKE 3
+#define THUNDERSTRIKE_DAMAGE_BASE 20
+#define THUNDERSTRIKE_DAMAGE_PER_LEVEL 2
+#define THUNDERSTRIKE_RADIUS 80
+#define THUNDERSTRIKE_PAUSE 4
+#define THUNDERSTRIKE_LIFETIME 15
+#define THUNDERSTRIKE_BOLT 0x08052690u
+// Lightstrike's cast sound until the Two Towers sounds are ported
+#define THUNDERSTRIKE_SOUND ZAP_SOUND
+
+// The storm's strikes left and ticks to the next strike, after the damage
+static u8 *stormStrikes(Actor *fx)
+{
+    return &fx->as.combat.head.scripted.params[2];
+}
+
+static u8 *stormPause(Actor *fx)
+{
+    return &fx->as.combat.head.scripted.params[3];
+}
+
+static void stormEnd(Actor *fx)
+{
+    fx->actionState = ACTOR_STATE_UNKNOWN_04;
+    fx->actionStateTimer = 0;
+}
+
+// The bolt keeps its foe in attachTarget, which only attach effects' own tick reads.
+static void boltTick(Actor *fx)
+{
+    Actor *foe = fx->as.combat.head.attachTarget;
+
+    if (foe != NULL)
+    {
+        fx->coords = foe->coords;
+    }
+    if (fx->flags.p & ACTOR_FLAG_ANIMATION_END)
+    {
+        if (foe != NULL && !(foe->flags.p & ACTOR_FLAG_PENDING_REMOVE))
+        {
+            combat_applyPveRangedHit(fx->parentActor, foe, *fxDamage(fx));
+        }
+        fx->as.combat.head.attachTarget = NULL;
+        fx->actionStateTimer = 0;
+    }
+    if (fx->parentActor->actionState == ACTOR_STATE_UNKNOWN_2D)
+    {
+        fx->actionState = ACTOR_STATE_UNKNOWN_04;
+    }
+    actor_unknown08045584(fx);
+}
+
+static void spawnBolt(Actor *storm, Actor *foe)
+{
+    Actor *playerActor = storm->parentActor;
+    Actor *fx = fx_unknown08043d74(playerActor, 0, PROJECTILE_ANIMATION_SET, PROJECTILE_AIMED,
+                                   PROJECTILE_PALETTE_BANK, PROJECTILE_NO_SLOT);
+
+    if (fx == NULL)
+    {
+        return;
+    }
+    setSprite(fx, THUNDERSTRIKE_BOLT);
+    fx->velocity.x = 0;
+    fx->velocity.y = 0;
+    fx->coords = foe->coords;
+    fx->triggerCallbacks[0] = NULL;
+    fx->flags.p &= ~ACTOR_FLAG_COLLISION_CHECK;
+    fx->parentActor = playerActor;
+    fx->as.combat.head.attachTarget = foe;
+    *fxDamage(fx) = *fxDamage(storm);
+    fx->actionStateTimer = THUNDERSTRIKE_LIFETIME;
+    fx->tickCallback = boltTick;
+}
+
+static void stormPick(Actor *fx, Actor *other)
+{
+    if (!(other->flags.p & FOE_HITTABLE_FLAGS))
+    {
+        return;
+    }
+    if (fx->as.combat.head.attachTarget == NULL || rng_rollUpTo(100) <= rng_rollUpTo(100))
+    {
+        fx->as.combat.head.attachTarget = other;
+    }
+}
+
+static void stormTick(Actor *fx)
+{
+    Actor *target = fx->as.combat.head.attachTarget;
+    u8 *pause = stormPause(fx);
+
+    fx->coords = fx->parentActor->coords;
+    if (*stormStrikes(fx) == 0)
+    {
+        stormEnd(fx);
+    }
+    else
+    {
+        if (target != NULL)
+        {
+            spawnBolt(fx, target);
+            sfx_play(THUNDERSTRIKE_SOUND);
+            fx->as.combat.head.attachTarget = NULL;
+            (*stormStrikes(fx))--;
+            *pause = THUNDERSTRIKE_PAUSE;
+        }
+        // it looks for a foe on the tick the pause runs out, and ends when it finds none
+        if (*pause == 0)
+        {
+            stormEnd(fx);
+        }
+        else if (--*pause == 0)
+        {
+            fx->flags.p |= ACTOR_FLAG_COLLISION_CHECK;
+        }
+        else
+        {
+            fx->flags.p &= ~ACTOR_FLAG_COLLISION_CHECK;
+        }
+    }
+    if (fx->parentActor->actionState == ACTOR_STATE_UNKNOWN_2D)
+    {
+        stormEnd(fx);
+    }
+    if (fx->actionState != ACTOR_STATE_UNKNOWN_04)
+    {
+        fx->actionStateTimer = THUNDERSTRIKE_LIFETIME;
+    }
+    actor_unknown08045584(fx);
+}
+
+static void castThunderstrike(Actor *playerActor)
+{
+    u8 level = castingLevel(playerActor);
+    Actor *fx = fx_unknown08043d74(playerActor, 0, PROJECTILE_ANIMATION_SET, PROJECTILE_AIMED,
+                                   PROJECTILE_PALETTE_BANK, PROJECTILE_NO_SLOT);
+
+    if (fx == NULL)
+    {
+        return;
+    }
+    fx->flags.p &= ~ACTOR_FLAG_RENDER;
+    fx->velocity.x = 0;
+    fx->velocity.y = 0;
+    fx->parentActor = playerActor;
+    fx->as.combat.head.attachTarget = NULL;
+    fx->tickCallback = stormTick;
+    fx->triggerCallbacks[0] = stormPick;
+    fx->flags.p |= ACTOR_FLAG_RADIUS_PROXIMITY | ACTOR_FLAG_COLLISION_CHECK;
+    fx->interactionRadius = THUNDERSTRIKE_RADIUS;
+    *fxDamage(fx) = THUNDERSTRIKE_DAMAGE_BASE + THUNDERSTRIKE_DAMAGE_PER_LEVEL * level;
+    *stormStrikes(fx) = THUNDERSTRIKE_STRIKES_BASE + level / THUNDERSTRIKE_LEVELS_PER_STRIKE;
+    *stormPause(fx) = 1;
+    fx->actionStateTimer = THUNDERSTRIKE_LIFETIME;
+    sfx_play(THUNDERSTRIKE_SOUND);
+}
+
 static void castZap(Actor *playerActor)
 {
     u8 level = castingLevel(playerActor);
@@ -625,8 +790,6 @@ static const SkillExpansionActiveDef LegacyGandalfSunburst = {
 };
 // Shield's pose: casting through Herbal Healing's row hangs the game
 static const SkillExpansionActiveDef LegacyGandalfHealing = {.baseRow = ACTIVE_SKILL_GANDALF_SHIELD};
-LEGACY_DEF(LegacyGandalfBlindingAura, skill_active_gandalfBlindingAura,
-           ACTIVE_SKILL_GANDALF_BLINDING_AURA);
 LEGACY_DEF(LegacyGandalfGwaihir, skill_active_gandalfSummonGwaihir,
            ACTIVE_SKILL_GANDALF_SUMMON_GWAIHIR);
 
@@ -641,7 +804,7 @@ static const LegacyActive HeroActives[LEGACY_HERO_COUNT][SKILL_EXPANSION_LEGACY_
             {&LegacyGandalfSunburst, 8, castSunburst}, // Sunburst
             {&LegacyGandalfZap, 5, castFireworks}, // Fireworks
             {&LegacyGandalfGwaihir, 12},     // Summon Eagle
-            {&LegacyGandalfBlindingAura, 20}, // Thunderstrike: stand-in until it has its own cast
+            {&LegacyGandalfSunburst, 20, castThunderstrike}, // Thunderstrike
         },
 };
 
