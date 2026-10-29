@@ -809,6 +809,27 @@ bool32 legacySkills_loaded(u8 playerIndex)
            loadedRecord[1] == PLAYER(0).heroId && loadedRecord[1] < LEGACY_HERO_COUNT;
 }
 
+void legacySkills_setTestLevels(u8 level)
+{
+    if (!legacySkills_loaded(0))
+    {
+        return;
+    }
+    for (u32 skill = 0; skill < LEGACY_SKILL_COUNT; skill++)
+    {
+        loadedRecord[2 + skill] = level;
+    }
+    for (u32 i = 0; i < SKILL_EXPANSION_LEGACY_ACTIVE_COUNT &&
+                    HeroPassives[loadedRecord[1]].count + i < LEGACY_SKILL_COUNT;
+         i++)
+    {
+        if (HeroActives[loadedRecord[1]][i].def != NULL)
+        {
+            setRowLevel(0, i, level);
+        }
+    }
+}
+
 u32 legacySkills_passiveCount(void)
 {
     return legacySkills_loaded(0) ? HeroPassives[loadedRecord[1]].count : 0;

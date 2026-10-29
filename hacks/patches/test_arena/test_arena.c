@@ -12,6 +12,7 @@
 #include "patches/debug_cheats/debug_cheats.h"
 #include "patches/debug_cheats/debug_lab.h"
 #include "patches/mod_ram/memory_diagnostics.h"
+#include "patches/legacy_skills/legacy_skills.h"
 #include "patches/skill_expansion/skill_delivery.h"
 #include "patches/skill_expansion/skill_expansion_elite.h"
 #include "patches/skill_expansion/skill_expansion_runtime.h"
@@ -381,12 +382,28 @@ static void sweepFinishStep(u32 step)
     }
 }
 
+/** One past the last active row the arena casts: the hero's Two Towers rows too when loaded. */
+static u32 castRowEnd(void)
+{
+#if PC_EDITION
+    if (legacySkills_loaded(0))
+    {
+        return SKILL_EXPANSION_FIRST_LEGACY_ACTIVE_ROW + legacySkills_activeCount();
+    }
+#endif
+    return SKILL_EXPANSION_ACTIVE_ROW_COUNT;
+}
+
 /** Issue the next automatic sweep step once the previous command is acknowledged. */
 static void sweepAdvance(void)
 {
     volatile TestArenaControl *arena = g_TestArena;
 
-    if (testArena_config.sweepTicks == 0 || arena->sweepRow >= SKILL_EXPANSION_ACTIVE_ROW_COUNT ||
+    if (arena->sweepRow < testArena_config.sweepFirstRow)
+    {
+        arena->sweepRow = testArena_config.sweepFirstRow;
+    }
+    if (testArena_config.sweepTicks == 0 || arena->sweepRow >= castRowEnd() ||
         arena->request != arena->acknowledged)
     {
         return;
@@ -399,7 +416,7 @@ static void sweepAdvance(void)
     {
         sweepPrintRow();
         arena->sweepStep = 0;
-        if (++arena->sweepRow == SKILL_EXPANSION_ACTIVE_ROW_COUNT)
+        if (++arena->sweepRow == castRowEnd())
         {
             char line[DEBUG_STRING_SIZE];
             char *output = appendText(line, "ARENA_DONE");
@@ -735,6 +752,12 @@ void testArena_tick(u8 p)
         case TEST_ARENA_RESET:
             result = reset(argument);
             g_TestArena->resetTick = g_TestArena->ticks;
+#if PC_EDITION
+            if (testArena_config.legacyLevel != 0)
+            {
+                legacySkills_setTestLevels(testArena_config.legacyLevel);
+            }
+#endif
             break;
         case TEST_ARENA_DELIVERY:
             if (argument < SKILL_DELIVERY_COUNT && level >= 1 && level <= 5)
@@ -747,8 +770,7 @@ void testArena_tick(u8 p)
             }
             break;
         case TEST_ARENA_CAST:
-            if (argument < SKILL_EXPANSION_ACTIVE_ROW_COUNT &&
-                skillExpansion_activeCanCast(0, argument))
+            if (argument < castRowEnd() && skillExpansion_activeCanCast(0, argument))
             {
                 skillExpansion_cast(0, argument);
                 result = TRUE;

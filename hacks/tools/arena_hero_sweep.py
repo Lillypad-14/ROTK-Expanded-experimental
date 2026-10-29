@@ -48,13 +48,20 @@ def patch_rom(
     bench_ticks: int = 0,
     bench_crowd: int = 0,
     bench_sample: bool = False,
+    legacy_level: int = 0,
+    first_row: int = 0,
 ) -> bytes:
-    """A copy of the arena ROM that boots hero and runs a sweep or a benchmark on its own."""
-    if struct.unpack_from("<6I", rom, offset)[1:] != (0, 0, 0, 0, 0):
+    """A copy of the arena ROM that boots hero and runs a sweep or a benchmark on its own.
+
+    legacy_level (PC edition, a Two Towers hero) sets every Two Towers skill to that level, and
+    first_row starts the sweep there (the Two Towers rows start at 13).
+    """
+    if struct.unpack_from("<8I", rom, offset)[1:] != (0, 0, 0, 0, 0, 0, 0):
         raise ValueError("arena ROM config does not hold the expected defaults")
     patched = bytearray(rom)
     struct.pack_into(
-        "<6I", patched, offset, hero, ticks, fixture, bench_ticks, bench_crowd, bench_sample
+        "<8I", patched, offset, hero, ticks, fixture, bench_ticks, bench_crowd, bench_sample,
+        legacy_level, first_row,
     )
     return bytes(patched)
 

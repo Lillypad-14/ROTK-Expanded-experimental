@@ -50,6 +50,11 @@ typedef struct TestArenaConfig
     u32 benchCrowd;
     // 1 to sample the interrupted program counter about 131 times a second while measuring.
     u32 benchSample;
+    // PC edition, a Two Towers hero: the level of every Two Towers skill (legacy skills), or 0.
+    u32 legacyLevel;
+    // First active row of the automatic sweep. The legacy rows start at
+    // SKILL_EXPANSION_FIRST_LEGACY_ACTIVE_ROW.
+    u32 sweepFirstRow;
 } TestArenaConfig;
 
 typedef struct TestArenaControl

@@ -24,6 +24,8 @@ bool32 legacySkills_buy(u32 skill);
 u32 legacySkills_passiveCount(void);
 u32 legacySkills_activeCount(void);
 u8 legacySkills_level(u32 skill);
+// Testing (the test arena): every Two Towers skill of the loaded hero at `level`, for this game only.
+void legacySkills_setTestLevels(u8 level);
 // A skill's icon (a ROTK skill icon asset), or NULL.
 const void *legacySkills_icon(u32 skill);
 // "Name (Level n) - description" in the game's language, or NULL.
