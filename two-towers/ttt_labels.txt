@@ -1,0 +1,42 @@
+# Hand-found Two Towers addresses. The tools (ttt_dis.py, ttt_ghidra.py, ttt_skill.py) add these
+# to the matcher's names (build/ttt/symbols.json) and the per-skill cast functions, which are named
+# from the ROM's cast table (ttt_names.py). One address per line: address, name, optional comment.
+# Code addresses are even (no Thumb bit). Add every address you identify here, so the next port
+# starts from it.
+
+# skills: tables
+0x08057780 SkillTreeTable       # 0x88 bytes per hero: u16 text id, then 8 bytes per skill (tile x, y, ?, ?, first-rank level, prerequisite or 0xFF)
+0x08057AB0 SkillCastTable       # 11 cast functions per hero, 0x2C bytes per hero (ttt_names.py names them)
+0x08039720 skillTree_canBuy     # checks the SkillTreeTable requirements
+
+# skills: dispatch
+0x0801AFC8 player_tick          # at 0x0801C370 a cast pose's end calls the hero's trigger (by hero id); Gandalf's spells jump through GandalfSpellTable
+0x0801F590 trigger_frodo        # each trigger switches on the cast skill (player +0x1F) to its effect
+0x0801F520 trigger_legolas
+0x0801F4D4 trigger_aragorn
+0x0801F5E8 trigger_gandalf
+0x0801F664 trigger_eowyn
+0x0801F6C8 trigger_gimli
+0x0800D84C combat_damageFoe     # subtracts the foe type's armor
+
+# Gandalf's effects
+0x080185B4 fx_gandalfShield
+0x08018FD4 fx_gandalfZap        # projectile, 30-frame lifetime, damage 5 + 2 x level at +0x90
+0x080191F0 fx_gandalfZap_tick
+0x080115E0 fx_projectile_hit    # Zap's hit callback
+0x08018880 fx_gandalfSunburst
+0x08018280 fx_gandalfFireworks
+0x08017AD4 fx_gandalfSummonEagle
+0x080180CC fx_gandalfSummonEagle2
+0x08017C64 fx_gandalfEagle_tick # states 0x25..0x28
+0x0801E658 fx_gandalfThunderstrike
+
+# data
+0x0801C4A4 GandalfSpellTable    # player_tick's jump table for skills 5..10 of character type 0x0A
+0x0801C644 GandalfSpellTable2   # the same for character type 0x06
+0x083278DC FacingVelocityTable  # 8 bytes per facing: x, y (fp16)
+0x08328258 ZapAnimations        # per facing
+0x08CC6268 ZapPalette
+0x08052690 ThunderboltAnimation
+0x08CC439C ThunderboltPalette
+0x0832EBA4 LanguagePackages

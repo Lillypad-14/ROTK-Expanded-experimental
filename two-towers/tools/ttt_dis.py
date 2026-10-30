@@ -1,7 +1,7 @@
 """Disassemble Two Towers code with ROTK names.
 
-Calls and literal-pool words are named from the matcher's build/ttt/symbols.json
-(two-towers/tools/ttt_match.py), so Two Towers functions read like the ROTK ones they mirror. The ROM's
+Calls and literal-pool words are named from ttt_names.py (the matcher, the cast table and
+two-towers/ttt_labels.txt), so Two Towers functions read like the ROTK ones they mirror. The ROM's
 first 0x60000 bytes are disassembled once with llvm-objdump into build/ttt/code.s.
 
 usage: python two-towers/tools/ttt_dis.py ADDRESS [LENGTH]    (hex; LENGTH defaults to 0x100)
@@ -10,7 +10,6 @@ usage: python two-towers/tools/ttt_dis.py ADDRESS [LENGTH]    (hex; LENGTH defau
 from __future__ import annotations
 
 import argparse
-import json
 import os
 import re
 import struct
@@ -44,13 +43,9 @@ def disassembly() -> dict[int, str]:
     return lines
 
 
-def symbol_names() -> dict[int, str]:
-    symbols = json.loads((PRIVATE / "symbols.json").read_text())
-    names = {}
-    for name, value in symbols.get("functions", {}).items():
-        if isinstance(value, dict) and value.get("ttt"):
-            names[value["ttt"] & ~1] = name
-    return names
+def symbol_names(rom: bytes) -> dict[int, str]:
+    import ttt_names
+    return ttt_names.all_names(rom)
 
 
 def main() -> None:
@@ -60,7 +55,7 @@ def main() -> None:
     args = parser.parse_args()
     rom = ROM_PATH.read_bytes()
     lines = disassembly()
-    names = symbol_names()
+    names = symbol_names(rom)
     for address in range(args.address, args.address + args.length, 2):
         text = lines.get(address)
         if text is None:
