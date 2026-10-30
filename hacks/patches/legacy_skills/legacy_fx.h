@@ -126,6 +126,8 @@ typedef struct LegacyThrownDef
     // LEGACY_THROWN_* options
     u8 flags;
     u16 sound;
+    // after the hit on a foe, or NULL
+    void (*onHit)(Actor *fx, Actor *foe);
 } LegacyThrownDef;
 
 #define LEGACY_THROWN_STOP_ON_HIT (1 << 0)

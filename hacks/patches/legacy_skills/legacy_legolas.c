@@ -4,6 +4,7 @@
 
 #if PC_EDITION && SKILL_EXPANSION_LEGACY_ACTIVE_COUNT
 
+#include "rng.h"
 #include "stats.h"
 
 // White Knives (Two Towers 0x0803B98C, 0x0801DA0C, the knives 0x08025C70): for 2 Spirit, Legolas
@@ -61,6 +62,77 @@ static void castSpreadFire(Actor *playerActor)
     }
 }
 
+// Suppress (Two Towers 0x0803C404, the arrow 0x0802730C, its hit 0x08011598; the knock 0x080274E4,
+// its tick 0x08027624 and hit 0x08011754): for 3 Spirit, an arrow like Spread Fire's that hits the
+// first foe it touches with Legolas's attack and is gone. Where it hits, a knock touches the foes
+// within 35 pixels once, each knocked back along the arrow for 15 ticks on a roll of 0..100 at most
+// 25 + 3 per level (the description says 25% + 5% per level). Not ported: the glow on Legolas.
+#define SUPPRESS_RADIUS 35
+#define SUPPRESS_KNOCK_TICKS 15
+#define SUPPRESS_KNOCK 0x08052660u
+
+static const LegacyScale SuppressChance = {25, 3};
+
+static const u32 SuppressSprites[8] = {
+    0x083299B0u, 0x083299B8u, 0x083299C0u, 0x083299C8u,
+    0x083299D0u, 0x083299C8u, 0x083299C0u, 0x083299B8u,
+};
+
+static void knockTick(Actor *fx)
+{
+    Actor *foe = LEGACY_FX(fx)->target;
+
+    // it knocks on the frame it appears only
+    fx->flags.p &= ~ACTOR_FLAG_COLLISION_CHECK;
+    if (foe != NULL)
+    {
+        fx->coords = foe->coords;
+    }
+    fx->actionStateTimer = legacyFx_animationEnded(fx) ? 0 : SUPPRESS_KNOCK_TICKS;
+    actor_unknown08045584(fx);
+}
+
+static void knockHit(Actor *fx, Actor *other)
+{
+    if (legacyFx_isFoe(other) && rng_rollRange(0, 100) <= LEGACY_FX(fx)->amount)
+    {
+        actor_applyKnockback(other, fx, SUPPRESS_KNOCK_TICKS);
+    }
+}
+
+static void suppressKnock(Actor *arrow, Actor *foe)
+{
+    Actor *fx = legacyFx_spawn(arrow->parentActor, SUPPRESS_KNOCK);
+
+    if (fx == NULL)
+    {
+        return;
+    }
+    fx->coords = foe->coords;
+    fx->facing = arrow->facing;
+    fx->tickCallback = knockTick;
+    fx->triggerCallbacks[0] = knockHit;
+    fx->flags.p |= ACTOR_FLAG_RADIUS_PROXIMITY | ACTOR_FLAG_COLLISION_CHECK;
+    fx->interactionRadius = SUPPRESS_RADIUS;
+    fx->actionStateTimer = SUPPRESS_KNOCK_TICKS;
+    LEGACY_FX(fx)->target = foe;
+    LEGACY_FX(fx)->amount = legacyScale(SuppressChance, legacyFx_castingLevel(arrow->parentActor));
+}
+
+static const LegacyThrownDef SuppressArrow = {
+    .sprites = SuppressSprites,
+    .speed = 0x78000,
+    .lifetime = 21,
+    .flags = LEGACY_THROWN_STOP_ON_HIT | LEGACY_THROWN_START_AHEAD,
+    .sound = LEGACY_SOUND_NONE,
+    .onHit = suppressKnock,
+};
+
+static void castSuppress(Actor *playerActor)
+{
+    legacyFx_castThrown(playerActor, &SuppressArrow);
+}
+
 // ROTK's rows the actives take their cast poses from
 // ROTK's White Knives needs a knife in the backpack; Legolas always has his in The Two Towers
 static const SkillExpansionCastPolicy WhiteKnivesPolicy = {
@@ -77,8 +149,9 @@ static const SkillExpansionActiveDef FriendOfMirkwood = {
     .baseRow = ACTIVE_SKILL_LEGOLAS_FRIEND_OF_MIRKWOOD,
 };
 
-// Overdraw, Suppress and Summon Gimli: none yet
+// Overdraw and Summon Gimli: none yet
 const LegacyActive LegacyLegolasActives[SKILL_EXPANSION_LEGACY_ACTIVE_COUNT] = {
+    [1] = {&SpreadFireRow, 3, castSuppress},
     [2] = {&SpreadFireRow, 9, castSpreadFire},
     [3] = {&WhiteKnivesRow, 2, castWhiteKnives},
     [4] = {&FriendOfMirkwood, 12}, // Forest Friend

@@ -266,6 +266,10 @@ static void thrownHit(Actor *fx, Actor *other)
     PLAYER_STAT(playerIndex, thrownStat(def)) += LEGACY_FX(fx)->amount;
     combat_resolvePveAttack(caster, other);
     PLAYER_STAT(playerIndex, thrownStat(def)) -= LEGACY_FX(fx)->amount;
+    if (def->onHit != NULL)
+    {
+        def->onHit(fx, other);
+    }
     if ((other->flags.p & ACTOR_FLAG_NO_FLINCH) || (def->flags & LEGACY_THROWN_STOP_ON_HIT))
     {
         fx->flags.p &= ~ACTOR_FLAG_COLLISION_CHECK;
