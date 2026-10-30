@@ -146,6 +146,16 @@ bool32 legacyFx_onScreen(Actor *fx, s32 margin)
            y <= camera.y + SCREEN_HEIGHT + margin;
 }
 
+// Actor.as words the spawner seeds with its spawn position
+#define SPAWN_POSITION_OFFSET 0x20
+
+void legacyFx_place(Actor *fx, Vector2Fp16 pos)
+{
+    fx->coords = pos;
+    fx->renderCoords = pos;
+    *(Vector2Fp16 *)((u8 *)&fx->as + SPAWN_POSITION_OFFSET) = pos;
+}
+
 void legacyFx_end(Actor *fx)
 {
     fx->actionState = ACTOR_STATE_UNKNOWN_04;

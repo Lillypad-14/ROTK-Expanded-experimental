@@ -10,6 +10,7 @@ tools for studying it. No Two Towers data is in this repository: every tool read
 | Level port research (this page) | `tools/chunk_tags.py`, `compare_functions.py`, `dump_level_row.py`, `find_level_code.py` |
 | Function matcher: names Two Towers functions after the ROTK ones they mirror | `tools/ttt_match.py` (about 8 minutes, writes `build/ttt/symbols.json`; needs `make` first for `build/game_symbols.inc`) |
 | Disassembler with ROTK names (needs the matcher's output and `llvm-objdump`) | `tools/ttt_dis.py` |
+| Sprite preview: an animation's frames and trigger boxes in a palette, as a PNG, to check art before a port | `tools/ttt_sprite.py ANIMATION PALETTE out.png` |
 | Every name the tools know: matcher names, per-skill cast functions, hand-found labels | `tools/ttt_names.py`, `ttt_labels.txt` (add each address you identify) |
 | Ghidra project for The Two Towers, named from the above, and a batch decompiler | `tools/ttt_ghidra.py build`, then `decomp ADDRESS|NAME ...` (`uv run`, needs `JAVA_HOME` and `GHIDRA_INSTALL_DIR`) |
 | Skill fact sheet: a skill's text, cast and effect C, the code it reaches, its data and numbers | `tools/ttt_skill.py "Gimli Axe Throw"` writes `build/ttt/skills/*.md`; `--list` lists all 66 |

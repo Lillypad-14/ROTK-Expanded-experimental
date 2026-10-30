@@ -442,6 +442,28 @@ void hackLib_fxRemove(Actor *fx)
                   ACTOR_FLAG_ANIMATION_FRAME_CHANGED;
 }
 
+bool32 hackLib_fxUsePalette(Actor *fx, const u16 *palette, u8 paletteId)
+{
+    u8 slot;
+
+    if (fx == NULL || palette == NULL || paletteId >= 32)
+    {
+        return FALSE;
+    }
+    slot = claimSlot(IMPORTED_TAG_BASE + paletteId, palette);
+    if (slot == NO_SLOT)
+    {
+        return FALSE;
+    }
+    if (fx->flags.p & ACTOR_FLAG_DEFAULTS_APPLIED)
+    {
+        releaseSlot(fx->oam.paletteNumber);
+    }
+    fx->oam.paletteNumber = slot;
+    bindSlot(fx, slot);
+    return TRUE;
+}
+
 static void tickHold(Actor *fx)
 {
     FxHold *hold = NULL;

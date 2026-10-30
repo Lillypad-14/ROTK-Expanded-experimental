@@ -97,6 +97,27 @@ static void castDoubleStrike(Actor *playerActor)
     playerActor->as.combat.storedDamage = DOUBLE_STRIKE_DAMAGE_BASE + legacyFx_castingLevel(playerActor);
 }
 
+// Call Eomer (Two Towers 0x0803C010, 0x0801F208): for 22 Spirit, one of Eomer's Rohan soldiers fights
+// beside Eowyn for 300 + 30 per level ticks, with his sword.
+static const u32 SoldierWalk[5] = {0x0832A2C8u, 0x0832A2D0u, 0x0832A2D8u, 0x0832A2E0u, 0x0832A2E8u};
+static const u32 SoldierIdle[5] = {0x0832A2A0u, 0x0832A2A8u, 0x0832A2B0u, 0x0832A2B8u, 0x0832A2C0u};
+static const u32 SoldierAttack[5] = {0x0832A2F0u, 0x0832A2F8u, 0x0832A300u, 0x0832A308u, 0x0832A310u};
+
+static const LegacyAllyDef Soldier = {
+    .walk = SoldierWalk,
+    .idle = SoldierIdle,
+    .attack = SoldierAttack,
+    .hit = LEGACY_ALLY_HIT_BODY,
+    .range = 35,
+    .paletteId = 26,
+    .lifetime = {300, 30},
+};
+
+static void castCallEomer(Actor *playerActor)
+{
+    legacyFx_castAlly(playerActor, &Soldier);
+}
+
 // ROTK's rows the actives take their cast poses from
 static const SkillExpansionActiveDef SelfRow = {.baseRow = ACTIVE_SKILL_EOWYN_SHIELDMAIDEN_OF_ROHAN};
 static const SkillExpansionActiveDef DefendingFuryRow = {
@@ -104,10 +125,9 @@ static const SkillExpansionActiveDef DefendingFuryRow = {
     .canCast = defendingFuryCanCast,
 };
 static const SkillExpansionActiveDef CryRow = {.baseRow = ACTIVE_SKILL_EOWYN_FORTH_EORLINGAS};
-// a stand-in for Call Eomer: ROTK's Forth Eorlingas
-static const SkillExpansionActiveDef ForthEorlingas = {
-    .stockCallback = skill_active_eowynForthEorlingas,
+static const SkillExpansionActiveDef CallRow = {
     .baseRow = ACTIVE_SKILL_EOWYN_FORTH_EORLINGAS,
+    .canCast = legacyFx_allyCanCast,
 };
 static const SkillExpansionActiveDef ShieldBashRow = {
     .stockCallback = shieldBash,
@@ -122,7 +142,7 @@ const LegacyActive LegacyEowynActives[SKILL_EXPANSION_LEGACY_ACTIVE_COUNT] = {
     {&SelfRow, 8, castHerbalRemedy, 2},
     {&DefendingFuryRow, 10, castDefendingFury},
     {&CryRow, 4, castPrincessOfRohan},
-    {&ForthEorlingas, 22}, // Call Eomer
+    {&CallRow, 22, castCallEomer},
     {&ShieldBashRow, 8, castShieldBash},
     {&DoubleStrikeRow, 7, castDoubleStrike},
 };

@@ -305,6 +305,33 @@ static void castForestFriend(Actor *playerActor)
         FOREST_FRIEND_HAWKS_BASE + legacyFx_castingLevel(playerActor) / FOREST_FRIEND_LEVELS_PER_HAWK;
 }
 
+// Summon Gimli (Two Towers 0x0803B9E4, 0x0801DB2C): for 25 Spirit, Gimli fights beside Legolas for 300 +
+// 60 per level ticks, with his axe.
+static const u32 GimliWalk[5] = {0x08328F6Cu, 0x08328F74u, 0x08328F7Cu, 0x08328F84u, 0x08328F8Cu};
+static const u32 GimliIdle[5] = {0x08328FBCu, 0x08328FC4u, 0x08328FCCu, 0x08328FD4u, 0x08328FDCu};
+static const u32 GimliAttack[5] = {0x08328FE4u, 0x08328FECu, 0x08328FF4u, 0x08328FFCu, 0x08329004u};
+static const u32 AxeWalk[5] = {0x08330938u, 0x08330940u, 0x08330948u, 0x08330950u, 0x08330958u};
+static const u32 AxeIdle[5] = {0x08330988u, 0x08330990u, 0x08330998u, 0x083309A0u, 0x083309A8u};
+static const u32 AxeAttack[5] = {0x083309B0u, 0x083309B8u, 0x083309C0u, 0x083309C8u, 0x083309D0u};
+
+static const LegacyAllyDef Gimli = {
+    .walk = GimliWalk,
+    .idle = GimliIdle,
+    .attack = GimliAttack,
+    .weaponWalk = AxeWalk,
+    .weaponIdle = AxeIdle,
+    .weaponAttack = AxeAttack,
+    .hit = LEGACY_ALLY_HIT_WEAPON,
+    .range = 35,
+    .paletteId = 25,
+    .lifetime = {300, 60},
+};
+
+static void castSummonGimli(Actor *playerActor)
+{
+    legacyFx_castAlly(playerActor, &Gimli);
+}
+
 // ROTK's rows the actives take their cast poses from
 // ROTK's White Knives needs a knife in the backpack; Legolas always has his in The Two Towers
 static const SkillExpansionCastPolicy WhiteKnivesPolicy = {
@@ -323,13 +350,19 @@ static const SkillExpansionActiveDef CallRow = {
     .baseRow = ACTIVE_SKILL_LEGOLAS_FRIEND_OF_MIRKWOOD,
     .policy = &CallPolicy,
 };
+static const SkillExpansionActiveDef SummonRow = {
+    .baseRow = ACTIVE_SKILL_LEGOLAS_FRIEND_OF_MIRKWOOD,
+    .policy = &CallPolicy,
+    .canCast = legacyFx_allyCanCast,
+};
 
-// Overdraw and Summon Gimli: none yet
+// Overdraw: none yet
 const LegacyActive LegacyLegolasActives[SKILL_EXPANSION_LEGACY_ACTIVE_COUNT] = {
     [1] = {&SpreadFireRow, 3, castSuppress},
     [2] = {&SpreadFireRow, 9, castSpreadFire},
     [3] = {&WhiteKnivesRow, 2, castWhiteKnives},
     [4] = {&CallRow, 12, castForestFriend},
+    [5] = {&SummonRow, 25, castSummonGimli},
 };
 
 #endif

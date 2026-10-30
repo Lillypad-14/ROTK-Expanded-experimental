@@ -86,6 +86,8 @@ bool32 legacyFx_animationEnded(Actor *fx);
 void legacyFx_faceSprite(Actor *fx);
 // TRUE while the effect is within `margin` pixels of the caster's screen.
 bool32 legacyFx_onScreen(Actor *fx, s32 margin);
+// Put a fresh effect at `pos`: the spawner's position seed is stale, and the effect would jump there.
+void legacyFx_place(Actor *fx, Vector2Fp16 pos);
 // Remove the effect at the end of this tick.
 void legacyFx_end(Actor *fx);
 // The effect's last tick step: ends it with a downed caster, then runs the effect actor's tick.
@@ -137,6 +139,43 @@ typedef struct LegacyThrownDef
 #define LEGACY_THROWN_START_AHEAD (1 << 1)
 
 void legacyFx_castThrown(Actor *playerActor, const LegacyThrownDef *def);
+
+// A summoned ally (Two Towers 0x0803E110 the summoning star, 0x0802EE54 the ally, its tick 0x0802F0E4
+// and AI 0x0800638C): a star 20 pixels left of the caster brings it in on its 4th frame. With no
+// target it wanders (10 ticks in a random direction, 8 standing); it takes the first foe within 200
+// pixels, walks at it at speed 2.5 (turning aside for 20 ticks past a wall) and attacks within
+// `range`, then stands 8 ticks and picks again. Its hits are the caster's level + 50 accuracy and
+// level + 10 damage. Foes can't hurt it. After `lifetime` ticks it leaves in another star. One ally
+// per player at a time.
+typedef struct LegacyAllyDef
+{
+    // the body walking, standing and attacking, by facing (up .. down; mirrored for the west)
+    const u32 *walk;
+    const u32 *idle;
+    const u32 *attack;
+    // the weapon drawn over the body, frame for frame, by facing, or NULL
+    const u32 *weaponWalk;
+    const u32 *weaponIdle;
+    const u32 *weaponAttack;
+    // LEGACY_ALLY_HIT_*
+    u8 hit;
+    // the attack distance, in pixels
+    u8 range;
+    // its imported palette id (hackLib_fxUsePalette), one per ally
+    u8 paletteId;
+    LegacyScale lifetime;
+} LegacyAllyDef;
+
+// an arrow 9 ticks into the attack (Legolas)
+#define LEGACY_ALLY_HIT_ARROW 0
+// the body's trigger box 1 on the attack's hit frame (Eomer's soldier)
+#define LEGACY_ALLY_HIT_BODY 1
+// the weapon's trigger box 0 on the attack's hit frame (Gimli's axe)
+#define LEGACY_ALLY_HIT_WEAPON 2
+
+void legacyFx_castAlly(Actor *playerActor, const LegacyAllyDef *def);
+// FALSE while the player's ally (or its star) is out.
+bool32 legacyFx_allyCanCast(u8 playerIndex);
 // Thrown toward a 32-way direction. NULL when none could spawn.
 Actor *legacyFx_castThrownToward(Actor *playerActor, const LegacyThrownDef *def, u8 direction32);
 // 16.16 velocity of `speed` toward a 32-way direction (clockwise from north).

@@ -161,3 +161,10 @@ bool32 hackLib_fxHold(Actor *fx, u16 frames);
 
 /** Despawn an effect now. */
 void hackLib_fxRemove(Actor *fx);
+
+/**
+ * Draw an actor in an imported palette (stable paletteId 0..31) in a shared slot, released when the
+ * actor is freed. Its animations carry this palette or none. Returns FALSE when no shared slot is
+ * free.
+ */
+bool32 hackLib_fxUsePalette(Actor *fx, const u16 *palette, u8 paletteId);

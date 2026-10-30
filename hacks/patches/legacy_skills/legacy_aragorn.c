@@ -102,6 +102,33 @@ static void castSweep(Actor *playerActor)
     playerActor->as.combat.storedDamage = legacyFx_castingLevel(playerActor);
 }
 
+// Call Legolas (Two Towers 0x0803B81C, 0x0801D60C): for 24 Spirit, Legolas fights beside Aragorn for
+// 300 + 60 per level ticks, shooting at foes within 70 pixels.
+static const u32 LegolasWalk[5] = {0x08328B34u, 0x08328B3Cu, 0x08328B44u, 0x08328B4Cu, 0x08328B54u};
+static const u32 LegolasIdle[5] = {0x08328B84u, 0x08328B8Cu, 0x08328B94u, 0x08328B9Cu, 0x08328BA4u};
+static const u32 LegolasAttack[5] = {0x08328BACu, 0x08328BB4u, 0x08328BBCu, 0x08328BC4u, 0x08328BCCu};
+static const u32 BowWalk[5] = {0x0832FD08u, 0x0832FD10u, 0x0832FD18u, 0x0832FD20u, 0x0832FD28u};
+static const u32 BowIdle[5] = {0x0832FD58u, 0x0832FD60u, 0x0832FD68u, 0x0832FD70u, 0x0832FD78u};
+static const u32 BowAttack[5] = {0x0832FD80u, 0x0832FD88u, 0x0832FD90u, 0x0832FD98u, 0x0832FDA0u};
+
+static const LegacyAllyDef Legolas = {
+    .walk = LegolasWalk,
+    .idle = LegolasIdle,
+    .attack = LegolasAttack,
+    .weaponWalk = BowWalk,
+    .weaponIdle = BowIdle,
+    .weaponAttack = BowAttack,
+    .hit = LEGACY_ALLY_HIT_ARROW,
+    .range = 70,
+    .paletteId = 24,
+    .lifetime = {300, 60},
+};
+
+static void castCallLegolas(Actor *playerActor)
+{
+    legacyFx_castAlly(playerActor, &Legolas);
+}
+
 // ROTK's rows the actives take their cast poses from
 static const SkillExpansionActiveDef SelfRow = {.baseRow = ACTIVE_SKILL_ARAGORN_NUMENOREAN_WILL};
 static const SkillExpansionActiveDef ShoutRow = {.baseRow = ACTIVE_SKILL_ARAGORN_KINGS_COMMAND};
@@ -109,17 +136,21 @@ static const SkillExpansionActiveDef RageRow = {
     .baseRow = ACTIVE_SKILL_ARAGORN_NUMENOREAN_WILL,
     .canCast = rageCanCast,
 };
+static const SkillExpansionActiveDef CallRow = {
+    .baseRow = ACTIVE_SKILL_ARAGORN_KINGS_COMMAND,
+    .canCast = legacyFx_allyCanCast,
+};
 static const SkillExpansionActiveDef SwordThrowRow = {.baseRow = ACTIVE_SKILL_ARAGORN_SWORD_THROW};
 static const SkillExpansionActiveDef SweepRow = {
     .stockCallback = sweep,
     .baseRow = ACTIVE_SKILL_ARAGORN_SWEEP,
 };
 
-// Call Legolas: none yet
 const LegacyActive LegacyAragornActives[SKILL_EXPANSION_LEGACY_ACTIVE_COUNT] = {
     [0] = {&SelfRow, 8, castHerbalRemedy, 2},
     [1] = {&ShoutRow, 7, castCommandingPresence},
     [2] = {&RageRow, 10, castRageOfTheNorth},
+    [3] = {&CallRow, 24, castCallLegolas},
     [4] = {&SwordThrowRow, 4, castSwordThrow},
     [5] = {&SweepRow, 8, castSweep},
 };
