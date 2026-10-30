@@ -133,6 +133,178 @@ static void castSuppress(Actor *playerActor)
     legacyFx_castThrown(playerActor, &SuppressArrow);
 }
 
+// Forest Friend (Two Towers 0x0803B8D4, the call 0x08026440, its tick 0x080265A8 and hit
+// 0x0801154C; a hawk 0x08038A1C, its tick 0x08038B94): for 12 Spirit, a call on Legolas that sends a
+// hawk at each of the first 2 + level / 2 foes within 75 pixels on its first tick. A hawk comes in
+// from 160 pixels left or right of Legolas (at random) at a random height within 60, flies at its foe
+// at speed 5, stuns it for 30 + 6 per level ticks when it reaches it (no damage; the description says
+// injure) and flies on off the screen. It flies over walls.
+#define FOREST_FRIEND_CALL 0x08052600u
+#define FOREST_FRIEND_RADIUS 75
+#define FOREST_FRIEND_HAWKS_BASE 2
+#define FOREST_FRIEND_LEVELS_PER_HAWK 2
+#define HAWK_SPEED 0x50000
+#define HAWK_ENTRY_X (160 << 16)
+#define HAWK_ENTRY_Y 60
+#define HAWK_HOLD 30
+#define HAWK_SCREEN_MARGIN 40
+// actor_direction8TowardPoint: within the tolerance on both axes
+#define DIRECTION8_ARRIVED 8
+// a hawk's phase
+#define HAWK_ENTERING 0
+#define HAWK_SWOOPING 1
+#define HAWK_STRIKING 2
+#define HAWK_LEAVING 3
+
+static const LegacyScale HawkStun = {30, 6};
+
+static const u32 HawkFlying[8] = {
+    0x0832E9FCu, 0x0832EA04u, 0x0832EA0Cu, 0x0832EA14u,
+    0x0832EA1Cu, 0x0832EA14u, 0x0832EA0Cu, 0x0832EA04u,
+};
+
+static const u32 HawkStriking[8] = {
+    0x0832E9D4u, 0x0832E9DCu, 0x0832E9E4u, 0x0832E9ECu,
+    0x0832E9F4u, 0x0832E9ECu, 0x0832E9E4u, 0x0832E9DCu,
+};
+
+static void hawkHead(Actor *fx, Direction8 facing)
+{
+    fx->facing = facing;
+    actor_setVelocityFromDirection8(&fx->velocity, fx->flags.p, facing, HAWK_SPEED);
+    legacyFx_setSprite(fx, HawkFlying[facing]);
+    legacyFx_faceSprite(fx);
+}
+
+// Placed on its first tick, as the eagle is: a hawk moved where it is spawned (in the call's
+// trigger callback) is off somewhere else by its first tick.
+static void hawkEnter(Actor *fx)
+{
+    Actor *foe = LEGACY_FX(fx)->target;
+
+    fx->coords = fx->parentActor->coords;
+    fx->coords.x += rng_rollUpTo(1) ? HAWK_ENTRY_X : -HAWK_ENTRY_X;
+    fx->coords.y += rng_rollRange(-HAWK_ENTRY_Y, HAWK_ENTRY_Y) << 16;
+    fx->flags.p |= ACTOR_FLAG_RENDER | ACTOR_FLAG_ANIMATION_PLAYING;
+    LEGACY_FX(fx)->phase = HAWK_SWOOPING;
+    hawkHead(fx, actor_direction8TowardPoint(fx->coords.x, fx->coords.y, foe->coords.x, foe->coords.y,
+                                             HAWK_SPEED));
+}
+
+static void hawkTick(Actor *fx)
+{
+    LegacyFxState *state = LEGACY_FX(fx);
+    Actor *foe = state->target;
+
+    if (state->phase == HAWK_ENTERING)
+    {
+        hawkEnter(fx);
+    }
+    else if (state->phase == HAWK_SWOOPING)
+    {
+        if (foe->flags.p & ACTOR_FLAG_PENDING_REMOVE)
+        {
+            state->phase = HAWK_LEAVING;
+        }
+        else
+        {
+            Direction8 facing = actor_direction8TowardPoint(fx->coords.x, fx->coords.y, foe->coords.x,
+                                                            foe->coords.y, HAWK_SPEED);
+
+            if (facing == DIRECTION8_ARRIVED)
+            {
+                fx->velocity.x = 0;
+                fx->velocity.y = 0;
+                state->phase = HAWK_STRIKING;
+                legacyFx_setSprite(fx, HawkStriking[fx->facing]);
+                legacyFx_faceSprite(fx);
+                foe->actionState = ACTOR_STATE_STUNNED;
+                foe->actionStateTimer = state->amount;
+                foe->field_0x64[0] |= 2;
+            }
+            else if (facing != fx->facing)
+            {
+                hawkHead(fx, facing);
+            }
+        }
+    }
+    else if (state->phase == HAWK_STRIKING)
+    {
+        if (legacyFx_animationEnded(fx))
+        {
+            state->phase = HAWK_LEAVING;
+            hawkHead(fx, fx->facing);
+        }
+    }
+    else if (!legacyFx_onScreen(fx, HAWK_SCREEN_MARGIN))
+    {
+        legacyFx_end(fx);
+    }
+    if (fx->actionState != ACTOR_STATE_UNKNOWN_04)
+    {
+        fx->actionStateTimer = HAWK_HOLD;
+    }
+    legacyFx_finishTick(fx);
+}
+
+static void sendHawk(Actor *call, Actor *foe)
+{
+    Actor *caster = call->parentActor;
+    Actor *fx = legacyFx_spawn(caster, 0);
+
+    if (fx == NULL)
+    {
+        return;
+    }
+    fx->coords = caster->coords;
+    fx->flags.p &= ~(ACTOR_FLAG_TILE_COLLISION | ACTOR_FLAG_COLLISION_CHECK | ACTOR_FLAG_RENDER |
+                     ACTOR_FLAG_ANIMATION_PLAYING);
+    fx->tickCallback = hawkTick;
+    fx->actionStateTimer = HAWK_HOLD;
+    LEGACY_FX(fx)->target = foe;
+    LEGACY_FX(fx)->amount = legacyScale(HawkStun, legacyFx_castingLevel(caster));
+    LEGACY_FX(fx)->phase = HAWK_ENTERING;
+}
+
+static void callTick(Actor *fx)
+{
+    // it picks its foes on its first tick only
+    if (LEGACY_FX(fx)->phase != 0)
+    {
+        fx->flags.p &= ~ACTOR_FLAG_COLLISION_CHECK;
+    }
+    LEGACY_FX(fx)->phase = 1;
+    fx->coords = fx->parentActor->coords;
+    fx->actionStateTimer = legacyFx_animationEnded(fx) ? 0 : HAWK_HOLD;
+    legacyFx_finishTick(fx);
+}
+
+static void callPick(Actor *fx, Actor *other)
+{
+    if (legacyFx_isFoe(other) && LEGACY_FX(fx)->count != 0)
+    {
+        LEGACY_FX(fx)->count--;
+        sendHawk(fx, other);
+    }
+}
+
+static void castForestFriend(Actor *playerActor)
+{
+    Actor *fx = legacyFx_spawn(playerActor, FOREST_FRIEND_CALL);
+
+    if (fx == NULL)
+    {
+        return;
+    }
+    fx->tickCallback = callTick;
+    fx->triggerCallbacks[0] = callPick;
+    fx->flags.p |= ACTOR_FLAG_RADIUS_PROXIMITY | ACTOR_FLAG_COLLISION_CHECK;
+    fx->interactionRadius = FOREST_FRIEND_RADIUS;
+    fx->actionStateTimer = HAWK_HOLD;
+    LEGACY_FX(fx)->count =
+        FOREST_FRIEND_HAWKS_BASE + legacyFx_castingLevel(playerActor) / FOREST_FRIEND_LEVELS_PER_HAWK;
+}
+
 // ROTK's rows the actives take their cast poses from
 // ROTK's White Knives needs a knife in the backpack; Legolas always has his in The Two Towers
 static const SkillExpansionCastPolicy WhiteKnivesPolicy = {
@@ -143,10 +315,13 @@ static const SkillExpansionActiveDef WhiteKnivesRow = {
     .policy = &WhiteKnivesPolicy,
 };
 static const SkillExpansionActiveDef SpreadFireRow = {.baseRow = ACTIVE_SKILL_LEGOLAS_SPREAD_FIRE};
-// a stand-in: ROTK's Friend of Mirkwood
-static const SkillExpansionActiveDef FriendOfMirkwood = {
-    .stockCallback = skill_active_legolasFriendOfMirkwood,
+// Friend of Mirkwood's pose without its one-summon rule
+static const SkillExpansionCastPolicy CallPolicy = {
+    ACTIVE_SKILL_LEGOLAS_FRIEND_OF_MIRKWOOD + 1, ACTIVE_SKILL_LEGOLAS_FRIEND_OF_MIRKWOOD,
+    SKILL_EXPANSION_RULE_NONE, 0};
+static const SkillExpansionActiveDef CallRow = {
     .baseRow = ACTIVE_SKILL_LEGOLAS_FRIEND_OF_MIRKWOOD,
+    .policy = &CallPolicy,
 };
 
 // Overdraw and Summon Gimli: none yet
@@ -154,7 +329,7 @@ const LegacyActive LegacyLegolasActives[SKILL_EXPANSION_LEGACY_ACTIVE_COUNT] = {
     [1] = {&SpreadFireRow, 3, castSuppress},
     [2] = {&SpreadFireRow, 9, castSpreadFire},
     [3] = {&WhiteKnivesRow, 2, castWhiteKnives},
-    [4] = {&FriendOfMirkwood, 12}, // Forest Friend
+    [4] = {&CallRow, 12, castForestFriend},
 };
 
 #endif

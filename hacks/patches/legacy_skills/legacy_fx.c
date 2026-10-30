@@ -6,6 +6,7 @@
 #include "combat.h"
 #include "fx.h"
 #include "gba.h"
+#include "gfx.h"
 #include "stats.h"
 #include "lib/pc_host.h"
 #include "memory.h"
@@ -130,6 +131,19 @@ void legacyFx_faceSprite(Actor *fx)
     {
         fx->oam.matrixIndex &= ~OAM_MATRIX_H_FLIP;
     }
+}
+
+#define SCREEN_WIDTH 240
+#define SCREEN_HEIGHT 160
+
+bool32 legacyFx_onScreen(Actor *fx, s32 margin)
+{
+    Vector2Int camera;
+    s32 x = fx->coords.x >> 16, y = fx->coords.y >> 16;
+
+    gfx_getCameraPosition(&camera, fx->parentActor->as.combat.playerIndex);
+    return x >= camera.x - margin && x <= camera.x + SCREEN_WIDTH + margin && y >= camera.y - margin &&
+           y <= camera.y + SCREEN_HEIGHT + margin;
 }
 
 void legacyFx_end(Actor *fx)

@@ -6,7 +6,6 @@
 #if PC_EDITION && SKILL_EXPANSION_LEGACY_ACTIVE_COUNT
 
 #include "actor/shieldBubble.h"
-#include "gfx.h"
 #include "player.h"
 #include "rng.h"
 #include "combat.h"
@@ -324,8 +323,6 @@ static const LegacyScale EagleDamage = {20, 5};
 #define EAGLE_LEAVE 0x08328198u
 // how far past each screen edge the eagle still counts as on screen, in pixels
 #define EAGLE_SCREEN_MARGIN 40
-#define SCREEN_WIDTH 240
-#define SCREEN_HEIGHT 160
 // actor_direction8TowardPoint: within the tolerance on both axes
 #define DIRECTION8_ARRIVED 8
 // the eagle's phase, in LegacyFxState.phase with the side it comes from next
@@ -351,16 +348,6 @@ static bool32 eagleOut(u8 playerIndex)
 static bool32 eagleCanCast(u8 playerIndex)
 {
     return !eagleOut(playerIndex);
-}
-
-static bool32 eagleOnScreen(Actor *fx)
-{
-    Vector2Int camera;
-    s32 x = fx->coords.x >> 16, y = fx->coords.y >> 16;
-
-    gfx_getCameraPosition(&camera, fx->parentActor->as.combat.playerIndex);
-    return x >= camera.x - EAGLE_SCREEN_MARGIN && x <= camera.x + SCREEN_WIDTH + EAGLE_SCREEN_MARGIN &&
-           y >= camera.y - EAGLE_SCREEN_MARGIN && y <= camera.y + SCREEN_HEIGHT + EAGLE_SCREEN_MARGIN;
 }
 
 static void eagleHead(Actor *fx, Direction8 facing)
@@ -465,7 +452,7 @@ static void eagleTick(Actor *fx)
             eagleHead(fx, (state->phase & EAGLE_FROM_LEFT) ? DIRECTION8_WEST : DIRECTION8_EAST);
         }
     }
-    else if (!eagleOnScreen(fx))
+    else if (!legacyFx_onScreen(fx, EAGLE_SCREEN_MARGIN))
     {
         if (--state->count == 0)
         {

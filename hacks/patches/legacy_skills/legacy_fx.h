@@ -84,6 +84,8 @@ bool32 legacyFx_isFoe(Actor *other);
 bool32 legacyFx_animationEnded(Actor *fx);
 // Mirror the effect's sprite for the western facings, as The Two Towers does: its art faces east.
 void legacyFx_faceSprite(Actor *fx);
+// TRUE while the effect is within `margin` pixels of the caster's screen.
+bool32 legacyFx_onScreen(Actor *fx, s32 margin);
 // Remove the effect at the end of this tick.
 void legacyFx_end(Actor *fx);
 // The effect's last tick step: ends it with a downed caster, then runs the effect actor's tick.
