@@ -26,6 +26,9 @@ u32 legacySkills_activeCount(void);
 u8 legacySkills_level(u32 skill);
 // Testing (the test arena): every Two Towers skill of the loaded hero at `level`, for this game only.
 void legacySkills_setTestLevels(u8 level);
+// A player revives (the revive chance stat): HP back, by Flame of Anor's rules for a legacy Gandalf
+// who has it, else ROTK's half.
+void legacySkills_revive(u8 playerIndex);
 // A skill's icon (a ROTK skill icon asset), or NULL.
 const void *legacySkills_icon(u32 skill);
 // "Name (Level n) - description" in the game's language, or NULL.

@@ -6,13 +6,13 @@
 #include "combat.h"
 #include "fx.h"
 #include "memory.h"
+#include "patches/legacy_skills/legacy_fx.h"
 #include "patches/legacy_skills/legacy_skills.h"
 #include "patches/mod_save/save_layout.h"
 #include "patches/mod_save/save_slots.h"
 #include "patches/mod_save/save_sram.h"
 #include "patches/skill_expansion/skill_expansion.h"
 #include "lib/pc_host.h"
-#include "actor/shieldBubble.h"
 #include "player.h"
 #include "rng.h"
 #include "sfx.h"
@@ -53,51 +53,56 @@ typedef struct LegacyHeroPassives
 #define PER_LEVEL(stat, perLevel) {stat, 0, perLevel, 1}
 // value at level 1 is `first`, each further level adds `step`
 #define FROM(stat, first, step) {stat, (first) - (step), step, 1}
+// base + perLevel * level, The Two Towers' own form
+#define BASE_PLUS(stat, base, perLevel) {stat, base, perLevel, 1}
 
-// The Two Towers passives by hero id. A skill with no ROTK mechanic uses the closest stat.
+// The Two Towers passives by hero id, as each one's code in The Two Towers adds them (the cast table
+// entry, 0x08057AB0), which differs from several descriptions. A skill with no ROTK mechanic uses
+// the closest stat.
 static const LegacyHeroPassives HeroPassives[LEGACY_HERO_COUNT] = {
     // Frodo: Resist One Ring, Strength of the Shire, Rummage, Sneak Attack, Duck
     {5,
      {{PER_LEVEL(STAT_CORRUPTION_RESIST_PERCENT, 4), NONE},
-      {PER_LEVEL(STAT_HP_REGEN, 1), PER_LEVEL(STAT_SPIRIT_REGEN, 1)},
-      {PER_LEVEL(STAT_EXTRA_TREASURE_PERCENT, 10), NONE},
+      {PER_LEVEL(STAT_HP_REGEN, 1), {STAT_SPIRIT_REGEN, 0, 1, 3}},
+      {BASE_PLUS(STAT_EXTRA_TREASURE_PERCENT, 5, 1), NONE},
       {PER_LEVEL(STAT_BACKSTAB, 2), NONE},
-      {PER_LEVEL(STAT_MELEE_ARMOR, 1), PER_LEVEL(STAT_MISSILE_ARMOR, 1)}}},
+      {PER_LEVEL(STAT_MELEE_ARMOR, 1), NONE}}},
     // Legolas: Meditation, Fleet of Foot, Orc Slayer, Hawk Eye, Critical Shot
     {5,
      {{PER_LEVEL(STAT_MEDITATIVE, 1), NONE},
       {PER_LEVEL(STAT_SPEED_PERCENT, 3), NONE},
       {PER_LEVEL(STAT_DAMAGE_TO_ORCS, 2), NONE},
       {PER_LEVEL(STAT_DAMAGE_WITH_BOW, 1), NONE},
-      {FROM(STAT_CRIT_CHANCE_PERCENT, 10, 2), NONE}}},
+      {BASE_PLUS(STAT_CRIT_CHANCE_PERCENT, 10, 1), NONE}}},
     // Aragorn: Dual Wield, Numenorean Blood, Shield Offense, Parry, Ferocity
     {5,
      {{PER_LEVEL(STAT_ARAGORN_DUAL_WIELD_DAMAGE, 1), NONE},
       {PER_LEVEL(STAT_CORRUPTION_RESIST_PERCENT, 5), PER_LEVEL(STAT_DAMAGE_TO_NAZGUL, 2)},
       {{STAT_DAMAGE_WITH_SHIELD, 0, 1, 2}, PER_LEVEL(STAT_BLOCK_PERCENT, 1)},
       {FROM(STAT_PARRY_PERCENT, 5, 1), NONE},
-      {FROM(STAT_HP_PERCENT_PER_KILL, 5, 1), NONE}}},
-    // Gandalf: Elusion, Inspire, Wisdom, Flame of Anor
+      {BASE_PLUS(STAT_HP_PERCENT_PER_KILL, 5, 1), NONE}}},
+    // Gandalf: Elusion, Inspire, Wisdom, Flame of Anor (Two Towers 0x0803AA20, 0x0803A928,
+    // 0x0803AAB4, 0x0803A98C)
     {4,
-     {{FROM(STAT_CORRUPTION_RESIST_PERCENT, 20, 4), NONE},
+     {{BASE_PLUS(STAT_CORRUPTION_RESIST_PERCENT, 20, 4), NONE},
       {PER_LEVEL(STAT_SPIRIT_REGEN_PERCENT, 25), NONE},
       {PER_LEVEL(STAT_WISDOM, 1), NONE},
-      {FROM(STAT_REVIVE_CHANCE_PERCENT, 20, 2), NONE}}},
+      {BASE_PLUS(STAT_REVIVE_CHANCE_PERCENT, 20, 2), NONE}}},
     // Eowyn: Strength of Heart, Iron Will, Stand Fast, Eyes of Rohan, Ferocity
     {5,
      {{PER_LEVEL(STAT_CORRUPTION_RESIST_PERCENT, 5), PER_LEVEL(STAT_DAMAGE_TO_NAZGUL, 2)},
       {PER_LEVEL(STAT_HP_REGEN, 1), NONE},
       {FROM(STAT_PARRY_PERCENT, 5, 1), NONE},
-      {PER_LEVEL(STAT_EXTRA_TREASURE_PERCENT, 10), NONE},
+      {BASE_PLUS(STAT_EXTRA_TREASURE_PERCENT, 5, 1), NONE},
       {PER_LEVEL(STAT_SPIRIT_PER_KILL, 1), NONE}}},
     // Gimli: Strength of Beard, Orcslayer, Headsplitter, Gemfinder, Dwarven Resilience, Spirit of
     // the Forge
     {6,
      {{PER_LEVEL(STAT_MAX_HP, 10), NONE},
       {PER_LEVEL(STAT_DAMAGE_TO_ORCS, 2), NONE},
-      {FROM(STAT_CRIT_CHANCE_PERCENT, 10, 3), NONE},
+      {PER_LEVEL(STAT_CRIT_CHANCE_PERCENT, 2), NONE},
       {PER_LEVEL(STAT_GEMFINDER, 1), NONE},
-      {FROM(STAT_DODGE_PERCENT, 10, 2), NONE},
+      {PER_LEVEL(STAT_PARRY_PERCENT, 2), NONE},
       {PER_LEVEL(STAT_SPIRIT_REGEN, 1), NONE}}},
 };
 
@@ -191,622 +196,23 @@ void legacySkills_applyPassives(u8 playerIndex)
 
 #if SKILL_EXPANSION_LEGACY_ACTIVE_COUNT
 
-// A legacy active: its row's definition (the stock row it takes its cast pose and table row from)
-// and its Spirit cost in The Two Towers. It casts `cast`, a port of the Two Towers skill, or else
-// the definition's stock callback, a ROTK skill standing in.
-typedef struct LegacyActive
-{
-    const SkillExpansionActiveDef *def;
-    u16 spiritCost;
-    ActiveSkillCallback cast;
-    // Spirit the cost adds per level
-    u8 spiritPerLevel;
-} LegacyActive;
-
-// A Two Towers animation the PC host converted, by its Two Towers address, or NULL.
-static const SpriteAnimation *twoTowersSprite(u32 address)
-{
-    const TwoTowersData *data = hackLib_twoTowersData();
-
-    if (data == NULL || data->sprites == NULL)
-    {
-        return NULL;
-    }
-    for (u32 i = 0; i < data->spriteCount; i++)
-    {
-        if (data->sprites[i * 2] == address)
-        {
-            return (const SpriteAnimation *)data->sprites[i * 2 + 1];
-        }
-    }
-    return NULL;
-}
-
-/**
- * Play a Two Towers animation on an effect. The spawner leaves its own animation script running,
- * which would drive the frames and keep the animation from ever ending.
- */
-static void setSprite(Actor *fx, u32 animation)
-{
-    const SpriteAnimation *sprite = twoTowersSprite(animation);
-
-    if (sprite != NULL)
-    {
-        fx->animationScriptCursor = NULL;
-        sprite_setAnimation(fx, sprite);
-    }
-}
-
-// The level a legacy skill casts at: its Two Towers level, which goes past the stock curves' five.
-static u8 castingLevel(Actor *playerActor)
-{
-    u8 playerIndex = playerActor->as.combat.playerIndex;
-    u32 row = PLAYER(playerIndex).castingActiveSkill;
-
-    if (legacySkills_loaded(playerIndex) && row >= SKILL_EXPANSION_FIRST_LEGACY_ACTIVE_ROW &&
-        row < SKILL_EXPANSION_FIRST_LEGACY_ACTIVE_ROW + SKILL_EXPANSION_LEGACY_ACTIVE_COUNT)
-    {
-        return legacySkills_level(HeroPassives[loadedRecord[1]].count + row -
-                                  SKILL_EXPANSION_FIRST_LEGACY_ACTIVE_ROW);
-    }
-    return *skillExpansion_activeLevel(playerIndex, row);
-}
-
-// Zap (Gandalf; Two Towers 0x08018FD4, its tick 0x080191F0, hit 0x080115E0): a bolt that flies
-// for 30 frames and bursts on the first foe it hits for 5 + 2 per level.
-#define ZAP_DAMAGE_BASE 5
-#define ZAP_DAMAGE_PER_LEVEL 2
-#define ZAP_SPEED 0x50000
-#define ZAP_LIFETIME 30
-#define ZAP_IMPACT 0x080501C8u
-// the bolt by facing
-static const u32 ZapSprites[8] = {
-    0x08050138u, 0x08050148u, 0x08050148u, 0x08050148u,
-    0x08050158u, 0x08050158u, 0x08050168u, 0x08050168u,
+// Each hero's actives by hero id. NULL: none yet.
+static const LegacyActive *const HeroActives[LEGACY_HERO_COUNT] = {
+    [0] = LegacyFrodoActives,
+    [1] = LegacyLegolasActives,
+    [2] = LegacyAragornActives,
+    [3] = LegacyGandalfActives,
+    [4] = LegacyEowynActives,
+    [5] = LegacyGimliActives,
 };
-// the projectile spawner's arguments for a thrown knife: no target, its palette bank, no slot
-#define PROJECTILE_ANIMATION_SET 1
-#define PROJECTILE_AIMED 1
-#define PROJECTILE_PALETTE_BANK 2
-#define PROJECTILE_NO_SLOT -1
-#define FOE_HITTABLE_FLAGS 0x10040400
-// Lightstrike's cast sound until the Two Towers sounds are ported
-#define ZAP_SOUND 0x5a
 
-static void zapTick(Actor *fx)
+static const LegacyActive NoActive;
+
+// The loaded hero's legacy active `i`; its def is NULL when it has none yet.
+static const LegacyActive *heroActive(u32 heroId, u32 i)
 {
-    // the impact plays out where it hit, then the bolt is gone
-    if (fx->triggerCallbacks[0] == NULL)
-    {
-        fx->actionStateTimer = (fx->flags.p & ACTOR_FLAG_ANIMATION_END) ? 0 : ZAP_LIFETIME;
-    }
-    if (fx->parentActor->actionState == ACTOR_STATE_UNKNOWN_2D)
-    {
-        fx->actionState = ACTOR_STATE_UNKNOWN_04;
-    }
-    actor_unknown08045584(fx);
+    return HeroActives[heroId] != NULL ? &HeroActives[heroId][i] : &NoActive;
 }
-
-static void zapHit(Actor *fx, Actor *other)
-{
-    if (!(other->flags.p & FOE_HITTABLE_FLAGS))
-    {
-        return;
-    }
-    combat_applyPveRangedHit(fx->parentActor, other, *(u16 *)&fx->as.combat.head.scripted.params[0]);
-    fx->triggerCallbacks[0] = NULL;
-    fx->renderFollowTarget = other;
-    fx->velocity.x = 0;
-    fx->velocity.y = 0;
-    setSprite(fx, ZAP_IMPACT);
-}
-
-// An effect that plays `animation` on the caster once, then is gone.
-static void effectTick(Actor *fx)
-{
-    fx->coords = fx->parentActor->coords;
-    fx->actionStateTimer = (fx->flags.p & ACTOR_FLAG_ANIMATION_END) ? 0 : ZAP_LIFETIME;
-    actor_unknown08045584(fx);
-}
-
-static void spawnEffectOn(Actor *playerActor, u32 animation)
-{
-    Actor *fx;
-
-    if (twoTowersSprite(animation) == NULL)
-    {
-        return;
-    }
-    fx = fx_unknown08043d74(playerActor, 0, PROJECTILE_ANIMATION_SET, PROJECTILE_AIMED,
-                            PROJECTILE_PALETTE_BANK, PROJECTILE_NO_SLOT);
-    if (fx == NULL)
-    {
-        return;
-    }
-    setSprite(fx, animation);
-    fx->velocity.x = 0;
-    fx->velocity.y = 0;
-    fx->triggerCallbacks[0] = NULL;
-    fx->parentActor = playerActor;
-    fx->tickCallback = effectTick;
-}
-
-// Magical Healing (Gandalf; Two Towers 0x0803C4F8, 0x0801EA40): heals 20 + 4 per level for 8 + 2
-// per level Spirit, with a sparkle on Gandalf.
-#define MAGICAL_HEALING_BASE 20
-#define MAGICAL_HEALING_PER_LEVEL 4
-#define MAGICAL_HEALING_SPARKLE 0x080501D8u
-// the herb pickup sound until the Two Towers sounds are ported
-#define MAGICAL_HEALING_SOUND SFX_HERB_PICKUP
-
-static void castMagicalHealing(Actor *playerActor)
-{
-    u8 playerIndex = playerActor->as.combat.playerIndex;
-
-    player_addHp(playerIndex, MAGICAL_HEALING_BASE + MAGICAL_HEALING_PER_LEVEL * castingLevel(playerActor),
-                 FALSE);
-    spawnEffectOn(playerActor, MAGICAL_HEALING_SPARKLE);
-    sfx_play(MAGICAL_HEALING_SOUND);
-}
-
-// Shield (Gandalf; Two Towers 0x0803BB1C, 0x080185B4, its tick 0x0801871C): a bubble on Gandalf
-// that absorbs 50 + 20 per level damage for 750 frames, for 10 Spirit and 2 corruption per level.
-// One at a time. It absorbs through ROTK's own shield bubble (PLAYER().shieldBubble).
-#define SHIELD_ABSORB_BASE 50
-#define SHIELD_ABSORB_PER_LEVEL 20
-#define SHIELD_FRAMES 750
-#define SHIELD_CORRUPTION_PER_LEVEL 2
-#define SHIELD_FORMING 0x080500C8u
-#define SHIELD_UP 0x080500D8u
-#define SHIELD_DISSOLVING 0x080500E8u
-// the shield's phase, kept in its charge level (Gimli's shields only use that)
-#define SHIELD_PHASE_FORMING 0
-#define SHIELD_PHASE_UP 1
-#define SHIELD_PHASE_DISSOLVING 2
-
-static bool32 shieldCanCast(u8 playerIndex)
-{
-    return PLAYER(playerIndex).shieldBubble == NULL;
-}
-
-static void shieldTick(Actor *fx)
-{
-    Actor *playerActor = fx->parentActor;
-    u8 playerIndex = playerActor->as.combat.playerIndex;
-    s16 *phase = &fx->as.shieldGandalf.chargeLevel;
-    bool32 ended = (fx->flags.p & ACTOR_FLAG_ANIMATION_END) != 0;
-
-    fx->coords = playerActor->coords;
-    // an absorbed hit flashes the bubble in ROTK; it just stays up here
-    if (fx->actionState == ACTOR_STATE_SHIELD_SPENT)
-    {
-        fx->actionState = ACTOR_STATE_FX_ATTACHED;
-    }
-    if (*phase == SHIELD_PHASE_FORMING && ended)
-    {
-        *phase = SHIELD_PHASE_UP;
-        fx->actionState = ACTOR_STATE_FX_ATTACHED;
-        setSprite(fx, SHIELD_UP);
-    }
-    else if (*phase == SHIELD_PHASE_UP &&
-             (fx->as.shieldGandalf.shieldHealth <= 0 || --fx->actionStateTimer < 0))
-    {
-        *phase = SHIELD_PHASE_DISSOLVING;
-        setSprite(fx, SHIELD_DISSOLVING);
-    }
-    else if (*phase == SHIELD_PHASE_DISSOLVING && ended)
-    {
-        fx->actionState = ACTOR_STATE_UNKNOWN_04;
-    }
-    if (playerActor->actionState == ACTOR_STATE_UNKNOWN_2D)
-    {
-        fx->actionState = ACTOR_STATE_UNKNOWN_04;
-    }
-    if (fx->actionState == ACTOR_STATE_UNKNOWN_04)
-    {
-        if (PLAYER(playerIndex).shieldBubble == fx)
-        {
-            PLAYER(playerIndex).shieldBubble = NULL;
-        }
-        fx->actionStateTimer = 0;
-        actor_unknown08045584(fx);
-    }
-}
-
-static void castShield(Actor *playerActor)
-{
-    u8 playerIndex = playerActor->as.combat.playerIndex;
-    u8 level = castingLevel(playerActor);
-    Actor *fx;
-
-    player_addCorruption(playerIndex, SHIELD_CORRUPTION_PER_LEVEL * level);
-    fx = fx_unknown08043d74(playerActor, 0, PROJECTILE_ANIMATION_SET, PROJECTILE_AIMED,
-                            PROJECTILE_PALETTE_BANK, PROJECTILE_NO_SLOT);
-    if (fx == NULL)
-    {
-        return;
-    }
-    setSprite(fx, SHIELD_FORMING);
-    fx->velocity.x = 0;
-    fx->velocity.y = 0;
-    fx->triggerCallbacks[0] = NULL;
-    fx->parentActor = playerActor;
-    fx->tickCallback = shieldTick;
-    fx->actionStateTimer = SHIELD_FRAMES;
-    fx->as.shieldGandalf.followTarget = playerActor;
-    fx->as.shieldGandalf.shieldHealth = SHIELD_ABSORB_BASE + SHIELD_ABSORB_PER_LEVEL * level;
-    fx->as.shieldGandalf.chargeLevel = SHIELD_PHASE_FORMING;
-    PLAYER(playerIndex).shieldBubble = fx;
-    sfx_play(SFX_COMBAT_GANDALF_SHIELD_CAST);
-}
-
-// Sunburst (Gandalf; Two Towers 0x0803BA44, 0x08018880, its tick 0x08018AC4, hit 0x08011484): a
-// burst at Gandalf that stuns the foes within 75 pixels for 30 + 10 per level ticks, for 8 Spirit. It
-// deals no damage when cast (its damage is Flame of Anor's burst). Not yet: the 8 rotated rays it
-// sends out, which only show.
-#define SUNBURST_STUN_BASE 30
-#define SUNBURST_STUN_PER_LEVEL 10
-#define SUNBURST_LIFETIME 30
-#define SUNBURST_RADIUS 75
-#define SUNBURST_BURST 0x080500F8u
-// ROTK's on-kill sunburst sound until the Two Towers sounds are ported
-#define SUNBURST_SOUND SFX_COMBAT_SUNBURST
-
-static void sunburstTick(Actor *fx)
-{
-    // it stuns what it touches on the frame it first hits something, then stops colliding
-    if (fx->renderFollowTarget != NULL)
-    {
-        fx->flags.p &= ~ACTOR_FLAG_COLLISION_CHECK;
-    }
-    actor_unknown08045584(fx);
-}
-
-static void sunburstHit(Actor *fx, Actor *other)
-{
-    if (!(other->flags.p & FOE_HITTABLE_FLAGS))
-    {
-        return;
-    }
-    other->actionState = ACTOR_STATE_STUNNED;
-    other->actionStateTimer = *(u16 *)&fx->as.combat.head.scripted.params[0];
-    other->field_0x64[0] |= 2;
-    fx->renderFollowTarget = other;
-}
-
-static void castSunburst(Actor *playerActor)
-{
-    Actor *fx = fx_unknown08043d74(playerActor, 0, PROJECTILE_ANIMATION_SET, PROJECTILE_AIMED,
-                                   PROJECTILE_PALETTE_BANK, PROJECTILE_NO_SLOT);
-
-    if (fx == NULL)
-    {
-        return;
-    }
-    setSprite(fx, SUNBURST_BURST);
-    fx->velocity.x = 0;
-    fx->velocity.y = 0;
-    fx->parentActor = playerActor;
-    fx->renderFollowTarget = NULL;
-    fx->tickCallback = sunburstTick;
-    fx->triggerCallbacks[0] = sunburstHit;
-    fx->actionStateTimer = SUNBURST_LIFETIME;
-    fx->flags.p |= ACTOR_FLAG_RADIUS_PROXIMITY;
-    fx->interactionRadius = SUNBURST_RADIUS;
-    *(u16 *)&fx->as.combat.head.scripted.params[0] =
-        SUNBURST_STUN_BASE + SUNBURST_STUN_PER_LEVEL * castingLevel(playerActor);
-    sfx_play(SUNBURST_SOUND);
-}
-
-// Fireworks (Gandalf; Two Towers 0x08018280, its tick 0x08018494, hits 0x080114FC and 0x08011728):
-// a rocket that flies for 30 ticks and explodes on the first foe it hits, dealing 5 + 2 per level
-// to every foe in the blast on the frame it bursts. It is gone without a blast when it runs out.
-// The description says 10 + 2 per level; the game deals 5 + 2.
-#define FIREWORKS_DAMAGE_BASE 5
-#define FIREWORKS_DAMAGE_PER_LEVEL 2
-#define FIREWORKS_SPEED 0x50000
-#define FIREWORKS_LIFETIME 30
-#define FIREWORKS_EXPLOSION 0x08328230u
-// the rocket by facing
-static const u32 FireworksSprites[8] = {
-    0x08328208u, 0x08328210u, 0x08328218u, 0x08328220u,
-    0x08328228u, 0x08328220u, 0x08328218u, 0x08328210u,
-};
-// the rocket's phase, kept in its second parameter
-#define FIREWORKS_FLYING 0
-#define FIREWORKS_HIT 1
-#define FIREWORKS_BURSTING 2
-// stand-ins until the Two Towers sounds are ported
-#define FIREWORKS_LAUNCH_SOUND ZAP_SOUND
-#define FIREWORKS_BURST_SOUND SFX_COMBAT_FIREBURST_PROC
-
-static u16 *fxDamage(Actor *fx)
-{
-    return (u16 *)&fx->as.combat.head.scripted.params[0];
-}
-
-static u8 *fireworksPhase(Actor *fx)
-{
-    return &fx->as.combat.head.scripted.params[2];
-}
-
-static void fireworksBlastHit(Actor *fx, Actor *other)
-{
-    if (other->flags.p & FOE_HITTABLE_FLAGS)
-    {
-        combat_applyPveRangedHit(fx->parentActor, other, *fxDamage(fx));
-    }
-}
-
-static void fireworksRocketHit(Actor *fx, Actor *other)
-{
-    if ((other->flags.p & FOE_HITTABLE_FLAGS) && *fireworksPhase(fx) == FIREWORKS_FLYING)
-    {
-        *fireworksPhase(fx) = FIREWORKS_HIT;
-    }
-}
-
-static void fireworksTick(Actor *fx)
-{
-    u8 *phase = fireworksPhase(fx);
-
-    if (*phase == FIREWORKS_HIT)
-    {
-        // the blast collides on this frame only
-        *phase = FIREWORKS_BURSTING;
-        fx->velocity.x = 0;
-        fx->velocity.y = 0;
-        setSprite(fx, FIREWORKS_EXPLOSION);
-        fx->triggerCallbacks[0] = fireworksBlastHit;
-        fx->actionStateTimer = FIREWORKS_LIFETIME;
-        sfx_play(FIREWORKS_BURST_SOUND);
-    }
-    else if (*phase == FIREWORKS_BURSTING)
-    {
-        fx->flags.p &= ~ACTOR_FLAG_COLLISION_CHECK;
-        fx->actionStateTimer = (fx->flags.p & ACTOR_FLAG_ANIMATION_END) ? 0 : FIREWORKS_LIFETIME;
-    }
-    if (fx->parentActor->actionState == ACTOR_STATE_UNKNOWN_2D)
-    {
-        fx->actionState = ACTOR_STATE_UNKNOWN_04;
-    }
-    actor_unknown08045584(fx);
-}
-
-static void castFireworks(Actor *playerActor)
-{
-    Actor *fx = fx_unknown08043d74(playerActor, 0, PROJECTILE_ANIMATION_SET, PROJECTILE_AIMED,
-                                   PROJECTILE_PALETTE_BANK, PROJECTILE_NO_SLOT);
-
-    if (fx == NULL)
-    {
-        return;
-    }
-    setSprite(fx, FireworksSprites[fx->facing & 7]);
-    actor_setVelocityFromDirection8(&fx->velocity, fx->flags.p, fx->facing, FIREWORKS_SPEED);
-    fx->actionStateTimer = FIREWORKS_LIFETIME;
-    fx->tickCallback = fireworksTick;
-    fx->triggerCallbacks[0] = fireworksRocketHit;
-    fx->parentActor = playerActor;
-    *fxDamage(fx) = FIREWORKS_DAMAGE_BASE + FIREWORKS_DAMAGE_PER_LEVEL * castingLevel(playerActor);
-    *fireworksPhase(fx) = FIREWORKS_FLYING;
-    sfx_play(FIREWORKS_LAUNCH_SOUND);
-}
-
-// Thunderstrike (Gandalf; Two Towers 0x0801E658; the storm 0x08018D7C, its tick 0x08018EC0 and its
-// pick 0x08011440; the bolt 0x08027A24 and its tick 0x08027B44): a storm around Gandalf strikes a
-// foe within 80 pixels every 4 ticks, 5 + level / 3 times, for 20 + 2 per level each, and ends when
-// no foe is in reach. Among several foes in reach each new one replaces the pick on an even roll.
-// A strike is a bolt that falls on the foe and hits when its animation ends. The storm is unseen.
-#define THUNDERSTRIKE_STRIKES_BASE 5
-#define THUNDERSTRIKE_LEVELS_PER_STRIKE 3
-#define THUNDERSTRIKE_DAMAGE_BASE 20
-#define THUNDERSTRIKE_DAMAGE_PER_LEVEL 2
-#define THUNDERSTRIKE_RADIUS 80
-#define THUNDERSTRIKE_PAUSE 4
-#define THUNDERSTRIKE_LIFETIME 15
-#define THUNDERSTRIKE_BOLT 0x08052690u
-// Lightstrike's cast sound until the Two Towers sounds are ported
-#define THUNDERSTRIKE_SOUND ZAP_SOUND
-
-// The storm's strikes left and ticks to the next strike, after the damage
-static u8 *stormStrikes(Actor *fx)
-{
-    return &fx->as.combat.head.scripted.params[2];
-}
-
-static u8 *stormPause(Actor *fx)
-{
-    return &fx->as.combat.head.scripted.params[3];
-}
-
-static void stormEnd(Actor *fx)
-{
-    fx->actionState = ACTOR_STATE_UNKNOWN_04;
-    fx->actionStateTimer = 0;
-}
-
-// The bolt keeps its foe in attachTarget, which only attach effects' own tick reads.
-static void boltTick(Actor *fx)
-{
-    Actor *foe = fx->as.combat.head.attachTarget;
-
-    if (foe != NULL)
-    {
-        fx->coords = foe->coords;
-    }
-    if (fx->flags.p & ACTOR_FLAG_ANIMATION_END)
-    {
-        if (foe != NULL && !(foe->flags.p & ACTOR_FLAG_PENDING_REMOVE))
-        {
-            combat_applyPveRangedHit(fx->parentActor, foe, *fxDamage(fx));
-        }
-        fx->as.combat.head.attachTarget = NULL;
-        fx->actionStateTimer = 0;
-    }
-    if (fx->parentActor->actionState == ACTOR_STATE_UNKNOWN_2D)
-    {
-        fx->actionState = ACTOR_STATE_UNKNOWN_04;
-    }
-    actor_unknown08045584(fx);
-}
-
-static void spawnBolt(Actor *storm, Actor *foe)
-{
-    Actor *playerActor = storm->parentActor;
-    Actor *fx = fx_unknown08043d74(playerActor, 0, PROJECTILE_ANIMATION_SET, PROJECTILE_AIMED,
-                                   PROJECTILE_PALETTE_BANK, PROJECTILE_NO_SLOT);
-
-    if (fx == NULL)
-    {
-        return;
-    }
-    setSprite(fx, THUNDERSTRIKE_BOLT);
-    fx->velocity.x = 0;
-    fx->velocity.y = 0;
-    fx->coords = foe->coords;
-    fx->triggerCallbacks[0] = NULL;
-    fx->flags.p &= ~ACTOR_FLAG_COLLISION_CHECK;
-    fx->parentActor = playerActor;
-    fx->as.combat.head.attachTarget = foe;
-    *fxDamage(fx) = *fxDamage(storm);
-    fx->actionStateTimer = THUNDERSTRIKE_LIFETIME;
-    fx->tickCallback = boltTick;
-}
-
-static void stormPick(Actor *fx, Actor *other)
-{
-    if (!(other->flags.p & FOE_HITTABLE_FLAGS))
-    {
-        return;
-    }
-    if (fx->as.combat.head.attachTarget == NULL || rng_rollUpTo(100) <= rng_rollUpTo(100))
-    {
-        fx->as.combat.head.attachTarget = other;
-    }
-}
-
-static void stormTick(Actor *fx)
-{
-    Actor *target = fx->as.combat.head.attachTarget;
-    u8 *pause = stormPause(fx);
-
-    fx->coords = fx->parentActor->coords;
-    if (*stormStrikes(fx) == 0)
-    {
-        stormEnd(fx);
-    }
-    else
-    {
-        if (target != NULL)
-        {
-            spawnBolt(fx, target);
-            sfx_play(THUNDERSTRIKE_SOUND);
-            fx->as.combat.head.attachTarget = NULL;
-            (*stormStrikes(fx))--;
-            *pause = THUNDERSTRIKE_PAUSE;
-        }
-        // it looks for a foe on the tick the pause runs out, and ends when it finds none
-        if (*pause == 0)
-        {
-            stormEnd(fx);
-        }
-        else if (--*pause == 0)
-        {
-            fx->flags.p |= ACTOR_FLAG_COLLISION_CHECK;
-        }
-        else
-        {
-            fx->flags.p &= ~ACTOR_FLAG_COLLISION_CHECK;
-        }
-    }
-    if (fx->parentActor->actionState == ACTOR_STATE_UNKNOWN_2D)
-    {
-        stormEnd(fx);
-    }
-    if (fx->actionState != ACTOR_STATE_UNKNOWN_04)
-    {
-        fx->actionStateTimer = THUNDERSTRIKE_LIFETIME;
-    }
-    actor_unknown08045584(fx);
-}
-
-static void castThunderstrike(Actor *playerActor)
-{
-    u8 level = castingLevel(playerActor);
-    Actor *fx = fx_unknown08043d74(playerActor, 0, PROJECTILE_ANIMATION_SET, PROJECTILE_AIMED,
-                                   PROJECTILE_PALETTE_BANK, PROJECTILE_NO_SLOT);
-
-    if (fx == NULL)
-    {
-        return;
-    }
-    fx->flags.p &= ~ACTOR_FLAG_RENDER;
-    fx->velocity.x = 0;
-    fx->velocity.y = 0;
-    fx->parentActor = playerActor;
-    fx->as.combat.head.attachTarget = NULL;
-    fx->tickCallback = stormTick;
-    fx->triggerCallbacks[0] = stormPick;
-    fx->flags.p |= ACTOR_FLAG_RADIUS_PROXIMITY | ACTOR_FLAG_COLLISION_CHECK;
-    fx->interactionRadius = THUNDERSTRIKE_RADIUS;
-    *fxDamage(fx) = THUNDERSTRIKE_DAMAGE_BASE + THUNDERSTRIKE_DAMAGE_PER_LEVEL * level;
-    *stormStrikes(fx) = THUNDERSTRIKE_STRIKES_BASE + level / THUNDERSTRIKE_LEVELS_PER_STRIKE;
-    *stormPause(fx) = 1;
-    fx->actionStateTimer = THUNDERSTRIKE_LIFETIME;
-    sfx_play(THUNDERSTRIKE_SOUND);
-}
-
-static void castZap(Actor *playerActor)
-{
-    u8 level = castingLevel(playerActor);
-    Actor *fx = fx_unknown08043d74(playerActor, 0, PROJECTILE_ANIMATION_SET, PROJECTILE_AIMED,
-                                   PROJECTILE_PALETTE_BANK, PROJECTILE_NO_SLOT);
-    if (fx == NULL)
-    {
-        return;
-    }
-    setSprite(fx, ZapSprites[fx->facing & 7]);
-    actor_setVelocityFromDirection8(&fx->velocity, fx->flags.p, fx->facing, ZAP_SPEED);
-    fx->actionStateTimer = ZAP_LIFETIME;
-    fx->tickCallback = zapTick;
-    fx->triggerCallbacks[0] = zapHit;
-    fx->parentActor = playerActor;
-    *(u16 *)&fx->as.combat.head.scripted.params[0] = ZAP_DAMAGE_BASE + ZAP_DAMAGE_PER_LEVEL * level;
-    sfx_play(ZAP_SOUND);
-}
-
-#define LEGACY_DEF(name, callback, base)                                                               static const SkillExpansionActiveDef name = {                                                          .stockCallback = (callback),                                                  .baseRow = (base),                                                                             }
-
-// a port: Lightstrike's cast pose and requirements, its own cast
-static const SkillExpansionActiveDef LegacyGandalfZap = {.baseRow = ACTIVE_SKILL_GANDALF_LIGHTSTRIKE};
-static bool32 shieldCanCast(u8 playerIndex);
-static const SkillExpansionActiveDef LegacyGandalfShieldPort = {
-    .baseRow = ACTIVE_SKILL_GANDALF_SHIELD,
-    .canCast = shieldCanCast,
-};
-static const SkillExpansionActiveDef LegacyGandalfSunburst = {
-    .baseRow = ACTIVE_SKILL_GANDALF_BLINDING_AURA,
-};
-// Shield's pose: casting through Herbal Healing's row hangs the game
-static const SkillExpansionActiveDef LegacyGandalfHealing = {.baseRow = ACTIVE_SKILL_GANDALF_SHIELD};
-LEGACY_DEF(LegacyGandalfGwaihir, skill_active_gandalfSummonGwaihir,
-           ACTIVE_SKILL_GANDALF_SUMMON_GWAIHIR);
-
-// The Two Towers actives by hero id, in the skill record's order (after the passives). NULL: none
-// yet.
-static const LegacyActive HeroActives[LEGACY_HERO_COUNT][SKILL_EXPANSION_LEGACY_ACTIVE_COUNT] = {
-    [3] =
-        {
-            {&LegacyGandalfHealing, 8, castMagicalHealing, 2}, // Magical Healing
-            {&LegacyGandalfShieldPort, 10, castShield}, // Shield
-            {&LegacyGandalfZap, 3, castZap}, // Zap
-            {&LegacyGandalfSunburst, 8, castSunburst}, // Sunburst
-            {&LegacyGandalfZap, 5, castFireworks}, // Fireworks
-            {&LegacyGandalfGwaihir, 12},     // Summon Eagle
-            {&LegacyGandalfSunburst, 20, castThunderstrike}, // Thunderstrike
-        },
-};
 
 // A ROTK skill icon: a BG asset header (raw 4bpp tiles, no palette) and 4x3 tiles.
 #define SKILL_ICON_HEADER_SIZE 4
@@ -875,7 +281,7 @@ static void buildIcons(u32 heroId, const u8 *frame)
 static void setRowLevel(u8 playerIndex, u32 i, u8 level)
 {
     SkillExpansionPlayer *sx = &skillExpansion_players[playerIndex];
-    const LegacyActive *active = &HeroActives[loadedRecord[1]][i];
+    const LegacyActive *active = heroActive(loadedRecord[1], i);
     u32 row = SKILL_EXPANSION_FIRST_LEGACY_ACTIVE_ROW + i;
     u8 rowLevel = level > LEGACY_SKILL_LEVEL_MAX ? 0 : level > ACTIVE_SKILL_MAX_LEVEL ? ACTIVE_SKILL_MAX_LEVEL : level;
 
@@ -888,7 +294,6 @@ static void setRowLevel(u8 playerIndex, u32 i, u8 level)
 void legacySkills_buildRows(u8 heroId, u8 playerIndex)
 {
     SkillExpansionPlayer *sx = &skillExpansion_players[playerIndex];
-    const LegacyActive *actives;
     u32 first;
 
     for (u32 i = 0; i < SKILL_EXPANSION_LEGACY_ACTIVE_COUNT; i++)
@@ -925,12 +330,12 @@ void legacySkills_buildRows(u8 heroId, u8 playerIndex)
         return;
     }
     buildIcons(heroId, sx->activeSkillIcons[0]);
-    actives = HeroActives[heroId];
     first = 2 + HeroPassives[heroId].count;
     for (u32 i = 0; i < SKILL_EXPANSION_LEGACY_ACTIVE_COUNT && first + i < 2 + LEGACY_SKILL_COUNT;
          i++)
     {
-        const SkillExpansionActiveDef *def = actives[i].def;
+        const LegacyActive *active = heroActive(heroId, i);
+        const SkillExpansionActiveDef *def = active->def;
         u32 row = SKILL_EXPANSION_FIRST_LEGACY_ACTIVE_ROW + i;
         u8 level = loadedRecord[first + i];
 
@@ -940,7 +345,7 @@ void legacySkills_buildRows(u8 heroId, u8 playerIndex)
         }
         memory_memcpy(&sx->activeSkills[row], &sx->activeSkills[def->baseRow], sizeof(ActiveSkill));
         sx->activeSkills[row].callback =
-            actives[i].cast != NULL ? actives[i].cast : skillExpansion_castStockCallback;
+            active->cast != NULL ? active->cast : skillExpansion_castStockCallback;
         sx->activeSkillIcons[row] = iconsBuilt ? (const void *)&icons[first - 2 + i]
                                                : sx->activeSkillIcons[def->baseRow];
         sx->activeDefs[row - SKILL_EXPANSION_FIRST_NEW_ACTIVE_ROW] = def;
@@ -986,7 +391,7 @@ void legacySkills_setTestLevels(u8 level)
                     HeroPassives[loadedRecord[1]].count + i < LEGACY_SKILL_COUNT;
          i++)
     {
-        if (HeroActives[loadedRecord[1]][i].def != NULL)
+        if (heroActive(loadedRecord[1], i)->def != NULL)
         {
             setRowLevel(0, i, level);
         }
@@ -1077,7 +482,7 @@ bool32 legacySkills_buy(u32 skill)
         }
     }
     else if (skill - passives->count < SKILL_EXPANSION_LEGACY_ACTIVE_COUNT &&
-             HeroActives[loadedRecord[1]][skill - passives->count].def != NULL)
+             heroActive(loadedRecord[1], skill - passives->count)->def != NULL)
     {
         setRowLevel(0, skill - passives->count, level + 1);
     }

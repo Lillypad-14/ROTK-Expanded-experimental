@@ -163,6 +163,9 @@
 .if HACK_legacy_items
     .include "hacks/patches/legacy_items/legacy_items.asm"
 .endif
+.if HACK_legacy_skills
+    .include "hacks/patches/legacy_skills/legacy_skills.asm"
+.endif
 
 ; ---------------------------------- Data-Table Patches ----------------------------------
 ; Table patches generated from hacks/tables.c by rotkit hack tablepatch.
