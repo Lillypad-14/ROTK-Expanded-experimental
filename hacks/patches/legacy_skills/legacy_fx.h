@@ -95,8 +95,8 @@ void legacyFx_finishTick(Actor *fx);
 void legacyFx_playSound(u16 sound);
 
 // A projectile: flies from the caster for `lifetime` ticks. With no blast it hits the first foe
-// for its damage and plays `impact` on it. With a blast it bursts on the first foe, and every foe
-// in the blast takes its damage on the frame it bursts.
+// for its damage and plays `impact` on it (or is gone, with none). With a blast it bursts on the
+// first foe, and every foe in the blast takes its damage on the frame it bursts.
 typedef struct LegacyProjectileDef
 {
     // the projectile by facing
@@ -113,6 +113,9 @@ typedef struct LegacyProjectileDef
 } LegacyProjectileDef;
 
 void legacyFx_castProjectile(Actor *playerActor, const LegacyProjectileDef *def);
+// The caster's projectile from elsewhere (a trap): from `from` along `facing`, for `damage`.
+void legacyFx_castProjectileAt(Actor *playerActor, const LegacyProjectileDef *def, Vector2Fp16 from,
+                               Direction8 facing, u16 damage);
 
 // A thrown weapon or arrow: flies from the caster for `lifetime` ticks and hits every foe it passes
 // with the caster's own attack (`combat_resolvePveAttack`), `bonus` added to the caster's

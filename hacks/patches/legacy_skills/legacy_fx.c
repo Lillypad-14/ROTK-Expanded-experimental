@@ -211,6 +211,11 @@ static void projectileHit(Actor *fx, Actor *other)
         return;
     }
     combat_applyPveRangedHit(fx->parentActor, other, state->amount);
+    if (def->impact == 0)
+    {
+        legacyFx_end(fx);
+        return;
+    }
     state->phase = PROJECTILE_IMPACT;
     fx->triggerCallbacks[0] = NULL;
     fx->renderFollowTarget = other;
@@ -245,26 +250,43 @@ static void projectileTick(Actor *fx)
     legacyFx_finishTick(fx);
 }
 
-void legacyFx_castProjectile(Actor *playerActor, const LegacyProjectileDef *def)
+static void launchProjectile(Actor *fx, const LegacyProjectileDef *def, Direction8 facing, u16 damage)
 {
-    Actor *fx = legacyFx_spawn(playerActor, 0);
-    LegacyFxState *state;
+    LegacyFxState *state = LEGACY_FX(fx);
 
-    if (fx == NULL)
-    {
-        return;
-    }
-    state = LEGACY_FX(fx);
-    legacyFx_setSprite(fx, def->sprites[fx->facing & 7]);
+    fx->facing = facing;
+    legacyFx_setSprite(fx, def->sprites[facing & 7]);
     legacyFx_faceSprite(fx);
-    actor_setVelocityFromDirection8(&fx->velocity, fx->flags.p, fx->facing, def->speed);
+    actor_setVelocityFromDirection8(&fx->velocity, fx->flags.p, facing, def->speed);
     fx->actionStateTimer = def->lifetime;
     fx->tickCallback = projectileTick;
     fx->triggerCallbacks[0] = projectileHit;
     state->def = def;
-    state->amount = legacyScale(def->damage, legacyFx_castingLevel(playerActor));
+    state->amount = damage;
     state->phase = PROJECTILE_FLYING;
     legacyFx_playSound(def->sound);
+}
+
+void legacyFx_castProjectile(Actor *playerActor, const LegacyProjectileDef *def)
+{
+    Actor *fx = legacyFx_spawn(playerActor, 0);
+
+    if (fx != NULL)
+    {
+        launchProjectile(fx, def, fx->facing, legacyScale(def->damage, legacyFx_castingLevel(playerActor)));
+    }
+}
+
+void legacyFx_castProjectileAt(Actor *playerActor, const LegacyProjectileDef *def, Vector2Fp16 from,
+                               Direction8 facing, u16 damage)
+{
+    Actor *fx = legacyFx_spawn(playerActor, 0);
+
+    if (fx != NULL)
+    {
+        legacyFx_place(fx, from);
+        launchProjectile(fx, def, facing, damage);
+    }
 }
 
 static void thrownTick(Actor *fx)

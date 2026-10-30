@@ -1,13 +1,18 @@
 // Frodo's Two Towers actives.
 
 #include "patches/legacy_skills/legacy_fx.h"
+#include "patches/legacy_skills/legacy_skills.h"
 
 #if PC_EDITION && SKILL_EXPANSION_LEGACY_ACTIVE_COUNT
 
 #include "combat.h"
 #include "lib/movement.h"
+#include "player.h"
+#include "scene.h"
+#include "skill.h"
 #include "sfx.h"
 #include "stats.h"
+#include "variables.h"
 
 // Hobbit Appetite (Two Towers 0x0803C368, 0x0801E3EC): heals 25 + 5 per level for 8 + 2 per level
 // Spirit, with Magical Healing's sparkle on Frodo.
@@ -147,6 +152,170 @@ static void castCharge(Actor *playerActor)
     dash(playerActor, TRUE, CHARGE_DAMAGE_PER_LEVEL * legacyFx_castingLevel(playerActor));
 }
 
+// The One Ring (Two Towers 0x0803C310, the ring 0x080172E4 and its tick 0x080174FC): for 10 Spirit and
+// 35 corruption, Frodo is unseen for 300 + 60 per level ticks with +4 damage, the world in the Ring's
+// shadow. It is ROTK's ring (unseen flag, shadow world, the ring's tick) with
+// The Two Towers' numbers. Not ported: foes within 75 pixels standing idle for 90 ticks when he puts
+// it on (ROTK's foes already lose an unseen hero), and the ring sprite on him, which The Two Towers
+// shows only on a co-op partner's screen.
+#define ONE_RING_DAMAGE 4
+#define ONE_RING_CORRUPTION 35
+// ROTK's ring actor and its shadow world (skill_active_frodoTheOneRing)
+#define ONE_RING_ACTOR_TYPE 0x5f
+#define ONE_RING_ACTOR_FLAGS 0x10008
+#define ONE_RING_ON 1
+#define ONE_RING_UNSEEN_FLAG (1 << 23)
+#define ONE_RING_STATE_FLAG 8
+#define ONE_RING_TRANSITION 8
+// a co-op partner's ring: Frodo drawn see-through on the other screen
+#define ONE_RING_PARTNER_SPRITE_FLAG 0x20
+
+static const LegacyScale OneRingTicks = {300, 60};
+
+static void castTheOneRing(Actor *playerActor)
+{
+    u8 playerIndex = playerActor->as.combat.playerIndex;
+    Actor *ring;
+
+    if (PLAYER(playerIndex).ringActor != NULL)
+    {
+        return;
+    }
+    ring = actor_allocMain();
+    if (ring == NULL)
+    {
+        return;
+    }
+    ring->type = ONE_RING_ACTOR_TYPE;
+    ring->tickCallback = actor_oneRing_tick;
+    ring->triggerCallbacks[0] = NULL;
+    ring->as.combat.venomDuration = ONE_RING_DAMAGE;
+    PLAYER(playerIndex).stats[STAT_DAMAGE_SLASH] += ONE_RING_DAMAGE;
+    ring->actionStateTimer = legacyScale(OneRingTicks, legacyFx_castingLevel(playerActor));
+    ring->flags.p = ONE_RING_ACTOR_FLAGS;
+    ring->parentActor = playerActor;
+    playerActor->flags.p |= ONE_RING_UNSEEN_FLAG;
+    playerActor->as.combat.actionStateFlags |= ONE_RING_STATE_FLAG;
+    if (playerIndex == ACTIVE_PLAYER_INDEX)
+    {
+        transition_setEffect(ONE_RING_TRANSITION);
+    }
+    else
+    {
+        playerActor->spriteFlags |= ONE_RING_PARTNER_SPRITE_FLAG;
+    }
+    ring->actionState = ONE_RING_ON;
+    PLAYER(playerIndex).ringActor = ring;
+    player_addCorruption(playerIndex, ONE_RING_CORRUPTION);
+}
+
+// Snare (Two Towers 0x0803BD48, 0x0801E5A4, the trap 0x080178CC, its tick 0x080179F0 and trigger
+// 0x080112E0, the shrapnel 0x0803F4CC and hit 0x080116A4): for 9 Spirit, while Frodo has fewer than
+// level / 2 traps out (rounded up), he sets one where he stands. It opens to its 4th frame and waits
+// until a foe touches it, then bursts into shrapnel in 4 directions (8 from level 10) at speed 5 for 21
+// ticks, each hitting the first foe it touches for 8 + 1 per level.
+#define SNARE_SKILL 10
+#define SNARE_ANIMATION 0x080500A8u
+#define SNARE_ARMED_FRAME 3
+#define SNARE_ALL_WAYS_LEVEL 10
+#define SNARE_HOLD 30
+// a trap's phase
+#define SNARE_ARMING 0
+#define SNARE_SPRUNG 1
+#define SNARE_BURSTING 2
+
+static const LegacyScale SnareDamage = {8, 1};
+
+static const u32 ShrapnelSprites[8] = {
+    0x0832EBD4u, 0x0832EBDCu, 0x0832EBE4u, 0x0832EBECu,
+    0x0832EBF4u, 0x0832EBECu, 0x0832EBE4u, 0x0832EBDCu,
+};
+
+static const LegacyProjectileDef Shrapnel = {
+    .sprites = ShrapnelSprites,
+    .speed = 0x50000,
+    .lifetime = 21,
+    .sound = LEGACY_SOUND_NONE,
+};
+
+static void snareTick(Actor *fx);
+
+static u32 trapsOut(u8 playerIndex)
+{
+    Actor *actor;
+    u32 count = 0;
+
+    for (actor = g_ActorListMain.head; actor != NULL; actor = actor->next)
+    {
+        if (actor->tickCallback == snareTick && !(actor->flags.p & ACTOR_FLAG_PENDING_REMOVE) &&
+            actor->parentActor->as.combat.playerIndex == playerIndex)
+        {
+            count++;
+        }
+    }
+    return count;
+}
+
+static bool32 snareCanCast(u8 playerIndex)
+{
+    return trapsOut(playerIndex) < (legacySkills_level(SNARE_SKILL) + 1) / 2;
+}
+
+static void snareTouch(Actor *fx, Actor *other)
+{
+    if (legacyFx_isFoe(other) && LEGACY_FX(fx)->phase == SNARE_ARMING)
+    {
+        LEGACY_FX(fx)->phase = SNARE_SPRUNG;
+        fx->flags.p |= ACTOR_FLAG_ANIMATION_PLAYING;
+        fx->flags.p &= ~ACTOR_FLAG_ANIMATION_END;
+    }
+}
+
+static void snareTick(Actor *fx)
+{
+    LegacyFxState *state = LEGACY_FX(fx);
+    u8 level = state->count;
+    Direction8 facing;
+
+    if (state->phase == SNARE_ARMING && fx->previousAnimationFrame == SNARE_ARMED_FRAME)
+    {
+        sprite_setAnimationFrame(fx, SNARE_ARMED_FRAME);
+        fx->flags.p &= ~ACTOR_FLAG_ANIMATION_PLAYING;
+    }
+    else if (state->phase == SNARE_SPRUNG)
+    {
+        state->phase = SNARE_BURSTING;
+        fx->flags.p &= ~ACTOR_FLAG_COLLISION_CHECK;
+        for (facing = 0; facing < 8; facing += level < SNARE_ALL_WAYS_LEVEL ? 2 : 1)
+        {
+            legacyFx_castProjectileAt(fx->parentActor, &Shrapnel, fx->coords, facing, state->amount);
+        }
+    }
+    fx->actionStateTimer = state->phase == SNARE_BURSTING && legacyFx_animationEnded(fx) ? 0 : SNARE_HOLD;
+    legacyFx_finishTick(fx);
+}
+
+static void castSnare(Actor *playerActor)
+{
+    Actor *fx = legacyFx_spawn(playerActor, SNARE_ANIMATION);
+    Vector2Fp16 at = playerActor->coords;
+    u8 level = legacyFx_castingLevel(playerActor);
+
+    if (fx == NULL)
+    {
+        return;
+    }
+    at.y += 1 << 16;
+    legacyFx_place(fx, at);
+    fx->flags.p &= ~ACTOR_FLAG_TILE_COLLISION;
+    fx->flags.p |= ACTOR_FLAG_COLLISION_CHECK;
+    fx->tickCallback = snareTick;
+    fx->triggerCallbacks[0] = snareTouch;
+    fx->actionStateTimer = SNARE_HOLD;
+    LEGACY_FX(fx)->amount = legacyScale(SnareDamage, level);
+    LEGACY_FX(fx)->count = level;
+}
+
 // ROTK's rows the actives take their cast poses from
 static const SkillExpansionActiveDef KnifeRow = {.baseRow = ACTIVE_SKILL_FRODO_KNIFE_TOSS};
 // Knife Toss's pose without its weapon rule, for the casts that are not a throw. (Galadriel's
@@ -157,37 +326,31 @@ static const SkillExpansionActiveDef PoseRow = {
     .baseRow = ACTIVE_SKILL_FRODO_KNIFE_TOSS,
     .policy = &PosePolicy,
 };
-// stand-ins: ROTK's The One Ring and Snare
-static void theOneRing(Actor *playerActor)
+static bool32 oneRingCanCast(u8 playerIndex)
 {
-    skill_active_frodoTheOneRing(playerActor);
+    return PLAYER(playerIndex).ringActor == NULL;
 }
 
-static void snare(Actor *playerActor)
-{
-    skill_active_frodoSnare(playerActor);
-}
-
-static const SkillExpansionActiveDef TheOneRing = {
-    .stockCallback = theOneRing,
+static const SkillExpansionActiveDef TheOneRingRow = {
     .baseRow = ACTIVE_SKILL_FRODO_THE_ONE_RING,
+    .canCast = oneRingCanCast,
 };
-// ROTK's snare limit reads its own row's level, which a legacy cast leaves at 0
+// Snare's pose, without ROTK's snare limit (it reads its own row's level, 0 in a legacy cast)
 static const SkillExpansionCastPolicy SnarePolicy = {
     ACTIVE_SKILL_FRODO_SNARE + 1, ACTIVE_SKILL_FRODO_SNARE, SKILL_EXPANSION_RULE_NONE, 0};
-static const SkillExpansionActiveDef Snare = {
-    .stockCallback = snare,
+static const SkillExpansionActiveDef SnareRow = {
     .baseRow = ACTIVE_SKILL_FRODO_SNARE,
     .policy = &SnarePolicy,
+    .canCast = snareCanCast,
 };
 
 const LegacyActive LegacyFrodoActives[SKILL_EXPANSION_LEGACY_ACTIVE_COUNT] = {
-    [0] = {&TheOneRing, 10},
+    [0] = {&TheOneRingRow, 10, castTheOneRing},
     [1] = {&PoseRow, 3, castEscape},
     [2] = {&PoseRow, 4, castCharge},
     [3] = {&PoseRow, 8, castHobbitAppetite, 2},
     [4] = {&KnifeRow, 2, castKnifeThrow},
-    [5] = {&Snare, 9},
+    [5] = {&SnareRow, 9, castSnare},
 };
 
 #endif
