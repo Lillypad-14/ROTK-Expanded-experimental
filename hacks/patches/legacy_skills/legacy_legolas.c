@@ -4,8 +4,11 @@
 
 #if PC_EDITION && SKILL_EXPANSION_LEGACY_ACTIVE_COUNT
 
+#include "gba_io.h"
+#include "input.h"
 #include "rng.h"
 #include "stats.h"
+#include "variables.h"
 
 // White Knives (Two Towers 0x0803B98C, 0x0801DA0C, the knives 0x08025C70): for 2 Spirit, Legolas
 // slashes with his knives as his weapon. The Two Towers adds no damage of its own (the description's
@@ -305,6 +308,140 @@ static void castForestFriend(Actor *playerActor)
         FOREST_FRIEND_HAWKS_BASE + legacyFx_castingLevel(playerActor) / FOREST_FRIEND_LEVELS_PER_HAWK;
 }
 
+// Overdraw (Two Towers 0x0803C3B4, the draw 0x0801DCE8, its glow 0x0802686C and tick 0x08026984, the
+// arrow 0x08026678 and hit 0x08010904): for 6 Spirit, Legolas draws, then holds the draw for as long
+// as the button that cast it stays down, a glow under him growing every 30 ticks (4 stages). On release
+// one arrow flies at the first foe on screen in front of him (else straight ahead), speed 7.5 for 21
+// ticks, hitting each foe it passes with Legolas's attack + level x (ticks held / 30 + 1) + 2 damage
+// and stopping at a foe that does not flinch. The hold keeps Spread Fire's pose frozen at full draw.
+#define OVERDRAW_STAGE_TICKS 30
+#define OVERDRAW_STAGES 4
+#define OVERDRAW_BONUS_BASE 2
+#define OVERDRAW_HOLD_BUTTONS (A_BUTTON | B_BUTTON | R_BUTTON)
+// the cast's recovery, topped up while the draw is held, keeps Legolas in his drawn pose
+#define OVERDRAW_HOLD_RECOVERY 2
+// the glow lies under Legolas: a pixel above him sorts it behind
+#define OVERDRAW_GLOW_BEHIND (1 << 16)
+
+static const u32 OverdrawGlow[OVERDRAW_STAGES] = {0x08052610u, 0x08052620u, 0x08052630u, 0x08052640u};
+
+static const u32 OverdrawSprites[8] = {
+    0x08329888u, 0x08329890u, 0x08329898u, 0x083298A0u,
+    0x083298A8u, 0x083298A0u, 0x08329898u, 0x08329890u,
+};
+
+static const LegacyThrownDef OverdrawArrow = {
+    .sprites = OverdrawSprites,
+    .speed = 0x78000,
+    .lifetime = 21,
+    .flags = LEGACY_THROWN_START_AHEAD,
+    .sound = LEGACY_SOUND_NONE,
+};
+
+// a foe Two Towers counts as in front: within one 8-way step of the facing (0x0801F2B0)
+static bool32 inFront(Actor *archer, Actor *foe)
+{
+    Direction8 toward = actor_direction8TowardPoint(archer->coords.x, archer->coords.y, foe->coords.x,
+                                                    foe->coords.y, 0);
+    u8 turn = (toward - archer->facing) & 7;
+
+    return toward < 8 && (turn <= 1 || turn == 7);
+}
+
+static u8 overdrawAim(Actor *archer)
+{
+    Actor *other;
+
+    for (other = g_ActorListMain.head; other != NULL; other = other->next)
+    {
+        if ((other->flags.p & ACTOR_FLAG_ON_SCREEN) && legacyFx_isFoe(other) && inFront(archer, other) &&
+            other->actionState != ACTOR_STATE_UNKNOWN_11 && other->actionState != ACTOR_STATE_UNKNOWN_15)
+        {
+            Vector2Fp16 toward = {other->coords.x - archer->coords.x, other->coords.y - archer->coords.y};
+
+            return math_vector2_direction32(toward);
+        }
+    }
+    return archer->facing * 4;
+}
+
+static void loose(Actor *fx, Actor *archer)
+{
+    Actor *arrow = legacyFx_castThrownToward(archer, &OverdrawArrow, overdrawAim(archer));
+
+    if (arrow != NULL)
+    {
+        LEGACY_FX(arrow)->amount =
+            legacyFx_castingLevel(archer) * (LEGACY_FX(fx)->amount / OVERDRAW_STAGE_TICKS + 1) + OVERDRAW_BONUS_BASE;
+    }
+    archer->flags.p |= ACTOR_FLAG_ANIMATION_PLAYING;
+    legacyFx_end(fx);
+}
+
+static void drawTick(Actor *fx)
+{
+    LegacyFxState *state = LEGACY_FX(fx);
+    Actor *archer = fx->parentActor;
+    u8 stage;
+
+    if (archer->actionState != ACTOR_STATE_ACTIVE_SKILL_CAST_ANIMATION &&
+        archer->actionState != ACTOR_STATE_ACTIVE_SKILL_CAST_RECOVERY)
+    {
+        // knocked out of the draw: no arrow
+        archer->flags.p |= ACTOR_FLAG_ANIMATION_PLAYING;
+        legacyFx_end(fx);
+    }
+    else if (!(PLAYER_KEYS_CURRENT(archer->as.combat.playerIndex) & state->count))
+    {
+        loose(fx, archer);
+    }
+    else
+    {
+        archer->flags.p &= ~ACTOR_FLAG_ANIMATION_PLAYING;
+        if (archer->actionState == ACTOR_STATE_ACTIVE_SKILL_CAST_RECOVERY &&
+            archer->actionStateTimer < OVERDRAW_HOLD_RECOVERY)
+        {
+            archer->actionStateTimer = OVERDRAW_HOLD_RECOVERY;
+        }
+        if (state->amount != 0xFFFF)
+        {
+            state->amount++;
+        }
+        stage = state->amount / OVERDRAW_STAGE_TICKS;
+        if (stage >= OVERDRAW_STAGES)
+        {
+            stage = OVERDRAW_STAGES - 1;
+        }
+        if (stage != state->phase || legacyFx_animationEnded(fx))
+        {
+            state->phase = stage;
+            legacyFx_setSprite(fx, OverdrawGlow[stage]);
+        }
+        fx->coords.x = archer->coords.x;
+        fx->coords.y = archer->coords.y - OVERDRAW_GLOW_BEHIND;
+        fx->actionStateTimer = OVERDRAW_STAGE_TICKS;
+    }
+    legacyFx_finishTick(fx);
+}
+
+static void castOverdraw(Actor *playerActor)
+{
+    Actor *fx = legacyFx_spawn(playerActor, OverdrawGlow[0]);
+    u16 held = PLAYER_KEYS_CURRENT(playerActor->as.combat.playerIndex) & OVERDRAW_HOLD_BUTTONS;
+
+    if (fx == NULL)
+    {
+        return;
+    }
+    legacyFx_place(fx, playerActor->coords);
+    fx->flags.p &= ~(ACTOR_FLAG_COLLISION_CHECK | ACTOR_FLAG_TILE_COLLISION);
+    fx->tickCallback = drawTick;
+    fx->actionStateTimer = OVERDRAW_STAGE_TICKS;
+    // the button that cast it, still down: a tap looses at once
+    LEGACY_FX(fx)->count = held;
+    playerActor->flags.p &= ~ACTOR_FLAG_ANIMATION_PLAYING;
+}
+
 // Summon Gimli (Two Towers 0x0803B9E4, 0x0801DB2C): for 25 Spirit, Gimli fights beside Legolas for 300 +
 // 60 per level ticks, with his axe.
 static const u32 GimliWalk[5] = {0x08328F6Cu, 0x08328F74u, 0x08328F7Cu, 0x08328F84u, 0x08328F8Cu};
@@ -356,8 +493,8 @@ static const SkillExpansionActiveDef SummonRow = {
     .canCast = legacyFx_allyCanCast,
 };
 
-// Overdraw: none yet
 const LegacyActive LegacyLegolasActives[SKILL_EXPANSION_LEGACY_ACTIVE_COUNT] = {
+    [0] = {&SpreadFireRow, 6, castOverdraw},
     [1] = {&SpreadFireRow, 3, castSuppress},
     [2] = {&SpreadFireRow, 9, castSpreadFire},
     [3] = {&WhiteKnivesRow, 2, castWhiteKnives},
