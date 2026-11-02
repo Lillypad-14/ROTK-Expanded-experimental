@@ -70,7 +70,7 @@ static void castRageOfTheNorth(Actor *playerActor)
 
 // Sword Throw (Two Towers 0x0803B6FC, the sword 0x0800A950, its hit 0x08011004): for 4 Spirit, the
 // sword flies 21 ticks and hits every foe it passes with Aragorn's own melee hit. The hit adds
-// nothing per level (the description says +1). Not ported: its two trail lights.
+// nothing per level (the description says +1). Its two trail lights are Gimli's axe's.
 static const u32 SwordSprites[8] = {
     0x08327C64u, 0x08327C6Cu, 0x08327C74u, 0x08327C7Cu,
     0x08327C84u, 0x08327C7Cu, 0x08327C74u, 0x08327C6Cu,
@@ -81,6 +81,7 @@ static const LegacyThrownDef Sword = {
     .speed = 0x50000,
     .lifetime = 21,
     .sound = LEGACY_SOUND_NONE,
+    .trail = {LEGACY_TRAIL_ORANGE, LEGACY_TRAIL_YELLOW},
 };
 
 static void castSwordThrow(Actor *playerActor)

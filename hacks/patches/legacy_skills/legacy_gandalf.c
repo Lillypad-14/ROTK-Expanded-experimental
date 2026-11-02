@@ -37,7 +37,8 @@ static void castZap(Actor *playerActor)
 // Fireworks (Two Towers 0x08018280, its tick 0x08018494, hits 0x080114FC and 0x08011728): a rocket
 // that flies for 30 ticks and explodes on the first foe it hits, dealing 5 + 2 per level to every
 // foe in the blast on the frame it bursts. It is gone without a blast when it runs out. The
-// description says 10 + 2 per level; the game deals 5 + 2.
+// description says 10 + 2 per level; the game deals 5 + 2. Its trail light (emitter 2/2) drops
+// orange sparkles and sprays them as it bursts.
 static const u32 FireworksSprites[8] = {
     0x08328208u, 0x08328210u, 0x08328218u, 0x08328220u,
     0x08328228u, 0x08328220u, 0x08328218u, 0x08328210u,
@@ -51,6 +52,7 @@ static const LegacyProjectileDef Fireworks = {
     .damage = {5, 2},
     .sound = LEGACY_SOUND_BOLT,
     .blastSound = SFX_COMBAT_FIREBURST_PROC,
+    .trail = LEGACY_TRAIL_ORANGE,
 };
 
 static void castFireworks(Actor *playerActor)
@@ -60,14 +62,85 @@ static void castFireworks(Actor *playerActor)
 
 // Sunburst (Two Towers 0x0803BA44, 0x08018880, its tick 0x08018AC4, hit 0x08011484): a burst at
 // Gandalf that stuns the foes within 75 pixels for 30 + 10 per level ticks, for 8 Spirit. It deals
-// no damage when cast (its damage is Flame of Anor's burst). Not yet: the 8 rotated rays it sends
-// out, which only show.
+// no damage when cast (its damage is Flame of Anor's burst). On its 4th frame it sends out 8 rays.
+//
+// A ray (Two Towers 0x08018B8C, its tick 0x08018CC8) spirals out from where the burst is: it
+// circles on the render oscillation, starting 45 degrees past the ray before it, on an ellipse that
+// widens by 3 by 2 each tick while it grows and holds. It grows, holds 25 ticks, then fades.
+#define SUNBURST_RAY_FRAME 4
+#define SUNBURST_RAY_COUNT 8
+#define RAY_GROW 0x08050108u
+#define RAY_HOLD 0x08050118u
+#define RAY_FADE 0x08050128u
+#define RAY_HOLD_TICKS 25
+// ticks a growing or fading ray is given to end its animation
+#define RAY_ANIMATION_HOLD 30
+#define RAY_PHASE_STEP 0x800
+#define RAY_AMPLITUDE_X 6
+#define RAY_AMPLITUDE_Y 4
+#define RAY_WIDEN_X 3
+#define RAY_WIDEN_Y 2
+// a ray's phase
+#define RAY_GROWING 0
+#define RAY_HOLDING 1
+#define RAY_FADING 2
+
+static void rayTick(Actor *fx)
+{
+    LegacyFxState *state = LEGACY_FX(fx);
+
+    if (state->phase == RAY_GROWING && legacyFx_animationEnded(fx))
+    {
+        state->phase = RAY_HOLDING;
+        state->count = RAY_HOLD_TICKS;
+        legacyFx_setSprite(fx, RAY_HOLD);
+    }
+    else if (state->phase == RAY_HOLDING && state->count-- == 0)
+    {
+        state->phase = RAY_FADING;
+        legacyFx_setSprite(fx, RAY_FADE);
+    }
+    if (state->phase != RAY_FADING)
+    {
+        ACTOR_TRIGGER_SCRATCH(fx)->oscillation.amplitudeX += RAY_WIDEN_X;
+        ACTOR_TRIGGER_SCRATCH(fx)->oscillation.amplitudeY += RAY_WIDEN_Y;
+    }
+    fx->actionStateTimer =
+        state->phase == RAY_FADING && legacyFx_animationEnded(fx) ? 0 : RAY_ANIMATION_HOLD;
+    legacyFx_finishTick(fx);
+}
+
+static void sendSunburstRays(Actor *burst)
+{
+    for (u32 i = 0; i < SUNBURST_RAY_COUNT; i++)
+    {
+        Actor *ray = legacyFx_spawn(burst->parentActor, RAY_GROW);
+
+        if (ray == NULL)
+        {
+            return;
+        }
+        ray->flags.p &= ~(ACTOR_FLAG_COLLISION_CHECK | ACTOR_FLAG_TILE_COLLISION);
+        legacyFx_place(ray, burst->coords);
+        ACTOR_TRIGGER_SCRATCH(ray)->oscillation.phaseX = i << 13;
+        ACTOR_TRIGGER_SCRATCH(ray)->oscillation.phaseY = i << 13;
+        ACTOR_TRIGGER_SCRATCH(ray)->oscillation.stepX = RAY_PHASE_STEP;
+        ACTOR_TRIGGER_SCRATCH(ray)->oscillation.stepY = RAY_PHASE_STEP;
+        ACTOR_TRIGGER_SCRATCH(ray)->oscillation.amplitudeX = RAY_AMPLITUDE_X;
+        ACTOR_TRIGGER_SCRATCH(ray)->oscillation.amplitudeY = RAY_AMPLITUDE_Y;
+        ray->actionStateTimer = RAY_ANIMATION_HOLD;
+        ray->tickCallback = rayTick;
+    }
+}
+
 static const LegacyBurstDef Sunburst = {
     .animation = 0x080500F8u,
     .radius = 75,
     .lifetime = 30,
     .stunTicks = {30, 10},
     .sound = SFX_COMBAT_SUNBURST,
+    .onFrameIndex = SUNBURST_RAY_FRAME,
+    .onFrame = sendSunburstRays,
 };
 
 static void castSunburst(Actor *playerActor)
@@ -498,8 +571,8 @@ static void castSummonEagle(Actor *playerActor)
 
 // Flame of Anor (Two Towers: the revive in player_tick at 0x0801BB2A, then 0x08018880 not cast):
 // when Gandalf falls, its revive chance (the passive) brings him back at full HP, not ROTK's half,
-// with a Sunburst that stuns every foe within 75 pixels for 30 + 10 per level and deals them 5 per
-// level.
+// with a Sunburst, rays and all, that stuns every foe within 75 pixels for 30 + 10 per level and
+// deals them 5 per level.
 #define FLAME_OF_ANOR_SKILL 3
 
 static const LegacyBurstDef FlameOfAnorBurst = {
@@ -509,6 +582,8 @@ static const LegacyBurstDef FlameOfAnorBurst = {
     .stunTicks = {30, 10},
     .damage = {0, 5},
     .sound = SFX_COMBAT_SUNBURST,
+    .onFrameIndex = SUNBURST_RAY_FRAME,
+    .onFrame = sendSunburstRays,
 };
 
 void legacySkills_revive(u8 playerIndex)

@@ -11,6 +11,7 @@
 #include "lib/pc_host.h"
 #include "memory.h"
 #include "player.h"
+#include "rng.h"
 #include "sfx.h"
 #include "variables.h"
 
@@ -179,12 +180,47 @@ void legacyFx_playSound(u16 sound)
     }
 }
 
+static void sparkleTick(Actor *fx)
+{
+    fx->actionStateTimer = legacyFx_animationEnded(fx) ? 0 : EFFECT_HOLD;
+    actor_unknown08045584(fx);
+}
+
+// A trail sparkle where `fx` is, up to `spread` pixels off it, gone when its animation ends.
+static void dropTrailSparkle(Actor *fx, u32 animation, s32 spread)
+{
+    Actor *sparkle;
+    Vector2Fp16 pos = fx->coords;
+
+    if (animation == 0 || legacyFx_sprite(animation) == NULL)
+    {
+        return;
+    }
+    sparkle = legacyFx_spawn(fx->parentActor, animation);
+    if (sparkle == NULL)
+    {
+        return;
+    }
+    if (spread != 0)
+    {
+        pos.x += rng_rollRange(-spread, spread) << 16;
+        pos.y += rng_rollRange(-spread, spread) << 16;
+    }
+    sparkle->flags.p &= ~(ACTOR_FLAG_COLLISION_CHECK | ACTOR_FLAG_TILE_COLLISION);
+    legacyFx_place(sparkle, pos);
+    sparkle->tickCallback = sparkleTick;
+}
+
 // a projectile's phase
 #define PROJECTILE_FLYING 0
 // it touched a foe and bursts next tick
 #define PROJECTILE_HIT 1
 // its blast collides on this frame only
 #define PROJECTILE_BURSTING 2
+// a bursting projectile's trail: sparkles a tick and how far they spread (The Two Towers doubles the
+// emitter's count and triples its spread)
+#define PROJECTILE_BURST_SPARKLES 2
+#define PROJECTILE_BURST_SPREAD 21
 // it plays its impact on the foe
 #define PROJECTILE_IMPACT 3
 
@@ -247,6 +283,17 @@ static void projectileTick(Actor *fx)
         }
         fx->actionStateTimer = legacyFx_animationEnded(fx) ? 0 : def->lifetime;
     }
+    if (state->phase == PROJECTILE_FLYING)
+    {
+        dropTrailSparkle(fx, def->trail, 0);
+    }
+    else if (state->phase == PROJECTILE_BURSTING)
+    {
+        for (u32 i = 0; i < PROJECTILE_BURST_SPARKLES; i++)
+        {
+            dropTrailSparkle(fx, def->trail, PROJECTILE_BURST_SPREAD);
+        }
+    }
     legacyFx_finishTick(fx);
 }
 
@@ -291,7 +338,16 @@ void legacyFx_castProjectileAt(Actor *playerActor, const LegacyProjectileDef *de
 
 static void thrownTick(Actor *fx)
 {
+    const LegacyThrownDef *def = LEGACY_FX(fx)->def;
+
+    dropTrailSparkle(fx, def->trail[fx->actionStateTimer & 1], 0);
     legacyFx_finishTick(fx);
+}
+
+bool32 legacyFx_thrownAlive(Actor *fx, const LegacyThrownDef *def)
+{
+    return fx != NULL && fx->tickCallback == thrownTick && LEGACY_FX(fx)->def == def &&
+           !(fx->flags.p & ACTOR_FLAG_PENDING_REMOVE);
 }
 
 static u8 thrownStat(const LegacyThrownDef *def)
@@ -388,24 +444,35 @@ Actor *legacyFx_castThrownToward(Actor *playerActor, const LegacyThrownDef *def,
     return fx;
 }
 
-void legacyFx_castThrown(Actor *playerActor, const LegacyThrownDef *def)
+Actor *legacyFx_castThrown(Actor *playerActor, const LegacyThrownDef *def)
 {
-    if (legacyFx_castThrownToward(playerActor, def, playerActor->facing * 4) != NULL)
+    Actor *fx = legacyFx_castThrownToward(playerActor, def, playerActor->facing * 4);
+
+    if (fx != NULL)
     {
         legacyFx_playSound(def->sound);
     }
+    return fx;
 }
 
-// a burst's phase
+// a burst's phase bits
 #define BURST_LOOKING 0
-#define BURST_TOUCHED 1
+#define BURST_TOUCHED (1 << 0)
+// its onFrame has run
+#define BURST_SENT (1 << 1)
 
 static void burstTick(Actor *fx)
 {
     const LegacyBurstDef *def = LEGACY_FX(fx)->def;
 
     // it acts on what it touches on the frame it first touches a foe, then stops colliding
-    if ((LEGACY_FX(fx)->phase == BURST_TOUCHED && !(def->flags & LEGACY_BURST_EVERY_TICK)) ||
+    if (def->onFrame != NULL && !(LEGACY_FX(fx)->phase & BURST_SENT) &&
+        fx->currentAnimationFrame == def->onFrameIndex)
+    {
+        LEGACY_FX(fx)->phase |= BURST_SENT;
+        def->onFrame(fx);
+    }
+    if (((LEGACY_FX(fx)->phase & BURST_TOUCHED) && !(def->flags & LEGACY_BURST_EVERY_TICK)) ||
         (def->flags & LEGACY_BURST_FIRST_TICK))
     {
         fx->flags.p &= ~ACTOR_FLAG_COLLISION_CHECK;
@@ -442,7 +509,7 @@ static void burstHit(Actor *fx, Actor *other)
     {
         combat_applyPveRangedHit(fx->parentActor, other, damage);
     }
-    state->phase = BURST_TOUCHED;
+    state->phase |= BURST_TOUCHED;
 }
 
 void legacyFx_castBurst(Actor *playerActor, const LegacyBurstDef *def)

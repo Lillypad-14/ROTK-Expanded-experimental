@@ -33,13 +33,16 @@
 #define LEGACY_SKILL_LEVEL_MAX 20
 #define LEGACY_SKILL_RECORD_EMPTY 0xff
 
-// One stat a legacy passive adds: base + perLevel * level / divisor at levels 1 and up.
+// One stat a legacy passive adds: base + perLevel * levels / divisor, counting the levels above
+// minLevel up to maxLevel (0: no cap), nothing when none count.
 typedef struct LegacyPassiveStat
 {
     u8 stat;
     s8 base;
     s8 perLevel;
     u8 divisor;
+    u8 minLevel;
+    u8 maxLevel;
 } LegacyPassiveStat;
 
 // A hero's legacy passives, in the skill record's order (they come first).
@@ -49,27 +52,30 @@ typedef struct LegacyHeroPassives
     LegacyPassiveStat stats[LEGACY_PASSIVE_MAX][LEGACY_PASSIVE_STATS];
 } LegacyHeroPassives;
 
-#define NONE {STAT_NONE, 0, 0, 1}
-#define PER_LEVEL(stat, perLevel) {stat, 0, perLevel, 1}
-// value at level 1 is `first`, each further level adds `step`
-#define FROM(stat, first, step) {stat, (first) - (step), step, 1}
+#define NONE {STAT_NONE, 0, 0, 1, 0, 0}
+#define PER_LEVEL(stat, perLevel) {stat, 0, perLevel, 1, 0, 0}
 // base + perLevel * level, The Two Towers' own form
-#define BASE_PLUS(stat, base, perLevel) {stat, base, perLevel, 1}
+#define BASE_PLUS(stat, base, perLevel) {stat, base, perLevel, 1, 0, 0}
+// perLevel for each level above `above` up to `upTo` (0: no cap)
+#define LEVELS(stat, perLevel, above, upTo) {stat, 0, perLevel, 1, above, upTo}
+// Parry and Stand Fast: 5% parry per level up to 10, then 5% riposte per further level
+#define PARRY_THEN_RIPOSTE {LEVELS(STAT_PARRY_PERCENT, 5, 0, 10), LEVELS(STAT_RIPOSTE_PERCENT, 5, 10, 0)}
 
 // The Two Towers passives by hero id, as each one's code in The Two Towers adds them (the cast table
 // entry, 0x08057AB0), which differs from several descriptions. A skill with no ROTK mechanic uses
-// the closest stat.
+// the closest stat. Resist One Ring (legacy_frodo.c) and Meditation (legacySkills_playerTick) act
+// in code.
 static const LegacyHeroPassives HeroPassives[LEGACY_HERO_COUNT] = {
     // Frodo: Resist One Ring, Strength of the Shire, Rummage, Sneak Attack, Duck
     {5,
-     {{PER_LEVEL(STAT_CORRUPTION_RESIST_PERCENT, 4), NONE},
-      {PER_LEVEL(STAT_HP_REGEN, 1), {STAT_SPIRIT_REGEN, 0, 1, 3}},
+     {{NONE, NONE},
+      {PER_LEVEL(STAT_HP_REGEN, 1), {STAT_SPIRIT_REGEN, 0, 1, 3, 0, 0}},
       {BASE_PLUS(STAT_EXTRA_TREASURE_PERCENT, 5, 1), NONE},
       {PER_LEVEL(STAT_BACKSTAB, 2), NONE},
       {PER_LEVEL(STAT_MELEE_ARMOR, 1), NONE}}},
     // Legolas: Meditation, Fleet of Foot, Orc Slayer, Hawk Eye, Critical Shot
     {5,
-     {{PER_LEVEL(STAT_MEDITATIVE, 1), NONE},
+     {{NONE, NONE},
       {PER_LEVEL(STAT_SPEED_PERCENT, 3), NONE},
       {PER_LEVEL(STAT_DAMAGE_TO_ORCS, 2), NONE},
       {PER_LEVEL(STAT_DAMAGE_WITH_BOW, 1), NONE},
@@ -78,8 +84,8 @@ static const LegacyHeroPassives HeroPassives[LEGACY_HERO_COUNT] = {
     {5,
      {{PER_LEVEL(STAT_ARAGORN_DUAL_WIELD_DAMAGE, 1), NONE},
       {PER_LEVEL(STAT_CORRUPTION_RESIST_PERCENT, 5), PER_LEVEL(STAT_DAMAGE_TO_NAZGUL, 2)},
-      {{STAT_DAMAGE_WITH_SHIELD, 0, 1, 2}, PER_LEVEL(STAT_BLOCK_PERCENT, 1)},
-      {FROM(STAT_PARRY_PERCENT, 5, 1), NONE},
+      {{STAT_DAMAGE_WITH_SHIELD, 0, 1, 2, 0, 0}, PER_LEVEL(STAT_BLOCK_PERCENT, 1)},
+      PARRY_THEN_RIPOSTE,
       {BASE_PLUS(STAT_HP_PERCENT_PER_KILL, 5, 1), NONE}}},
     // Gandalf: Elusion, Inspire, Wisdom, Flame of Anor (Two Towers 0x0803AA20, 0x0803A928,
     // 0x0803AAB4, 0x0803A98C)
@@ -92,9 +98,9 @@ static const LegacyHeroPassives HeroPassives[LEGACY_HERO_COUNT] = {
     {5,
      {{PER_LEVEL(STAT_CORRUPTION_RESIST_PERCENT, 5), PER_LEVEL(STAT_DAMAGE_TO_NAZGUL, 2)},
       {PER_LEVEL(STAT_HP_REGEN, 1), NONE},
-      {FROM(STAT_PARRY_PERCENT, 5, 1), NONE},
+      PARRY_THEN_RIPOSTE,
       {BASE_PLUS(STAT_EXTRA_TREASURE_PERCENT, 5, 1), NONE},
-      {PER_LEVEL(STAT_SPIRIT_PER_KILL, 1), NONE}}},
+      {PER_LEVEL(STAT_HP_PER_KILL, 1), NONE}}},
     // Gimli: Strength of Beard, Orcslayer, Headsplitter, Gemfinder, Dwarven Resilience, Spirit of
     // the Forge
     {6,
@@ -161,7 +167,12 @@ static bool32 playedRecord(u8 record[LEGACY_SKILL_SAVE_RECORD_SIZE])
 
 static s32 passiveValue(const LegacyPassiveStat *stat, s32 level)
 {
-    return stat->base + stat->perLevel * level / stat->divisor;
+    if (stat->maxLevel != 0 && level > stat->maxLevel)
+    {
+        level = stat->maxLevel;
+    }
+    level -= stat->minLevel;
+    return level > 0 ? stat->base + stat->perLevel * level / stat->divisor : 0;
 }
 
 void legacySkills_applyPassives(u8 playerIndex)
@@ -186,7 +197,7 @@ void legacySkills_applyPassives(u8 playerIndex)
         for (u32 i = 0; i < LEGACY_PASSIVE_STATS; i++)
         {
             const LegacyPassiveStat *stat = &passives->stats[skill][i];
-            if (stat->stat != STAT_NONE)
+            if (stat->stat != STAT_NONE && passiveValue(stat, level) != 0)
             {
                 skill_passive_addStat(playerIndex, stat->stat, passiveValue(stat, level));
             }
@@ -416,6 +427,56 @@ u8 legacySkills_level(u32 skill)
     u8 level = skill < LEGACY_SKILL_COUNT ? loadedRecord[2 + skill] : 0;
 
     return level > LEGACY_SKILL_LEVEL_MAX ? 0 : level;
+}
+
+// Meditation (Two Towers 0x0803AB90, healed at 0x0801CC9E): every 90 ticks, a Legolas who has stood
+// still for 90 ticks heals 1 + 4 per level.
+#define MEDITATION_SKILL 0
+#define MEDITATION_PERIOD_TICKS 90
+#define MEDITATION_STILL_TICKS 90
+#define MEDITATION_HP_BASE 1
+#define MEDITATION_HP_PER_LEVEL 4
+// The player action states The Two Towers counts as standing still (0x0801B13A).
+#define PLAYER_STATE_STANDING 0x01
+#define PLAYER_STATE_STANDING_ARMED 0x05
+
+static u8 meditationTimer;
+static u8 stillTicks;
+
+void legacySkills_playerTick(u8 playerIndex, Actor *actor)
+{
+    u32 level;
+
+    if (!legacySkills_loaded(playerIndex) || PLAYER(playerIndex).heroId != HERO_ID_LEGOLAS)
+    {
+        return;
+    }
+    level = legacySkills_level(MEDITATION_SKILL);
+    if (level == 0)
+    {
+        return;
+    }
+    if (actor->actionState == PLAYER_STATE_STANDING ||
+        actor->actionState == PLAYER_STATE_STANDING_ARMED)
+    {
+        if (stillTicks < MEDITATION_STILL_TICKS)
+        {
+            stillTicks++;
+        }
+    }
+    else
+    {
+        stillTicks = 0;
+    }
+    if (++meditationTimer < MEDITATION_PERIOD_TICKS)
+    {
+        return;
+    }
+    meditationTimer = 0;
+    if (stillTicks >= MEDITATION_STILL_TICKS && PLAYER(playerIndex).currentHp > 0)
+    {
+        player_addHp(playerIndex, MEDITATION_HP_BASE + MEDITATION_HP_PER_LEVEL * level, FALSE);
+    }
 }
 
 // The Two Towers skill tree's rules by hero id, in the skill record's order: the player level a

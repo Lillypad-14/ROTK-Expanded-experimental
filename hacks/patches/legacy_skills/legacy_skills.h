@@ -24,6 +24,9 @@ bool32 legacySkills_buy(u32 skill);
 u32 legacySkills_passiveCount(void);
 u32 legacySkills_activeCount(void);
 u8 legacySkills_level(u32 skill);
+struct Actor;
+// Per-tick passives that are code rather than stats (Meditation).
+void legacySkills_playerTick(u8 playerIndex, struct Actor *actor);
 // Testing (the test arena): every Two Towers skill of the loaded hero at `level`, for this game only.
 void legacySkills_setTestLevels(u8 level);
 // A player revives (the revive chance stat): HP back, by Flame of Anor's rules for a legacy Gandalf

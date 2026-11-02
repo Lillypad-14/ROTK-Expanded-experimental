@@ -12,7 +12,7 @@
 // Axe Throw (Two Towers 0x0803C590, the axe 0x08019EEC, its tick 0x0801A15C and hit 0x08010884):
 // for 4 Spirit (the description says 3), one axe at a time that flies for 21 ticks and hits every
 // foe it passes with Gimli's own melee hit, +1 damage per level. It stops at a foe that does not
-// flinch. Not ported: its two trail lights.
+// flinch. Its two trail lights (emitters 2/3 and 2/2) drop orange and yellow sparkles.
 static const u32 AxeSprites[8] = {
     0x083282D8u, 0x083282E0u, 0x083282E8u, 0x083282F0u,
     0x083282F8u, 0x083282F0u, 0x083282E8u, 0x083282E0u,
@@ -24,11 +24,19 @@ static const LegacyThrownDef Axe = {
     .lifetime = 21,
     .bonus = {0, 1},
     .sound = LEGACY_SOUND_NONE,
+    .trail = {LEGACY_TRAIL_ORANGE, LEGACY_TRAIL_YELLOW},
 };
+
+static Actor *axes[2];
+
+static bool32 axeCanCast(u8 playerIndex)
+{
+    return !legacyFx_thrownAlive(axes[playerIndex], &Axe);
+}
 
 static void castAxeThrow(Actor *playerActor)
 {
-    legacyFx_castThrown(playerActor, &Axe);
+    axes[playerActor->as.combat.playerIndex] = legacyFx_castThrown(playerActor, &Axe);
 }
 
 // Whirlwind Attack (Two Towers 0x0803C138, 0x0801ED24, its spin 0x080445E4): for 3 Spirit (the
@@ -110,7 +118,10 @@ static void castBattleCry(Actor *playerActor)
 }
 
 // ROTK's rows the actives take their cast poses from
-static const SkillExpansionActiveDef AxeThrowRow = {.baseRow = ACTIVE_SKILL_GIMLI_AXE_THROW};
+static const SkillExpansionActiveDef AxeThrowRow = {
+    .baseRow = ACTIVE_SKILL_GIMLI_AXE_THROW,
+    .canCast = axeCanCast,
+};
 static const SkillExpansionActiveDef WhirlingAttackRow = {
     .stockCallback = whirlingAttack,
     .baseRow = ACTIVE_SKILL_GIMLI_WHIRLING_ATTACK,

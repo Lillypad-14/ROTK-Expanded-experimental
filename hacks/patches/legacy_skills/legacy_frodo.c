@@ -160,6 +160,10 @@ static void castCharge(Actor *playerActor)
 // shows only on a co-op partner's screen.
 #define ONE_RING_DAMAGE 4
 #define ONE_RING_CORRUPTION 35
+// Resist One Ring (Two Towers 0x0803ADF8): its 2 per level is stored there but never read. Here it
+// takes 2% per level off the Ring's corruption, as its description says.
+#define RESIST_ONE_RING_SKILL 0
+#define RESIST_ONE_RING_PERCENT_PER_LEVEL 2
 // ROTK's ring actor and its shadow world (skill_active_frodoTheOneRing)
 #define ONE_RING_ACTOR_TYPE 0x5f
 #define ONE_RING_ACTOR_FLAGS 0x10008
@@ -206,7 +210,11 @@ static void castTheOneRing(Actor *playerActor)
     }
     ring->actionState = ONE_RING_ON;
     PLAYER(playerIndex).ringActor = ring;
-    player_addCorruption(playerIndex, ONE_RING_CORRUPTION);
+    player_addCorruption(playerIndex,
+                         ONE_RING_CORRUPTION *
+                             (100 - RESIST_ONE_RING_PERCENT_PER_LEVEL *
+                                        legacySkills_level(RESIST_ONE_RING_SKILL)) /
+                             100);
 }
 
 // Snare (Two Towers 0x0803BD48, 0x0801E5A4, the trap 0x080178CC, its tick 0x080179F0 and trigger

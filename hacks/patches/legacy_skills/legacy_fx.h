@@ -94,6 +94,10 @@ void legacyFx_end(Actor *fx);
 void legacyFx_finishTick(Actor *fx);
 void legacyFx_playSound(u16 sound);
 
+// The Two Towers trail lights (emitter group 2, variants 2 and 3)
+#define LEGACY_TRAIL_ORANGE 0x0832EB6Cu
+#define LEGACY_TRAIL_YELLOW 0x0832EB74u
+
 // A projectile: flies from the caster for `lifetime` ticks. With no blast it hits the first foe
 // for its damage and plays `impact` on it (or is gone, with none). With a blast it bursts on the
 // first foe, and every foe in the blast takes its damage on the frame it bursts.
@@ -110,6 +114,8 @@ typedef struct LegacyProjectileDef
     LegacyScale damage;
     u16 sound;
     u16 blastSound;
+    // trail light: sparkles it drops where it flies, sprayed while it bursts (0: none)
+    u32 trail;
 } LegacyProjectileDef;
 
 void legacyFx_castProjectile(Actor *playerActor, const LegacyProjectileDef *def);
@@ -135,13 +141,19 @@ typedef struct LegacyThrownDef
     u16 sound;
     // after the hit on a foe, or NULL
     void (*onHit)(Actor *fx, Actor *foe);
+    // trail lights: sparkles it drops where it flies, the two in turn each tick (0: none)
+    u32 trail[2];
 } LegacyThrownDef;
+
 
 #define LEGACY_THROWN_STOP_ON_HIT (1 << 0)
 // it starts one step out from the caster's hand
 #define LEGACY_THROWN_START_AHEAD (1 << 1)
 
-void legacyFx_castThrown(Actor *playerActor, const LegacyThrownDef *def);
+// The thrown weapon, or NULL when none could spawn.
+Actor *legacyFx_castThrown(Actor *playerActor, const LegacyThrownDef *def);
+// TRUE while `fx` is a thrown `def` still in flight.
+bool32 legacyFx_thrownAlive(Actor *fx, const LegacyThrownDef *def);
 
 // A summoned ally (Two Towers 0x0803E110 the summoning star, 0x0802EE54 the ally, its tick 0x0802F0E4
 // and AI 0x0800638C): a star 20 pixels left of the caster brings it in on its 4th frame. With no
@@ -196,6 +208,10 @@ typedef struct LegacyBurstDef
     u16 sound;
     // LEGACY_BURST_* options
     u8 flags;
+    // the animation frame `onFrame` runs on, once
+    u8 onFrameIndex;
+    // what the burst sends out on that frame, or NULL
+    void (*onFrame)(Actor *fx);
 } LegacyBurstDef;
 
 // it stays on the caster

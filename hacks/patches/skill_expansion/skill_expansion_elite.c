@@ -36,6 +36,9 @@
 #if HACK_versus
 #include "patches/versus/versus.h"
 #endif
+#if PC_EDITION && HACK_legacy_skills
+#include "patches/legacy_skills/legacy_skills.h"
+#endif
 #if HACK_gauntlet
 #include "patches/gauntlet/gauntlet.h"
 #include "patches/gauntlet/gauntlet_boon_effects.h"
@@ -1589,6 +1592,9 @@ void skillExpansion_playerTick(Actor *actor)
 #endif
 #if HACK_versus
         versus_playerTick(actor->as.combat.playerIndex);
+#endif
+#if PC_EDITION && HACK_legacy_skills
+        legacySkills_playerTick(actor->as.combat.playerIndex, actor);
 #endif
     }
     skillExpansion_original_actor_player_tick(actor);
