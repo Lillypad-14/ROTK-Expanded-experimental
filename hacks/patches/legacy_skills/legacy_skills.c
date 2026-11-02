@@ -446,6 +446,10 @@ static u8 stillTicks;
 void legacySkills_playerTick(u8 playerIndex, Actor *actor)
 {
     u32 level;
+    if (playerIndex == 0)
+    {
+        legacyFx_frameTick();
+    }
 
     if (!legacySkills_loaded(playerIndex) || PLAYER(playerIndex).heroId != HERO_ID_LEGOLAS)
     {

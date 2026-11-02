@@ -11,6 +11,7 @@
 #include "lib/fx_kit.h"
 #include "lib/pc_host.h"
 #include "memory.h"
+#include "mission.h"
 #include "player.h"
 #include "rng.h"
 #include "sfx.h"
@@ -57,28 +58,132 @@ const SpriteAnimation *legacyFx_sprite(u32 address)
     return NULL;
 }
 
+// Effects drawing in the spawner's slot (2, the heroes' held weapons) because every shared slot was
+// taken when they needed one. Slot 2 shows one palette at a time, the longest-waiting borrower's
+// (the others draw in it); each tick they ask for a slot of their own again, and once none is left
+// slot 2 gets the weapons' colors back.
+#define BORROWER_COUNT 8
+typedef struct PaletteBorrower
+{
+    Actor *fx;
+    const u16 *palette;
+} PaletteBorrower;
+static PaletteBorrower borrowers[BORROWER_COUNT];
+// the colors slot 2 shows for the borrowers, NULL while it has the weapons'
+static const u16 *weaponSlotColors;
+
+static bool32 stillBorrowing(const PaletteBorrower *borrower)
+{
+    const Actor *fx = borrower->fx;
+
+    return fx->type != ACTOR_TYPE_STORAGE_MAX && fx->oam.paletteNumber == PROJECTILE_PALETTE_BANK &&
+           fx->spriteAnimation != NULL && fx->spriteAnimation->palette == borrower->palette;
+}
+
+static void borrowWeaponSlot(Actor *fx, const u16 *palette)
+{
+    PaletteBorrower *free = NULL;
+
+    for (u32 i = 0; i < BORROWER_COUNT; i++)
+    {
+        if (borrowers[i].fx == fx)
+        {
+            borrowers[i].palette = palette;
+            return;
+        }
+        if (free == NULL && borrowers[i].fx == NULL)
+        {
+            free = &borrowers[i];
+        }
+    }
+    if (free != NULL)
+    {
+        free->fx = fx;
+        free->palette = palette;
+    }
+}
+
+/** The palette slot 2 should show: the first living borrower's, or NULL for the weapons'. */
+static const u16 *borrowedColors(void)
+{
+    for (u32 i = 0; i < BORROWER_COUNT; i++)
+    {
+        if (borrowers[i].fx != NULL && stillBorrowing(&borrowers[i]))
+        {
+            return borrowers[i].palette;
+        }
+    }
+    return NULL;
+}
+
+static void showWeaponSlot(const u16 *colors)
+{
+    if (colors != weaponSlotColors)
+    {
+        weaponSlotColors = colors;
+        if (colors == NULL)
+        {
+            hackLib_fxRestoreFixedSlot(PROJECTILE_PALETTE_BANK);
+        }
+        else
+        {
+            hackLib_fxLoadFixedSlot(PROJECTILE_PALETTE_BANK, colors);
+        }
+    }
+}
+
+void legacyFx_frameTick(void)
+{
+    for (u32 i = 0; i < BORROWER_COUNT; i++)
+    {
+        PaletteBorrower *borrower = &borrowers[i];
+
+        if (borrower->fx != NULL &&
+            (!stillBorrowing(borrower) || hackLib_fxUseColors(borrower->fx, borrower->palette)))
+        {
+            borrower->fx = NULL;
+        }
+    }
+    showWeaponSlot(borrowedColors());
+}
+
 /**
  * The spawner leaves its own animation script running, which would drive the frames and keep the
  * animation from ever ending, so this clears it.
  *
- * A Two Towers sprite's colors go to a shared slot of their own: the spawner's slot (2) holds the
- * heroes' held weapons, which setting the animation there would recolor. With every shared slot
- * taken the effect stays in slot 2 and the weapons' colors are put back over its own.
+ * The PC host draws a Two Towers sprite in its own colors (PC_HOST_FEATURE_HOST_PALETTES), so its
+ * colors go nowhere. Without that they go to a shared slot of its own: the spawner's slot (2) holds
+ * the heroes' held weapons, which setting the animation there would recolor. With every shared slot
+ * taken it borrows slot 2 until one frees up (legacyFx_frameTick).
  */
 void legacyFx_setSprite(Actor *fx, u32 animation)
 {
     const SpriteAnimation *sprite = animation != 0 ? legacyFx_sprite(animation) : NULL;
-    bool32 ownSlot;
 
-    if (sprite != NULL)
+    if (sprite == NULL)
     {
-        fx->animationScriptCursor = NULL;
-        ownSlot = sprite->palette == NULL || hackLib_fxUseColors(fx, sprite->palette);
+        return;
+    }
+    fx->animationScriptCursor = NULL;
+    if (sprite->palette == NULL ||
+        (!hackLib_hostFeature(PC_HOST_FEATURE_HOST_PALETTES) && hackLib_fxUseColors(fx, sprite->palette)))
+    {
         sprite_setAnimation(fx, sprite);
-        if (!ownSlot && fx->oam.paletteNumber == PROJECTILE_PALETTE_BANK)
-        {
-            hackLib_fxRestoreFixedSlot(PROJECTILE_PALETTE_BANK);
-        }
+        return;
+    }
+    if (!hackLib_hostFeature(PC_HOST_FEATURE_HOST_PALETTES))
+    {
+        hackLib_fxDropColors(fx, PROJECTILE_PALETTE_BANK);
+        borrowWeaponSlot(fx, sprite->palette);
+    }
+    // as sprite_setAnimation does, without loading the colors over the slot's (the host draws the
+    // sprite in its own colors when it can)
+    fx->animationFrameDuration = sprite->frameDuration;
+    sprite_bindAnimation(fx, sprite);
+    fx->flags.p &= ~ACTOR_FLAG_ANIMATION_END;
+    if (!hackLib_hostFeature(PC_HOST_FEATURE_HOST_PALETTES))
+    {
+        showWeaponSlot(borrowedColors());
     }
 }
 

@@ -535,6 +535,30 @@ bool32 hackLib_fxUseColors(Actor *fx, const u16 *palette)
     return TRUE;
 }
 
+void hackLib_fxDropColors(Actor *fx, u8 slot)
+{
+    u8 held = fx->oam.paletteNumber;
+
+    if ((fx->flags.p & ACTOR_FLAG_DEFAULTS_APPLIED) && held >= FIRST_SHARED_SLOT && held < SLOT_COUNT &&
+        PALETTE_SLOT_TAGS[held] == COLORS_TAG)
+    {
+        releaseSlot(held);
+        fx->oam.paletteNumber = slot;
+    }
+    else if (held < FIRST_SHARED_SLOT)
+    {
+        fx->oam.paletteNumber = slot;
+    }
+}
+
+void hackLib_fxLoadFixedSlot(u8 slot, const u16 *colors)
+{
+    if (slot >= FIRST_FIXED_SLOT && slot < FIRST_SHARED_SLOT && colors != NULL)
+    {
+        loadSlot(slot, colors);
+    }
+}
+
 void hackLib_fxRestoreFixedSlot(u8 slot)
 {
     if (slot >= FIRST_FIXED_SLOT && slot < FIRST_SHARED_SLOT)

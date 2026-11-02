@@ -42,7 +42,13 @@ typedef struct PcHostInfo
     u32 legacyScratch;
     // PC_HOST_SUPER_GAME_* bits: the host sets AVAILABLE, the mod sets SWITCH (version 5)
     u32 superGame;
+    // PC_HOST_FEATURE_* bits (version 6)
+    u32 features;
 } PcHostInfo;
+
+// A sprite whose current animation's palette is in host RAM (the converted Two Towers sprites) draws
+// in those colors, whatever OBJ palette bank it names: it needs no bank of its own.
+#define PC_HOST_FEATURE_HOST_PALETTES (1 << 0)
 
 // The host can start The Two Towers in place of this game.
 #define PC_HOST_SUPER_GAME_AVAILABLE (1 << 0)
@@ -68,6 +74,12 @@ static inline const volatile PcHostInfo *hackLib_pcHostInfo(void)
 static inline volatile PcHostInfo *hackLib_pcHostInfoWritable(void)
 {
     return (volatile PcHostInfo *)hackLib_pcHostInfo();
+}
+
+static inline bool32 hackLib_hostFeature(u32 feature)
+{
+    const volatile PcHostInfo *info = hackLib_pcHostInfo();
+    return info != NULL && info->version >= 6 && (info->features & feature) != 0;
 }
 
 static inline u32 hackLib_mainActorCapacity(void)

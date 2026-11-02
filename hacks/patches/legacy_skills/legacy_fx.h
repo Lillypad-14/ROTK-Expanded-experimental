@@ -75,6 +75,8 @@ u8 legacyFx_castingLevel(Actor *playerActor);
 const SpriteAnimation *legacyFx_sprite(u32 address);
 // Play a Two Towers animation on an effect (none when 0).
 void legacyFx_setSprite(Actor *fx, u32 animation);
+// Once a frame: effects that borrowed the weapons' palette slot try for their own again.
+void legacyFx_frameTick(void);
 // An effect from the caster, standing still, playing `animation`, with no callbacks and its
 // LegacyFxState cleared, or NULL.
 Actor *legacyFx_spawn(Actor *playerActor, u32 animation);

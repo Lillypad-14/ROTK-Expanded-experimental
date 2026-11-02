@@ -176,5 +176,11 @@ bool32 hackLib_fxUsePalette(Actor *fx, const u16 *palette, u8 paletteId);
  */
 bool32 hackLib_fxUseColors(Actor *fx, const u16 *palette);
 
+/** Move an actor out of a hackLib_fxUseColors slot (released) into a fixed slot (2..8). */
+void hackLib_fxDropColors(Actor *fx, u8 slot);
+
+/** Load a fixed slot (2..8) with other colors, for a while (hackLib_fxRestoreFixedSlot undoes it). */
+void hackLib_fxLoadFixedSlot(u8 slot, const u16 *colors);
+
 /** Load a fixed slot (2..8) with its level colors again, after something wrote over it. */
 void hackLib_fxRestoreFixedSlot(u8 slot);

@@ -1,5 +1,6 @@
 // Summoned allies of the Two Towers actives (Call Legolas, Summon Gimli, Call Eomer).
 
+#include "lib/pc_host.h"
 #include "patches/legacy_skills/legacy_fx.h"
 
 #if PC_EDITION && SKILL_EXPANSION_LEGACY_ACTIVE_COUNT
@@ -429,7 +430,8 @@ static void usePalette(Actor *fx, LegacyAlly *ally)
 {
     const SpriteAnimation *art = legacyFx_sprite(ally->def->idle[0]);
 
-    if (art != NULL)
+    // the PC host draws it in its own colors
+    if (art != NULL && !hackLib_hostFeature(PC_HOST_FEATURE_HOST_PALETTES))
     {
         hackLib_fxUsePalette(fx, art->palette, ally->def->paletteId);
     }
