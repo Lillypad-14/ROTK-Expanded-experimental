@@ -744,6 +744,7 @@ static void drawLegacyPassiveGrid(u8 playerIndex)
         gfx_unknown08012808(2, skillExpansion_getHeroTileBgAsset(playerIndex), iconTiles, 4,
                             pos->x, pos->y);
         gfx_loadBgAsset(2, icon, iconTiles, 4, pos->x, pos->y);
+        colorTile(skillExpansion_getHeroTileBgAsset(playerIndex), 4, icon, pos, 0);
         gfx_unknown080127d0(2, SkillTreeLevelDigitAssets[level], levelTiles, 5, pos->x,
                             pos->y + TILE_ICON_HEIGHT);
         gfx_loadBgAsset(1, SkillTreeTileFrameAsset, 0x2ef, 0, pos->x, pos->y);
@@ -897,7 +898,10 @@ void skillExpansion_treeDrawActiveTile(u8 playerIndex, u8 activeSkillIndex, u8 t
     bool enabled = PLAYER(playerIndex).activeSkillCycleEnabled[tile] == 1 ||
                    g_SaveGlobals.d.optionsFlags.d.quickSkillSelect;
 
-    if (activeRowIsEmpty(playerIndex, activeSkillIndex) || icon == NULL)
+    // A Two Towers hero with fewer actives than tiles leaves the rest empty on the legacy page,
+    // where those tiles still hold the stock rows.
+    if (activeRowIsEmpty(playerIndex, activeSkillIndex) || icon == NULL ||
+        (LEGACY_PAGE_SHOWN() && tile >= pageActiveCount(playerIndex)))
     {
         drawEmptyTile(pos);
         return;

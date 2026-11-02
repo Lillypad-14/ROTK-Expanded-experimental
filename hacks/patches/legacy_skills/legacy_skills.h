@@ -31,6 +31,8 @@ void legacySkills_setTestLevels(u8 level);
 void legacySkills_revive(u8 playerIndex);
 // A skill's icon (a ROTK skill icon asset), or NULL.
 const void *legacySkills_icon(u32 skill);
+// The Two Towers colors of a legacy skill icon, or NULL for any other icon.
+const struct SkillExpansionIconColors *legacySkills_iconColors(const void *icon);
 // "Name (Level n) - description" in the game's language, or NULL.
 const char *legacySkills_text(u32 skill);
 

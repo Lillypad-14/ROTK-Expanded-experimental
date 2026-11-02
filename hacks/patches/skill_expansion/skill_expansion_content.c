@@ -1,3 +1,4 @@
+#include "patches/legacy_skills/legacy_skills.h"
 #include "patches/skill_expansion/aragorn_icons.h"
 #include "patches/skill_expansion/eowyn_icons.h"
 #include "patches/skill_expansion/frodo_icons.h"
@@ -2221,6 +2222,12 @@ const SkillExpansionIconColors *skillExpansion_iconColors(const void *icon)
     {
         return NULL;
     }
+#if PC_EDITION && HACK_legacy_skills
+    if (legacySkills_iconColors(icon) != NULL)
+    {
+        return legacySkills_iconColors(icon);
+    }
+#endif
     for (u32 t = 0; t < ARRAY_COUNT(IconColorTables); t++)
     {
         for (const SkillExpansionIconColors *entry = IconColorTables[t]; entry->icon != NULL;

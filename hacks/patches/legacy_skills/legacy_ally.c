@@ -456,8 +456,9 @@ static void summon(Actor *star, LegacyAlly *ally)
     ally->weaponShown = 0;
     ally->weapon = NULL;
     pause(fx, ALLY_PAUSE_TICKS);
-    show(fx, &ally->shown, def->idle[FacingArt[fx->facing]], TRUE);
+    // its own slot before its first sprite, which would load its colors over the shared effects'
     usePalette(fx, ally);
+    show(fx, &ally->shown, def->idle[FacingArt[fx->facing]], TRUE);
     if (def->weaponIdle == NULL)
     {
         return;

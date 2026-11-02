@@ -102,13 +102,15 @@ typedef struct TwoTowersData
     u32 saveSlotCount;
     // per base item: its backpack icon in ROTK's style, a SpriteAnimation (NULL tiles for none)
     const u8 *baseItemIcons;
-    // per hero, its 11 skills' icon art as ROTK skill icon tiles (32x24, 4bpp, the art in colors
-    // 8..13 and the rest 0)
+    // per hero, its 11 skills' icon art as ROTK skill icon tiles (32x24, 4bpp, the art in the
+    // icon's own colors 8..15 and the rest 0)
     const u8 *skillArt;
     // {Two Towers address, ROTK SpriteAnimation pointer} per Two Towers animation the PC host
     // converted
     const u32 *sprites;
     u32 spriteCount;
+    // per hero, the 8 colors of its skill icon art (palette indices 8..15), the Two Towers' own
+    const u16 *skillColors;
 } TwoTowersData;
 
 static inline const TwoTowersData *hackLib_twoTowersData(void)

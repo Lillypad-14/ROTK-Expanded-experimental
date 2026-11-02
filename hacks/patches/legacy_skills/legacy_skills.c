@@ -228,9 +228,10 @@ typedef struct LegacySkillIcon
     u8 tiles[SKILL_ICON_TILE_BYTES];
 } LegacySkillIcon;
 
-// The loaded hero's Two Towers skill icons, valid while iconsBuilt.
+// The loaded hero's Two Towers skill icons, valid while iconsBuilt, and their colors.
 static LegacySkillIcon icons[LEGACY_SKILL_COUNT];
 static bool iconsBuilt;
+static SkillExpansionIconColors iconColors;
 
 static u8 *iconPixelByte(u8 *tiles, u32 x, u32 y)
 {
@@ -239,7 +240,7 @@ static u8 *iconPixelByte(u8 *tiles, u32 x, u32 y)
 
 /**
  * Draw the hero's Two Towers skill icons in ROTK's style: the outer border of a stock icon (`frame`,
- * raw tiles) around the Two Towers art the PC host converted.
+ * raw tiles) around the Two Towers art the PC host converted, which keeps its own colors.
  */
 static void buildIcons(u32 heroId, const u8 *frame)
 {
@@ -273,6 +274,8 @@ static void buildIcons(u32 heroId, const u8 *frame)
             }
         }
     }
+    iconColors.colors = data->skillColors != NULL ? data->skillColors + heroId * SKILL_EXPANSION_ICON_OWN_COLOR_COUNT
+                                                  : NULL;
     iconsBuilt = TRUE;
 }
 
@@ -487,6 +490,16 @@ bool32 legacySkills_buy(u32 skill)
         setRowLevel(0, skill - passives->count, level + 1);
     }
     return TRUE;
+}
+
+const SkillExpansionIconColors *legacySkills_iconColors(const void *icon)
+{
+    if (!iconsBuilt || iconColors.colors == NULL || (const u8 *)icon < (const u8 *)icons ||
+        (const u8 *)icon >= (const u8 *)(icons + LEGACY_SKILL_COUNT))
+    {
+        return NULL;
+    }
+    return &iconColors;
 }
 
 const void *legacySkills_icon(u32 skill)
