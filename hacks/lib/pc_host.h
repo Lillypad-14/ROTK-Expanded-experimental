@@ -40,7 +40,14 @@ typedef struct PcHostInfo
     u32 itemTypeInfos;
     // address of 4 KB of zeroed host RAM for legacy item bookkeeping, 0 without it (version 4)
     u32 legacyScratch;
+    // PC_HOST_SUPER_GAME_* bits: the host sets AVAILABLE, the mod sets SWITCH (version 5)
+    u32 superGame;
 } PcHostInfo;
+
+// The host can start The Two Towers in place of this game.
+#define PC_HOST_SUPER_GAME_AVAILABLE (1 << 0)
+// The mod asks the host to switch to The Two Towers; the host clears it when it does.
+#define PC_HOST_SUPER_GAME_SWITCH (1 << 1)
 
 #define PC_HOST_DUEL_PHASE(duel) ((duel) & 3)  // 1 = fighting, 2 = won
 #define PC_HOST_DUEL_SCORE(duel, playerIndex) (((duel) >> (8 + 8 * (playerIndex))) & 0xff)

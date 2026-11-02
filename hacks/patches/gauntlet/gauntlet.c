@@ -21,6 +21,9 @@
 #include "patches/skill_expansion/skill_expansion.h"
 #include "patches/skill_expansion/skill_expansion_elite.h"
 #include "patches/skill_expansion/skill_expansion_runtime.h"
+#if HACK_super_game
+#include "patches/super_game/super_game.h"
+#endif
 #include "player.h"
 #include "rng.h"
 #include "scene.h"
@@ -238,7 +241,8 @@ u32 gauntlet_kills(void)
 }
 
 /**
- * Main menu A press. The stock dispatch, except that the GCN Link row opens the Gauntlet hub.
+ * Main menu A press. The stock dispatch, except that the GCN Link row opens the Gauntlet hub and the
+ * super game's row starts The Two Towers.
  *
  * REPLACES (whole function): scene_mainMenu_onConfirm.
  */
@@ -276,6 +280,11 @@ void gauntlet_mainMenuOnConfirm(void)
         game_requestSceneChangeWithArgs(SCENE_ID_SAVE_LOAD_MENU, 4, 0);
         g_MainMenuSfxHandle = sfx_play(SFX_MENU_CONFIRM);
         break;
+#if HACK_super_game && PC_EDITION
+    case SUPER_GAME_MAIN_MENU_ROW:
+        superGame_mainMenuConfirm();
+        break;
+#endif
     default:
         break;
     }
