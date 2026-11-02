@@ -8,6 +8,7 @@
 #include "gba.h"
 #include "gfx.h"
 #include "stats.h"
+#include "lib/fx_kit.h"
 #include "lib/pc_host.h"
 #include "memory.h"
 #include "player.h"
@@ -59,15 +60,25 @@ const SpriteAnimation *legacyFx_sprite(u32 address)
 /**
  * The spawner leaves its own animation script running, which would drive the frames and keep the
  * animation from ever ending, so this clears it.
+ *
+ * A Two Towers sprite's colors go to a shared slot of their own: the spawner's slot (2) holds the
+ * heroes' held weapons, which setting the animation there would recolor. With every shared slot
+ * taken the effect stays in slot 2 and the weapons' colors are put back over its own.
  */
 void legacyFx_setSprite(Actor *fx, u32 animation)
 {
     const SpriteAnimation *sprite = animation != 0 ? legacyFx_sprite(animation) : NULL;
+    bool32 ownSlot;
 
     if (sprite != NULL)
     {
         fx->animationScriptCursor = NULL;
+        ownSlot = sprite->palette == NULL || hackLib_fxUseColors(fx, sprite->palette);
         sprite_setAnimation(fx, sprite);
+        if (!ownSlot && fx->oam.paletteNumber == PROJECTILE_PALETTE_BANK)
+        {
+            hackLib_fxRestoreFixedSlot(PROJECTILE_PALETTE_BANK);
+        }
     }
 }
 

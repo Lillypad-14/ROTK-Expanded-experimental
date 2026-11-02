@@ -479,36 +479,12 @@ void legacySkills_playerTick(u8 playerIndex, Actor *actor)
     }
 }
 
-// The Two Towers skill tree's rules by hero id, in the skill record's order: the player level a
-// skill's first rank needs and the skill that needs a rank first (Two Towers 0x08057780, checked at
-// 0x08039720). Further ranks cost only the skill point, up to LEGACY_SKILL_LEVEL_MAX.
-typedef struct LegacySkillRule
-{
-    u8 requiredLevel;
-    u8 prerequisite;
-} LegacySkillRule;
-
-#define NO_PREREQ 0xff
-
-static const LegacySkillRule SkillRules[LEGACY_HERO_COUNT][LEGACY_SKILL_COUNT] = {
-    // Frodo
-    {{3, NO_PREREQ}, {8, 0}, {2, NO_PREREQ}, {5, 2}, {12, 2}, {1, NO_PREREQ}, {5, 5}, {8, 5}, {1, NO_PREREQ}, {3, 8}, {5, 8}},
-    // Legolas
-    {{1, NO_PREREQ}, {5, 0}, {8, 0}, {2, NO_PREREQ}, {3, 3}, {2, NO_PREREQ}, {5, 5}, {12, 5}, {2, NO_PREREQ}, {3, 8}, {12, 9}},
-    // Aragorn
-    {{2, NO_PREREQ}, {10, 0}, {2, NO_PREREQ}, {5, 2}, {8, 2}, {1, NO_PREREQ}, {5, 5}, {10, 6}, {10, 6}, {2, NO_PREREQ}, {5, 9}},
-    // Gandalf
-    {{2, NO_PREREQ}, {5, 0}, {2, NO_PREREQ}, {12, 2}, {1, NO_PREREQ}, {3, 4}, {2, NO_PREREQ}, {5, 6}, {5, 6}, {10, 7}, {10, 8}},
-    // Eowyn
-    {{2, NO_PREREQ}, {10, 0}, {5, NO_PREREQ}, {5, 2}, {10, 2}, {1, NO_PREREQ}, {5, 5}, {8, 6}, {10, 6}, {2, NO_PREREQ}, {5, 9}},
-    // Gimli
-    {{2, NO_PREREQ}, {3, 0}, {5, 0}, {2, NO_PREREQ}, {7, 2}, {10, 2}, {2, NO_PREREQ}, {6, 6}, {10, 6}, {1, NO_PREREQ}, {5, 9}},
-};
-
+// Any legacy skill takes a skill point up to LEGACY_SKILL_LEVEL_MAX. The Two Towers gated a first rank
+// by player level and a prerequisite skill (its table at 0x08057780, checked at 0x08039720); the page
+// shows neither, so those gates are dropped.
 bool32 legacySkills_buy(u32 skill)
 {
     const LegacyHeroPassives *passives;
-    const LegacySkillRule *rule;
     u8 level;
 
     // Legacy passives apply in single player only (legacySkills_applyPassives).
@@ -518,10 +494,7 @@ bool32 legacySkills_buy(u32 skill)
         return FALSE;
     }
     level = legacySkills_level(skill);
-    rule = &SkillRules[loadedRecord[1]][skill];
-    if (level >= LEGACY_SKILL_LEVEL_MAX ||
-        (level == 0 && (rule->requiredLevel > PLAYER(0).level + 1 ||
-                        (rule->prerequisite != NO_PREREQ && legacySkills_level(rule->prerequisite) == 0))))
+    if (level >= LEGACY_SKILL_LEVEL_MAX)
     {
         return FALSE;
     }

@@ -26,6 +26,9 @@
 #define CUSTOM_TAG_BASE 0x80
 #define IMPORTED_TAG_BASE 0x90
 _Static_assert(CUSTOM_TAG_BASE + FX_PALETTE_COUNT <= IMPORTED_TAG_BASE, "FX palette tag overlap");
+// Slot tag of palettes claimed by their colors' address (hackLib_fxUseColors), above the imported ids.
+#define COLORS_TAG (IMPORTED_TAG_BASE + 32)
+_Static_assert(COLORS_TAG < 0xff, "colors tag");
 _Static_assert(ARRAY_COUNT(ObjPalettes) <= CUSTOM_TAG_BASE, "native palette tag overlap");
 
 #define ENEMY_PALETTE_IDS ((const u8 *)0x0806d27c)
@@ -114,6 +117,41 @@ static void releaseSlot(u8 slot)
     {
         PALETTE_SLOT_TAGS[slot] = PALETTE_SLOT_FREE;
     }
+}
+
+// The colors each COLORS_TAG slot holds; a slot's tag says whether its entry is current.
+static const u16 *slotColors[SLOT_COUNT];
+
+/** A shared slot holding colors by their address, loading them into a free slot if needed. */
+static u8 claimColorsSlot(const u16 *colors)
+{
+    u8 free = NO_SLOT;
+    u8 slot;
+
+    for (slot = FIRST_SHARED_SLOT; slot < SLOT_COUNT; slot++)
+    {
+        if (PALETTE_SLOT_TAGS[slot] == COLORS_TAG && slotColors[slot] == colors)
+        {
+            if (PALETTE_SLOT_REFS[slot] == 0xff)
+            {
+                return NO_SLOT;
+            }
+            PALETTE_SLOT_REFS[slot]++;
+            return slot;
+        }
+        if (free == NO_SLOT && PALETTE_SLOT_TAGS[slot] == PALETTE_SLOT_FREE)
+        {
+            free = slot;
+        }
+    }
+    if (free != NO_SLOT)
+    {
+        PALETTE_SLOT_TAGS[free] = COLORS_TAG;
+        PALETTE_SLOT_REFS[free]++;
+        slotColors[free] = colors;
+        loadSlot(free, colors);
+    }
+    return free;
 }
 
 /** The slot for color, claimed for one actor. NO_SLOT when no shared slot is free. */
@@ -462,6 +500,47 @@ bool32 hackLib_fxUsePalette(Actor *fx, const u16 *palette, u8 paletteId)
     fx->oam.paletteNumber = slot;
     bindSlot(fx, slot);
     return TRUE;
+}
+
+bool32 hackLib_fxUseColors(Actor *fx, const u16 *palette)
+{
+    u8 slot;
+
+    if (fx == NULL || palette == NULL)
+    {
+        return FALSE;
+    }
+    // a shared slot it holds by another claim (an ally's imported palette, which its weapon shares)
+    if (fx->oam.paletteNumber >= FIRST_SHARED_SLOT && fx->oam.paletteNumber < SLOT_COUNT &&
+        PALETTE_SLOT_TAGS[fx->oam.paletteNumber] != COLORS_TAG)
+    {
+        return TRUE;
+    }
+    if ((fx->flags.p & ACTOR_FLAG_DEFAULTS_APPLIED) && fx->oam.paletteNumber < SLOT_COUNT &&
+        PALETTE_SLOT_TAGS[fx->oam.paletteNumber] == COLORS_TAG && slotColors[fx->oam.paletteNumber] == palette)
+    {
+        return TRUE;
+    }
+    slot = claimColorsSlot(palette);
+    if (slot == NO_SLOT)
+    {
+        return FALSE;
+    }
+    if (fx->flags.p & ACTOR_FLAG_DEFAULTS_APPLIED)
+    {
+        releaseSlot(fx->oam.paletteNumber);
+    }
+    fx->oam.paletteNumber = slot;
+    bindSlot(fx, slot);
+    return TRUE;
+}
+
+void hackLib_fxRestoreFixedSlot(u8 slot)
+{
+    if (slot >= FIRST_FIXED_SLOT && slot < FIRST_SHARED_SLOT)
+    {
+        loadSlot(slot, ObjPalettes[slot]);
+    }
 }
 
 static void tickHold(Actor *fx)

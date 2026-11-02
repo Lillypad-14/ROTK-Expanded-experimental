@@ -168,3 +168,13 @@ void hackLib_fxRemove(Actor *fx);
  * free.
  */
 bool32 hackLib_fxUsePalette(Actor *fx, const u16 *palette, u8 paletteId);
+
+/**
+ * Draw an actor in palette (any number of them, told apart by address) in a shared slot, released
+ * when the actor is freed. An actor already in a shared slot by another claim (hackLib_fxUsePalette,
+ * or a slot it borrows from one) keeps it. Returns FALSE when no shared slot is free.
+ */
+bool32 hackLib_fxUseColors(Actor *fx, const u16 *palette);
+
+/** Load a fixed slot (2..8) with its level colors again, after something wrote over it. */
+void hackLib_fxRestoreFixedSlot(u8 slot);
