@@ -242,6 +242,19 @@ bool32 skillExpansion_activeCanCast(u8 playerIndex, u8 activeSkillIndex)
         ruleRow = policy->requirementRow;
     }
 
+    switch (actionState)
+    {
+    case ACTOR_STATE_LEGOLAS_OVERDRAW:
+    case ACTOR_STATE_ACTIVE_SKILL_CAST_RECOVERY:
+    case ACTOR_STATE_UNKNOWN_22:
+    case ACTOR_STATE_ACTIVE_SKILL_CAST:
+    case ACTOR_STATE_UNKNOWN_30:
+    case ACTOR_STATE_KNOCKED_DOWN:
+    case ACTOR_STATE_ACTIVE_SKILL_CAST_ANIMATION:
+        return FALSE;
+    default:
+        break;
+    }
     if (activeSkillIndex == ACTIVE_SKILL_HERBAL_HEALING && kit == NULL)
     {
         return PLAYER(playerIndex).kingsfoilHerbs.fresh != 0 ||
@@ -257,20 +270,6 @@ bool32 skillExpansion_activeCanCast(u8 playerIndex, u8 activeSkillIndex)
         !(g_GameFlags.p & GAME_FLAG_2))
     {
         return FALSE;
-    }
-
-    switch (actionState)
-    {
-    case ACTOR_STATE_LEGOLAS_OVERDRAW:
-    case ACTOR_STATE_ACTIVE_SKILL_CAST_RECOVERY:
-    case ACTOR_STATE_UNKNOWN_22:
-    case ACTOR_STATE_ACTIVE_SKILL_CAST:
-    case ACTOR_STATE_UNKNOWN_30:
-    case ACTOR_STATE_KNOCKED_DOWN:
-    case ACTOR_STATE_ACTIVE_SKILL_CAST_ANIMATION:
-        return FALSE;
-    default:
-        break;
     }
     if (skillExpansion_runtime[playerIndex].cooldowns[activeSkillIndex] != 0 ||
         (cooldownRow < 32 && (actor->as.combat.actionStateFlags & (1u << cooldownRow))))

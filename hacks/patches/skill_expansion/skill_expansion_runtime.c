@@ -500,6 +500,18 @@ void skillExpansion_runtimeTick(u8 playerIndex, Actor *actor)
         runtime->kit->tick(playerIndex, actor);
         hackLib_profileEnd(profile);
     }
+    if (skillExpansion_playerExpanded(playerIndex) &&
+        (PLAYER(playerIndex).optionFlags.p & PLAYER_OPTION_FLAG_AUTO_HEALING) != 0 &&
+        PLAYER(playerIndex).currentHp > 0 &&
+        PLAYER(playerIndex).currentHp * 3 < PLAYER_STAT(playerIndex, STAT_MAX_HP) &&
+        ((runtime->kit == NULL && (PLAYER(playerIndex).kingsfoilHerbs.fresh != 0 ||
+                                   PLAYER(playerIndex).kingsfoilHerbs.dried != 0)) ||
+         (runtime->kit != NULL && runtime->kit->autoHeal != NULL &&
+          runtime->kit->autoHeal(playerIndex))) &&
+        skillExpansion_activeCanCast(playerIndex, ACTIVE_SKILL_HERBAL_HEALING))
+    {
+        skillExpansion_cast(playerIndex, ACTIVE_SKILL_HERBAL_HEALING);
+    }
 #if HACK_debug_cheats
     debugLab_playerTick(playerIndex);
 #endif

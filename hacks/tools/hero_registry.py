@@ -16,6 +16,8 @@ def generate(root: Path) -> None:
             )
         if not 0 <= hero["equipmentHero"] < 8 or not 0 <= hero["palette"] < 256:
             raise ValueError("Invalid equipment hero or palette")
+        if not 0 <= hero.get("lootHero", hero["stockHero"]) < 8:
+            raise ValueError("Invalid loot hero")
         if not 0 <= hero["skillBlock"] < 8:
             raise ValueError("Invalid stock skill block")
         if index >= 8 and ("kit" not in hero or "stats" not in hero):
@@ -43,7 +45,9 @@ def generate(root: Path) -> None:
     for hero in heroes:
         pointer = lambda field: "&" + hero[field] if field in hero else "NULL"
         definitions.append(
-            "{" + f"{hero['stockHero']}, {hero['equipmentHero']}, {hero['palette']}, "
+            "{"
+            + f"{hero['stockHero']}, {hero['equipmentHero']}, {hero.get('lootHero', hero['stockHero'])}, "
+            + f"{hero['palette']}, "
             f"{int(hero.get('detachHands', False))}, {json.dumps(hero.get('name')) if hero.get('name') else 'NULL'}, "
             f"{pointer('stats')}, "
             f"{hero.get('menuIdle', 'NULL')}, {hero.get('menuSelected', 'NULL')}" + "},"
@@ -108,8 +112,13 @@ def generate(root: Path) -> None:
             if field and field in hero:
                 lines.append(f"    .word {hero[field]}")
             else:
+                source_hero = (
+                    hero.get("lootHero", hero["stockHero"])
+                    if name == "LootHeroItemTypeRolls"
+                    else hero["stockHero"]
+                )
                 lines.append(
-                    f'    .incbin "rotk.gba", {source} - 0x08000000 + {hero["stockHero"] * stride}, {stride}'
+                    f'    .incbin "rotk.gba", {source} - 0x08000000 + {source_hero * stride}, {stride}'
                 )
     lines += [
         "HeroPaletteIds:",

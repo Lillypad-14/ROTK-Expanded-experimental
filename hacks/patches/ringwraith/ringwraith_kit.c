@@ -86,16 +86,16 @@
 #define MALICE_BASE_FRAMES 180
 #define MALICE_FRAMES_PER_LEVEL 45
 #define MALICE_FRAMES_PER_MALICE_LEVEL 60
-#define MALICE_HEAL_PERCENT 8
+#define MALICE_HEAL_PERCENT 10
 #define MALICE_HEAL_PERCENT_PER_LEVEL 3
 #define MALICE_KILL_SPIRIT 4
 
 // Black Breath
 #define BREATH_FRAMES 360
 #define BREATH_RADIUS 56
-#define BREATH_BASE_DAMAGE 3
+#define BREATH_BASE_DAMAGE 4
 #define BREATH_DREAD_PER_DAMAGE 20
-#define DRAIN_HEAL_PERCENT 60
+#define DRAIN_HEAL_PERCENT 70
 #define DRAIN_HEAL_PERCENT_PER_LEVEL 20
 
 // Passives
@@ -196,7 +196,7 @@
 #define MASK_DAMAGE 8
 #define MASK_DREAD 50
 #define MASK_MAX_CHAIN 3
-#define KHAMUL_HEAL_PERCENT 3
+#define KHAMUL_HEAL_PERCENT 4
 #define SADDLE_BAND_MULTIPLIER 2
 
 // Page 1 rows are the kit's stock rows. Page 2 rows follow the SkillExpansionActiveDefs order.
@@ -1921,7 +1921,7 @@ static const char *const RingwraithActiveDescriptions[HERO_ACTIVE_SKILL_COUNT] =
     [ROW_FELL_BEAST] = "Fell Beast (Level @1) - Your steed dives across the screen, striking every "
                        "foe in its path for 14 +7/level and adding Dread. @2 Spirit.",
     [ROW_NO_LIVING_MAN] = "No Living Man (Level @1) - For 3s +0.75s/level you cannot fall. Kills "
-                          "heal 8% of your health and feed you Spirit. @2 Spirit.",
+                          "heal 10% of your health and feed you Spirit. @2 Spirit.",
     [ROW_BLACK_BREATH] = "Black Breath - For 6s your breath drains nearby foes and heals you. The "
                          "more Dread they feel, the more you drain. @2 Spirit.",
 };

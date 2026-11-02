@@ -12,7 +12,7 @@
    "move": "RingwraithMoveAnimationBank", "melee": "RingwraithMeleeAnimationBank",
    "cast": "RingwraithCastAnimationBank", "menuIdle": "EnemyAnimationBank_EnemyTypeNazgul_StandCopy",
    "menuSelected": "EnemyAnimationBank_EnemyTypeNazgul_Walk", "detachHands": true},
-  {"id": 9, "stockHero": 3, "equipmentHero": 3, "skillBlock": 5, "palette": 66,
+  {"id": 9, "stockHero": 3, "equipmentHero": 3, "lootHero": 2, "skillBlock": 5, "palette": 66,
    "name": "Saruman", "stats": "SarumanBaseStats", "kit": "SarumanHeroKit",
    "move": "SarumanMoveAnimationBank", "melee": "SarumanMeleeAnimationBank",
    "cast": "SarumanCastAnimationBank", "menuIdle": "EnemyAnimationBank_EnemyTypeSaruman_Stand",

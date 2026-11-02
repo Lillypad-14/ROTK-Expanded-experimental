@@ -1057,6 +1057,14 @@ static void tick(u8 playerIndex, Actor *actor)
     applyCosts(playerIndex);
 }
 
+/** Saruman uses his Remedy resolver as Herbal Healing's automatic-heal action. */
+static bool32 autoHeal(u8 playerIndex)
+{
+    return isSaruman(playerIndex) && PLAYER(playerIndex).currentHp > 0 &&
+           PLAYER(playerIndex).currentHp < PLAYER_STAT(playerIndex, STAT_MAX_HP) &&
+           PLAYER(playerIndex).currentSpirit >= PLAYER_ACTIVE_SKILL(playerIndex, SARUMAN_HEAL).spiritCost;
+}
+
 static bool32 isStunned(Actor *actor)
 {
     return actor != NULL && actor->currentHp > 0 && actor->actionState == ACTOR_STATE_STUNNED;
@@ -1346,6 +1354,7 @@ const SkillExpansionHeroKit SarumanHeroKit = {
     .reset = reset,
     .cleanup = cleanup,
     .tick = tick,
+    .autoHeal = autoHeal,
     .meleeDamage = meleeDamage,
     .rangedDamage = rangedDamage,
     .onHit = onHit,

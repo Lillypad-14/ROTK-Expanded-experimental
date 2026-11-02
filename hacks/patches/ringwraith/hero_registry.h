@@ -8,6 +8,7 @@ typedef struct HeroDefinition
 {
     u8 stockHero;
     u8 equipmentHero;
+    u8 lootHero;
     u8 palette;
     bool detachHands;
     const char *name;

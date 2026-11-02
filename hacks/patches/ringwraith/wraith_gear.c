@@ -1070,6 +1070,15 @@ u8 wraithGear_generateItem(Item *itemOut, u8 playerIndex, s16 extraTreasurePerce
     {
         return rollWraithItem(itemOut, extraTreasurePercent);
     }
+    {
+        const HeroDefinition *definition = ringwraith_getHeroDefinition(heroId);
+        if (definition != NULL)
+        {
+            // This replacement indexes the stock eight-row table directly, so custom heroes
+            // must be mapped to their configured loot archetype before reading it.
+            heroId = definition->lootHero;
+        }
+    }
     roll = rng_rollRange(1, 100);
     i = 0;
     while (i <= ITEM_TYPE_UNIQUE && roll > LootHeroItemTypeRolls[heroId].thresholds[i])
