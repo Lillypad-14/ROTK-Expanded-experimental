@@ -66,6 +66,7 @@ Edit the source, never the generated file.
 | Source | Generator | Make target | Guide |
 | --- | --- | --- | --- |
 | `hacks/content/heroes.json` | `hacks/tools/hero_registry.py` | `hack-heroes` | [hero authoring](wip-docs/howto-heroes-skills.md) |
+| `hacks/content/heroes/<hero>.json` (skill specs) | `hacks/tools/hero_kit.py` | `hack-heroes`, linked by `make hack-pc` | [hero authoring](wip-docs/howto-heroes-skills.md) |
 | `hacks/content/fx/`, `skill_fx.json` | `hacks/tools/skill_fx.py`, `fx_sprite.py`, `fx_palette.py` | `hack-fx`, `check-fx` | [skill effects](skill-effects.md) |
 | `hacks/content/cast_timelines.json` | `hacks/tools/cast_timelines.py` | `hack-fx` | [skill deliveries](skill-deliveries.md) |
 | `hacks/content/skill_deliveries.json` | `hacks/tools/skill_deliveries.py` | `hack-fx` | [skill deliveries](skill-deliveries.md) |
@@ -94,8 +95,12 @@ need more than the three lines the skill tree box has.
 
 ## 5. Building
 
+The mod is built for the PC port (ROTK Recompiled). The GBA build is frozen at the v0.9 release and no longer fits
+the GBA's memory.
+
 ```sh
-make hack          # build/rotk_hack.gba from hacks/patches.cfg
+make hack-pc       # build/rotk_pc.gba and hack_pc.elf, the PC edition
+make hack          # build/rotk_hack.gba from hacks/patches.cfg (GBA, frozen)
 make hack HACKS="@cfg twists"   # the default selection plus one patch
 make test-arena    # direct-boot combat sandbox, ARENA_HERO=2 by default
 make dist          # hack + a verified BPS in dist/hack.bps (needs Flips)
@@ -117,6 +122,19 @@ against a newer one when a regression shows up.
 
 Host tests compile the mod C on the PC against stand-ins for game services, such as `hacks/tests/combat_event.c`
 and `aragorn.c`. They prove logic, not animations or real encounters.
+
+### Fast hero tools (PC edition)
+
+A hero's poses, sounds and skill spec live in two ROM regions that code reaches only through fixed slots
+(`HERO_DATA` and `HERO_KITS` in `hacks/layout.cfg`). So they can change without rebuilding or recompiling the game:
+
+| Tool | Time | What it does |
+| --- | --- | --- |
+| `hacks/tools/hero_check.py` | 1 s | Lint of every hero: bodies, sounds, specs, description wrap |
+| `hacks/tools/hero_preview.py` | 1 s | Every pose as frames with hit boxes, and an enemy clip browser |
+| `hacks/tools/sound_preview.py` | 1 s | WAVs of a hero's sounds or any sfx |
+| `hacks/tools/hero_fast.py check` | 5-10 s | The real PC game, headless from a savestate: attack (B) or cast (A), frame sheet |
+| `hacks/tools/hero_fast.py play` | | Opens the PC game with the current heroes and specs |
 
 ### In-game testing
 

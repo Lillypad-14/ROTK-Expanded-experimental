@@ -948,6 +948,7 @@ Selection comes from `hacks/patches.cfg`. A directory's presence does not mean i
 
 | Patch | Default selection | Source |
 | --- | --- | --- |
+| `bugfixes` | Enabled | [hacks/patches/bugfixes](../hacks/patches/bugfixes) |
 | `chapter_select` | Enabled | [hacks/patches/chapter_select](../hacks/patches/chapter_select) |
 | `debug_cheats` | Enabled | [hacks/patches/debug_cheats](../hacks/patches/debug_cheats) |
 | `demo_pages` | Not selected | [hacks/patches/demo_pages](../hacks/patches/demo_pages) |
@@ -959,6 +960,7 @@ Selection comes from `hacks/patches.cfg`. A directory's presence does not mean i
 | `fast_sprite` | Not selected | [hacks/patches/fast_sprite](../hacks/patches/fast_sprite) |
 | `fast_waitstates` | Enabled | [hacks/patches/fast_waitstates](../hacks/patches/fast_waitstates) |
 | `gauntlet` | Enabled | [hacks/patches/gauntlet](../hacks/patches/gauntlet) |
+| `heroes` | Enabled | [hacks/patches/heroes](../hacks/patches/heroes) |
 | `item_descriptions` | Enabled | [hacks/patches/item_descriptions](../hacks/patches/item_descriptions) |
 | `legacy_items` | Enabled | [hacks/patches/legacy_items](../hacks/patches/legacy_items) |
 | `legacy_skills` | Enabled | [hacks/patches/legacy_skills](../hacks/patches/legacy_skills) |
@@ -973,6 +975,7 @@ Selection comes from `hacks/patches.cfg`. A directory's presence does not mean i
 | `ringwraith` | Enabled | [hacks/patches/ringwraith](../hacks/patches/ringwraith) |
 | `save_slot_pages` | Enabled | [hacks/patches/save_slot_pages](../hacks/patches/save_slot_pages) |
 | `skill_expansion` | Enabled | [hacks/patches/skill_expansion](../hacks/patches/skill_expansion) |
+| `super_game` | Enabled | [hacks/patches/super_game](../hacks/patches/super_game) |
 | `test_arena` | Not selected | [hacks/patches/test_arena](../hacks/patches/test_arena) |
 | `text_overrides` | Enabled | [hacks/patches/text_overrides](../hacks/patches/text_overrides) |
 | `twists` | Enabled | [hacks/patches/twists](../hacks/patches/twists) |
@@ -985,6 +988,7 @@ These implement new behavior and hooks rather than byte-matched original-game C.
 
 | Component | C sources |
 | --- | --- |
+| `bugfixes` | [hacks/patches/bugfixes/bugfixes.c](../hacks/patches/bugfixes/bugfixes.c) |
 | `chapter_select` | [hacks/patches/chapter_select/chapter_select.c](../hacks/patches/chapter_select/chapter_select.c) |
 | `debug_cheats` | [hacks/patches/debug_cheats/ability_bench.c](../hacks/patches/debug_cheats/ability_bench.c), [hacks/patches/debug_cheats/combat_lab_stats.c](../hacks/patches/debug_cheats/combat_lab_stats.c), [hacks/patches/debug_cheats/debug_cheats.c](../hacks/patches/debug_cheats/debug_cheats.c), [hacks/patches/debug_cheats/debug_lab.c](../hacks/patches/debug_cheats/debug_lab.c), [hacks/patches/debug_cheats/delivery_preview.c](../hacks/patches/debug_cheats/delivery_preview.c), [hacks/patches/debug_cheats/effect_preview.c](../hacks/patches/debug_cheats/effect_preview.c) |
 | `demo_pages` | [hacks/patches/demo_pages/demo_pages.c](../hacks/patches/demo_pages/demo_pages.c) |
@@ -996,9 +1000,10 @@ These implement new behavior and hooks rather than byte-matched original-game C.
 | `fast_sprite` | [hacks/patches/fast_sprite/fast_sprite.c](../hacks/patches/fast_sprite/fast_sprite.c) |
 | `fast_waitstates` | [hacks/patches/fast_waitstates/fast_waitstates.c](../hacks/patches/fast_waitstates/fast_waitstates.c) |
 | `gauntlet` | [hacks/patches/gauntlet/gauntlet.c](../hacks/patches/gauntlet/gauntlet.c), [hacks/patches/gauntlet/gauntlet_boon_effects.c](../hacks/patches/gauntlet/gauntlet_boon_effects.c), [hacks/patches/gauntlet/gauntlet_boons.c](../hacks/patches/gauntlet/gauntlet_boons.c), [hacks/patches/gauntlet/gauntlet_level.c](../hacks/patches/gauntlet/gauntlet_level.c), [hacks/patches/gauntlet/gauntlet_meta.c](../hacks/patches/gauntlet/gauntlet_meta.c), [hacks/patches/gauntlet/gauntlet_routes.c](../hacks/patches/gauntlet/gauntlet_routes.c), [hacks/patches/gauntlet/gauntlet_scene.c](../hacks/patches/gauntlet/gauntlet_scene.c), [hacks/patches/gauntlet/gauntlet_shop.c](../hacks/patches/gauntlet/gauntlet_shop.c), [hacks/patches/gauntlet/gauntlet_test.c](../hacks/patches/gauntlet/gauntlet_test.c), [hacks/patches/gauntlet/gauntlet_ui.c](../hacks/patches/gauntlet/gauntlet_ui.c) |
+| `heroes` | [hacks/patches/heroes/hero_grid.c](../hacks/patches/heroes/hero_grid.c), [hacks/patches/heroes/hero_portrait.c](../hacks/patches/heroes/hero_portrait.c), [hacks/patches/heroes/hero_select.c](../hacks/patches/heroes/hero_select.c), [hacks/patches/heroes/spec_kit.c](../hacks/patches/heroes/spec_kit.c), [hacks/patches/heroes/witchking.c](../hacks/patches/heroes/witchking.c) |
 | `item_descriptions` | [hacks/patches/item_descriptions/item_descriptions.c](../hacks/patches/item_descriptions/item_descriptions.c) |
 | `legacy_items` | [hacks/patches/legacy_items/legacy_items.c](../hacks/patches/legacy_items/legacy_items.c) |
-| `legacy_skills` | [hacks/patches/legacy_skills/legacy_aragorn.c](../hacks/patches/legacy_skills/legacy_aragorn.c), [hacks/patches/legacy_skills/legacy_eowyn.c](../hacks/patches/legacy_skills/legacy_eowyn.c), [hacks/patches/legacy_skills/legacy_frodo.c](../hacks/patches/legacy_skills/legacy_frodo.c), [hacks/patches/legacy_skills/legacy_fx.c](../hacks/patches/legacy_skills/legacy_fx.c), [hacks/patches/legacy_skills/legacy_gandalf.c](../hacks/patches/legacy_skills/legacy_gandalf.c), [hacks/patches/legacy_skills/legacy_gimli.c](../hacks/patches/legacy_skills/legacy_gimli.c), [hacks/patches/legacy_skills/legacy_legolas.c](../hacks/patches/legacy_skills/legacy_legolas.c), [hacks/patches/legacy_skills/legacy_skills.c](../hacks/patches/legacy_skills/legacy_skills.c) |
+| `legacy_skills` | [hacks/patches/legacy_skills/legacy_ally.c](../hacks/patches/legacy_skills/legacy_ally.c), [hacks/patches/legacy_skills/legacy_aragorn.c](../hacks/patches/legacy_skills/legacy_aragorn.c), [hacks/patches/legacy_skills/legacy_eowyn.c](../hacks/patches/legacy_skills/legacy_eowyn.c), [hacks/patches/legacy_skills/legacy_frodo.c](../hacks/patches/legacy_skills/legacy_frodo.c), [hacks/patches/legacy_skills/legacy_fx.c](../hacks/patches/legacy_skills/legacy_fx.c), [hacks/patches/legacy_skills/legacy_gandalf.c](../hacks/patches/legacy_skills/legacy_gandalf.c), [hacks/patches/legacy_skills/legacy_gimli.c](../hacks/patches/legacy_skills/legacy_gimli.c), [hacks/patches/legacy_skills/legacy_legolas.c](../hacks/patches/legacy_skills/legacy_legolas.c), [hacks/patches/legacy_skills/legacy_skills.c](../hacks/patches/legacy_skills/legacy_skills.c) |
 | `loot_qol` | [hacks/patches/loot_qol/auto_loot.c](../hacks/patches/loot_qol/auto_loot.c), [hacks/patches/loot_qol/loot_filter.c](../hacks/patches/loot_qol/loot_filter.c), [hacks/patches/loot_qol/loot_qol.c](../hacks/patches/loot_qol/loot_qol.c) |
 | `menu_text` | [hacks/patches/menu_text/menu_text.c](../hacks/patches/menu_text/menu_text.c) |
 | `mod_options` | [hacks/patches/mod_options/mod_options.c](../hacks/patches/mod_options/mod_options.c) |
@@ -1010,6 +1015,7 @@ These implement new behavior and hooks rather than byte-matched original-game C.
 | `ringwraith` | [hacks/patches/ringwraith/hero_registry.c](../hacks/patches/ringwraith/hero_registry.c), [hacks/patches/ringwraith/ringwraith.c](../hacks/patches/ringwraith/ringwraith.c), [hacks/patches/ringwraith/ringwraith_icons.c](../hacks/patches/ringwraith/ringwraith_icons.c), [hacks/patches/ringwraith/ringwraith_kit.c](../hacks/patches/ringwraith/ringwraith_kit.c), [hacks/patches/ringwraith/ringwraith_thralls.c](../hacks/patches/ringwraith/ringwraith_thralls.c), [hacks/patches/ringwraith/saruman.c](../hacks/patches/ringwraith/saruman.c), [hacks/patches/ringwraith/saruman_icons.c](../hacks/patches/ringwraith/saruman_icons.c), [hacks/patches/ringwraith/wraith_gear.c](../hacks/patches/ringwraith/wraith_gear.c) |
 | `save_slot_pages` | [hacks/patches/save_slot_pages/save_slot_pages.c](../hacks/patches/save_slot_pages/save_slot_pages.c) |
 | `skill_expansion` | [hacks/patches/skill_expansion/aragorn_icons.c](../hacks/patches/skill_expansion/aragorn_icons.c), [hacks/patches/skill_expansion/eowyn_icons.c](../hacks/patches/skill_expansion/eowyn_icons.c), [hacks/patches/skill_expansion/frodo_icons.c](../hacks/patches/skill_expansion/frodo_icons.c), [hacks/patches/skill_expansion/gandalf_icons.c](../hacks/patches/skill_expansion/gandalf_icons.c), [hacks/patches/skill_expansion/gimli_icons.c](../hacks/patches/skill_expansion/gimli_icons.c), [hacks/patches/skill_expansion/legolas_icons.c](../hacks/patches/skill_expansion/legolas_icons.c), [hacks/patches/skill_expansion/sam_icons.c](../hacks/patches/skill_expansion/sam_icons.c), [hacks/patches/skill_expansion/skill_delivery.c](../hacks/patches/skill_expansion/skill_delivery.c), [hacks/patches/skill_expansion/skill_expansion.c](../hacks/patches/skill_expansion/skill_expansion.c), [hacks/patches/skill_expansion/skill_expansion_abilities.c](../hacks/patches/skill_expansion/skill_expansion_abilities.c), [hacks/patches/skill_expansion/skill_expansion_active.c](../hacks/patches/skill_expansion/skill_expansion_active.c), [hacks/patches/skill_expansion/skill_expansion_content.c](../hacks/patches/skill_expansion/skill_expansion_content.c), [hacks/patches/skill_expansion/skill_expansion_coop.c](../hacks/patches/skill_expansion/skill_expansion_coop.c), [hacks/patches/skill_expansion/skill_expansion_elite.c](../hacks/patches/skill_expansion/skill_expansion_elite.c), [hacks/patches/skill_expansion/skill_expansion_eowyn.c](../hacks/patches/skill_expansion/skill_expansion_eowyn.c), [hacks/patches/skill_expansion/skill_expansion_frodo.c](../hacks/patches/skill_expansion/skill_expansion_frodo.c), [hacks/patches/skill_expansion/skill_expansion_gandalf.c](../hacks/patches/skill_expansion/skill_expansion_gandalf.c), [hacks/patches/skill_expansion/skill_expansion_gimli.c](../hacks/patches/skill_expansion/skill_expansion_gimli.c), [hacks/patches/skill_expansion/skill_expansion_hud.c](../hacks/patches/skill_expansion/skill_expansion_hud.c), [hacks/patches/skill_expansion/skill_expansion_legolas.c](../hacks/patches/skill_expansion/skill_expansion_legolas.c), [hacks/patches/skill_expansion/skill_expansion_modes.c](../hacks/patches/skill_expansion/skill_expansion_modes.c), [hacks/patches/skill_expansion/skill_expansion_passive.c](../hacks/patches/skill_expansion/skill_expansion_passive.c), [hacks/patches/skill_expansion/skill_expansion_runtime.c](../hacks/patches/skill_expansion/skill_expansion_runtime.c), [hacks/patches/skill_expansion/skill_expansion_sam.c](../hacks/patches/skill_expansion/skill_expansion_sam.c), [hacks/patches/skill_expansion/skill_expansion_save.c](../hacks/patches/skill_expansion/skill_expansion_save.c), [hacks/patches/skill_expansion/skill_expansion_save_format.c](../hacks/patches/skill_expansion/skill_expansion_save_format.c), [hacks/patches/skill_expansion/skill_expansion_smeagol.c](../hacks/patches/skill_expansion/skill_expansion_smeagol.c), [hacks/patches/skill_expansion/skill_expansion_timeline.c](../hacks/patches/skill_expansion/skill_expansion_timeline.c), [hacks/patches/skill_expansion/skill_expansion_tree.c](../hacks/patches/skill_expansion/skill_expansion_tree.c), [hacks/patches/skill_expansion/skill_expansion_validation.c](../hacks/patches/skill_expansion/skill_expansion_validation.c), [hacks/patches/skill_expansion/skill_expansion_values.c](../hacks/patches/skill_expansion/skill_expansion_values.c), [hacks/patches/skill_expansion/skill_status.c](../hacks/patches/skill_expansion/skill_status.c), [hacks/patches/skill_expansion/smeagol_icons.c](../hacks/patches/skill_expansion/smeagol_icons.c) |
+| `super_game` | [hacks/patches/super_game/super_game.c](../hacks/patches/super_game/super_game.c) |
 | `test_arena` | [hacks/patches/test_arena/test_arena.c](../hacks/patches/test_arena/test_arena.c) |
 | `text_overrides` | [hacks/patches/text_overrides/text_overrides.c](../hacks/patches/text_overrides/text_overrides.c) |
 | `twists` | [hacks/patches/twists/twists.c](../hacks/patches/twists/twists.c) |
@@ -1062,13 +1068,22 @@ Test modules describe automated coverage, not full hardware or emulator certific
 - [hacks/tools/fx_sprite.py](../hacks/tools/fx_sprite.py)
 - [hacks/tools/gauntlet_run.py](../hacks/tools/gauntlet_run.py)
 - [hacks/tools/ground_shockwave.py](../hacks/tools/ground_shockwave.py)
+- [hacks/tools/hero_check.py](../hacks/tools/hero_check.py)
+- [hacks/tools/hero_clips.py](../hacks/tools/hero_clips.py)
+- [hacks/tools/hero_data.py](../hacks/tools/hero_data.py)
+- [hacks/tools/hero_fast.py](../hacks/tools/hero_fast.py)
+- [hacks/tools/hero_kit.py](../hacks/tools/hero_kit.py)
+- [hacks/tools/hero_preview.py](../hacks/tools/hero_preview.py)
 - [hacks/tools/hero_registry.py](../hacks/tools/hero_registry.py)
+- [hacks/tools/new_hero.py](../hacks/tools/new_hero.py)
 - [hacks/tools/sam_fx_art.py](../hacks/tools/sam_fx_art.py)
 - [hacks/tools/saruman_icons.py](../hacks/tools/saruman_icons.py)
+- [hacks/tools/scan_hero_tables.py](../hacks/tools/scan_hero_tables.py)
 - [hacks/tools/skill_deliveries.py](../hacks/tools/skill_deliveries.py)
 - [hacks/tools/skill_fx.py](../hacks/tools/skill_fx.py)
 - [hacks/tools/skill_icon_art.py](../hacks/tools/skill_icon_art.py)
 - [hacks/tools/skill_text_fit.py](../hacks/tools/skill_text_fit.py)
+- [hacks/tools/sound_preview.py](../hacks/tools/sound_preview.py)
 - [hacks/tools/test_ability_support.py](../hacks/tools/test_ability_support.py)
 - [hacks/tools/test_active_requirements.py](../hacks/tools/test_active_requirements.py)
 - [hacks/tools/test_arena_bench.py](../hacks/tools/test_arena_bench.py)

@@ -20,13 +20,13 @@ The source covers parts of actors and sprites, combat and player stats, active/p
 
 ## What this fork added
 
-Compared with the upstream base (commit `b4f8637`), counted from the repository files on 2026-10-25:
+Compared with the upstream base (commit `b4f8637`), counted from the repository files on 2026-11-02:
 
 | | Upstream | This fork |
 | --- | --- | --- |
 | C source files in `src/c/` | 51 | 356 |
 | Regions in `config/split.cfg` | 253 | 558 |
-| Mapped functions in `config/functions.cfg` | 772 | 1059 |
+| Mapped functions in `config/functions.cfg` | 772 | 1060 |
 | Handwritten data symbols in `config/data.cfg` | 356 | 487 |
 
 The 305 new C files, by system:
@@ -59,7 +59,9 @@ Tooling changes:
 
 ## Measuring progress
 
-On 2026-10-25, coverage reported **711 C function definitions in 356 source regions, 89,644 compiled bytes, and 1,059 mapped functions**. The regenerated inventory lists 348 mapped functions without C and 202 non-C reconstruction regions. The latest original-ROM verification matched all 558 manifest regions and the whole-ROM SHA-1.
+On 2026-11-02, coverage reported **711 C function definitions in 356 source regions, 89,644 compiled bytes, and 1,060 mapped functions**. The regenerated inventory lists 349 mapped functions without C. `make verify` matched all 558 manifest regions and the whole-ROM SHA-1 (`ec3d126d37ea6e2ad7030d8a99cf87c6e46c03fd`).
+
+On 2026-10-25, coverage reported 711 C function definitions in 356 source regions, 89,644 compiled bytes and 1,059 mapped functions.
 
 On 2026-10-23, `make coverage` reported 704 C function definitions in 350 source regions, 86,452 compiled bytes and 1,051 mapped functions. The [2026-10-22 handoff](decomp-handoff.md) reported 569 C definitions, 251 C regions and 72,292 compiled code bytes. Those are dated results, not live counters. Regenerate the inventory for current source counts.
 

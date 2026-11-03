@@ -20,7 +20,8 @@ An experimental content mod for _The Lord of the Rings: The Return of the King_ 
     Gimli ("The Tally"), Gandalf ("The Grey and the White", hold R to swap form), Legolas ("The Glint", timed
     Overdraw release for True Shots), Eowyn ("Against the Dark": Odds tiers and Gallop).
 - **New playable heroes.** Ringwraith (hero 8, built from the Nazgul model, with its own gear) and Saruman
-  (empowered spells).
+  (empowered spells). The PC version adds the Witch-king (hero 10), the first hero made with the enemy-to-hero
+  pipeline, and a hero select screen for Bonus Maps.
 - **Gauntlet dungeon mode.** Existing maps, randomized doors and encounters, a gear buy/sell shop, 94 boons, character-specific rewards, and evolving boon goals. The current pool has 28 available maps. See [Gauntlet](docs/gauntlet.md) and [the boon catalog](docs/gauntlet-boons.md).
 - **Twists.** Playthrough modifier pages in the mod options. See [mod options](docs/mod-options.md).
 - **Debug cheats and Unlocks pages** for testing.
@@ -29,8 +30,9 @@ An experimental content mod for _The Lord of the Rings: The Return of the King_ 
 - Engine and save changes needed for all of the above (skill system, skill tree screen, combat and per-frame hooks).
 - **PC version extras** (in [ROTK Recompiled](https://github.com/Lillypad-14/rotk-recompiled), the native PC
   port): import heroes from a *The Two Towers* save and give the six Two Towers heroes a third skill page of
-  their Two Towers skills, HD skill icons, and the PC port's own upgrades (HD audio, 60 fps, widescreen,
-  split-screen co-op).
+  their Two Towers skills, HD skill icons, a main menu row that switches to *The Two Towers*, the Witch-king and
+  the hero select screen, fixes for [original-game bugs](docs/known-bugs.md), and the PC port's own upgrades
+  (HD audio, 60 fps, widescreen, split-screen co-op).
 
 The v0.6 audit passed 280 automated combat-room clears across all ten heroes and the 28 available maps, plus ability, shop, memory and host regression checks. Manual balance, complete visual, campaign and hardware testing remain open. See [the audit and its limits](docs/bug-audit.md).
 
@@ -53,6 +55,7 @@ Each hero below has a second skill page with three builds and a mechanic of its 
 | [Ringwraith](docs/heroes.md#ringwraith) | Dread | **New hero.** Terrify foes and raise the slain as thralls. Own skills and gear. |
 | [Saruman](docs/heroes.md#saruman) | Empowered spells | **New hero.** Cast three spells, then your next damaging spell deals +50% damage. |
 | [Eowyn](docs/heroes.md#eowyn) | Against the Dark | Odds rise with danger, and Rohirrim build Gallop and spend it on a strike. Experimental. |
+| [Witch-king](docs/heroes.md#witch-king) | Terror and sorcery | **New hero, PC only.** Morgul bolts, Black Breath and a crown that wards. Untested. |
 
 ## Decompilation
 
@@ -60,11 +63,11 @@ Alongside the mod, this fork continues RagingCactus's decompilation: rewriting t
 compiles back to the exact same bytes. Every recovered function is checked against the original ROM, and the
 rebuilt ROM is byte-identical to the original (SHA-1 `ec3d126d37ea6e2ad7030d8a99cf87c6e46c03fd`).
 
-| | Upstream base | This fork (2026-10-25) |
+| | Upstream base | This fork (2026-11-02) |
 | --- | --- | --- |
 | C source files | 51 | 356 |
 | Decompiled C functions | not counted | 711 (89,644 compiled bytes) |
-| Mapped functions (named, with or without C) | 772 | 1,059 |
+| Mapped functions (named, with or without C) | 772 | 1,060 |
 | Handwritten data symbols (`config/data.cfg`) | 356 | 487 |
 
 What this fork decompiled, by system:
@@ -114,6 +117,7 @@ The inventory can be regenerated with `uv run python tools/documentation_invento
 ## Playing it
 
 1. Get `ROTK-Expanded-experimental-v0.9.bps` from the [v0.9 experimental release](https://github.com/Lillypad-14/ROTK-Expanded-experimental/releases/tag/v0.9-experimental).
+   v0.9 is the final GBA patch. Everything newer is PC only (below), because it lifts limits a GBA cannot.
 2. You need your own legally dumped EU/US ROM (SHA-1 `ec3d126d37ea6e2ad7030d8a99cf87c6e46c03fd`).
 3. Apply the patch with [RomPatcher.js](https://www.marcrobledo.com/RomPatcher.js/) and play in mGBA or similar.
 
@@ -125,8 +129,14 @@ No ROM or game art is included in this repository.
 
 ## Building and modding
 
-Same as upstream: see [docs/setup.md](docs/setup.md), then `make hack` (ROM) or `make dist` (BPS).
-`dist` also needs [Flips](https://github.com/Sir-Walrus/Flips/releases).
+Same as upstream: see [docs/setup.md](docs/setup.md). The mod is now built for the PC port only: `make hack-pc`
+writes `build/rotk_pc.gba`, which [ROTK Recompiled](https://github.com/Lillypad-14/rotk-recompiled) turns into its
+Expanded edition. The GBA build (`make hack`, `make dist`) is frozen at v0.9 and no longer fits the GBA's memory.
+
+New heroes come from enemy sprites through the hero pipeline: `hacks/tools/new_hero.py` registers one, a JSON skill
+spec in `hacks/content/heroes/` describes its kit, and the fast tools (`hero_check.py`, `hero_preview.py`,
+`sound_preview.py`, `hero_fast.py`) preview and test poses, sounds and skills in seconds without a rebuild. See
+[hero authoring](docs/wip-docs/howto-heroes-skills.md).
 
 Guides for extending the mod:
 

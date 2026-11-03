@@ -34,6 +34,7 @@ All ten heroes completed the automated ability and Gauntlet checks in the [2026-
 | [Ringwraith](#ringwraith) | Dread | New hero. Terrify and stun foes, then raise the slain as thralls | mostly tested |
 | [Saruman](#saruman) | Empowered spells | Cast three spells, then empower the next damaging spell | host and automated emulator checks; manual pass pending |
 | [Eowyn](#eowyn) | Against the Dark | Odds rise with danger. Rohirrim can build Gallop and spend it on a strike | experimental; manual pass pending |
+| [Witch-king](#witch-king) | Terror and sorcery | PC only. Morgul bolts, stuns, a warding crown, from a data-written kit | untested |
 
 ---
 
@@ -298,9 +299,38 @@ Both pages use 30 custom icons matched to the skill subjects. See the [art mappi
 
 ---
 
+## Witch-king
+
+**Idea:** the Lord of the Nazgul as a sorcerer-king. A PC-only hero (hero id 10) built from the Witch-king enemy's
+own sprites and voice through the enemy-to-hero pipeline, in the Servants of Sauron group of the hero select.
+
+**Mechanic: Terror and sorcery.** No meter of his own yet. His kit is written as data
+([`witchking.json`](../hacks/content/heroes/witchking.json)), the first hero whose skills come from a spec: Morgul
+bolts that poison, area stuns, a blast at the nearest foe, a damage ward, a melee empower and self-heals.
+
+| Page 1 actives | Page 2 actives |
+| --- | --- |
+| Morgul Shard, Black Breath, Cry of the Nazgul, Iron Crown, Lord of Terror, Undying Malice | Mace of Angmar, Host of Angmar, Morgul Sorcery, Endless Night, No Living Man |
+
+Passives are stock ones: Fearless, Iron Will, Hardy, Blademaster, Death Strike, Battle Scarred, Last Stand, Wise and
+Berserker on page 1, and Accuracy, Nimble, Keen Eyes, Luck, Fighter's Resolve, Fleet of Foot, Wisdom of the Ages,
+Wraithslayer and Rage of the North on page 2.
+
+Status: **untested**. The body, sounds and attacks pass the headless checks. Skills, the skill tree and the stats
+screen portrait still need a manual pass.
+
+Code: [`spec_kit.c`](../hacks/patches/heroes/spec_kit.c) runs every spec kit, and
+[`hero_kit.py`](../hacks/tools/hero_kit.py) compiles the spec.
+
+---
+
 ## Adding or changing a hero
 
 Start with [hero authoring](wip-docs/howto-heroes-skills.md) and [hacking recipes](wip-docs/hacking-recipes.md),
 then see [engine changes](engine-changes.md) for the hooks a kit can use. New heroes are registered in
 [`hacks/content/heroes.json`](../hacks/content/heroes.json), which maps each hero id to the stock hero whose model,
 equipment and skill tree art it borrows.
+
+For a PC-only hero built from an enemy, `hacks/tools/new_hero.py` does the registration, a skill spec in
+`hacks/content/heroes/<hero>.json` replaces a hand-written kit, and the fast tools check and play the result in
+seconds. The [hero authoring guide](wip-docs/howto-heroes-skills.md) has the loop.
