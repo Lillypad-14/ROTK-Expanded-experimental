@@ -2107,6 +2107,7 @@ const u8 SkillExpansionPassiveIds[SKILL_EXPANSION_HERO_COUNT][SKILL_EXPANSION_NE
             SKILL_EXPANSION_PASSIVE_MY_PRECIOUS,
         },
 
+#include "hero_page2_none.inc"
 };
 
 // Page 2 rows 7..12 laid out Good | Evil | Tricks on the tree's top row, then Good | Tricks, then

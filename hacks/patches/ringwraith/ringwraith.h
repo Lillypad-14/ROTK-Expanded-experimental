@@ -32,3 +32,7 @@ static inline u32 ringwraith_stockHero(u32 heroId)
 }
 
 char *ringwraith_getHeroName(u32 heroId);
+
+/** The menu sprite of a hero (still or walking) and its palette. FALSE when it has none. */
+bool32 ringwraith_menuSprite(u32 heroId, bool32 selected, const SpriteAnimation **animation,
+                             const u16 **palette);

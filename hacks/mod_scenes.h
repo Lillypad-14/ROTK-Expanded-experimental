@@ -26,6 +26,9 @@ enum ModSceneRow
 #if HACK_gauntlet
     MOD_SCENE_ROW_GAUNTLET,
 #endif
+#if HACK_heroes && HACK_gauntlet && PC_EDITION
+    MOD_SCENE_ROW_HERO_SELECT,
+#endif
     MOD_SCENE_ROW_COUNT,
 };
 

@@ -149,6 +149,12 @@ static bool32 optionOn(void)
     u8 state;
 
     GLOBAL_MOD_OPTIONS_READ(legacySkillsState, &state);
+    // On a PC host the page needs The Two Towers' data (its skill art and text): without the ROM, or
+    // with the launcher's Two Towers checkbox off, there is none and the page stays away.
+    if (hackLib_pcHostInfo() != NULL && hackLib_twoTowersData() == NULL)
+    {
+        return FALSE;
+    }
     return state != LEGACY_SKILLS_OFF;
 }
 #endif

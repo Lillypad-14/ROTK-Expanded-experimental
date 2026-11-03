@@ -18,6 +18,9 @@
 #if HACK_gauntlet
 #include "patches/gauntlet/gauntlet_scene.h"
 #endif
+#if HACK_heroes && HACK_gauntlet && PC_EDITION
+#include "patches/heroes/hero_select.h"
+#endif
 
 /**
  * One row per enabled mod scene (enum ModSceneRow in hacks/mod_scenes.h), bound at compile time.
@@ -28,6 +31,9 @@ const SceneEntry ModSceneHandlers[MOD_SCENE_ROW_COUNT] = {
 #endif
 #if HACK_gauntlet
     MOD_SCENE_ROW(GAUNTLET, gauntlet_scene),
+#endif
+#if HACK_heroes && HACK_gauntlet && PC_EDITION
+    MOD_SCENE_ROW(HERO_SELECT, heroSelect_scene),
 #endif
 };
 

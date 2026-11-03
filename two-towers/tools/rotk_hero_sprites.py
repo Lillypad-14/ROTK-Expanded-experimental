@@ -121,10 +121,10 @@ def convert(animation):
         while len(tiles) % 4:
             tiles.append(0)
         p = frame + 8
-        box_data = rotk[p - ROM_BASE:p - ROM_BASE + 6 * boxes]
-        p += 6 * boxes
         hotspot_data = rotk[p - ROM_BASE:p - ROM_BASE + 2 * hotspots]
         p += 2 * hotspots
+        box_data = rotk[p - ROM_BASE:p - ROM_BASE + 6 * boxes]
+        p += 6 * boxes
         out = bytearray([pieces, 0, width, height]) + struct.pack("<H", offset)
         out += hotspot_data
         for b in range(boxes):

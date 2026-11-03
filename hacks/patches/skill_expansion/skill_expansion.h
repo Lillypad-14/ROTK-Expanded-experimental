@@ -12,6 +12,7 @@
 #include "lib/cast_timeline.h"
 #include "lib/combat_event.h"
 #include "lib/combat_result.h"
+#include "memmap.h"
 #include "player.h"
 #include "skill.h"
 #include "stats.h"
@@ -306,6 +307,21 @@ typedef struct SkillExpansionHeroKit
     // Incoming hit or miss after native defenses and HP changes, before Strider's Riposte.
     void (*onIncomingCombatEvent)(u8 playerIndex, const HackLibCombatEvent *event);
 } SkillExpansionHeroKit;
+
+// Kits compiled from hacks/content/heroes/*.json (PC edition) sit in fixed per hero slots at
+// MEM_HERO_KITS, linked apart from the modcode by hacks/tools/hero_kit.py. Code reaches them only
+// through these slots, so hero_fast.py swaps new kits in without a rebuild, and the kit pointer the
+// runtime keeps stays valid even across a savestate.
+#define SKILL_EXPANSION_KIT_SLOTS 16
+
+typedef struct SkillExpansionKitSlot
+{
+    // The spec kit's rows (spec_kit.h SpecSkill *[13]); NULL for an empty slot.
+    const void *specRows;
+    SkillExpansionHeroKit kit;
+} SkillExpansionKitSlot;
+
+#define SKILL_EXPANSION_KIT_SLOT(heroId) (&((const SkillExpansionKitSlot *)MEM_HERO_KITS)[heroId])
 
 /** The hero's kit, or NULL for a hero built from the stock blocks. */
 const SkillExpansionHeroKit *skillExpansion_getHeroKit(u32 heroId);

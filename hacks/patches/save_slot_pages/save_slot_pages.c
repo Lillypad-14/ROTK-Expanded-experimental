@@ -20,6 +20,10 @@
 #include "text.h"
 #include "variables.h"
 
+#if HACK_heroes
+#include "patches/heroes/hero_grid.h"
+#include "patches/heroes/hero_select.h"
+#endif
 #if HACK_ringwraith
 #include "patches/ringwraith/ringwraith.h"
 #define HERO_SELECT_LAST_HERO (HACK_HERO_COUNT - 1)
@@ -126,6 +130,9 @@ void saveSlotPages_enter(void)
     actor_tickAll();
     sprite_endFrame();
     gfx_fadeInFromBlack(GFX_BLEND_ALL_TARGETS);
+#if HACK_heroes && HACK_gauntlet && PC_EDITION
+    heroSelect_resumeSaveMenu();
+#endif
 }
 
 /**
@@ -231,6 +238,13 @@ void saveSlotPages_moveCursor(void)
         break;
 
     case SAVE_LOAD_STATE_HERO_SELECT:
+#if HACK_heroes
+        // The hero select screen is opening: the save menu's own select takes no input.
+        if (heroGrid_active())
+        {
+            break;
+        }
+#endif
         // skip Sam and Smeagol until unlocked
         while (unlocked == 0)
         {

@@ -1,0 +1,356 @@
+{
+  "hero": "Witch-king",
+  "passives": [
+    "FEARLESS",
+    "IRON_WILL",
+    "HARDY",
+    "BLADEMASTER",
+    "DEATH_STRIKE",
+    "BATTLE_SCARRED",
+    "LAST_STAND",
+    "WISE",
+    "BERSERKER"
+  ],
+  "skills": [
+    {
+      "name": "Morgul Shard",
+      "cost": 21,
+      "levels": [
+        1,
+        4,
+        7,
+        10,
+        13
+      ],
+      "cast": "quick",
+      "icon": "RingwraithIconMorgulBlade",
+      "effect": "bolt",
+      "damage": [
+        12,
+        18,
+        24,
+        30,
+        36
+      ],
+      "speed": 7,
+      "pierce": 1,
+      "status": "poison",
+      "statusSeconds": 6,
+      "statusPower": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "fx": {
+        "shape": "SPARK",
+        "color": "NAZGUL"
+      },
+      "text": "Hurl a shard of the Morgul blade for {damage} damage. It poisons."
+    },
+    {
+      "name": "Black Breath",
+      "cost": 28,
+      "levels": [
+        1,
+        5,
+        8,
+        11,
+        14
+      ],
+      "cast": "normal",
+      "icon": "RingwraithIconBlackBreath",
+      "effect": "burst",
+      "damage": [
+        8,
+        12,
+        16,
+        20,
+        24
+      ],
+      "radius": 56,
+      "stun": 1.5,
+      "fx": {
+        "shape": "SMOKE_RISE",
+        "color": "NIGHT"
+      },
+      "text": "Breathe despair on foes around you: {damage} damage, stunned for {stun}."
+    },
+    {
+      "name": "Cry of the Nazgul",
+      "cost": 35,
+      "levels": [
+        4,
+        7,
+        10,
+        13,
+        16
+      ],
+      "cast": "normal",
+      "icon": "RingwraithIconCryOfTheNazgul",
+      "effect": "blast",
+      "damage": [
+        20,
+        27,
+        34,
+        41,
+        48
+      ],
+      "radius": 40,
+      "range": 128,
+      "stun": 1,
+      "impact": "preview_storm",
+      "fx": {
+        "shape": "SHOCKWAVE",
+        "color": "NAZGUL"
+      },
+      "text": "A shriek breaks the nearest foe and those near it: {damage} damage."
+    },
+    {
+      "name": "Iron Crown",
+      "cost": 30,
+      "levels": [
+        6,
+        9,
+        12,
+        15,
+        18
+      ],
+      "cast": "long",
+      "icon": "RingwraithIconWillOfSauron",
+      "effect": "ward",
+      "amount": [
+        20,
+        25,
+        30,
+        35,
+        40
+      ],
+      "seconds": 8,
+      "fx": {
+        "shape": "OVAL_RING",
+        "color": "NIGHT"
+      },
+      "text": "Take {amount}% less damage for {seconds}s."
+    },
+    {
+      "name": "Lord of Terror",
+      "cost": 30,
+      "levels": [
+        8,
+        11,
+        14,
+        17,
+        20
+      ],
+      "cast": "long",
+      "icon": "RingwraithIconLordOfTerror",
+      "effect": "empower",
+      "amount": [
+        20,
+        30,
+        40,
+        50,
+        60
+      ],
+      "seconds": 10,
+      "fx": {
+        "shape": "TENDRIL_STAR",
+        "color": "NAZGUL"
+      },
+      "text": "Your melee hits deal {amount}% more for {seconds}s."
+    },
+    {
+      "name": "Undying Malice",
+      "cost": 25,
+      "levels": [
+        1,
+        4,
+        7,
+        10,
+        13
+      ],
+      "cast": "quick",
+      "icon": "RingwraithIconUndyingMalice",
+      "effect": "heal",
+      "amount": [
+        20,
+        30,
+        40,
+        50,
+        60
+      ],
+      "fx": {
+        "shape": "RISING_STREAKS",
+        "color": "NIGHT"
+      },
+      "text": "Mend yourself by {amount} HP."
+    }
+  ],
+  "page2": [
+    {
+      "name": "Mace of Angmar",
+      "cost": 52,
+      "levels": [
+        10,
+        13,
+        16,
+        19,
+        22
+      ],
+      "cast": "long",
+      "icon": "RingwraithIconWitchKingsMace",
+      "effect": "blast",
+      "damage": [
+        40,
+        50,
+        60,
+        70,
+        80
+      ],
+      "radius": 48,
+      "range": 96,
+      "stun": 2,
+      "knockback": 12,
+      "impact": "preview_storm",
+      "fx": {
+        "shape": "DEBRIS",
+        "color": "NIGHT"
+      },
+      "text": "Crush the nearest foe and those around it for {damage} damage."
+    },
+    {
+      "name": "Host of Angmar",
+      "cost": 63,
+      "levels": [
+        13,
+        16,
+        19,
+        22,
+        25
+      ],
+      "cast": "ultimate",
+      "icon": "RingwraithIconHostOfAngmar",
+      "effect": "burst",
+      "damage": [
+        30,
+        40,
+        50,
+        60,
+        70
+      ],
+      "radius": 104,
+      "stun": 2,
+      "impact": "preview_storm",
+      "fx": {
+        "shape": "SKY_RAIN",
+        "color": "NAZGUL"
+      },
+      "text": "Darkness falls on every foe nearby: {damage} damage and a long stun."
+    },
+    {
+      "name": "Morgul Sorcery",
+      "cost": 46,
+      "levels": [
+        12,
+        15,
+        18,
+        21,
+        24
+      ],
+      "cast": "normal",
+      "icon": "RingwraithIconMorgulSorcery",
+      "effect": "bolt",
+      "damage": [
+        30,
+        38,
+        46,
+        54,
+        62
+      ],
+      "speed": 6,
+      "pierce": 3,
+      "splash": 24,
+      "status": "burn",
+      "statusSeconds": 4,
+      "statusPower": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "impact": "preview_storm",
+      "fx": {
+        "shape": "LIGHTNING",
+        "color": "NAZGUL"
+      },
+      "text": "A bolt of sorcery pierces 3 foes for {damage} and sets them burning."
+    },
+    {
+      "name": "Endless Night",
+      "cost": 40,
+      "levels": [
+        14,
+        17,
+        20,
+        23,
+        25
+      ],
+      "cast": "long",
+      "icon": "RingwraithIconEndlessNight",
+      "effect": "heal",
+      "amount": [
+        50,
+        65,
+        80,
+        95,
+        110
+      ],
+      "fx": {
+        "shape": "TENDRIL_BURST",
+        "color": "NIGHT"
+      },
+      "text": "Draw on the endless night: mend {amount} HP."
+    },
+    {
+      "name": "No Living Man",
+      "cost": 42,
+      "levels": [
+        15,
+        18,
+        21,
+        24,
+        25
+      ],
+      "cast": "long",
+      "icon": "RingwraithIconNoLivingMan",
+      "effect": "ward",
+      "amount": [
+        50,
+        55,
+        60,
+        65,
+        70
+      ],
+      "seconds": 6,
+      "fx": {
+        "shape": "STAR_BLOOM",
+        "color": "NAZGUL"
+      },
+      "text": "No living man may hinder you: take {amount}% less damage for {seconds}s."
+    }
+  ],
+  "page2Passives": [
+    "ACCURACY",
+    "NIMBLE",
+    "KEEN_EYES",
+    "LUCK",
+    "FIGHTERS_RESOLVE",
+    "FLEET_OF_FOOT",
+    "WISDOM_OF_THE_AGES",
+    "WRAITHSLAYER",
+    "RAGE_OF_THE_NORTH"
+  ]
+}

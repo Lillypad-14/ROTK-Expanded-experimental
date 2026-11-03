@@ -85,7 +85,7 @@ check-fx: hack-fx
 	uv run --group dev pytest hacks/tools/test_skill_fx.py hacks/tools/test_cast_timelines.py hacks/tools/test_skill_deliveries.py -q
 
 hack-heroes:
-	uv run python hacks/tools/hero_registry.py
+	uv run python hacks/tools/hero_registry.py $(if $(filter 1,$(PC_EDITION)),--pc)
 
 build/generated/fx_shockwave.c: hacks/tools/ground_shockwave.py rotk.gba
 	@mkdir -p $(@D)
@@ -116,6 +116,10 @@ hack: $(if $(SKIP_ROM_CHECK),,check-base-rom) build/game_symbols.inc build/game_
 	uv run python hacks/tools/validate_abilities.py build/hack.elf rotk.gba
 	arm-none-eabi-objcopy -O binary -j .text -j .rodata build/hack.elf build/modcode.bin
 	uv run rotkit hack modcode-syms build/hack.elf build/modcode_syms.inc
+	@# Spec kits link apart, at MEM_HERO_KITS against the modcode's symbols, with its flags
+	@# (hero_fast.py relinks them the same way without a rebuild).
+	@echo '$(MODCODE_CFLAGS)' > build/modcode_cflags.txt
+	uv run python hacks/tools/hero_kit.py link build/hack.elf build/hero_kits.bin
 	@if [ "$(HAVE_TAB)" = "1" ]; then \
 	   arm-none-eabi-gcc -c -std=gnu11 -Wall -Wextra -mthumb -mthumb-interwork -O2 -mcpu=arm7tdmi \
 	     -ffreestanding -fno-strict-aliasing -fno-short-enums -Iinclude -Icarved/include -Ibuild/include -Ihacks -Icarved/data $(DEF) hacks/tables.c -o build/tables.o && \
@@ -144,6 +148,7 @@ check-elemental-hook: hack
 hack-pc:
 	$(MAKE) hack PC_EDITION=1 HACK_OUT=build/rotk_pc.gba
 	cp build/hack.elf build/hack_pc.elf
+	cp build/modcode_cflags.txt build/modcode_cflags_pc.txt
 
 .PHONY: test-arena
 test-arena:

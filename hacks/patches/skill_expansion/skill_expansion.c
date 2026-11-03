@@ -15,16 +15,13 @@
 
 SkillExpansionPlayer skillExpansion_players[2];
 
+// Stock rows and passives per hero: a hero without a kit plays its stockHero's (heroes.json).
 static const ActiveSkill *const StockActiveSkills[SKILL_EXPANSION_HERO_COUNT] = {
-    ActiveSkillsFrodo,   ActiveSkillsLegolas, ActiveSkillsAragorn,
-    ActiveSkillsGandalf, ActiveSkillsEowyn,   ActiveSkillsGimli,
-    ActiveSkillsSam,     ActiveSkillsSmeagol, ActiveSkillsAragorn,
+#include "hero_stock_skills.inc"
 };
 
 static const u8 *const StockPassiveSkillIds[SKILL_EXPANSION_HERO_COUNT] = {
-    PassiveSkillIdsFrodo,   PassiveSkillIdsLegolas, PassiveSkillIdsAragorn,
-    PassiveSkillIdsGandalf, PassiveSkillIdsEowyn,   PassiveSkillIdsGimli,
-    PassiveSkillIdsSam,     PassiveSkillIdsSmeagol, PassiveSkillIdsAragorn,
+#include "hero_stock_passives.inc"
 };
 
 // Heroes past Smeagol fall back to Aragorn's block.
@@ -44,7 +41,22 @@ static const SkillExpansionHeroKit *const HeroKits[SKILL_EXPANSION_HERO_COUNT] =
 
 const SkillExpansionHeroKit *skillExpansion_getHeroKit(u32 heroId)
 {
-    return heroId < ARRAY_COUNT(HeroKits) ? HeroKits[heroId] : NULL;
+    if (heroId >= ARRAY_COUNT(HeroKits))
+    {
+        return NULL;
+    }
+    if (HeroKits[heroId] != NULL)
+    {
+        return HeroKits[heroId];
+    }
+#if PC_EDITION
+    // A spec kit (hero_kit.py) in its fixed slot.
+    if (heroId < SKILL_EXPANSION_KIT_SLOTS && SKILL_EXPANSION_KIT_SLOT(heroId)->specRows != NULL)
+    {
+        return &SKILL_EXPANSION_KIT_SLOT(heroId)->kit;
+    }
+#endif
+    return NULL;
 }
 
 const void *skillExpansion_getHeroTileBgAsset(u8 playerIndex)
@@ -357,15 +369,7 @@ const SkillExpansionCastPolicy *skillExpansion_getCastPolicy(u8 playerIndex, u32
 
 // Permanent legacy identities. Keep these values when moving a skill to another row.
 static const u16 LegacyActiveIds[SKILL_EXPANSION_HERO_COUNT][SKILL_EXPANSION_ACTIVE_ROW_COUNT] = {
-    {0x101, 0x102, 0x103, 0x104, 0x105, 0x106, 0, 0x108, 0x109, 0x10a, 0x10b, 0x10c, 0x10d},
-    {0x201, 0x202, 0x203, 0x204, 0x205, 0x206, 0, 0x208, 0x209, 0x20a, 0x20b, 0x20c, 0x20d},
-    {0x301, 0x302, 0x303, 0x304, 0x305, 0x306, 0, 0x308, 0x309, 0x30a, 0x30b, 0x30c, 0x30d},
-    {0x401, 0x402, 0x403, 0x404, 0x405, 0x406, 0, 0x408, 0x409, 0x40a, 0x40b, 0x40c, 0x40d},
-    {0x501, 0x502, 0x503, 0x504, 0x505, 0x506, 0, 0x508, 0x509, 0x50a, 0x50b, 0x50c, 0x50d},
-    {0x601, 0x602, 0x603, 0x604, 0x605, 0x606, 0, 0x608, 0x609, 0x60a, 0x60b, 0x60c, 0x60d},
-    {0x701, 0x702, 0x703, 0x704, 0x705, 0x706, 0, 0x708, 0x709, 0x70a, 0x70b, 0x70c, 0x70d},
-    {0x801, 0x802, 0x803, 0x804, 0x805, 0x806, 0, 0x808, 0x809, 0x80a, 0x80b, 0x80c, 0x80d},
-    {0x901, 0x902, 0x903, 0x904, 0x905, 0x906, 0, 0x908, 0x909, 0x90a, 0x90b, 0x90c, 0x90d},
+#include "hero_legacy_ids.inc"
 };
 
 u16 skillExpansion_activeId(u32 heroId, u32 row)

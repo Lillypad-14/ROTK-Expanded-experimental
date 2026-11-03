@@ -171,6 +171,9 @@ typedef struct LegolasState
 
     // TRUE once the release hint showed in this area
     bool hintShown;
+
+    // TRUE while a B press is held back from the game until it is a tap or a charge
+    bool deferB;
 } LegolasState;
 
 _Static_assert(sizeof(LegolasState) <= sizeof(skillExpansion_heroState[0]),
@@ -754,6 +757,52 @@ void skillExpansion_legolasCleanup(u8 playerIndex, Actor *actor)
     clearState(actor, state(playerIndex));
 }
 
+/**
+ * Hold a B press back from the game so a tap shoots one arrow on release and a hold goes
+ * straight into Overdraw. Only applies while standing or walking with a bow.
+ */
+static void deferBowPress(u8 playerIndex, Actor *actor, LegolasState *st, bool held)
+{
+    u16 *current = &PLAYER_KEYS_CURRENT(playerIndex);
+    u16 *pressed = &PLAYER_KEYS_PRESSED(playerIndex);
+    bool free = actor->actionState == ACTOR_STATE_IDLE || actor->actionState == ACTOR_STATE_WALK;
+
+    if (!st->deferB)
+    {
+        if ((*pressed & B_BUTTON) && free && hasBow(playerIndex))
+        {
+            st->deferB = TRUE;
+        }
+        else
+        {
+            return;
+        }
+    }
+    if (held && free && st->holdFrames < OVERDRAW_CHARGE_FRAMES)
+    {
+        *current &= ~B_BUTTON;
+        *pressed &= ~B_BUTTON;
+        return;
+    }
+    st->deferB = FALSE;
+    if (held && free)
+    {
+        // Charge: the idle state starts Overdraw, so a walking Legolas stops first. The game never
+        // saw the press, so it must not see one now.
+        *pressed &= ~B_BUTTON;
+        if (actor->actionState == ACTOR_STATE_WALK)
+        {
+            actor->actionState = ACTOR_STATE_IDLE;
+        }
+    }
+    else if (!held && free)
+    {
+        // Tap: give the game the whole press on the frame it ended.
+        *current |= B_BUTTON;
+        *pressed |= B_BUTTON;
+    }
+}
+
 void skillExpansion_legolasInput(u8 playerIndex)
 {
     LegolasState *st;
@@ -778,6 +827,7 @@ void skillExpansion_legolasInput(u8 playerIndex)
     if (!glintUnlocked(playerIndex))
     {
         st->bHeld = held;
+        deferBowPress(playerIndex, actor, st, held);
         return;
     }
     fullDraw = actor->actionState == ACTOR_STATE_LEGOLAS_OVERDRAW &&
@@ -821,6 +871,7 @@ void skillExpansion_legolasInput(u8 playerIndex)
         st->drawFrames = 0;
     }
     st->bHeld = held;
+    deferBowPress(playerIndex, actor, st, held);
 }
 
 void skillExpansion_legolasTick(u8 playerIndex, Actor *actor)

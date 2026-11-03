@@ -31,6 +31,8 @@ void gauntletUi_gem(s32 x, s32 y);
 
 /** The hero's portrait on the text layer, 7 x 8 cells, its top left cell at x, y. */
 void gauntletUi_portrait(u32 heroId, s32 x, s32 y);
+/** A dialog portrait asset, drawn as gauntletUi_portrait draws a hero's. */
+void gauntletUi_portraitAsset(const u8 *asset, s32 x, s32 y);
 
 #define GAUNTLET_UI_PORTRAIT_W 7
 #define GAUNTLET_UI_PORTRAIT_H 8

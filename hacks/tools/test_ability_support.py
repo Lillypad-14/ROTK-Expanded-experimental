@@ -168,6 +168,31 @@ def main() -> None:
             check=True,
         )
         subprocess.run([str(saruman)], check=True)
+        bugfixes = Path(directory) / "bugfixes-tests.exe"
+        subprocess.run(
+            [
+                compiler,
+                "-std=gnu11",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                *(
+                    f"-I{root / path}"
+                    for path in (
+                        "include",
+                        "carved/include",
+                        "build/include",
+                        "build/hack_include",
+                        "hacks",
+                    )
+                ),
+                str(root / "hacks/tests/bugfixes.c"),
+                "-o",
+                str(bugfixes),
+            ],
+            check=True,
+        )
+        subprocess.run([str(bugfixes)], check=True)
 
 
 if __name__ == "__main__":

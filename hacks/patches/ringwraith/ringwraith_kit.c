@@ -151,6 +151,9 @@
 #define DEATH_FROM_SHADOW_PENALTY_PERCENT 40
 #define DREAD_LORD_PERCENT_PER_LEVEL 4
 #define FEAST_HEAL_PERCENT_PER_LEVEL 2
+
+// Every heal of the kit is this much larger.
+#define SELF_HEAL_BONUS_PERCENT 25
 #define FEAST_SPIRIT_PER_LEVEL 2
 
 // Thralls of one Command of the Nine that burn in Nazgul fire, the rest flash.
@@ -358,7 +361,7 @@ static s32 percentOf(s32 value, s32 percent)
     return value * percent / 100;
 }
 
-static void heal(u8 playerIndex, s32 amount)
+static void healExact(u8 playerIndex, s32 amount)
 {
     s32 missing = PLAYER_STAT(playerIndex, STAT_MAX_HP) - PLAYER(playerIndex).currentHp;
 
@@ -373,6 +376,11 @@ static void heal(u8 playerIndex, s32 amount)
     states[playerIndex].allowGain = TRUE;
     player_addHp(playerIndex, amount, FALSE);
     states[playerIndex].allowGain = FALSE;
+}
+
+static void heal(u8 playerIndex, s32 amount)
+{
+    healExact(playerIndex, amount + percentOf(amount, SELF_HEAL_BONUS_PERCENT));
 }
 
 /** Heal from damage actually dealt, retaining fractional HP between hits. */
@@ -394,9 +402,10 @@ static void healDrain(u8 playerIndex, s32 damage, s32 percent)
     {
         scaled *= SACRIFICE_DRAIN_MULTIPLIER;
     }
+    scaled += percentOf(scaled, SELF_HEAL_BONUS_PERCENT);
     scaled += st->drainRemainder;
     st->drainRemainder = scaled % 100;
-    heal(playerIndex, scaled / 100);
+    healExact(playerIndex, scaled / 100);
 }
 
 static void grantSpirit(u8 playerIndex, s32 amount)

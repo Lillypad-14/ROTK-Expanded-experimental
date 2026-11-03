@@ -12,6 +12,9 @@
 #if HACK_skill_expansion
 #include "patches/skill_expansion/skill_expansion.h"
 #endif
+#if HACK_heroes
+#include "patches/heroes/hero_grid.h"
+#endif
 
 #define NAZGUL_WALK EnemyAnimationBank_EnemyTypeNazgul_Walk
 #define NAZGUL_STAND EnemyAnimationBank_EnemyTypeNazgul_StandCopy
@@ -183,6 +186,12 @@ void ringwraith_drawSlot(u8 slot, u8 selectedSlot)
     u8 mission;
     char *str;
 
+#if HACK_heroes
+    if (heroGrid_drawSlot(slot))
+    {
+        return;
+    }
+#endif
     color = slot == selectedSlot ? 6 : 12;
     font_setStyle(FONT_STYLE_8PX_A, color, -1);
     tile = slot * 60 + 0x5b;
@@ -227,6 +236,23 @@ void ringwraith_drawSlot(u8 slot, u8 selectedSlot)
 
 #define SLOT_HERO_NONE 0xff
 
+bool32 ringwraith_menuSprite(u32 heroId, bool32 selected, const SpriteAnimation **animation,
+                             const u16 **palette)
+{
+    const HeroDefinition *definition = ringwraith_getHeroDefinition(heroId);
+
+    if (definition != NULL && definition->menuIdle != NULL && definition->menuSelected != NULL)
+    {
+        *animation = selected ? definition->menuSelected : definition->menuIdle;
+        *palette = ObjPalettes[definition->palette];
+        return TRUE;
+    }
+    heroId = ringwraith_stockHero(heroId);
+    *animation = selected ? SaveLoadHeroSelectedAnimationPtrs[heroId] : SaveLoadHeroAnimationPtrs[heroId];
+    *palette = SaveLoadHeroPalettes[heroId];
+    return TRUE;
+}
+
 /**
  * Stock body with the Ringwraith's still and walking Nazgul sprites and the Nazgul palette.
  *
@@ -252,17 +278,12 @@ void ringwraith_refreshSlot(s32 slotIndex)
         obj->flags.p &= ~ACTOR_FLAG_RENDER;
         heroId = SLOT_HERO_NONE;
     }
-    const HeroDefinition *definition = ringwraith_getHeroDefinition(heroId);
-    if (definition != NULL && definition->menuIdle != NULL && definition->menuSelected != NULL)
+    const SpriteAnimation *animation;
+    const u16 *palette;
+
+    if (heroId != SLOT_HERO_NONE && ringwraith_menuSprite(heroId, selected, &animation, &palette))
     {
-        sprite_setAnimation(obj, selected ? definition->menuSelected : definition->menuIdle);
-        gfx_queuePaletteWrite(ObjPalettes[definition->palette], slotIndex << 4, 16);
-    }
-    else if (heroId != SLOT_HERO_NONE)
-    {
-        heroId = ringwraith_stockHero(heroId);
-        sprite_setAnimation(obj, selected ? SaveLoadHeroSelectedAnimationPtrs[heroId]
-                                          : SaveLoadHeroAnimationPtrs[heroId]);
-        gfx_queuePaletteWrite(SaveLoadHeroPalettes[heroId], slotIndex << 4, 16);
+        sprite_setAnimation(obj, animation);
+        gfx_queuePaletteWrite(palette, slotIndex << 4, 16);
     }
 }

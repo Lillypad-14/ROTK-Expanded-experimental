@@ -404,6 +404,8 @@ typedef enum ActorListId
 typedef enum ActorActionState
 {
     ACTOR_STATE_UNKNOWN_00 = 0x00,
+    ACTOR_STATE_IDLE = 0x01,
+    ACTOR_STATE_WALK = 0x02,
     ACTOR_STATE_UNKNOWN_03 = 0x03,
     ACTOR_STATE_UNKNOWN_04 = 0x04,
     ACTOR_STATE_HURT = 0x06, // set by player_addHp flinch (from states 1/2/5)

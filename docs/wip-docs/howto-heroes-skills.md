@@ -113,295 +113,118 @@ Follow `RingwraithHeroKit` in `ringwraith_kit.c`:
 - Wrap `player_addHp` / `player_addSpirit` only if the hero changes healing or damage taken (the
   Ringwraith does). Only one patch can own a whole-function hook, so extend the existing wrapper.
 
-## 4. Add a new playable hero
+## 4. Add a new playable hero (PC edition)
 
-The Ringwraith (HeroId 8) is the only template, and its plumbing hardcodes id 8 and a 9-entry
-count. **Before a 10th hero, generalize it**: a hero registry (id, name, base hero, palette, banks,
-kit) and table macros sized by `HERO_COUNT`, so each new hero is data, not another copy of
-`ringwraith.asm`.
+New heroes are PC-only. Start from an enemy body, then give the hero its own kit.
 
-What a hero needs (all done for the Ringwraith, see `ringwraith-hero.md` for details):
-1. **Tables extended past 8 heroes, relocated to modcode and every literal repointed**
-   (`ringwraithRepoint` checks each site still holds the stock address):
-   HeroMove/Melee/CastAnimationBanks, HeroPortraitBgAssets, SkillTreeHeroTileBgAssets,
-   LootHeroRegionProgressions, LootHeroItemTypeRolls, HeroStartMissions, HeroStartVariants,
-   spawn offsets, camera heights. Find xrefs with Ghidra, then confirm each site with the
-   `readu32` check.
-2. **Switches on heroId**: player_initItemsAndHollow and scene_backpack_enter (`cmp r0,#7` bounds and
-   jump tables), the palette pick in actor_applyTypeDefaults, the skill tree title, and the item
-   class alias sites (0x0802d674, 0x0802dbfe, 0x0802e270, 0x0802eab2).
-3. **Stats and name**: `player_initHeroStats` wrap (HeroBaseStats), `ringwraith_getHeroName`.
-4. **Sprites**: synthetic animation banks `[9 parts][7 poses]` built from existing clips, and skip
-   hand sprites (`actor_player_updateHandSprites` wrap) if the body has no hand parts.
-5. **Save/select screen**: `scene_saveLoadMenu_drawSlot` / `refreshSlot` wraps, unlock_all page.
-6. **Skills**: a custom kit (section 3) plus `SkillExpansionHeroSkillBlocks[id]` and
-   `SkillExpansionActiveDefs` / `SkillExpansionPassiveIds` rows for page 2.
-7. `SKILL_EXPANSION_HERO_COUNT` up by one.
+1. Pick a body: `uv run python hacks/tools/new_hero.py --list` lists every enemy sprite set, its
+   animations, and flags multi-piece bodies, huge sprites and fliers.
+2. Scaffold: `uv run python hacks/tools/new_hero.py "Witch-king" --enemy WitchKing --base Gandalf
+   --description "Lord of the Nazgul. Terror incarnate." [--group "Servants of Sauron"]
+   [--portrait WitchKing] [--stats courage,defense,health,accuracy,strength] [--dry-run]`.
+   The portrait defaults to the enemy's own dialog portrait, else its kind's (Orc, OrcCaptain,
+   KingOfTheDead). `--remove NAME` undoes the last hero added (only the last: hero IDs are saved). It writes
+   `hacks/patches/heroes/<slug>.c` (base stats only) and appends a `"pcOnly": true` entry to
+   `hacks/content/heroes.json` with the enemy's palette (byte table 0x0806D27C by enemy type), its
+   sounds (swing = whoosh 6/8 + enemy voice 2/8, hurt, death) and a `"body"`: every pose as data
+   (`hacks/tools/hero_clips.py` documents the format). `--base` picks equipment, loot and the
+   placeholder skills. Then tweak it with the tools in "Tweak a hero fast".
+3. `make hack-pc`. `hero_registry.py --pc` generates every per-hero table from heroes.json: hero
+   tables, stock skill rows, save identities (`(id + 1) << 8 | row`), and an empty page 2. The GBA
+   build leaves PC-only heroes out. Hero select sizes itself from `HACK_HERO_COUNT`.
+4. The hero now plays its base hero's stock skills with no page 2. That is a placeholder for checking
+   the body, not the hero's skills.
+5. Real skills: write `hacks/content/heroes/<slug>.json` (see "Skill specs" below). The registry
+   gives the hero the kit compiled from it. Only unusual mechanics need a hand-written kit
+   (section 3, Saruman's `ringwraith/saruman.c` is the template).
+6. Test: the PC test arena (`make hack HACKS="@cfg test_arena" PC_EDITION=1 ARENA_HERO=<id>`, then
+   rotk-recompiled `tools/arena.py --hero <id> --first-row 0`) casts every row headless.
 
-## 5. Items and loot
+### Tweak a hero fast (PC edition)
 
-Source of truth: `include/item.h`, `include/loot.h`, `src/c/loot.c` (fully decompiled C),
-`src/c/item_affix_formatName.c`. Read loot.c before changing drop logic. It is short and commented.
+A hero's `"body"` (poses) and `"sounds"` live in the hero data region (`hacks/tools/hero_data.py`,
+`HERO_DATA` in hacks/layout.cfg), and its skill spec (`hacks/content/heroes/<slug>.json`) in the hero
+kits region (`HERO_KITS`, see "Skill specs"). Code reaches both only through fixed slots, so changing
+them needs no rebuild. Loop: edit heroes.json or the spec, then
 
-### Item handle (u32, `Item`)
-`type | rune<<4 | base<<8 | prefix<<16 | suffix<<24`. 0xff = no prefix/suffix, `RUNE_NONE` = 0xf
-no rune, type `ITEM_TYPE_EMPTY` 0xf = empty slot. Gem stacks: `(word & 0xff) == 0xff`.
-Item types: KNIFE 0, SWORD_1H 1, SWORD_2H 2, AXE 3, MACE 4, STAFF 5, BOW 6, ARROW 7, ARMOR 8 (body
-and helmets), SHIELD 9, ACCESSORY 10, CLOAK 11, GLOVES 12, SHOES 13, UNIQUE 14.
+- `hero_check.py [hero]` (1 s): errors and warnings for every hero. Description wrap is pixel exact
+  (the game's font and box), body problems (idle that walks, swing without a hit frame, recovery
+  that replays an attack, cast poses with hitboxes, long hurt pose), long voices on every swing.
+- `hero_preview.py <hero>` (1 s, no build): every pose as numbered frames, hit frames boxed red,
+  `--gif` per pose, `--palette N` recolor, `--facing`. `--enemy X [--clip Y]` browses any enemy's
+  clips with frame numbers, for picking cuts. Prints the sound row.
+- `sound_preview.py`: WAVs of sfx ids, a hero's row (`--hero`), an enemy's set (`--enemy`), which
+  sfx and enemies play a sample (`--find`). Mix parts: `[sfx, count]` or `[sfx, count, sample]`.
+- `hero_fast.py check <hero>` (5-10 s): headless game from a savestate in a level, presses B
+  (attack) once and then 3 times, writes build/preview/check_<hero>.png. `--button A` casts the
+  selected skill instead (the savestate's hero must own it and have the Spirit). Make the savestate once
+  per full build: `hero_fast.py state hacks/content/routes/witchking_moria.csv 3190 --save <sram>`
+  (any route that ends in a level as the hero; B is attack, A the skill button).
+- `hero_fast.py play`: opens the game with heroes.json's heroes, on its own save copy.
+- `hero_fast.py cards` (10 s): screenshots of every hero select card (route
+  `hacks/content/routes/hero_select.csv`). Card text is C data: needs the full build first.
 
-### Tables
-- `ItemTypeInfos[type]` (0x08068f50, 40 bytes): baseItems, prefixRegionRanges, prefixes,
-  prefixFlags, suffixTierRanges, suffixes, suffixFlags, baseGfx, baseMetadata, u8 baseItemCount.
-  Macros: `ITEM_TYPE_INFO(item)`, `ITEM_BASE(item)`, `ITEM_BASE_METADATA(item)`.
-- Per base item, three parallel tables indexed by baseIndex:
-  - `ItemStatRecord` (12 bytes): nameId (TextId), tier, 4x (stat, s8 value), STAT_NONE = 90.
-    Damage stats show as lo-hi.
-  - `ItemGfx` (28 bytes): backpack animation, equip icon, hollow icon, lootType (the ground sprite
-    and the `LOOT_TYPE_*` drop kind). Build with `ITEM_GFX(Name, LOOT_TYPE_X)`, and use art names
-    from `build/include/variables.h` (`<Name>BackpackIconTiles` etc.).
-  - `ItemMetadata` (8 bytes): flags (family bit, `ITEM_FLAG_SLOT_*`, `ITEM_FLAG_CLASS_BIT(hero)`,
-    NO_PREFIX / NO_SUFFIX, ANCIENT = needs the unlock) and equipSfx.
-- Prefixes/suffixes: `ItemStatRecord` tables plus parallel `AffixFlags` (4 bytes). Prefix choice
-  comes from `prefixRegionRanges[region]` (lo/hi index per campaign region), suffix choice from
-  the suffix tier ranges. All suffix-bearing types share `ItemSuffixes[160]`.
-- Uniques: `UniqueItems[53]` / `UniqueGfx[53]`, in three bands (weapons once per character,
-  carried passives, repeatable). Each band has a 1-in-N keep roll in `loot_rollBaseItem`.
-  `item_descriptions.c` has the unique power texts.
+Anything else (stats, hero select card text, C, asm) needs the full build: `make hack-pc`, then
+rotk-recompiled `lab.py prepare` and `build` (about 4 minutes). hero_fast.py refuses to run when
+build/rotk_pc.gba has code the prepared game lacks.
 
-### Drop pipeline (loot.c)
-`actor_onDeathDropLoot` -> `loot_rollDrop` (drop chance from `EnemyLootInfos[unitType]`) ->
-`loot_generateDrop` (quality roll: gems <= 45 < health < items <= 100) -> `loot_generateItem`
-(item type from `LootHeroItemTypeRolls[hero]` thresholds) -> `loot_rollBaseItem` (base tier <=
-`g_LootTier`) -> `loot_rollPrefix` (chance = enemy prefixTierChance + lootTier + magic find, region
-range minus a difficulty penalty) -> `loot_rollSuffix` (2/3/4% by difficulty, scaled by magic find).
-Chests use `unitType == LOOT_UNIT_TYPE_CONTAINER` (0x53).
+### Skill specs (PC edition)
 
-### Common changes
-| Goal | How |
-|---|---|
-| Drop rates per hero | Edit that hero's `LootHeroItemTypeRolls` row (the Ringwraith's is in `ringwraith_hook.asm`) |
-| Rarity / affix chance | Hook `loot_rollPrefix` / `loot_rollSuffix` (the C copy in loot.c is the template) |
-| New base item, affix or unique | Extend the table (stock rows copied in plus new rows), repoint ItemTypeInfos (section 5b pattern), and raise baseItemCount if stock rolls should pick it |
-| Custom name | Text id >= 0x4000 served from `text_overrides/text_overrides.c` (see `wraithGear_findString`) |
-| Name color | `item_affix_formatName` sets `g_PlayerHuds[ACTIVE_PLAYER_INDEX].textColor` (wrapped in wraith_gear.c) |
-| Info panel text | `item_descriptions.c` `itemDescriptions_drawInfo` |
-| Who can equip | `ITEM_FLAG_CLASS_BIT`, or the `item_getEquipSlot` wrapper |
-| Item stats in play | Stock: stat records are applied automatically. Custom effects: sum the equipped slots (`PLAYER(p).inventory.array[0..7]`) per tick, see `wraithGear_refresh` |
-| Pickup / filter behavior | `hacks/patches/loot_qol/` (loot filter, auto-collect gems) |
-| Health drops | `loot_rollHealthDrop` and the weighted health table in loot.h |
+`hacks/content/heroes/<slug>.json` (slug: the name without spaces or dashes, lowercase, e.g.
+`witchking.json`) is a hero's whole kit as data. `hacks/tools/hero_kit.py` (run by the registry on
+every build) checks it and writes `build/generated/hero_spec_kits.c`. The build links that apart
+from the modcode, at `MEM_HERO_KITS` against `build/hack.elf`'s symbols (`hero_kit.py link`,
+`hacks/hero_kits.ld`), into the hero's fixed `SkillExpansionKitSlot` (slot N is hero N). Code reaches
+spec kits only through those slots (`skillExpansion_getHeroKit`, `spec_kit.c`), so `hero_fast.py`
+relinks a changed spec into the prepared game in seconds. Example: `hacks/content/heroes/witchking.json`.
+Traps: the kits region holds data only (no functions, no mutable state; the linker script asserts
+it), since the recompiler finds code only in the modcode. Callbacks a spec names (`specKit_*`, icons,
+policies) must be non-static modcode symbols. A projectile in flight keeps a pointer to its old
+delivery, so savestates stay valid across spec tweaks only outside skill casts.
 
-Gotchas:
-- Only one patch can hook each of `loot_generateItem`, `item_getEquipSlot` and
-  `item_affix_formatName`. They are taken by `wraith_gear.c`, so extend that.
-- Literal refs that bypass ItemTypeInfos must be repointed too. ItemSuffixFlags has three
-  (`wraith_gear.asm`). Search the ROM for other tables' addresses the same way before
-  extending them.
-- New rows must never appear in stock rolls unless baseItemCount and the region/tier ranges are
-  updated to include them.
+- `skills`: exactly 6, the first page; the 6th takes Herbal Healing's slot. `passives`: 9 stock
+  passive names (`PASSIVE_SKILL_*` in include/skill.h without the prefix).
+- Page 2 is all or nothing: `page2` with 5 or 6 skills plus `page2Passives` with 9 more stock
+  passives (none repeated from page 1), or neither. The skill tree only offers page 2 to a hero
+  with page 2 skills (`pageTwoHasSkills` in skill_expansion_tree.c), so a placeholder hero (no
+  spec) has no page 2 at all. A half-filled page 2 looked broken (dark empty tiles, cursor on
+  nothing), so the generator refuses one.
+- Every skill: `name`, `cost` (Spirit), `levels` (5 rising hero levels), `icon` (any `*Icon*`
+  symbol in `hacks/patches/*/*_icons.h`), `effect`, `cast` (quick, normal, long, ultimate), `text`
+  (`{damage}`, `{amount}`, `{seconds}`, `{stun}` are filled in), optional `fx`
+  (`{"shape": "SPARK", "color": "NAZGUL"}` from hacks/lib/fx_kit.h, played on the caster).
+- Effects: `bolt` (projectile: `damage`, `speed`, `pierce`, `splash`, `radius`), `burst` (around
+  the caster: `damage`, `radius`), `blast` (at the nearest foe within `range`: `damage`, `radius`),
+  all with optional `stun` (seconds), `knockback`, `status` (poison, burn, slow) with
+  `statusSeconds` and `statusPower`, `impact`/`travel` (skill_fx.json keys), `sound`. `heal`
+  (`amount` HP), `ward` (`amount` percent less damage taken, `seconds`), `empower` (`amount`
+  percent more melee damage, `seconds`). Per-level values are lists of 5.
+- Save identities are `(hero id + 1) << 8 | (row + 1)`: never reorder a released hero's skills.
+- Errors name the file and skill. Add an effect type in both hero_kit.py and spec_kit.c.
 
-## 5b. Hero-only gear
+Hero select (Bonus Maps, an empty slot): `hacks/patches/heroes/hero_select.c`, a mod scene in the
+Gauntlet's panel style. Groups are L/R tabs, 6 cards per page, enemy bodies drawn at 70%
+(`ENEMY_BODY_SCALE`). Group, description (44 characters at most, two lines) and portrait come from
+heroes.json; the registry rejects a missing portrait or a long description. Select toggles a stock
+hero's Vanilla or Expanded kit. A returns to the save menu, which creates the character through its
+own hero select (`heroSelect_resumeSaveMenu`). New games keep the stock Left/Right select.
 
-Copy the `wraith_gear` pattern:
-- Extended item tables = stock rows copied in by `wraith_gear_tables.asm` plus new rows, with
-  ItemTypeInfos repointed. baseItemCount stays stock, so other heroes never roll them.
-- Names: text ids from 0x4000 through `text_overrides` findString.
-- Drops: the `loot_generateItem` replacement branches on heroId.
-- Equip lock: `item_getEquipSlot` wrapper.
-- Effects: sum the equipped items each tick (`wraithGear_refresh`) and read them in the kit.
-- Only one patch can hook `loot_generateItem` / `item_getEquipSlot` / `item_affix_formatName`.
-  A second hero's gear must extend `wraith_gear.c`, or the gear code should first become generic
-  (per-hero gear sets).
+Sounds: every hero has a row in the registry's hero sound table (attack and hurt sounds, 4 IDs; the
+stock table has 8 rows and the game read past it for heroes 8+). A hero copies its stockHero's row
+unless heroes.json gives `"sounds": [a, b, c, d]`.
 
-### Wraith gear layout (wraith_gear.c)
+Per-hero tables: stock tables have 8 rows, so heroes past Smeagol read past them. `uv run python
+hacks/tools/scan_hero_tables.py` finds ROM tables indexed by Player.heroId and exits 1 on one not in
+its REVIEWED list; extend a new one through the registry's table list (and `ringwraithRepoint` its
+readers) or note its bounds check. It misses readers that hold the hero ID in a register for long
+(the sound table was found in play), so add such finds to REVIEWED by hand.
 
-Full item, affix, effect and drop-rate reference: `ringwraith-gear.md`.
+Stats screen portrait: heroes 8+ show their heroes.json portrait (hero_portrait.c, hooked at
+0x080275c8). BG3 there is 256-color, so the 4bpp dialog portrait is expanded to 8bpp in bank 6.
 
-Wraith bases per item type, relative to the first wraith base (stock rows come first):
-
-| Type | Bases | Drop slots (5 tiers + uniques) |
-|---|---|---|
-| Mace | 12 | Mace 0..4 + 5, Maul 6..10 + 11 |
-| Sword1H | 12 | Blade 0..4 + 5, Fang 6..10 + 11 |
-| Armor (body and helm) | 24 | Crown 0..4, Hauberk 5..9, uniques 10/11, Helm 12..16, Mail 17..21, uniques 22/23 |
-| Accessory | 15 | Ring 0..4 + 5, Pendant 6..10, uniques 11..14 |
-| Cloak | 12 | Shroud 0..4 + 5, Wrap 6..10 + 11 |
-| Gloves | 12 | Gauntlets 0..4 + 5, Grips 6..10 + 11 |
-| Shoes | 12 | Greaves 0..4 + 5, Treads 6..10 + 11 |
-
-`WraithDropSlots` picks a slot by weight, then either one of the slot's `uniqueBases` (chance
-`3 + g_LootTier / 3`%, 0 when `uniqueCount` is 0) or a tiered base. Tiered bases use tiers 1,3,5,7,9
-and only roll up to `g_LootTier`. Affixes use `pickAllowed`: any row whose tier is at most
-`g_LootTier + 1`, and the first 2 rows always.
-
-Effects are `WRAITH_FX_*` values (up to 2 per row) plus an optional `WRAITH_UNIQUE_*`. The kit reads
-them with `gear(p, WRAITH_FX_X)` (summed over equipped items) and `hasUnique(p, WRAITH_UNIQUE_X)`.
-`wraithGear_refresh` rebuilds the sums only when an equipped item word changes.
-
-### Recipe: add a tiered base family (5 items) to an existing type
-
-1. `WRAITH_STRINGS`: add `X(FAMILY_1, "Tier Name")` .. `X(FAMILY_5, ...)` at the end of the list.
-2. Raise the type's `*_COUNT` by 5 (by 6 with a unique).
-3. Append 5 `RECORD2(FAMILY_n, tier, STAT_A, v, STAT_B, v)` rows to the type's `Wraith*Items`. Use
-   tiers 1, 3, 5, 7, 9. Stat names are in `include/stats.h` (there is no STAT_DEXTERITY, use
-   STAT_ACCURACY).
-4. Append 5 `ITEM_GFX(ArtName, LOOT_TYPE_X)` rows to `Wraith*Gfx`. Art names: grep
-   `carved/data/item_tables/<Type>Tables.c` and `UniqueTables.c`. The name needs both
-   `<Name>EquipIcon` and `<Name>HollowIcon` symbols.
-5. Append `META5(slot flags, sfx)` to `Wraith*ItemFlags` (copy the flags of the same slot).
-6. Append 5 `FX1(...)` / `FX2(...)` rows to the type's `*Effects` array.
-7. Add a `WraithDropSlots` row `{weight, typeIndex, firstBase, uniqueCount, {uniqueBases}}` and take
-   the weight from other slots so the total stays 100.
-8. Build. A static assert names any table you missed.
-
-### Recipe: add a wraith unique
-
-1. `wraith_gear.h`: append `WRAITH_UNIQUE_X = n` before `WRAITH_UNIQUE_COUNT` and bump the count.
-2. Name string, then one row in each of the 4 tables like above, with `META(flags | WRAITH_UNIQUE_FLAGS,
-   sfx)` (no affixes) and `UNIQUE(X)` in the effects array.
-3. Add its base index to a drop slot's `uniqueBases` (max `WRAITH_SLOT_UNIQUE_MAX`, 4) and bump
-   `uniqueCount`.
-4. `UniqueDescriptions[WRAITH_UNIQUE_X]`: the text in the info panel. Keep it under about 60 chars.
-5. Implement it in `ringwraith_kit.c` with `hasUnique(playerIndex, WRAITH_UNIQUE_X)` at the right
-   hook (melee damage, on hit, pulse, a skill callback).
-
-### Recipe: add a wraith effect (WRAITH_FX)
-
-1. `wraith_gear.h`: append `WRAITH_FX_X = n` before `WRAITH_FX_COUNT`.
-2. `EffectLabels[WRAITH_FX_X]`: the text after the number, e.g. `"% Unseen Damage"`. Frame values
-   display as seconds only if `appendEffect` lists the effect next to TERROR_STUN/UNSEEN.
-3. Read it in the kit with `gear(playerIndex, WRAITH_FX_X)`.
-
-### Recipe: add a wraith prefix or suffix
-
-1. String, then append to the END of `WRAITH_PREFIX_RECORDS` (or `WraithItemSuffixes`), even if its
-   tier is lower than the last row. `pickAllowed` does not need tier order.
-2. Bump `WRAITH_PREFIX_COUNT` / `WRAITH_SUFFIX_COUNT` and append the matching row to `PrefixEffects`
-   / `SuffixEffects`. All 5 prefix tables share the records macro.
-3. The `u8` index plus stock counts (156 max) must stay below 0xff (ITEM_AFFIX_NONE).
-
-## 6. Test loop
-
-1. Build (`hacking-recipes.md`), copy to a fresh ROM name, and load it in mGBA.
-2. Use the Debug page for max level and skill points, then check both skill tree pages: buy, the
-   level display, required levels and descriptions.
-3. Leftover tiles: a page with fewer than 9 passives must clear the leftover tiles and their
-   `g_SkillTreePassiveTileSkillIds` entries. Otherwise the other page's skills stay on screen and
-   can be bought from there (`skillExpansion_treeDrawPassiveGrid` does this).
-4. Things that are easy to break: page 2 tree state (the swap in `skill_expansion_tree.c`), saves
-   (`skill_expansion_save.c` must cover any new per-player state) and co-op (the page can't be
-   turned in co-op).
-5. Gear: farm drops (a late chapter rolls every tier), check new names, icons, the info panel effect lines,
-   that uniques have no affixes, and that an old save's gear still has the same names.
-
-## 7. Custom skill icons (user art)
-
-The user draws icons as one upscaled mockup of the skill screen: 3x3 passive grid on the left,
-3/2/1 active slots on the right (example: `Desktop/lotr/new icons/wraith skill icons.png`, 1858x846,
-7.5x GBA scale). The user lets us choose which picture fits which skill.
-
-(Older indexed format, used by `--style classic` and stock icons. New work uses the full-color pipeline below the steps.)
-Icon format: 32x24, 4bpp, 4x3 tiles row major, in the one 16-color palette all skill icons share
-(0 transparent, 1 white, 2..6 gold/orange/red/brown, 7 near black, 8..12 greens, 13 navy, 14/15
-grey green). The asset is `u8[0x184]`: header `{0x10, 0, 0x80, 0x01}` plus 384 bytes of tiles.
-The frame ring and corners are identical in every stock icon, so the tool copies them from stock
-and takes only the circle interior from the art.
-
-Steps (needs `make carve` output in carved-local):
-1. Look at the mockup and decide a skill name per slot. Slot order: 9 passives row by row, then
-   the actives top row left to right, middle row, bottom.
-2. Slice into PNGs (one per slot, `-` skips a slot):
-   `uv run --with numpy python hacks/tools/skill_icon_art.py slice "<mockup.png>"
-   hacks/patches/<hero>/icons --names a,b,c,...`
-   A mockup of a different size works if the layout is the same (positions scale by width).
-   An icon sheet (rows/columns of framed icons, any count) slices with `--grid X,X,..:Y,Y,..:SCALE`:
-   frame top-left pixel per column and per row, and the upscale factor. Slots run row by row, use
-   `-` in `--names` for unused ones. Frodo example (`new icons/Frodo type icons.png`, 9x4 sheet):
-   `--grid 13,206,397,604,796,987,1194,1388,1579:94,294,494,696:5.69`.
-   Sheets whose blocks have different column offsets: slice each block in its own run into the
-   same folder. Sam/Smeagol sheets (`new icons/Sam icon.png`, `Smeagol.png`, 1905x826, 7.0x, frame
-   height includes a pip row that is ignored): left 4x3 `42,277,502,718:43,277,513:7.0` (12th slot
-   is a half-width lantern/eye, skip), right row 1 `1114,1331,1545:43:7.0`, right rows 2-3
-   `1100,1318,1533:277,513:7.0` (4th right column is cut off, skip).
-   Three-hero sheet (`new icons/Gimli-Legolas-Gandalf.png`, 2172x724, three 5x3 blocks, frames
-   about 135x121 so not 4:3): scale by the circle, not the frame (circle ~112x103 px vs the stock
-   ~26x22, so 4.5). Rows `157,317,477`, columns Gandalf `36,172,308,443,579`, Gimli
-   `751,884,1018,1151,1284`, Legolas `1453,1589,1725,1861,1996`, `:4.5 --backdrop 62`, one run per
-   block. Never commit stock icon copies as placeholders: the repo is public and must hold no game
-   art. Use a passive's stock `iconPassiveSkillId` (drawn from the ROM) until user art exists.
-   Grey art (Gollum skin, trowels, rope): `--backdrop 62`. By default greys with mean brightness
-   under 140 count as stone backdrop and turn transparent, which erases grey subjects. These sheets'
-   circle backdrop is about (52,50,51). The palette has no neutral grey, so greys land on the pale
-   green/grey-green ramp (8, 14), which page 2 recolors per build anyway.
-   Slice everything into a scratch folder first, contact-sheet it, then copy the chosen PNGs into
-   `hacks/patches/skill_expansion/<hero>_icons/` under the skill's snake_case name.
-3. Open the PNGs and check them. Hand-fix any pixel in an indexed-PNG editor if needed (keep the
-   palette).
-4. Generate C: `uv run python hacks/tools/skill_icon_art.py build hacks/patches/<hero>/icons
-   hacks/patches/<hero>/<hero>_icons.c --prefix <Hero>Icon`. This writes `<hero>_icons.c/.h` with
-   one `<Hero>Icon<PascalName>` array per PNG (`will_of_sauron.png` -> `RingwraithIconWillOfSauron`).
-   Never edit the generated files, rerun build.
-5. Hook them up:
-   - Page 1 of a custom kit: the kit's `icons[6]` array (`RingwraithActiveIcons`).
-   - Page 2 actives: `.icon = <Hero>IconX` in the `SkillExpansionActiveDef`.
-   - Elite passives: `.icon` in `SkillExpansionElitePassives` (the Ringwraith uses the
-     `RINGWRAITH_ICON(Name)` macro so the file builds without the ringwraith patch).
-   - Stock passives on a custom hero cannot take a custom icon yet.
-6. Build and look at both tree pages and the HUD.
-
-### Full-color icons (current pipeline, replaces the indexed steps above)
-All heroes with custom art now use full-color icons. The 16-color shared palette made them look
-"deep fried", so each icon keeps its own colors instead.
-- `slice` writes full-color RGB PNGs by default (`--style classic` gives the old indexed output).
-  Slice, then `preview PNG_DIR OUT.png [--scale N]` shows each PNG beside its in-game look and its
-  palette group number. Check it before building.
-- `build` on color PNGs also writes `<Prefix>Palettes` and a `<Prefix>Colors[]` registry
-  (`SkillExpansionIconColors`: icon, 8 colors, group), ended by a NULL entry.
-- Stock frame uses palette indices 0..7, so indices 8..15 are free per icon: each icon gets 8
-  k-means colors. Icons of a hero split into at most 6 groups that share one 8-color set.
-- Skill tree: `colorTile` loads the group's colors into BG palette bank `BUILD_PALETTE_FIRST` (9) +
-  group and repoints the tile's map entries. Works on both pages. Banks 9..15 are free.
-- HUD: `skillExpansion_hudUpdateSkillPalette` loads the selected icon's colors into HUD bank 1,
-  colors 8..15 (halved when uncastable). Trap: the level-up (unspent points) graphic shares that
-  bank, so own colors are skipped while it shows.
-- New hero: add its `<Hero>IconColors` table to `IconColorTables[]` in skill_expansion_content.c,
-  or the icons fall back to the build ramp.
-- Names starting with `-` (skip) need `--names="-,a,b"` with `=`, else the parser reads a flag.
-- Stock 16-color icons keep the old build ramps. Frodo's sheet is `new icons/FrodoNewIcons.png`:
-  `--grid "40,222,404,586,768,950,1132,1314,1497,1680:128,338,548:5.7"`.
-
-Build colors (page 2): page 2 art is drawn through palette colors 8..13, which get a ramp per build
-(`BuildArtRamps` in skill_expansion_hud.c: gold = Good, violet = Evil, green = Tricks, darker when
-uncastable). Blue art quantizes mostly into 8..13 so it recolors well. Tag a skill with
-`skillExpansion_activeBuild` (per row table, e.g. `FrodoActiveBuilds`) and `skillExpansion_passiveBuild`
-(switch on passive id) in skill_expansion_content.c. Untagged (NONE) keeps the blue page 2 ramp.
-Palette banks (trap): every tree tile draws its icon with BG2 palette bank 4, so one ramp loaded into
-bank 4 recolors the whole page (the last tile drawn wins). `tintTileForBuild` (skill_expansion_tree.c)
-loads each build's ramp into its own free bank (`BUILD_PALETTE_FIRST` 9 + build - 1, so 9 Good,
-10 Evil, 11 Tricks) and rewrites the tile's 4x3 icon map entries from bank 4 to that bank. BG2's map
-is VRAM itself (screen block 29), so the direct write sticks. Tree scene banks: 0..3 menu, 4 icons,
-5 level digits, 6 unique tile, 7..8 disabled tile/level, 9..15 free (12..15 left for new builds or
-other heroes). A 4th build = add a ramp to `BuildArtRamps` and an enum value, it takes bank 12.
-Columns: passive tiles sort by first required level into the 3x3 grid, so give each tier levels
-in column order (Good < Evil < Tricks: Frodo 10/11/12, 14/15/16, 22/23/24). Active tiles are a fixed
-3/2/1 pyramid in defs table order, so order the defs to put each build under its column.
-
-## 8b. Designing a hero resource (lessons from Frodo's Burden)
-- Check what actually feeds a stock meter before balancing around it (Ghidra xrefs to its setter). Stock
-  corruption only rises from The One Ring and drains by itself, so "keep it low" builds were free.
-- Every build should fight the resource: give it passive pressure (gain over time near foes, gain from a
-  foe family's hits), make one build's skills the main way to lower it, and let another build cash it in.
-- Prefer hero-tick control over stock patches: hold a stock countdown full, then apply your own rules.
-- Show the resource on the HUD (section 9) and announce thresholds with `skillExpansion_feedback`.
-- Recipes and addresses: hacking-recipes.md "Stock corruption (Burden) system" and "Enemy identity".
-
-## Borrowed baseRow blocks casts (trap)
-- `activeCanCast` refuses a row while its baseRow's stock action-state bit is set. Buff rows like
-  Numenorean Will (bit 3) and King's Command keep that bit set for the buff's whole duration, so an
-  elite active borrowing them can't be cast while the stock buff runs.
-- Fix: give the def a `.policy` with the borrowed pose (`baseRow + 1`) and
-  `SKILL_EXPANSION_RULE_NONE` for nativeCooldownRow and requirementRow. See `NumenoreanWillPosePolicy`
-  in skill_expansion_content.c. Instant stock rows (Knife Toss) don't need it.
-- Test: cast the stock buff, then the elite active. `actionStateFlags` shows the bit.
+Limits: 16 heroes in all until the save's 4-bit hero ID is widened. The Gauntlet's hero picker and
+its saved records cover the first 10 heroes only. Multi-piece bodies show only their main piece.
+A body's weapon is part of the sprite, so equipped gear does not show on it.
 
 ## Page 2 slot limits
 - Tree active slots are a 3/2/1 pyramid. Page 2 swaps rows 7..11 into the top 5 slots. The bottom slot

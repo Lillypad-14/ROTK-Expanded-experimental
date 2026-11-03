@@ -207,6 +207,11 @@ actor_applyTypeDefaults loads a player's sprite palette from ObjPalettes[0x21 + 
   with 9 (full draw) and fires on the B release while there.
 - Charge callers: 0x08023d2e (idle) and 0x080243c2 (mid-shot) only, no reset on B release (taps accumulate).
   The mod counts its own continuous hold in input instead.
+- 2026-11-02 (untested in play): stock only calls the charge check from state 1 (idle) and state 5 (shot), never
+  state 2 (walk), and a tap fires its arrow on press. `deferBowPress` (skill_expansion_legolas.c) strips B from
+  CURRENT/PRESSED on a press while idle/walking with a bow, then: B released before 15 frames = inject a one-frame
+  tap; held 15 frames = unmask (PRESSED stays stripped), walking drops to state 1 so the hook starts Overdraw.
+  Single-player PREV is copied from the masked CURRENT, so PRESSED must be stripped every deferred frame.
 - Trap: `currentAnimationFrame` is at 0x23. Check field offsets against the stock asm (`subs`/`adds` chains on
   the actor pointer) before trusting a header name for a timing test.
 

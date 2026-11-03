@@ -10,6 +10,7 @@
 .include "build/game_symbols.inc"        ; game funcs/globals/struct fields by name
 .include "build/modcode_syms.inc"        ; modcode entries by name (nm -> equates)
 .include "build/memmap.inc"              ; MEM_HOOK / MEM_MODCODE / ... (hacks/layout.cfg)
+.include "build/hero_data.inc"           ; hero data region addresses (hacks/tools/hero_data.py)
 .include "hacks/hook_macros.asm"         ; hookTrampoline / hookEnter / hookLeave / hookReturn
 
 ; ---------------------------- Hook Handlers / MEM_HOOK code -----------------------------
@@ -47,6 +48,9 @@
 .endif
 .if HACK_versus
     .include "hacks/patches/versus/versus_hook.asm"
+.endif
+.if HACK_bugfixes
+    .include "hacks/patches/bugfixes/bugfixes_hook.asm"
 .endif
 .if . > MEM_HOOK_END+1
     .error "hook region overflow - raise the HOOK budget in hacks/layout.cfg"
@@ -160,6 +164,9 @@
     .include "hacks/patches/ringwraith/ringwraith.asm"
     .include "hacks/patches/ringwraith/wraith_gear.asm"
 .endif
+.if HACK_heroes && HACK_ringwraith && PC_EDITION
+    .include "hacks/patches/heroes/heroes.asm"
+.endif
 .if HACK_legacy_items
     .include "hacks/patches/legacy_items/legacy_items.asm"
 .endif
@@ -168,6 +175,9 @@
 .endif
 .if HACK_super_game
     .include "hacks/patches/super_game/super_game.asm"
+.endif
+.if HACK_bugfixes
+    .include "hacks/patches/bugfixes/bugfixes.asm"
 .endif
 
 ; ---------------------------------- Data-Table Patches ----------------------------------
@@ -179,6 +189,17 @@
 ; ----------------------------------- Compiled C Code ------------------------------------
 .org MEM_MODCODE
     .incbin "build/modcode.bin"
+
+; ----------------------------------- Hero Kits Region -----------------------------------
+; Skill kits compiled from hacks/content/heroes/*.json, in fixed per hero slots (hacks/tools/hero_kit.py).
+.org MEM_HERO_KITS
+    .incbin "build/hero_kits.bin"
+
+; ----------------------------------- Hero Data Region -----------------------------------
+; Sounds, pose banks and clips of the registered heroes (hacks/tools/hero_data.py). Code points only
+; at its fixed slots, so tweaking a hero rewrites this region alone.
+.org MEM_HERO_DATA
+    .incbin "build/hero_data.bin"
 
 ; ------------------------------------ Modcode Overlays -----------------------------------
 ; Stock ROM rows copied into modcode tables, after the incbin that would overwrite them.

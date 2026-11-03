@@ -220,11 +220,33 @@ static void swapShownPage(u8 playerIndex)
     }
 }
 
+/** TRUE when page 2 holds at least one skill: a hero without page 2 content never shows it. */
+static bool pageTwoHasSkills(u8 playerIndex)
+{
+    const SkillExpansionPlayer *sx = &skillExpansion_players[playerIndex];
+
+    for (u32 i = 0; i < SKILL_EXPANSION_NEW_ACTIVE_COUNT; i++)
+    {
+        if (sx->activeDefs[i] != NULL)
+        {
+            return TRUE;
+        }
+    }
+    for (u32 i = 0; i < SKILL_EXPANSION_NEW_PASSIVE_COUNT; i++)
+    {
+        if (sx->passiveSkillIds[HERO_PASSIVE_SKILL_COUNT + i] != SKILL_EXPANSION_PASSIVE_ID_NONE)
+        {
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
 static bool canTurnPage(u8 playerIndex)
 {
     // A vanilla hero (skill_expansion_modes.c) has nothing on page 2.
     return PLAYER(playerIndex).activeSkills == skillExpansion_players[playerIndex].activeSkills &&
-           skillExpansion_playerExpanded(playerIndex);
+           skillExpansion_playerExpanded(playerIndex) && pageTwoHasSkills(playerIndex);
 }
 
 static bool pageAvailable(u8 playerIndex, u32 page)

@@ -85,6 +85,20 @@ ringwraithRepoint 0x0804a23c, RINGWRAITH_SPAWN_OFFSETS, RingwraithSpawnOffsets
 
 ringwraithRepoint 0x0803e8cc, RINGWRAITH_CAMERA_HEIGHTS, RingwraithCameraHeights
 ringwraithRepoint 0x0803e974, RINGWRAITH_CAMERA_HEIGHTS, RingwraithCameraHeights
+
+; Hero sound rows (4 u16 per hero) and sfx_play's tables with the hero sound mixes appended, in the
+; hero data region (hacks/tools/hero_data.py).
+ringwraithRepoint 0x08023d08, 0x080585d4, HERO_DATA_SOUNDS
+ringwraithRepoint 0x08023e58, 0x080585d4, HERO_DATA_SOUNDS
+ringwraithRepoint 0x08024578, 0x080585d4, HERO_DATA_SOUNDS
+ringwraithRepoint 0x0802459c, 0x080585d4, HERO_DATA_SOUNDS
+ringwraithRepoint 0x08024740, 0x080585d4, HERO_DATA_SOUNDS
+ringwraithRepoint 0x08024930, 0x080585d4, HERO_DATA_SOUNDS
+ringwraithRepoint 0x08024a94, 0x080585d4, HERO_DATA_SOUNDS
+ringwraithRepoint 0x08046f18, 0x08289450, HERO_DATA_SFX_ENTRIES
+ringwraithRepoint 0x08046fd8, 0x08289450, HERO_DATA_SFX_ENTRIES
+ringwraithRepoint 0x08046f90, 0x08288010, HERO_DATA_SFX_SETS
+ringwraithRepoint 0x08047050, 0x08288010, HERO_DATA_SFX_SETS
 ringwraithRepoint 0x0803eb94, RINGWRAITH_CAMERA_HEIGHTS, RingwraithCameraHeights
 
 ; Start items and backpack art: nine-case switches.

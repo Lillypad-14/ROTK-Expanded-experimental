@@ -169,11 +169,12 @@ bool skillExpansion_passiveAddLevels(u8 playerIndex, u8 passiveSkillId, u8 count
         return FALSE;
     }
 
-    *purchased += count;
-    if (*purchased > PASSIVE_SKILL_MAX_LEVEL)
+    // capped at the skill's own maxLevel, so a one-level skill stays at one (known-bugs #12)
+    if (count > skill->maxLevel - *purchased)
     {
-        *purchased = PASSIVE_SKILL_MAX_LEVEL;
+        count = skill->maxLevel - *purchased;
     }
+    *purchased += count;
     skillExpansion_passiveApplyLevels(playerIndex, passiveSkillId, count);
 
     if (passiveSkillId == PASSIVE_SKILL_FLEET_OF_FOOT)
@@ -228,10 +229,9 @@ bool skillExpansion_passiveRemoveLevels(u8 playerIndex, u8 passiveSkillId, u8 co
     {
         *purchased = 0;
     }
-    else
-    {
-        skillExpansion_passiveRemoveAppliedLevels(playerIndex, passiveSkillId, count);
-    }
+    // the applied levels above what is left come off with their stats, also when more were taken
+    // back than bought (known-bugs #11)
+    skillExpansion_passiveRemoveAppliedLevels(playerIndex, passiveSkillId, count);
     return TRUE;
 }
 

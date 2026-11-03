@@ -1,4 +1,8 @@
 #include "patches/gauntlet/gauntlet_ui.h"
+#if HACK_heroes
+#include "hero_count.h"
+#include "patches/heroes/hero_select.h"
+#endif
 
 #include "font.h"
 #include "gba_io.h"
@@ -363,6 +367,12 @@ static const u8 *portraitAsset(u32 heroId)
         DialogPortraitSarumanBgAsset,
     };
 
+#if HACK_heroes && PC_EDITION
+    if (heroId < HACK_HERO_COUNT)
+    {
+        return HeroMenuInfos[heroId].portrait;
+    }
+#endif
     return heroId < ARRAY_COUNT(Portraits) ? Portraits[heroId] : Portraits[0];
 }
 
@@ -412,9 +422,13 @@ static void trimPortraitBox(volatile u32 *tiles)
 
 void gauntletUi_portrait(u32 heroId, s32 x, s32 y)
 {
+    gauntletUi_portraitAsset(portraitAsset(heroId), x, y);
+}
+
+void gauntletUi_portraitAsset(const u8 *asset, s32 x, s32 y)
+{
     u32 control = TextControls[drawPage];
     u32 paletteBank = PORTRAIT_BANK + drawPage;
-    const u8 *asset = portraitAsset(heroId);
     const u16 *palette = (const u16 *)(asset + 2);
     const u8 *stream = asset + 2 + 16 * sizeof(u16) + sizeof(u16);
     volatile u32 *tiles = (volatile u32 *)(BG_CHAR_ADDR(BGCNT_GET_CHARBASE(control)) +
