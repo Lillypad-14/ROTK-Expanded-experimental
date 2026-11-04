@@ -1,0 +1,4 @@
+{
+  "note": "Enemy clips whose 5 facings store up and down the other way round from a player's (0 up .. 4 down). hero_clips.Sources reverses them. Do not list the Witch-king's Attack: listed, it made him turn his back to attack (hero_fast.py directions, 2026-11-02: the idle and the swing must show the same side in each row). Check a clip with hero_fast.py directions before listing it.",
+  "reversed": {}
+}

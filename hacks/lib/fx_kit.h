@@ -170,6 +170,12 @@ void hackLib_fxRemove(Actor *fx);
 bool32 hackLib_fxUsePalette(Actor *fx, const u16 *palette, u8 paletteId);
 
 /**
+ * Draw any actor (an effect, an ally) in an effect color, as fx shapes take it. A shared slot is
+ * released when the actor is freed. Returns FALSE when the color has no slot free.
+ */
+bool32 hackLib_fxUseFxColor(Actor *actor, HackLibFxColor color);
+
+/**
  * Draw an actor in palette (any number of them, told apart by address) in a shared slot, released
  * when the actor is freed. An actor already in a shared slot by another claim (hackLib_fxUsePalette,
  * or a slot it borrows from one) keeps it. Returns FALSE when no shared slot is free.

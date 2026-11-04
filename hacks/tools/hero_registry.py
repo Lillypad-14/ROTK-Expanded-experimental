@@ -124,8 +124,8 @@ def write_menu(root: Path, output: Path, heroes: list[dict]) -> None:
 
 def generate(root: Path, pc: bool = False) -> None:
     heroes = load(root, pc)
-    if not 8 <= len(heroes) <= 16:
-        raise ValueError("The native hero save field supports 8..16 registered heroes")
+    if not 8 <= len(heroes) <= hero_data.MAX_HEROES:
+        raise ValueError(f"8..{hero_data.MAX_HEROES} heroes: hero kit slots and body slots exist for that many")
     for index, hero in enumerate(heroes):
         if hero["id"] != index or not 0 <= hero["stockHero"] < 8:
             raise ValueError(

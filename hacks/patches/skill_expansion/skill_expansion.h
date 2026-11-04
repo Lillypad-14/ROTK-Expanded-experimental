@@ -229,6 +229,14 @@ enum SkillExpansionPassiveId
 
 #define SKILL_EXPANSION_ELITE_PASSIVE_COUNT (SKILL_EXPANSION_PASSIVE_END - PASSIVE_SKILL_COUNT)
 
+// Passives written in spec kits (hacks/content/heroes/*.json), heroes 8 and up: id
+// SKILL_EXPANSION_SPEC_PASSIVE_FIRST + player index * 9 + slot is passive slot `slot` of the hero
+// that player plays. Kits store the player 0 ids, and the player's table adds its offset.
+#define SKILL_EXPANSION_SPEC_PASSIVE_FIRST 160
+#define SKILL_EXPANSION_SPEC_PASSIVE_FIRST_HERO 8
+#define SKILL_EXPANSION_SPEC_PASSIVE_PLAYERS 2
+#define SKILL_EXPANSION_SPEC_PASSIVE_END                                                               (SKILL_EXPANSION_SPEC_PASSIVE_FIRST + SKILL_EXPANSION_SPEC_PASSIVE_PLAYERS * HERO_PASSIVE_SKILL_COUNT)
+
 // Hero level required per purchased level of a passive, -1 once maxed.
 #define SKILL_EXPANSION_REQUIRED_LEVEL_COUNT (PASSIVE_SKILL_MAX_LEVEL + 1)
 
@@ -312,7 +320,7 @@ typedef struct SkillExpansionHeroKit
 // MEM_HERO_KITS, linked apart from the modcode by hacks/tools/hero_kit.py. Code reaches them only
 // through these slots, so hero_fast.py swaps new kits in without a rebuild, and the kit pointer the
 // runtime keeps stays valid even across a savestate.
-#define SKILL_EXPANSION_KIT_SLOTS 16
+#define SKILL_EXPANSION_KIT_SLOTS 64
 
 typedef struct SkillExpansionKitSlot
 {
@@ -325,6 +333,10 @@ typedef struct SkillExpansionKitSlot
 
 /** The hero's kit, or NULL for a hero built from the stock blocks. */
 const SkillExpansionHeroKit *skillExpansion_getHeroKit(u32 heroId);
+/** The stock hero (0..7) whose art and stock tables a hero uses: its kit's, else its base hero. */
+u32 skillExpansion_artHero(u32 heroId);
+/** The whole hero id of on-screen save slot slotIndex (the stock slot keeps only 4 bits). */
+u32 skillExpansion_slotHeroId(u32 slotIndex);
 void skillExpansion_initHeroLoadout(u32 heroId, u32 playerIndex);
 bool32 skillExpansion_activeCanCast(u8 playerIndex, u8 activeSkillIndex);
 

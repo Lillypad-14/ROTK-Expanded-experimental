@@ -10,6 +10,7 @@ Exit status 1 when there is an error.
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 import re
 import struct
@@ -99,14 +100,18 @@ def check_body(rom: bytes, hero: dict, sources, errors: list, warnings: list) ->
         warnings.append("body: idle is the walk clip, so the hero walks in place (use {\"clip\": \"Walk\", \"frames\": [0, 0]})")
     elif frames(move[4]) > 1 and move[4].facings[0].duration == 0:
         errors.append("body: idle has speed 0 with several frames")
+    spec = hero_kit.spec_path(ROOT, hero["name"])
+    shoots = spec.exists() and "primary" in json.loads(spec.read_text())
     for pose in (0, 2, 4):
-        if not hits(melee[pose]):
+        if not hits(melee[pose]) and not shoots:
             errors.append(f"body: melee {hero_clips.MELEE_POSES[pose]} has no hit frame, so it deals no damage")
     for pose in (1, 3):
         if hits(melee[pose]):
             warnings.append(f"body: melee {hero_clips.MELEE_POSES[pose]} has a hit frame (a recovery that strikes again)")
-        if game_frames(melee[pose]) > 12:
-            warnings.append(f"body: melee {hero_clips.MELEE_POSES[pose]} is {game_frames(melee[pose])} game frames, "
+        # The game ends a pose one tick into its last frame, so that frame counts as one tick.
+        recover_ticks = game_frames(melee[pose]) - melee[pose].facings[0].duration
+        if recover_ticks > 12:
+            warnings.append(f"body: melee {hero_clips.MELEE_POSES[pose]} is {recover_ticks} game frames, "
                             "it replays a long clip after each swing")
     for pose, clip in enumerate(cast):
         if hits(clip):

@@ -1,0 +1,20 @@
+{"enemy": "MouthOfSauron", "note": "Mouth of Sauron: his stock Attack, frame for frame at its own speed. The clip has no hitbox, so the thrust (Attack:4) and the cape flare (Attack:7) get one; nothing else changes.",
+  "anims": {
+    "attack": {"speed": 2, "note": "The stock Attack with hitboxes.", "frames": [
+      {"src": "Attack:0"},
+      {"src": "Attack:1"},
+      {"src": "Attack:2"},
+      {"src": "Attack:3"},
+      {"src": "Attack:4", "hit": [-30, 30, -36, 12]},
+      {"src": "Attack:5"},
+      {"src": "Attack:6"},
+      {"src": "Attack:7", "hit": [-30, 30, -36, 12]},
+      {"src": "Attack:8"},
+      {"src": "Attack:9"},
+      {"src": "Attack:10"},
+      {"src": "Attack:11"},
+      {"src": "Attack:12"},
+      {"src": "Attack:13"}
+    ]}
+  }
+}

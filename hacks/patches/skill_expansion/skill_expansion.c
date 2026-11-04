@@ -2,6 +2,9 @@
 #include "patches/legacy_skills/legacy_skills.h"
 #endif
 #include "patches/skill_expansion/skill_expansion.h"
+#if PC_EDITION && HACK_ringwraith
+#include "patches/heroes/spec_kit.h"
+#endif
 #include "game.h"
 #include "memory.h"
 #include "patches/skill_expansion/skill_expansion_elite.h"
@@ -59,19 +62,24 @@ const SkillExpansionHeroKit *skillExpansion_getHeroKit(u32 heroId)
     return NULL;
 }
 
-const void *skillExpansion_getHeroTileBgAsset(u8 playerIndex)
+u32 skillExpansion_artHero(u32 heroId)
 {
-    u32 heroId = PLAYER(playerIndex).heroId;
     const SkillExpansionHeroKit *kit = skillExpansion_getHeroKit(heroId);
 
-    return SkillTreeHeroTileBgAssets[kit != NULL ? kit->artHeroId :
+    if (kit != NULL)
+    {
+        return kit->artHeroId;
+    }
 #if HACK_ringwraith
-                                                 ringwraith_stockHero(heroId)
+    return ringwraith_stockHero(heroId);
 #else
-                                     heroId < 8 ? heroId
-                                                : HERO_ID_ARAGORN
+    return heroId < 8 ? heroId : HERO_ID_ARAGORN;
 #endif
-    ];
+}
+
+const void *skillExpansion_getHeroTileBgAsset(u8 playerIndex)
+{
+    return SkillTreeHeroTileBgAssets[skillExpansion_artHero(PLAYER(playerIndex).heroId)];
 }
 
 static const SkillExpansionElitePassive *getElitePassive(u32 passiveSkillId)
@@ -80,6 +88,12 @@ static const SkillExpansionElitePassive *getElitePassive(u32 passiveSkillId)
     {
         return &SkillExpansionElitePassives[passiveSkillId - PASSIVE_SKILL_COUNT];
     }
+#if PC_EDITION && HACK_ringwraith
+    if (passiveSkillId >= SKILL_EXPANSION_SPEC_PASSIVE_FIRST && passiveSkillId < SKILL_EXPANSION_SPEC_PASSIVE_END)
+    {
+        return specKit_passive(passiveSkillId);
+    }
+#endif
     return NULL;
 }
 
@@ -187,6 +201,15 @@ static void buildTables(u32 heroId, u8 playerIndex)
     }
 
     memory_memcpy(sx->passiveSkillIds, stockPassives, HERO_PASSIVE_SKILL_COUNT);
+    // Spec passive ids name a slot of player 0's hero: point them at this player's.
+    for (i = 0; i < HERO_PASSIVE_SKILL_COUNT; i++)
+    {
+        if (sx->passiveSkillIds[i] >= SKILL_EXPANSION_SPEC_PASSIVE_FIRST &&
+            sx->passiveSkillIds[i] < SKILL_EXPANSION_SPEC_PASSIVE_FIRST + HERO_PASSIVE_SKILL_COUNT)
+        {
+            sx->passiveSkillIds[i] += playerIndex * HERO_PASSIVE_SKILL_COUNT;
+        }
+    }
     if (expanded)
     {
         memory_memcpy(&sx->passiveSkillIds[HERO_PASSIVE_SKILL_COUNT],

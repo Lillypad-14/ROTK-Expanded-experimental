@@ -131,6 +131,7 @@ A hero's poses, sounds and skill spec live in two ROM regions that code reaches 
 | Tool | Time | What it does |
 | --- | --- | --- |
 | `hacks/tools/hero_check.py` | 1 s | Lint of every hero: bodies, sounds, specs, description wrap |
+| `hacks/tools/anim_studio.py` | 1 s | Animations from enemy frames, edits and drawings: review sheets, frame data, lint, assign ([guide](wip-docs/animation-studio.md)) |
 | `hacks/tools/hero_preview.py` | 1 s | Every pose as frames with hit boxes, and an enemy clip browser |
 | `hacks/tools/sound_preview.py` | 1 s | WAVs of a hero's sounds or any sfx |
 | `hacks/tools/hero_fast.py check` | 5-10 s | The real PC game, headless from a savestate: attack (B) or cast (A), frame sheet |

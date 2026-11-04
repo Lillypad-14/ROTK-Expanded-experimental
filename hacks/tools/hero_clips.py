@@ -22,7 +22,10 @@ Move poses: knocked down, death, getting up, hurt, idle, knocked back, walk. Cas
 n - 1. "swings" are melee cuts (clip default "Attack"): the stock combo plays pose 0 first swing,
 1 its recovery, 2 second swing, 3 its recovery, 4 finisher. The swings cycle through 0, 2 and 4,
 the finisher is the last swing, and each recovery is its swing's last RECOVERY_FRAMES frames with
-no hit. A "melee" list of 7 poses replaces "swings".
+no hit, plus a padding repeat of the last frame (the game ends a pose one tick into its last
+frame), slowed to last about RECOVERY_TICKS game ticks in all (body "recoveryTicks" overrides). The
+recovery is the combo window: the game chains a press during a swing (buffered) or during the first
+5 frames of its recovery, so a short recovery eats late presses (stock heroes: 8 ticks, 268 ms). A "melee" list of 7 poses replaces "swings".
 
 hero_data.py links the bodies into the hero data region. hero_preview.py draws a body straight
 from this data, without a build.
@@ -41,6 +44,7 @@ FACINGS = 5
 PARTS = 8
 POSES = 7
 RECOVERY_FRAMES = 2
+RECOVERY_TICKS = 8
 HEADER = 12
 FRAME = 8
 HOTSPOT = 2
@@ -62,6 +66,10 @@ class Facing:
     tiles_address: int
     frames: bytes  # the frame set (header, offsets, frame records)
     duration: int
+    # Tile data of a built anim (anim_kit.py), placed in the hero data region. None: tiles_address.
+    tiles_data: bytes | None = None
+    # Per frame, each OBJ's own 16 colors (BGR555) or None: anims with "#rrggbb" colors (PC host).
+    palettes: list | None = None
 
 
 @dataclass
@@ -101,8 +109,19 @@ class Sources:
         return full
 
     def facings(self, symbol: str) -> list[Facing]:
-        return [Facing(t, self.addresses[t], frame_set_bytes(self.rom, self.addresses[f]), d)
-                for t, f, d in self.banks[symbol]]
+        """The clip's 5 facings in player order (0 up .. 4 down). Clips listed in
+        hacks/content/enemy_facings.json store up and down the other way round and come reversed."""
+        out = [Facing(t, self.addresses[t], frame_set_bytes(self.rom, self.addresses[f]), d)
+               for t, f, d in self.banks[symbol]]
+        return out[::-1] if symbol in self.reversed_clips() else out
+
+    def reversed_clips(self) -> set[str]:
+        if not hasattr(self, "_reversed"):
+            path = self.root / "hacks/content/enemy_facings.json"
+            data = json.loads(path.read_text()) if path.exists() else {}
+            self._reversed = {f"EnemyAnimationBank_EnemyType{enemy}_{clip}"
+                              for enemy, clips in data.get("reversed", {}).items() for clip in clips}
+        return self._reversed
 
 
 def frame_set_bytes(rom: bytes, address: int) -> bytes:
@@ -170,10 +189,54 @@ def cut(facing: Facing, first: int, last: int, hit) -> Facing:
             else:
                 frame[box + ENABLE] = 0
         picked.append(bytes(frame))
-    return Facing(facing.tiles, facing.tiles_address, join_frames(header, picked), facing.duration)
+    palettes = facing.palettes[first:last + 1] if facing.palettes else None
+    return Facing(facing.tiles, facing.tiles_address, join_frames(header, picked), facing.duration, facing.tiles_data,
+                  palettes)
 
 
-def make_clip(sources: Sources, enemy: str, entry, label: str) -> Clip:
+def pad_last(facing: Facing) -> Facing:
+    """The facing with its last frame repeated once (the frame the game cuts short)."""
+    header, frames, _, _ = split_frames(facing.frames, 0)
+    palettes = facing.palettes + facing.palettes[-1:] if facing.palettes else None
+    return Facing(facing.tiles, facing.tiles_address, join_frames(header, frames + frames[-1:]), facing.duration,
+                  facing.tiles_data, palettes)
+
+
+class Anims:
+    """A hero's anim file (anim_kit.py), for poses written "@name"."""
+
+    def __init__(self, root: Path, rom: bytes, hero: dict, sources: Sources):
+        import anim_kit
+
+        self.kit = anim_kit
+        self.hero = hero["name"]
+        self.data = anim_kit.load(self.hero)
+        if self.data.get("enemy") is None:
+            self.data["enemy"] = hero["body"]["enemy"]
+        self.lib = anim_kit.Library(sources, rom)
+        self.palette = anim_kit.palette_rgb(root, rom, hero["palette"])
+        self.warnings: list[str] = []
+
+    def clip(self, name: str, label: str, speed: int | None = None) -> Clip:
+        facings = []
+        for facing in range(FACINGS):
+            built = self.kit.build(self.lib, self.hero, name, self.data, self.palette, facing, self.warnings)
+            facings.append(Facing(f"{label}Tiles", 0, built.frames, speed or built.duration, built.tiles,
+                                  built.piece_palettes()))
+        return Clip(label, facings, False)
+
+
+def make_clip(sources: Sources, enemy: str, entry, label: str, anims: Anims | None = None) -> Clip:
+    anim = entry[1:] if isinstance(entry, str) and entry.startswith("@") else None
+    if isinstance(entry, dict) and "anim" in entry:
+        if set(entry) - {"anim", "speed"}:
+            raise ValueError(f"{label}: an anim pose takes only anim and speed")
+        anim = entry["anim"].lstrip("@")
+    if anim is not None:
+        if anims is None:
+            raise ValueError(f"{label}: @{anim} needs the hero's anim file")
+        speed = entry.get("speed") if isinstance(entry, dict) else None
+        return anims.clip(anim, label, speed)
     if isinstance(entry, str):
         entry = {"clip": entry}
     unknown = set(entry) - {"clip", "frames", "hit", "speed"}
@@ -208,25 +271,33 @@ def body_banks(root: Path, rom: bytes, hero: dict, sources: Sources | None = Non
     sources = sources or Sources(root, rom)
     enemy = body["enemy"]
     symbol = re.sub(r"[^A-Za-z0-9]", "", hero["name"].title())
+    anims = Anims(root, rom, hero, sources)
     banks = {}
     for bank in ("move", "cast"):
         poses = body[bank]
         if len(poses) != POSES:
             raise ValueError(f"{hero['name']}: body.{bank} needs {POSES} poses ({', '.join(POSE_NAMES[bank])})")
-        banks[bank] = dedupe([make_clip(sources, enemy, p, f"{symbol}{bank.title()}{n}") for n, p in enumerate(poses)], poses)
+        banks[bank] = dedupe([make_clip(sources, enemy, p, f"{symbol}{bank.title()}{n}", anims) for n, p in enumerate(poses)], poses)
     if "melee" in body:
         if len(body["melee"]) != POSES:
             raise ValueError(f"{hero['name']}: body.melee needs {POSES} poses")
-        banks["melee"] = dedupe([make_clip(sources, enemy, p, f"{symbol}Melee{n}") for n, p in enumerate(body["melee"])],
+        banks["melee"] = dedupe([make_clip(sources, enemy, p, f"{symbol}Melee{n}", anims) for n, p in enumerate(body["melee"])],
                                 body["melee"])
     else:
         swings, recovers = [], []
         for n, swing in enumerate(body["swings"]):
-            swing = {"clip": "Attack", **({"clip": swing} if isinstance(swing, str) else swing)}
-            clip = make_clip(sources, enemy, swing, f"{symbol}Swing{n}")
+            if not (isinstance(swing, str) and swing.startswith("@")) and not (isinstance(swing, dict) and "anim" in swing):
+                swing = {"clip": "Attack", **({"clip": swing} if isinstance(swing, str) else swing)}
+            clip = make_clip(sources, enemy, swing, f"{symbol}Swing{n}", anims)
             count = len(split_frames(clip.facings[0].frames, 0)[1])
             start = max(0, count - RECOVERY_FRAMES)
-            recover = Clip(f"{symbol}Recover{n}", [cut(f, start, count - 1, False) for f in clip.facings], False)
+            ticks = int(body.get("recoveryTicks", RECOVERY_TICKS))
+            # The game ends a pose one tick into its last frame, so the last frame repeats once
+            # as padding and the real frames get the whole time.
+            facings = [pad_last(cut(f, start, count - 1, False)) for f in clip.facings]
+            for f in facings:
+                f.duration = max(f.duration, -(-ticks // (count - start)))
+            recover = Clip(f"{symbol}Recover{n}", facings, False)
             swings.append(clip)
             recovers.append(recover)
         if not swings:

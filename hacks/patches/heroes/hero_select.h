@@ -34,3 +34,6 @@ void heroSelect_open(void);
 
 /** Called at the end of the save menu's enter: create the hero picked on this screen, if any. */
 void heroSelect_resumeSaveMenu(void);
+
+/** TRUE when a hero picked on this screen waits for the save menu to create it. */
+bool32 heroSelect_hasPendingChoice(void);

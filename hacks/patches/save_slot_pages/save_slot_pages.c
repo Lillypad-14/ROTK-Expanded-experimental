@@ -24,6 +24,9 @@
 #include "patches/heroes/hero_grid.h"
 #include "patches/heroes/hero_select.h"
 #endif
+#if HACK_fast_fade
+#include "patches/fast_fade/fast_fade.h"
+#endif
 #if HACK_ringwraith
 #include "patches/ringwraith/ringwraith.h"
 #define HERO_SELECT_LAST_HERO (HACK_HERO_COUNT - 1)
@@ -127,6 +130,23 @@ void saveSlotPages_enter(void)
     {
         g_GameFlags.p |= GAME_FLAG_BONUS_MAP_ACTIVE;
     }
+#if HACK_heroes && HACK_gauntlet && PC_EDITION && HACK_fast_fade
+    if (heroSelect_hasPendingChoice())
+    {
+        // A hero was just picked: create the character and go on to the bonus maps while the
+        // screen stays black, rather than fading this menu in and out in between.
+        // Sprites ignore the black on the PC renderer, so none may show.
+        fastFade_holdBlack();
+        heroSelect_resumeSaveMenu();
+        for (Actor *actor = g_ActorListMain.head; actor != NULL; actor = actor->next)
+        {
+            actor->flags.p &= ~ACTOR_FLAG_RENDER;
+        }
+        actor_tickAll();
+        sprite_endFrame();
+        return;
+    }
+#endif
     actor_tickAll();
     sprite_endFrame();
     gfx_fadeInFromBlack(GFX_BLEND_ALL_TARGETS);

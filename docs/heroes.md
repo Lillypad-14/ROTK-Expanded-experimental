@@ -34,7 +34,17 @@ All ten heroes completed the automated ability and Gauntlet checks in the [2026-
 | [Ringwraith](#ringwraith) | Dread | New hero. Terrify and stun foes, then raise the slain as thralls | mostly tested |
 | [Saruman](#saruman) | Empowered spells | Cast three spells, then empower the next damaging spell | host and automated emulator checks; manual pass pending |
 | [Eowyn](#eowyn) | Against the Dark | Odds rise with danger. Rohirrim can build Gallop and spend it on a strike | experimental; manual pass pending |
-| [Witch-king](#witch-king) | Terror and sorcery | PC only. Morgul bolts, stuns, a warding crown, from a data-written kit | untested |
+| [Witch-king](#witch-king) | The Black Captain's dread | PC only. Iron Crown turns blows back on the striker, Lord of Terror makes foes cower every second, No Living Man cheats death. | headless checks; manual pass pending |
+| [Orc Captain](#orc-captain) | The lash | PC only. Whip lines, a boot that sends foes flying, taunts, a war-banner haste and a cleave that cuts everyone around him. | headless checks; manual pass pending |
+| [Uruk-hai](#uruk-hai) | Bred in the Pits | PC only. Rises from the mud when slain. Whelps, devouring the wounded, a mud hide and the White Hand's lifesteal. | headless checks; manual pass pending |
+| [Guard of Gondor](#guard-of-gondor) | The city's defence | PC only. Calls guards to his side, a shield wall, the Horn of Gondor, a Swan Knight charge and the Eagles. | headless checks; manual pass pending |
+| [Denethor](#denethor) | Fire and despair | PC only. Pays health for spell power, sets foes burning, the White Tower turns arrows, madness trades defence for damage. | headless checks; manual pass pending |
+| [Mouth of Sauron](#mouth-of-sauron) | Treachery | PC only. Turns a foe against its friends, curses foes to take more damage, rides them down; the Eye calls fire on six. | headless checks; manual pass pending |
+| [Army of the Dead](#army-of-the-dead) | Terror and the grave | PC only. Foes flee in terror, he passes through them as mist, grave fog and soul harvest; the grey host sweeps the field. | headless checks; manual pass pending |
+| [Warg](#warg) | Frenzy | PC only. Every bite stacks Frenzy (a HUD meter). Leaps, howls that weaken, bleeding bites and a throat-bite finisher. | headless checks; manual pass pending |
+| [Spider](#spider) | Web traps | PC only. Webs that hold foes, stacking venom that paralyzes, reels foes in, cocoons them; Shelob's Lair rings her in webs. | headless checks; manual pass pending |
+| [Corsair](#corsair) | Plunder | PC only. Kills drop loot. A grappling hook, cutlass flurry, blinding smoke powder, powder kegs and a broadside of cannon. | headless checks; manual pass pending |
+| [Uruk Crossbowman](#uruk-crossbowman) | The marksman | PC only. His basic attack shoots bolts. Piercing bolts, volleys, a pavise to stand behind, fire that spreads, steady aim, a rain of bolts. | headless checks; manual pass pending |
 
 ---
 
@@ -301,29 +311,199 @@ Both pages use 30 custom icons matched to the skill subjects. See the [art mappi
 
 ## Witch-king
 
-**Idea:** the Lord of the Nazgul as a sorcerer-king. A PC-only hero (hero id 10) built from the Witch-king enemy's
-own sprites and voice through the enemy-to-hero pipeline, in the Servants of Sauron group of the hero select.
+**Idea:** the Lord of the Nazgul as a sorcerer-king. His crown rebounds blows, terror walks with him, and on page 2 no living man may kill him. A PC-only hero (hero id 10) built from the WitchKing enemy's own sprites, in the Servants of Sauron group of the hero select.
 
-**Mechanic: Terror and sorcery.** No meter of his own yet. His kit is written as data
-([`witchking.json`](../hacks/content/heroes/witchking.json)), the first hero whose skills come from a spec: Morgul
-bolts that poison, area stuns, a blast at the nearest foe, a damage ward, a melee empower and self-heals.
+**Mechanic: The Black Captain's dread.** Iron Crown turns blows back on the striker, Lord of Terror makes foes cower every second, No Living Man cheats death.
 
 | Page 1 actives | Page 2 actives |
 | --- | --- |
 | Morgul Shard, Black Breath, Cry of the Nazgul, Iron Crown, Lord of Terror, Undying Malice | Mace of Angmar, Host of Angmar, Morgul Sorcery, Endless Night, No Living Man |
 
-Passives are stock ones: Fearless, Iron Will, Hardy, Blademaster, Death Strike, Battle Scarred, Last Stand, Wise and
-Berserker on page 1, and Accuracy, Nimble, Keen Eyes, Luck, Fighter's Resolve, Fleet of Foot, Wisdom of the Ages,
-Wraithslayer and Rage of the North on page 2.
+Kit: [`witchking.json`](../hacks/content/heroes/witchking.json). Skill sprites: [`witchking_fx_art.py`](../hacks/tools/witchking_fx_art.py).
 
-Status: **untested**. The body, sounds and attacks pass the headless checks. Skills, the skill tree and the stats
-screen portrait still need a manual pass.
-
-Code: [`spec_kit.c`](../hacks/patches/heroes/spec_kit.c) runs every spec kit, and
-[`hero_kit.py`](../hacks/tools/hero_kit.py) compiles the spec.
+Status: **headless checks pass; manual pass pending.**
 
 ---
 
+## Orc Captain
+
+**Idea:** a Mordor slave-driver who puts foes where he wants them: a whip along his facing, a kick, a bellow that makes them turn on him. A PC-only hero (hero id 11) built from the OrcCaptainArmored enemy's own sprites, in the Servants of Sauron group of the hero select.
+
+**Mechanic: The lash.** Whip lines, a boot that sends foes flying, taunts, a war-banner haste and a cleave that cuts everyone around him.
+
+| Actives |
+| --- |
+| Whip Crack, Boot, Over Here, Maggots!, Onward!, Second Wind, Leave None Alive |
+
+Passives: Iron Hide, Slaver's Arm, Loud Voice, Spoils of War, Swagger, Scarred, Cornered Rat, Mordor's Whip, Captain of Mordor.
+
+Kit: [`orccaptain.json`](../hacks/content/heroes/orccaptain.json). Skill sprites: [`orccaptain_fx_art.py`](../hacks/tools/orccaptain_fx_art.py).
+
+Status: **headless checks pass; manual pass pending.**
+
+---
+
+## Uruk-hai
+
+**Idea:** a fighting Uruk who cheats death through rebirth charges earned by kills and paid for in blood. A PC-only hero (hero id 12) built from the Uruk enemy's own sprites, in the Servants of Sauron group of the hero select.
+
+**Mechanic: Bred in the Pits.** Rises from the mud when slain. Whelps, devouring the wounded, a mud hide and the White Hand's lifesteal.
+
+| Actives |
+| --- |
+| Whelps of the Pit, Mud Tomb, Meat's Back on the Menu, Blood for the Pits, Hide of the Pits, The White Hand |
+
+Passives: Fighting Uruk-hai, Iron of Isengard, Run Day and Night, Bone Pile, Born of Mud, Spawning Pits, Pit-Brood, Sun-Scorned, Deeper Pits.
+
+Kit: [`urukhai.json`](../hacks/content/heroes/urukhai.json). Skill sprites: [`urukhai_fx_art.py`](../hacks/tools/urukhai_fx_art.py).
+
+Status: **headless checks pass; manual pass pending.**
+
+---
+
+## Guard of Gondor
+
+**Idea:** a Citadel guard who brings the city with him: allies, a wall of shields, the horn, beacons, and the Eagles at the end. A PC-only hero (hero id 13) built from the GondorSoldier enemy's own sprites, in the Free Peoples group of the hero select.
+
+**Mechanic: The city's defence.** Calls guards to his side, a shield wall, the Horn of Gondor, a Swan Knight charge and the Eagles.
+
+| Actives |
+| --- |
+| Call the Guard, Shield Wall!, Horn of Gondor, Charge of Dol Amroth, Light the Beacons, The Eagles Are Coming |
+
+Passives: Guard of the Citadel, Swordsman of Gondor, Shield of the White Tree, Veterans of Osgiliath, Stone of Minas Tirith, Faramir's Rangers, Hold the Line, Men of the West, Captain's Command.
+
+Kit: [`guardofgondor.json`](../hacks/content/heroes/guardofgondor.json). Skill sprites: [`gondor_fx_art.py`](../hacks/tools/gondor_fx_art.py).
+
+Status: **headless checks pass; manual pass pending.**
+
+---
+
+## Denethor
+
+**Idea:** the Steward burning himself out: despair feeds his spells, the palantir stuns, the pyre ends it. A PC-only hero (hero id 14) built from the Denethor enemy's own sprites, in the Free Peoples group of the hero select.
+
+**Mechanic: Fire and despair.** Pays health for spell power, sets foes burning, the White Tower turns arrows, madness trades defence for damage.
+
+| Actives |
+| --- |
+| Pyre-Flame, The Palantir, Despair, Lord of the White Tower, Madness, Pyre of the Stewards |
+
+Passives: Steward of Gondor, Lore of Numenor, Proud Lineage, Long Sight, Iron Will, Bitter Grief, Seat of the Steward, Ember Heart, Long Despair.
+
+Kit: [`denethor.json`](../hacks/content/heroes/denethor.json). Skill sprites: [`denethor_spider_fx_art.py`](../hacks/tools/denethor_spider_fx_art.py).
+
+Status: **headless checks pass; manual pass pending.**
+
+---
+
+## Mouth of Sauron
+
+**Idea:** Sauron's herald, who fights with lies: charmed foes, marked foes, a mithril shirt that breaks their will, and the Eye. A PC-only hero (hero id 15) built from the MouthOfSauron enemy's own sprites, in the Servants of Sauron group of the hero select.
+
+**Mechanic: Treachery.** Turns a foe against its friends, curses foes to take more damage, rides them down; the Eye calls fire on six.
+
+| Actives |
+| --- |
+| The Lie, Black Speech, The Mithril Coat, Ride Them Down, Tribute, The Eye Is Upon You |
+
+Passives: Lieutenant of Barad-dur, Sorcerer, Forgotten Name, Black Steed, Cruel Mockery, Grinning Skull, Herald's Due, Dark Tidings, Voice of the Tower.
+
+Kit: [`mouthofsauron.json`](../hacks/content/heroes/mouthofsauron.json). Skill sprites: [`mouthofsauron_fx_art.py`](../hacks/tools/mouthofsauron_fx_art.py).
+
+Status: **headless checks pass; manual pass pending.**
+
+---
+
+## Army of the Dead
+
+**Idea:** the Oathbreakers as one hero: fear, intangibility, lingering cold and a stampede of the dead. A PC-only hero (hero id 16) built from the Ghost enemy's own sprites, in the Free Peoples group of the hero select.
+
+**Mechanic: Terror and the grave.** Foes flee in terror, he passes through them as mist, grave fog and soul harvest; the grey host sweeps the field.
+
+| Actives |
+| --- |
+| Terror of the Dead, Pass Through, Grave Mist, Soul Harvest, Grasp of the Dead, The Dead Sweep the Field |
+
+Passives: Oathbreakers, Grey Host, Cold Blades, Already Dead, Unquiet, Hollow Voices, Debt of Souls, Isildur's Curse, Dunharrow.
+
+Kit: [`armyofthedead.json`](../hacks/content/heroes/armyofthedead.json). Skill sprites: [`armyofthedead_fx_art.py`](../hacks/tools/armyofthedead_fx_art.py).
+
+Status: **headless checks pass; manual pass pending.**
+
+---
+
+## Warg
+
+**Idea:** a wolf of the Misty Mountains that hunts from foe to foe and grows wilder with every bite. A PC-only hero (hero id 17) built from the Warg enemy's own sprites, in the Servants of Sauron group of the hero select.
+
+**Mechanic: Frenzy.** Every bite stacks Frenzy (a HUD meter). Leaps, howls that weaken, bleeding bites and a throat-bite finisher.
+
+| Actives |
+| --- |
+| Pounce, Howl, Rend, Go for the Throat, Feeding Frenzy, Hunt Down |
+
+Passives: Thick Pelt, Long Stride, Sharp Fangs, Blood Scent, Hunter's Patience, Pack Lore, Savage, Howling Wild, Alpha.
+
+Kit: [`warg.json`](../hacks/content/heroes/warg.json). Skill sprites: [`warg_fx_art.py`](../hacks/tools/warg_fx_art.py).
+
+Status: **headless checks pass; manual pass pending.**
+
+---
+
+## Spider
+
+**Idea:** a spawn of Ungoliant that fights from a distance and makes foes come to her. A PC-only hero (hero id 18) built from the Spider enemy's own sprites, in the Servants of Sauron group of the hero select.
+
+**Mechanic: Web traps.** Webs that hold foes, stacking venom that paralyzes, reels foes in, cocoons them; Shelob's Lair rings her in webs.
+
+| Actives |
+| --- |
+| Web Trap, Venom Bite, Reel In, Cocoon, Skitter, Shelob's Lair |
+
+Passives: Chitin, Eight Eyes, Patient Hunter, Venom Sacs, Skittering, Feast, Old Hunger, Lair Born, Brood Mother.
+
+Kit: [`spider.json`](../hacks/content/heroes/spider.json). Skill sprites: [`denethor_spider_fx_art.py`](../hacks/tools/denethor_spider_fx_art.py).
+
+Status: **headless checks pass; manual pass pending.**
+
+---
+
+## Corsair
+
+**Idea:** a raider of Umbar: dirty fighting, gunpowder and loot. A PC-only hero (hero id 19) built from the Corsair enemy's own sprites, in the Servants of Sauron group of the hero select.
+
+**Mechanic: Plunder.** Kills drop loot. A grappling hook, cutlass flurry, blinding smoke powder, powder kegs and a broadside of cannon.
+
+| Actives |
+| --- |
+| Grappling Hook, Cutlass Flurry, Smoke Powder, Plunder, Powder Keg, Black Sails |
+
+Passives: Sea Legs, Cutthroat, Salt-Tough, Treasure Nose, Quick Hands, Grog, Dirty Fighter, Fear of the Lash, Captain of Umbar.
+
+Kit: [`corsair.json`](../hacks/content/heroes/corsair.json). Skill sprites: [`corsair_fx_art.py`](../hacks/tools/corsair_fx_art.py).
+
+Status: **headless checks pass; manual pass pending.**
+
+---
+
+## Uruk Crossbowman
+
+**Idea:** an Isengard crossbowman rewarded for holding his ground: shields, aim that builds while he stands still, and volleys. A PC-only hero (hero id 20) built from the UrukCrossbowman enemy's own sprites, in the Servants of Sauron group of the hero select.
+
+**Mechanic: The marksman.** His basic attack shoots bolts. Piercing bolts, volleys, a pavise to stand behind, fire that spreads, steady aim, a rain of bolts.
+
+| Actives |
+| --- |
+| Heavy Bolt, Volley, Pavise, Fire Bolt, Steady Aim, Rain of Bolts |
+
+Passives: Steady Hands, Heavy Draw, Isengard Plate, Quiver, Run Day and Night, Picked Off, Cold Eye, Sun-Scorned, Fighting Uruk-hai.
+
+Kit: [`urukcrossbowman.json`](../hacks/content/heroes/urukcrossbowman.json). Skill sprites: [`urukcrossbowman_fx_art.py`](../hacks/tools/urukcrossbowman_fx_art.py).
+
+Status: **headless checks pass; manual pass pending.**
+
+---
 ## Adding or changing a hero
 
 Start with [hero authoring](wip-docs/howto-heroes-skills.md) and [hacking recipes](wip-docs/hacking-recipes.md),

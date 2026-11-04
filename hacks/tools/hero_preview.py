@@ -68,7 +68,7 @@ def render(rom: bytes, facing: Facing, colors: tuple[int, ...]) -> tuple[list[Im
     """A facing's frames as RGBA images and its hit frame indexes."""
     frame_set = parse_frame_set(facing.frames, ROM_BASE)
     bounds = frame_bounds(frame_set.frames)
-    tiles = rom[facing.tiles_address - ROM_BASE:]
+    tiles = facing.tiles_data if facing.tiles_data is not None else rom[facing.tiles_address - ROM_BASE:]
     rgb = [c for color in colors for c in bgr555_to_rgb(color)]
     images = []
     for frame in frame_set.frames:
@@ -105,6 +105,38 @@ def sheet(rows: list[tuple[str, list[Image.Image], list[int]]], path: Path) -> N
             y += cell + 12
     path.parent.mkdir(parents=True, exist_ok=True)
     out.resize((out.width * SCALE, out.height * SCALE), Image.NEAREST).save(path)
+
+
+PALETTE_IDS = 90
+# ObjPalettes ids loaded into fixed OBJ slots at every level start: safe for skill colors.
+FIXED_PALETTES = range(2, 9)
+
+
+def palette_sheet(rom: bytes, sources, enemy: str, clip: str, facing: int, frame: int | None, out: Path) -> None:
+    """One frame of a clip in every ObjPalettes id, labelled, fixed slots marked green: pick a skill
+    color ("OBJ:<id>") in one look."""
+    record = sources.facings(sources.symbol(enemy, clip))[facing]
+    own = enemy_palette(rom, enemy)
+    images = []
+    for ident in range(PALETTE_IDS):
+        frames, _ = render(rom, record, obj_palette(rom, ident))
+        images.append(frames[frame if frame is not None else len(frames) // 2])
+    cell = max(max(i.width, i.height) for i in images) + 4
+    columns = 15
+    sheet_image = Image.new("RGBA", (columns * cell, (PALETTE_IDS + columns - 1) // columns * (cell + LABEL_HEIGHT)),
+                            BACKGROUND)
+    draw = ImageDraw.Draw(sheet_image)
+    for ident, image in enumerate(images):
+        x, y = ident % columns * cell, ident // columns * (cell + LABEL_HEIGHT)
+        fixed = ident in FIXED_PALETTES
+        label = f"{ident}" + (" fixed" if fixed else "") + (" own" if ident == own else "")
+        draw.text((x + 2, y), label, fill=(96, 224, 96) if fixed else TEXT)
+        sheet_image.alpha_composite(image, (x + (cell - image.width) // 2, y + LABEL_HEIGHT + (cell - image.height) // 2))
+    path = out / f"palettes_{enemy}_{clip}.png"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    sheet_image.resize((sheet_image.width * 2, sheet_image.height * 2), Image.NEAREST).save(path)
+    print(f"Wrote {path.relative_to(ROOT)}: {clip} facing {facing} in ObjPalettes 0..{PALETTE_IDS - 1}. Green ids "
+          f"2..8 are fixed slots (always loaded, never clash); others borrow a shared slot. Use as \"OBJ:<id>\".")
 
 
 def gif(images: list[Image.Image], duration: int, path: Path) -> None:
@@ -169,6 +201,9 @@ def main() -> None:
     parser.add_argument("--facing", type=int, default=2, help="facing 0..4 (default 2)")
     parser.add_argument("--gif", action="store_true", help="also write an animated GIF per pose")
     parser.add_argument("--palette", type=int, help="draw in this ObjPalettes index instead (try recolors)")
+    parser.add_argument("--all-palettes", action="store_true",
+                        help="with --enemy and --clip: one frame in every ObjPalettes id, one sheet (pick a color)")
+    parser.add_argument("--frame", type=int, help="with --all-palettes: the frame (default the middle one)")
     args = parser.parse_args()
     rom = (ROOT / "rotk.gba").read_bytes()
     out = ROOT / "build/preview"
@@ -176,6 +211,11 @@ def main() -> None:
     rows = []
     gifs = []
 
+    if args.all_palettes:
+        if not (args.enemy and args.clip):
+            parser.error("--all-palettes needs --enemy and --clip")
+        palette_sheet(rom, sources, args.enemy, args.clip, args.facing, args.frame, out)
+        return
     if args.enemy:
         colors = obj_palette(rom, args.palette if args.palette is not None else enemy_palette(rom, args.enemy))
         prefix = f"EnemyAnimationBank_EnemyType{args.enemy}_"

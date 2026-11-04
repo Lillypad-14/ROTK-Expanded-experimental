@@ -55,7 +55,17 @@ Each hero below has a second skill page with three builds and a mechanic of its 
 | [Ringwraith](docs/heroes.md#ringwraith) | Dread | **New hero.** Terrify foes and raise the slain as thralls. Own skills and gear. |
 | [Saruman](docs/heroes.md#saruman) | Empowered spells | **New hero.** Cast three spells, then your next damaging spell deals +50% damage. |
 | [Eowyn](docs/heroes.md#eowyn) | Against the Dark | Odds rise with danger, and Rohirrim build Gallop and spend it on a strike. Experimental. |
-| [Witch-king](docs/heroes.md#witch-king) | Terror and sorcery | **New hero, PC only.** Morgul bolts, Black Breath and a crown that wards. Untested. |
+| [Witch-king](docs/heroes.md#witch-king) | The Black Captain's dread | **New hero, PC only.** Iron Crown turns blows back on the striker, Lord of Terror makes foes cower every second, No Living Man cheats death. |
+| [Orc Captain](docs/heroes.md#orc-captain) | The lash | **New hero, PC only.** Whip lines, a boot that sends foes flying, taunts, a war-banner haste and a cleave that cuts everyone around him. |
+| [Uruk-hai](docs/heroes.md#uruk-hai) | Bred in the Pits | **New hero, PC only.** Rises from the mud when slain. Whelps, devouring the wounded, a mud hide and the White Hand's lifesteal. |
+| [Guard of Gondor](docs/heroes.md#guard-of-gondor) | The city's defence | **New hero, PC only.** Calls guards to his side, a shield wall, the Horn of Gondor, a Swan Knight charge and the Eagles. |
+| [Denethor](docs/heroes.md#denethor) | Fire and despair | **New hero, PC only.** Pays health for spell power, sets foes burning, the White Tower turns arrows, madness trades defence for damage. |
+| [Mouth of Sauron](docs/heroes.md#mouth-of-sauron) | Treachery | **New hero, PC only.** Turns a foe against its friends, curses foes to take more damage, rides them down; the Eye calls fire on six. |
+| [Army of the Dead](docs/heroes.md#army-of-the-dead) | Terror and the grave | **New hero, PC only.** Foes flee in terror, he passes through them as mist, grave fog and soul harvest; the grey host sweeps the field. |
+| [Warg](docs/heroes.md#warg) | Frenzy | **New hero, PC only.** Every bite stacks Frenzy (a HUD meter). Leaps, howls that weaken, bleeding bites and a throat-bite finisher. |
+| [Spider](docs/heroes.md#spider) | Web traps | **New hero, PC only.** Webs that hold foes, stacking venom that paralyzes, reels foes in, cocoons them; Shelob's Lair rings her in webs. |
+| [Corsair](docs/heroes.md#corsair) | Plunder | **New hero, PC only.** Kills drop loot. A grappling hook, cutlass flurry, blinding smoke powder, powder kegs and a broadside of cannon. |
+| [Uruk Crossbowman](docs/heroes.md#uruk-crossbowman) | The marksman | **New hero, PC only.** His basic attack shoots bolts. Piercing bolts, volleys, a pavise to stand behind, fire that spreads, steady aim, a rain of bolts. |
 
 ## Decompilation
 

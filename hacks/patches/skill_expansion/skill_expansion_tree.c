@@ -1122,10 +1122,10 @@ void skillExpansion_treeDrawDescription(void)
         }
         else
         {
-            description = skillExpansion_getStockActiveDescription(heroId, tile);
+            description = skillExpansion_getStockActiveDescription(skillExpansion_artHero(heroId), tile);
         }
         skill = tile;
-        textId = ActiveSkillDescriptionBaseTextIds[kit != NULL ? kit->artHeroId : heroId] + textRow;
+        textId = ActiveSkillDescriptionBaseTextIds[skillExpansion_artHero(heroId)] + textRow;
     }
     else
     {

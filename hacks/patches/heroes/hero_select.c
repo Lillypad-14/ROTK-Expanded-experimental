@@ -1,7 +1,12 @@
 #include "patches/heroes/hero_select.h"
 #include "font.h"
 #include "game.h"
+#include "gba_io.h"
 #include "gfx.h"
+#include "system.h"
+#if HACK_fast_fade
+#include "patches/fast_fade/fast_fade.h"
+#endif
 #include "hero_group_count.h"
 #include "hero_stat_declarations.h"
 #include "input.h"
@@ -67,6 +72,13 @@ static const char *const HeroGroupNames[HERO_GROUP_COUNT] = {
 #define SPRITE_Y 44
 // OAM texture step of an enemy-body hero's card sprite (8.8, 0x100 = full size): about 70%.
 #define ENEMY_BODY_SCALE 0x170
+// The stock heroes' menu sprites at their own size: they are built of many small pieces, and a scale
+// turns each piece about its own center, leaving seams through the body.
+#define STOCK_BODY_SCALE 0x100
+// Names longer than this many letters overflow the panel in the large font.
+#define NAME_LARGE_MAX 14
+// Frames of the screen's fades in and out.
+#define FADE_STEPS 10
 
 // Details panel: portrait with stats and kit beside it, name and description below.
 #define SIDE_X 15
@@ -85,6 +97,8 @@ static const char *const HeroGroupNames[HERO_GROUP_COUNT] = {
 #define DESCRIPTION_LINES 2
 
 static Actor *Sprites[CARDS_PER_PAGE];
+// Each card sprite's palette, NULL for a hidden card.
+static const u16 *CardPalettes[CARDS_PER_PAGE];
 // The hero picked here plus 1, waiting for the save menu (0: none). Zero-initialized: modcode has
 // no initialized data.
 static u8 pendingChoice;
@@ -193,19 +207,16 @@ static void showSprites(const u8 *heroes, u32 count, u32 first)
             !ringwraith_menuSprite(heroes[index], index == ARG_CURSOR, &animation, &palette))
         {
             Sprites[i]->flags.p &= ~ACTOR_FLAG_RENDER;
+            CardPalettes[i] = NULL;
             continue;
         }
         Sprites[i]->flags.p |= ACTOR_FLAG_RENDER;
         sprite_setAnimation(Sprites[i], animation);
-        // Enemy bodies are drawn larger than the stock heroes: shrink them to fit their card.
-        if (heroes[index] >= 8)
-        {
-            sprite_setScale(Sprites[i], ENEMY_BODY_SCALE, ENEMY_BODY_SCALE, 0);
-        }
-        else
-        {
-            sprite_disableScale(Sprites[i]);
-        }
+        // Shrink every body to fit its card: enemy bodies are drawn larger than the stock heroes.
+        u16 scale = heroes[index] >= 8 ? ENEMY_BODY_SCALE : STOCK_BODY_SCALE;
+
+        sprite_setScale(Sprites[i], scale, scale, 0);
+        CardPalettes[i] = palette;
         gfx_queuePaletteWrite(palette, i << 4, 16);
     }
 }
@@ -230,8 +241,18 @@ static s32 drawDetails(s32 tile, u32 hero)
                         vanillaKit() ? "Vanilla" : "Expanded", 0);
     }
 #endif
-    font_setStyle(FONT_STYLE_11PX_A, COLOR_YELLOW, GAUNTLET_UI_TEXT_BACKGROUND);
-    tile = font_drawString(tile, SIDE_CENTER_X, NAME_Y, ringwraith_getHeroName(hero), 1);
+    {
+        const char *name = ringwraith_getHeroName(hero);
+        u32 length = 0;
+
+        while (name[length] != '\0')
+        {
+            length++;
+        }
+        font_setStyle(length > NAME_LARGE_MAX ? FONT_STYLE_8PX_B : FONT_STYLE_11PX_A, COLOR_YELLOW,
+                      GAUNTLET_UI_TEXT_BACKGROUND);
+        tile = font_drawString(tile, SIDE_CENTER_X, NAME_Y + (length > NAME_LARGE_MAX ? 2 : 0), name, 1);
+    }
     remaining = (char *)HeroMenuInfos[hero].description;
     font_setStyle(FONT_STYLE_8PX_B, COLOR_WHITE, GAUNTLET_UI_TEXT_BACKGROUND);
     font_setLineHeight(CELL);
@@ -296,6 +317,49 @@ static void drawScreen(void)
     showSprites(heroes, count, first);
 }
 
+/** The card sprites' palettes darkened to level (0 untouched .. GFX_FADE_LEVELS black). */
+static void dimCards(u32 level)
+{
+    for (u32 i = 0; i < CARDS_PER_PAGE; i++)
+    {
+        if (CardPalettes[i] == NULL)
+        {
+            continue;
+        }
+        for (u32 c = 0; c < 16; c++)
+        {
+            u16 color = CardPalettes[i][c];
+            u32 r = color & 31;
+            u32 g = (color >> 5) & 31;
+            u32 b = (color >> 10) & 31;
+
+            // The palette queue only drains in the main loop, so a blocking fade writes OBJ palette
+            // RAM itself.
+            ((volatile u16 *)OBJ_PALETTE_RAM)[i * 16 + c] =
+                (u16)((r - r * level / GFX_FADE_LEVELS) | (g - g * level / GFX_FADE_LEVELS) << 5 |
+                      (b - b * level / GFX_FADE_LEVELS) << 10);
+        }
+    }
+}
+
+/**
+ * Fade the screen in or out over FADE_STEPS frames. The card sprites fade through their palettes
+ * as well, since the PC renderer draws sprites without the BLDY darkening.
+ */
+static void fade(bool32 in)
+{
+    REG_BLDCNT = GFX_BLEND_ALL_TARGETS | GFX_BLEND_DARKEN;
+    for (u32 step = 0; step <= FADE_STEPS; step++)
+    {
+        u32 level = step * GFX_FADE_LEVELS / FADE_STEPS;
+
+        level = in ? GFX_FADE_LEVELS - level : level;
+        REG_BLDY = level;
+        dimCards(level);
+        system_waitVBlank();
+    }
+}
+
 void heroSelect_sceneEnter(void)
 {
     gfx_initDisplay(0);
@@ -325,9 +389,10 @@ void heroSelect_sceneEnter(void)
         Sprites[i]->flags.p = ACTOR_FLAG_ANIMATION_PLAYING;
     }
     drawScreen();
+    dimCards(GFX_FADE_LEVELS);
     actor_tickAll();
     sprite_endFrame();
-    gfx_fadeInFromBlack(0x3f);
+    fade(TRUE);
 }
 
 static void moveCursor(s32 step)
@@ -410,7 +475,11 @@ void heroSelect_sceneTick(void)
 
 void heroSelect_sceneExit(void)
 {
-    gfx_fadeOutToBlack(0x3f);
+    fade(FALSE);
+#if HACK_fast_fade
+    // The next scene's fade-out would ramp from no blend and flash this black screen visible.
+    fastFade_holdBlack();
+#endif
     sprite_flushList(&g_ActorListMain);
     gfx_commitBgs();
     gfx_clearPaletteAnims();
@@ -420,6 +489,11 @@ void heroSelect_sceneExit(void)
 bool32 heroSelect_committing(void)
 {
     return committing;
+}
+
+bool32 heroSelect_hasPendingChoice(void)
+{
+    return pendingChoice != 0;
 }
 
 void heroSelect_open(void)

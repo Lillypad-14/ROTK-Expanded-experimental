@@ -1,0 +1,457 @@
+{
+  "hero": "Uruk-hai",
+  "note": "Bred in the Pits: he rises from the mud when slain (rebirth charges, earned by kills). Whelps, devouring the wounded and paying blood for more charges.",
+  "rebirth": {
+    "charges": 3,
+    "start": 1,
+    "killsPerCharge": 15,
+    "heal": 40,
+    "seconds": 2,
+    "burstDamage": 24,
+    "radius": 56,
+    "stun": 1.2,
+    "sound": 152
+  },
+  "passives": [
+    {
+      "name": "Fighting Uruk-hai",
+      "icon": "UrukHaiIconFightingUrukHai",
+      "levels": [
+        1,
+        4,
+        7,
+        10,
+        13
+      ],
+      "stats": {
+        "STAT_STRENGTH": [
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "STAT_DAMAGE_FLAT": [
+          1,
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      "text": "Bred for war: +1 Strength and +1 damage per level."
+    },
+    {
+      "name": "Iron of Isengard",
+      "icon": "UrukHaiIconIronOfIsengard",
+      "levels": [
+        2,
+        5,
+        8,
+        11,
+        14
+      ],
+      "stats": {
+        "STAT_MELEE_ARMOR": [
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "STAT_MISSILE_ARMOR": [
+          1,
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      "text": "Black iron forged in Orthanc's pits: +2 melee and +1 missile armor per level."
+    },
+    {
+      "name": "Run Day and Night",
+      "icon": "UrukHaiIconRunDayAndNight",
+      "levels": [
+        3,
+        6,
+        9,
+        12,
+        15
+      ],
+      "stats": {
+        "STAT_SPEED_PERCENT": [
+          3,
+          3,
+          3,
+          3,
+          3
+        ],
+        "STAT_HP_REGEN": [
+          1,
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      "text": "Uruks never rest: +3% speed and +1 health regeneration per level."
+    },
+    {
+      "name": "Bone Pile",
+      "icon": "UrukHaiIconBonePile",
+      "levels": [
+        4,
+        7,
+        10,
+        13,
+        16
+      ],
+      "stats": {
+        "STAT_HP_PER_KILL": [
+          2,
+          2,
+          2,
+          2,
+          2
+        ]
+      },
+      "effect": "devourThreshold",
+      "amount": [
+        3,
+        6,
+        9,
+        12,
+        15
+      ],
+      "text": "+2 health per kill per level. Meat's Back on the Menu takes foes with {amount}% more health."
+    },
+    {
+      "name": "Born of Mud",
+      "icon": "UrukHaiIconBornOfMud",
+      "levels": [
+        5,
+        8,
+        11,
+        14,
+        17
+      ],
+      "effect": "rebirthHeal",
+      "amount": [
+        8,
+        16,
+        24,
+        32,
+        40
+      ],
+      "text": "Each rebirth from the pit heals {amount}% more of his health."
+    },
+    {
+      "name": "Spawning Pits",
+      "icon": "UrukHaiIconSpawningPits",
+      "levels": [
+        6,
+        9,
+        12,
+        15,
+        18
+      ],
+      "effect": "chargeKills",
+      "amount": [
+        2,
+        4,
+        6,
+        7,
+        8
+      ],
+      "text": "The pits fill faster: a rebirth charge takes {amount} fewer kills."
+    },
+    {
+      "name": "Pit-Brood",
+      "icon": "UrukHaiIconPitBrood",
+      "levels": [
+        7,
+        10,
+        13,
+        16,
+        19
+      ],
+      "effect": "summonSeconds",
+      "amount": [
+        3,
+        6,
+        9,
+        12,
+        15
+      ],
+      "text": "His whelps fight {amount} seconds longer before they sink back into the mud."
+    },
+    {
+      "name": "Sun-Scorned",
+      "icon": "UrukHaiIconSunScorned",
+      "levels": [
+        8,
+        11,
+        14,
+        17,
+        20
+      ],
+      "stats": {
+        "STAT_FEAR_RESIST_PERCENT": [
+          10,
+          10,
+          10,
+          10,
+          10
+        ],
+        "STAT_COURAGE": [
+          1,
+          1,
+          1,
+          1,
+          1
+        ]
+      },
+      "text": "Saruman's breed fears no sun: +10% fear resistance and +1 Courage per level."
+    },
+    {
+      "name": "Deeper Pits",
+      "icon": "UrukHaiIconDeeperPits",
+      "levels": [
+        12,
+        24
+      ],
+      "effect": "rebirthCharges",
+      "amount": [
+        1,
+        2,
+        2,
+        2,
+        2
+      ],
+      "text": "He can hold {amount} more rebirth charges."
+    }
+  ],
+  "skills": [
+    {
+      "name": "Whelps of the Pit",
+      "cost": 30,
+      "levels": [
+        1,
+        4,
+        7,
+        10,
+        13
+      ],
+      "cast": "normal",
+      "icon": "UrukHaiIconWhelpsOfThePit",
+      "effect": "summon",
+      "count": 2,
+      "seconds": 15,
+      "amount": [
+        6,
+        9,
+        12,
+        15,
+        18
+      ],
+      "castSound": 152,
+      "text": "Two shadow-whelps claw out of the pit and fight for {seconds}s, {amount} damage a hit.",
+      "fx": [
+        {
+          "effect": "urukhai_pitburst",
+          "at": "target"
+        },
+        {
+          "shape": "SMOKE_SMALL",
+          "color": "GREEN",
+          "at": "target"
+        }
+      ],
+      "look": "GoblinScout",
+      "lookColor": "SHADOW"
+    },
+    {
+      "name": "Mud Tomb",
+      "cost": 28,
+      "levels": [
+        2,
+        5,
+        8,
+        11,
+        14
+      ],
+      "cast": "normal",
+      "icon": "UrukHaiIconMudTomb",
+      "effect": "blast",
+      "range": 120,
+      "radius": 32,
+      "damage": [
+        14,
+        20,
+        26,
+        32,
+        38
+      ],
+      "stun": 2,
+      "status": "slow",
+      "statusSeconds": 4,
+      "sound": "stun",
+      "text": "Pit-hands drag the nearest foe into the mud: {damage} damage, held {stun}s, then slowed.",
+      "fx": [
+        {
+          "effect": "urukhai_mudhands",
+          "at": "target",
+          "seconds": 2
+        },
+        {
+          "shape": "GROUND_POOL",
+          "color": "NAZGUL",
+          "layer": "behind",
+          "at": "target",
+          "seconds": 2
+        }
+      ],
+      "impact": "uruk_mud_hit"
+    },
+    {
+      "name": "Meat's Back on the Menu",
+      "cost": 20,
+      "levels": [
+        3,
+        6,
+        9,
+        12,
+        15
+      ],
+      "cast": "quick",
+      "icon": "UrukHaiIconMeatsBackOnTheMenu",
+      "effect": "devour",
+      "range": 48,
+      "threshold": 30,
+      "killCredit": 5,
+      "amount": [
+        20,
+        28,
+        36,
+        44,
+        52
+      ],
+      "castSound": "SFX_EAT_FOOD",
+      "text": "Devours a close foe below 30% health: it dies, he heals {amount} and gains 5 kills toward rebirth.",
+      "fx": [
+        {
+          "effect": "urukhai_jaws",
+          "at": "target"
+        },
+        {
+          "shape": "POOL_FLASH",
+          "color": "EMBER",
+          "layer": "behind",
+          "at": "target"
+        }
+      ]
+    },
+    {
+      "name": "Blood for the Pits",
+      "cost": 15,
+      "levels": [
+        5,
+        8,
+        11,
+        14,
+        17
+      ],
+      "cast": "long",
+      "icon": "UrukHaiIconBloodForThePits",
+      "effect": "tithe",
+      "amount": [
+        30,
+        27,
+        24,
+        21,
+        18
+      ],
+      "castSound": "SFX_COMBAT_TRIPLE_DAMAGE",
+      "text": "Bleeds {amount}% of his max health into the mud for one rebirth charge.",
+      "fx": [
+        {
+          "effect": "urukhai_bloodpit"
+        },
+        {
+          "shape": "LIGHTNING",
+          "color": "EMBER"
+        }
+      ]
+    },
+    {
+      "name": "Hide of the Pits",
+      "cost": 26,
+      "levels": [
+        6,
+        9,
+        12,
+        15,
+        18
+      ],
+      "cast": "long",
+      "icon": "UrukHaiIconHideOfThePits",
+      "effect": "absorb",
+      "amount": [
+        30,
+        40,
+        50,
+        60,
+        70
+      ],
+      "seconds": 10,
+      "castSound": 153,
+      "text": "Caked in pit-mud: the next {amount} damage he takes in {seconds}s is soaked up.",
+      "fx": [
+        {
+          "effect": "urukhai_mudcoat",
+          "seconds": 10
+        },
+        {
+          "shape": "SPARKLE_RING",
+          "color": "NAZGUL",
+          "seconds": 10
+        }
+      ]
+    },
+    {
+      "name": "The White Hand",
+      "cost": 30,
+      "levels": [
+        8,
+        11,
+        14,
+        17,
+        20
+      ],
+      "cast": "long",
+      "icon": "UrukHaiIconTheWhiteHand",
+      "effect": "lifesteal",
+      "amount": [
+        15,
+        20,
+        25,
+        30,
+        35
+      ],
+      "seconds": 10,
+      "castSound": "SFX_DWARVEN_RAGE",
+      "text": "Saruman's mark burns on him: for {seconds}s his blows heal him {amount}% of their damage.",
+      "fx": [
+        {
+          "effect": "urukhai_whitehand"
+        },
+        {
+          "shape": "DIAMOND_RING",
+          "color": "GHOST",
+          "seconds": 10
+        }
+      ]
+    }
+  ]
+}

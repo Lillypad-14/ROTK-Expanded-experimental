@@ -1,0 +1,67 @@
+{"enemy": "Uruk", "note": "The Uruk draws his blade as a separate clip: each pose is the body clip with its blade clip over it.",
+  "anims": {
+    "attack": {"speed": 2, "note": "His stock attack: body Attack + blade ExtraPose06, hitting on frame 2 with the blade clip's own box per facing.", "frames": [
+      {"src": "Attack:0", "over": ["ExtraPose06:0"]},
+      {"src": "Attack:1", "over": ["ExtraPose06:1"]},
+      {"src": "Attack:2", "over": ["ExtraPose06:2"], "hit": [4, 51, -39, 4], "facings": {"0": {"hit": [-10, 17, -54, -15]}, "1": {"hit": [-2, 45, -47, -5]}, "3": {"hit": [3, 40, -27, 7]}, "4": {"hit": [-16, 12, -23, 17]}}},
+      {"src": "Attack:3", "over": ["ExtraPose06:3"]},
+      {"src": "Attack:4", "over": ["ExtraPose06:4"]},
+      {"src": "Attack:5", "over": ["ExtraPose06:5"]},
+      {"src": "Attack:6", "over": ["ExtraPose06:6"]},
+      {"src": "Attack:7", "over": ["ExtraPose06:7"]},
+      {"src": "Attack:8", "over": ["ExtraPose06:8"]}
+    ]},
+    "cast": {"speed": 2, "note": "The attack without a hit, for skill casts.", "frames": [
+      {"src": "Attack:0", "over": ["ExtraPose06:0"], "hit": false},
+      {"src": "Attack:1", "over": ["ExtraPose06:1"]},
+      {"src": "Attack:2", "over": ["ExtraPose06:2"]},
+      {"src": "Attack:3", "over": ["ExtraPose06:3"]},
+      {"src": "Attack:4", "over": ["ExtraPose06:4"]},
+      {"src": "Attack:5", "over": ["ExtraPose06:5"]},
+      {"src": "Attack:6", "over": ["ExtraPose06:6"]},
+      {"src": "Attack:7", "over": ["ExtraPose06:7"]},
+      {"src": "Attack:8", "over": ["ExtraPose06:8"]}
+    ]},
+    "idle": {"speed": 3, "note": "Stand + blade ExtraPose03.", "frames": [
+      {"src": "Stand:0", "over": ["ExtraPose03:0"]},
+      {"src": "Stand:1", "over": ["ExtraPose03:1"]},
+      {"src": "Stand:2", "over": ["ExtraPose03:2"]},
+      {"src": "Stand:3", "over": ["ExtraPose03:3"]},
+      {"src": "Stand:4", "over": ["ExtraPose03:4"]},
+      {"src": "Stand:5", "over": ["ExtraPose03:5"]},
+      {"src": "Stand:6", "over": ["ExtraPose03:6"]},
+      {"src": "Stand:7", "over": ["ExtraPose03:7"]},
+      {"src": "Stand:8", "over": ["ExtraPose03:8"]},
+      {"src": "Stand:9", "over": ["ExtraPose03:9"]},
+      {"src": "Stand:10", "over": ["ExtraPose03:10"]}
+    ]},
+    "walk": {"speed": 2, "note": "Walk + the carried blade ExtraPose02.", "frames": [
+      {"src": "Walk:0", "over": ["ExtraPose02:0"]},
+      {"src": "Walk:1", "over": ["ExtraPose02:1"]},
+      {"src": "Walk:2", "over": ["ExtraPose02:2"]},
+      {"src": "Walk:3", "over": ["ExtraPose02:3"]},
+      {"src": "Walk:4", "over": ["ExtraPose02:4"]},
+      {"src": "Walk:5", "over": ["ExtraPose02:5"]},
+      {"src": "Walk:6", "over": ["ExtraPose02:6"]},
+      {"src": "Walk:7", "over": ["ExtraPose02:7"]},
+      {"src": "Walk:8", "over": ["ExtraPose02:8"]},
+      {"src": "Walk:9", "over": ["ExtraPose02:9"]},
+      {"src": "Walk:10", "over": ["ExtraPose02:10"]},
+      {"src": "Walk:11", "over": ["ExtraPose02:11"]}
+    ]},
+    "hurt": {"speed": 1, "note": "Stagger + the carried blade ExtraPose02.", "frames": [
+      {"src": "Stagger:0", "over": ["ExtraPose02:0"]},
+      {"src": "Stagger:1", "over": ["ExtraPose02:1"]},
+      {"src": "Stagger:2", "over": ["ExtraPose02:2"]},
+      {"src": "Stagger:3", "over": ["ExtraPose02:3"]},
+      {"src": "Stagger:4", "over": ["ExtraPose02:4"]},
+      {"src": "Stagger:5", "over": ["ExtraPose02:5"]},
+      {"src": "Stagger:6", "over": ["ExtraPose02:6"]},
+      {"src": "Stagger:7", "over": ["ExtraPose02:7"]},
+      {"src": "Stagger:8", "over": ["ExtraPose02:8"]},
+      {"src": "Stagger:9", "over": ["ExtraPose02:9"]},
+      {"src": "Stagger:10", "over": ["ExtraPose02:10"]},
+      {"src": "Stagger:11", "over": ["ExtraPose02:11"]}
+    ]}
+  }
+}

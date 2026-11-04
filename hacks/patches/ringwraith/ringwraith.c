@@ -160,6 +160,16 @@ void ringwraith_updateHandSprites(Actor *actor)
     PLAYER(p).combatFlags.p &= ~PLAYER_COMBAT_FLAG_HAND_SPRITES_DIRTY;
 }
 
+/** The hero of on-screen save slot slotIndex. */
+static u32 slotHero(u32 slotIndex)
+{
+#if HACK_skill_expansion
+    return skillExpansion_slotHeroId(slotIndex);
+#else
+    return g_SaveSlots[slotIndex].d.hero.d.heroId;
+#endif
+}
+
 char *ringwraith_getHeroName(u32 heroId)
 {
     const HeroDefinition *definition = ringwraith_getHeroDefinition(heroId);
@@ -202,7 +212,7 @@ void ringwraith_drawSlot(u8 slot, u8 selectedSlot)
     mission = save_getSlotMission(save);
     if (mission < SLOT_MISSION_EMPTY)
     {
-        tile = font_drawString(tile, x, y, ringwraith_getHeroName(save->d.hero.d.heroId), 1);
+        tile = font_drawString(tile, x, y, ringwraith_getHeroName(slotHero(slot)), 1);
         y += 8;
         str = text_getString(TEXT_ID_REGION_NAME_BASE + mission_getRegion(mission));
         tile = font_drawString(tile, x, y, str, 1);
@@ -261,9 +271,17 @@ bool32 ringwraith_menuSprite(u32 heroId, bool32 selected, const SpriteAnimation 
 void ringwraith_refreshSlot(s32 slotIndex)
 {
     Actor *obj = g_SaveLoadSlotObjs[slotIndex];
-    u32 heroId = g_SaveSlots[slotIndex].d.hero.d.heroId;
+    u32 heroId = slotHero((u32)slotIndex);
     bool32 selected = slotIndex == (s32)SCENE_ARG_SAVE_LOAD_SELECTED_SLOT;
 
+#if HACK_heroes
+    // The hero select screen takes over: no stock hero sprite while it opens.
+    if (heroGrid_active())
+    {
+        obj->flags.p &= ~ACTOR_FLAG_RENDER;
+        return;
+    }
+#endif
     if (save_getSlotMission(&g_SaveSlots[slotIndex]) < SLOT_MISSION_EMPTY)
     {
         obj->flags.p |= ACTOR_FLAG_RENDER;

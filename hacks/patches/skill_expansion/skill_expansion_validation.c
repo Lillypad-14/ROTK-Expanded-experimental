@@ -3,9 +3,15 @@
 #include "patches/skill_expansion/skill_expansion.h"
 #include <stddef.h>
 
-_Static_assert(SKILL_EXPANSION_HERO_COUNT <= 16, "hero IDs exceed the save field");
+// The stock slot keeps 4 bits of the hero id. The slot's ID record (SkillSaveRecord.heroId, a
+// whole byte) restores the rest on load (skillExpansion_slotHeroId).
+_Static_assert(SKILL_EXPANSION_HERO_COUNT <= SKILL_EXPANSION_KIT_SLOTS, "hero IDs exceed the kit slots");
+_Static_assert(SKILL_EXPANSION_KIT_SLOTS <= 255, "hero IDs exceed the save record byte");
 _Static_assert(SKILL_EXPANSION_ACTIVE_ROW_COUNT <= 256, "quick select rows exceed the save field");
 _Static_assert(SKILL_EXPANSION_PASSIVE_END <= 255, "passive IDs exceed the empty-slot sentinel");
+_Static_assert(SKILL_EXPANSION_PASSIVE_END <= SKILL_EXPANSION_SPEC_PASSIVE_FIRST,
+               "elite passive IDs run into the spec passive IDs");
+_Static_assert(SKILL_EXPANSION_SPEC_PASSIVE_END <= 255, "spec passive IDs exceed the empty-slot sentinel");
 _Static_assert(ACTIVE_SKILL_MAX_LEVEL <= 7, "stock purchased levels exceed the save field");
 _Static_assert(ARRAY_COUNT(((ActiveSkillValue *)0)->perLevel) == ACTIVE_SKILL_MAX_LEVEL,
                "active value curve length");

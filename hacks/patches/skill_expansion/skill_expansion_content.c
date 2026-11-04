@@ -23,6 +23,15 @@
 #include "patches/ringwraith/ringwraith_icons.h"
 #include "patches/ringwraith/ringwraith_kit.h"
 #include "patches/ringwraith/saruman_icons.h"
+#include "patches/heroes/armyofthedead_icons.h"
+#include "patches/heroes/mouthofsauron_icons.h"
+#include "patches/heroes/spider_icons.h"
+#include "patches/heroes/warg_icons.h"
+#include "patches/heroes/orccaptain_icons.h"
+#include "patches/heroes/urukcrossbowman_icons.h"
+#include "patches/heroes/denethor_icons.h"
+#include "patches/heroes/guardofgondor_icons.h"
+#include "patches/heroes/urukhai_icons.h"
 #define RINGWRAITH_ICON(name) .icon = RingwraithIcon##name,
 #define SARUMAN_ICON(name) .icon = SarumanIcon##name,
 #else
@@ -2214,6 +2223,10 @@ static const SkillExpansionIconColors *const IconColorTables[] = {
     LegolasIconColors, SamIconColors,     SmeagolIconColors, EowynIconColors,
 #if HACK_ringwraith
     RingwraithIconColors, SarumanIconColors,
+#endif
+#if PC_EDITION
+    UrukHaiIconColors, GondorIconColors, DenethorIconColors, ArmyIconColors, MouthIconColors,
+    WargIconColors, SpiderIconColors, OrcCaptainIconColors, CrossbowIconColors,
 #endif
 };
 

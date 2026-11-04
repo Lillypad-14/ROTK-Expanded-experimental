@@ -502,6 +502,28 @@ bool32 hackLib_fxUsePalette(Actor *fx, const u16 *palette, u8 paletteId)
     return TRUE;
 }
 
+bool32 hackLib_fxUseFxColor(Actor *actor, HackLibFxColor color)
+{
+    u8 slot;
+
+    if (actor == NULL)
+    {
+        return FALSE;
+    }
+    slot = resolveColor(color);
+    if (slot == NO_SLOT)
+    {
+        return FALSE;
+    }
+    if (actor->flags.p & ACTOR_FLAG_DEFAULTS_APPLIED)
+    {
+        releaseSlot(actor->oam.paletteNumber);
+    }
+    actor->oam.paletteNumber = slot;
+    bindSlot(actor, slot);
+    return TRUE;
+}
+
 bool32 hackLib_fxUseColors(Actor *fx, const u16 *palette)
 {
     u8 slot;

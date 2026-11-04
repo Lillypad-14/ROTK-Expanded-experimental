@@ -341,6 +341,27 @@ static void applyQuickSelect(u8 p, const u8 *quickSelect)
 }
 
 /**
+ * The hero of on-screen slot slotIndex. The stock slot keeps only 4 bits of the hero id, so heroes
+ * 16 and up come from the slot's ID record, which holds the whole id.
+ */
+u32 skillExpansion_slotHeroId(u32 slotIndex)
+{
+    const SaveSlot *slot = &g_SaveSlots[slotIndex];
+    u32 stored = slot->d.hero.d.heroId;
+    SkillSaveRecord record;
+
+    modSave_copy((u8 *)&record, idRecordAddress(g_SaveSlotPage * SAVE_SLOTS_PER_PAGE + slotIndex),
+                 sizeof(record));
+    if (record.tag == SKILL_SAVE_TAG && record.version == SKILL_SAVE_VERSION &&
+        record.slotChecksum == slot->d.checksum && (record.heroId & 0xf) == stored &&
+        record.heroId < SKILL_EXPANSION_HERO_COUNT)
+    {
+        return record.heroId;
+    }
+    return stored;
+}
+
+/**
  * REPLACES (whole function): scene_saveLoadMenu_loadSlot.
  */
 void skillExpansion_loadSlot(u32 playerIndex)
@@ -350,6 +371,7 @@ void skillExpansion_loadSlot(u32 playerIndex)
     u8 quickSelect[QUICK_SELECT_SLOT_COUNT];
 
     save_deserializePlayer(g_SaveSlots[slotIndex].words, p);
+    PLAYER(p).heroId = (HeroId)skillExpansion_slotHeroId(slotIndex);
     readSaveRecord(p, &g_SaveSlots[slotIndex], g_SaveSlotPage * SAVE_SLOTS_PER_PAGE + slotIndex,
                    quickSelect);
     save_loadSlotState(p);
@@ -359,9 +381,10 @@ void skillExpansion_loadSlot(u32 playerIndex)
 
 // A player's page 2 record holds what the stock co-op slot exchange leaves out: the new rows'
 // bought ranks, then their cycle flags, the new slots' bought ranks and the full quick-select rows,
-// which the stock slot stores in 3 bits each, then the character's kit (vanillaKit).
+// which the stock slot stores in 3 bits each, then the character's kit (vanillaKit) and its whole
+// hero id (the stock slot keeps 4 bits).
 #define PAGE2_RECORD_SIZE \
-    (2 * SKILL_EXPANSION_NEW_ACTIVE_COUNT + SKILL_EXPANSION_NEW_PASSIVE_COUNT + QUICK_SELECT_SLOT_COUNT + 1)
+    (2 * SKILL_EXPANSION_NEW_ACTIVE_COUNT + SKILL_EXPANSION_NEW_PASSIVE_COUNT + QUICK_SELECT_SLOT_COUNT + 2)
 
 // Multiplayer ID of the console whose global mod options a co-op session plays with.
 #define SESSION_OPTIONS_HOST 0
@@ -415,6 +438,9 @@ _Static_assert(PEER_RECORD_CHUNK_COUNT <= 8, "peerRecordChunks has a bit per chu
 // The peer's quick-select rows from its record. The rest of the record goes straight into its
 // player, where loading its slot keeps it.
 static u8 peerQuickSelect[QUICK_SELECT_SLOT_COUNT];
+
+// Each player's whole hero id, as sent in its record.
+static u8 recordHeroIds[2];
 
 // Bit n set: chunk n of the peer's record has arrived.
 static u8 peerRecordChunks;
@@ -490,7 +516,12 @@ static u8 *recordByte(u8 p, u32 index, u8 *quickSelect)
     {
         return &quickSelect[index];
     }
-    return &skillExpansion_players[p].vanillaKit;
+    index -= QUICK_SELECT_SLOT_COUNT;
+    if (index == 0)
+    {
+        return &skillExpansion_players[p].vanillaKit;
+    }
+    return &recordHeroIds[p & 1];
 }
 
 void skillExpansion_peerRecordReceive(u8 sender, const u8 *data)
@@ -524,6 +555,7 @@ static void sendRecordChunk(u32 chunk)
 
     memory_memset(data, 0, sizeof(data));
     data[0] = chunk;
+    recordHeroIds[p & 1] = PLAYER(p).heroId;
     for (i = 0; i < PEER_RECORD_CHUNK_SIZE; i++)
     {
         u32 index = chunk * PEER_RECORD_CHUNK_SIZE + i;
@@ -599,6 +631,10 @@ void skillExpansion_loadPeerSlot(u32 playerIndex)
     u32 i;
 
     save_deserializePlayer(g_MpPeerSaveSlot.words, p);
+    if (valid && (recordHeroIds[p & 1] & 0xf) == PLAYER(p).heroId && recordHeroIds[p & 1] < SKILL_EXPANSION_HERO_COUNT)
+    {
+        PLAYER(p).heroId = (HeroId)recordHeroIds[p & 1];
+    }
     for (i = 0; i < SKILL_EXPANSION_NEW_PASSIVE_COUNT; i++)
     {
         s8 *purchased = skillExpansion_passivePurchased(p, HERO_PASSIVE_SKILL_COUNT + i);

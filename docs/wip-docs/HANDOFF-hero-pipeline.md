@@ -41,7 +41,7 @@ NOTHING IS COMMITTED. Both repos (rotk, rotk-recompiled) hold today's work. Ask 
    skill pages, stats screen; sound row check.
 4. More spec effects (summon, dash, chain, aura, lifesteal, shield), hero-specific passives,
    custom icons from PNG in specs.
-5. Lift 16-hero cap (4-bit save field; mod save record has a full byte). Gauntlet picker only 10.
+5. Done 2026-11-03: cap is 64 (howto-heroes-skills.md "Limits"). Gauntlet picker still only 10.
 6. Commit (ask the user first).
 
 ## Session 2 (2026-11-02, later): fast hero tools
@@ -57,6 +57,11 @@ sound_preview, hero_fast check/play/cards). Design:
   C file holds stats only.
 - Sound row (actor_player_tick): [0] every swing incl. combo follow-ups, [1] hurt, [2] death,
   [3] unread. Mixes: {"mix": [[sfx, count] or [sfx, count, sample], ...]}, new sfx ids 296+.
+- Facing order: 0 up (back view) .. 4 down (front view), the same for enemy clips and players (the
+  facing byte actor+0xf8: up 0, up-right 1, right 2, down-right 3, down 4, measured). Records are
+  written unchanged. Do not reverse them: it was tried on 2026-11-02 and made the walk play backwards.
+  A single clip found reversed in the data can be listed in `hacks/content/enemy_facings.json`
+  (none confirmed).
 - Melee combo poses: 0 swing 1, 1 recovery, 2 swing 2, 3 recovery, 4 finisher. The "2 hit" bug
   was the whole attack clip in the recovery poses.
 - Fixed this session: Witch-king scream/double swing/walking idle/cast hitboxes; Ringwraith and
@@ -73,3 +78,9 @@ sound_preview, hero_fast check/play/cards). Design:
 
 Headless menu routes: Bonus Maps = 5 Downs from New Game; Start at 450. Keys active low:
 A 0x3FE, B 0x3FD, Select 0x3FB, Start 0x3F7, Right 0x3EF, Down 0x37F, R 0x2FF.
+
+## Attack animations
+
+Custom primary attack swings follow "Primary attack swings: THE method" in
+animation-studio.md (the Witch-king's `@thrust`, `@rising`, `@cleave`, finished 2026-11-02, all 5
+facings checked in game).

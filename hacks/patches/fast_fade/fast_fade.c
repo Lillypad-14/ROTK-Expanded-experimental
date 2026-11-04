@@ -17,6 +17,7 @@
 //      - Index 14 of those tables, the co-op pair: it syncs over the link, so both consoles
 //        would have to run the same frame count.
 
+#include "patches/fast_fade/fast_fade.h"
 #include "actor.h"
 #include "game.h"
 #include "gba_io.h"
@@ -70,6 +71,9 @@ _Static_assert(FAST_FADE_HOLD_DIVISOR >= 1, "FAST_FADE_HOLD_DIVISOR must be at l
  * Value of a ramp at `step` of `steps`. Step 0 gives 0 and step `steps` gives max, whatever
  * the step count, so a ramp always lands exactly on both ends.
  */
+// The screen is already full black (fastFade_holdBlack): the next fade-out has nothing to do.
+static bool screenHeldBlack;
+
 static u16 rampAt(s32 step, s32 steps, s32 max)
 {
     return (u32)step * max / steps;
@@ -82,6 +86,7 @@ void fastFade_fadeInFromBlack(u16 targets)
 {
     s32 step; // CHANGE (ramp): stock's counter is the BLDY level itself
 
+    screenHeldBlack = FALSE;
     REG_BLDCNT = targets | GFX_BLEND_DARKEN;
     // CHANGE (ramp): stock walks BLDY down one level per step, starting from full black.
     for (step = FAST_FADE_STEPS - 1; step >= 0; step--)
@@ -94,6 +99,13 @@ void fastFade_fadeInFromBlack(u16 targets)
     }
 }
 
+void fastFade_holdBlack(void)
+{
+    REG_BLDCNT = GFX_BLEND_ALL_TARGETS | GFX_BLEND_DARKEN;
+    REG_BLDY = GFX_FADE_LEVELS;
+    screenHeldBlack = TRUE;
+}
+
 /**
  * REPLACES (whole function): gfx_fadeOutToBlack @0x0803e374.
  */
@@ -102,6 +114,13 @@ void fastFade_fadeOutToBlack(u16 targets)
     s32 step; // CHANGE (ramp): stock's counter is the BLDY level itself
 
     REG_BLDCNT = targets | GFX_BLEND_DARKEN;
+    // CHANGE (held black): a ramp from no blend would flash the black screen visible.
+    if (screenHeldBlack)
+    {
+        screenHeldBlack = FALSE;
+        REG_BLDY = GFX_FADE_LEVELS;
+        return;
+    }
     // CHANGE (ramp): stock walks BLDY up one level per step, starting from no blend, and
     // stops one step short of full black; the interpolated ramp ends on GFX_FADE_LEVELS.
     for (step = 1; step <= FAST_FADE_STEPS; step++)
@@ -335,6 +354,13 @@ void fastFade_mosaicOutToBlack(u16 targets)
     g_GameFlags.p |= GAME_FLAG_11;
     layers = REG_DISPCNT & ~GFX_DISPCNT_MODE_MASK;
     REG_BLDCNT = targets | GFX_BLEND_DARKEN;
+    // CHANGE (held black): a ramp from no blend would flash the black screen visible.
+    if (screenHeldBlack)
+    {
+        screenHeldBlack = FALSE;
+        REG_BLDY = GFX_FADE_LEVELS;
+        return;
+    }
     if (layers & GFX_DISPCNT_BG0)
     {
         REG_BG0CNT |= GFX_BGCNT_MOSAIC;

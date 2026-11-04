@@ -150,11 +150,21 @@ them needs no rebuild. Loop: edit heroes.json or the spec, then
 - `hero_check.py [hero]` (1 s): errors and warnings for every hero. Description wrap is pixel exact
   (the game's font and box), body problems (idle that walks, swing without a hit frame, recovery
   that replays an attack, cast poses with hitboxes, long hurt pose), long voices on every swing.
+- Primary attack swings (the B combo) have one method: "Primary attack swings: THE method" at
+  the top of [animation-studio.md](animation-studio.md) (the Witch-king's thrust, rising, cleave).
+- `anim_studio.py` (1 s per anim): new animations from any enemy's frames, edits and drawings, with
+  review sheets, frame data, lint and `assign` to poses. Guide: [animation-studio.md](animation-studio.md).
+- Facings: 0 up (back view) .. 4 down (front view), the same for enemy clips and players; use
+  `"lunge"`, not `dx`, to move along the facing (docs/wip-docs/animation-studio.md, Traps).
 - `hero_preview.py <hero>` (1 s, no build): every pose as numbered frames, hit frames boxed red,
   `--gif` per pose, `--palette N` recolor, `--facing`. `--enemy X [--clip Y]` browses any enemy's
   clips with frame numbers, for picking cuts. Prints the sound row.
 - `sound_preview.py`: WAVs of sfx ids, a hero's row (`--hero`), an enemy's set (`--enemy`), which
   sfx and enemies play a sample (`--find`). Mix parts: `[sfx, count]` or `[sfx, count, sample]`.
+- `hero_fast.py skills "<Hero>"` (1 min): casts each first page skill from the savestate at level 5
+  with full Spirit, one sheet row per skill (`build/preview/skills_<Hero>.png`). `check --skill N
+  --button A` does one row with check's options. `hero_preview.py --enemy E --clip C --all-palettes`
+  draws a clip in all 90 palettes for picking `"OBJ:<id>"` colors.
 - `hero_fast.py check <hero>` (5-10 s): headless game from a savestate in a level, presses B
   (attack) once and then 3 times, writes build/preview/check_<hero>.png. `--button A` casts the
   selected skill instead (the savestate's hero must own it and have the Spirit). Make the savestate once
@@ -182,8 +192,20 @@ it), since the recompiler finds code only in the modcode. Callbacks a spec names
 policies) must be non-static modcode symbols. A projectile in flight keeps a pointer to its old
 delivery, so savestates stay valid across spec tweaks only outside skill casts.
 
-- `skills`: exactly 6, the first page; the 6th takes Herbal Healing's slot. `passives`: 9 stock
-  passive names (`PASSIVE_SKILL_*` in include/skill.h without the prefix).
+- `skills`: exactly 6, the first page; the 6th takes Herbal Healing's slot. `passives`: 9 entries,
+  each a stock passive name (`PASSIVE_SKILL_*` in include/skill.h without the prefix) or the hero's
+  own passive (heroes 8..15): `{"name", "icon", "text", "levels": [1..5 rising hero levels],
+  "stats": {"STAT_MELEE_ARMOR": [5 per-level increments], ...} (at most 3, include/stats.h),
+  "effect": "rebirthCharges" | "rebirthHeal" | "chargeKills" | "summonSeconds" | "devourThreshold",
+  "amount": [5]}`. Own passives are elite passives (`SpecPassive` in spec_kit.h) with ids
+  `SKILL_EXPANSION_SPEC_PASSIVE_FIRST` (160) + (hero - 8) * 9 + slot, which `getElitePassive`
+  (skill_expansion.c) resolves from the hero's kit slot. Stats apply through the normal passive
+  path, effects through `passiveBonus` in spec_kit.c. Give a custom hero its own passives: stock
+  ones show other heroes' names and icons and read as unfinished. Example: urukhai.json.
+- HD icons: `skill_icon_art.py slice ... --hd DIR --hd-only` saves the full-resolution crops, then
+  `build ... --hd-out hacks/patches/<dir>/<slug>_icons_hd --hd-in <crops named like the PNGs>`.
+  rotk-recompiled packages every `hacks/patches/*/*_icons_hd` of the romhack checkout lab.py builds
+  from (`ROTK_ROMHACK_DIR`, set by lab.py from `--decomp`), so `lab.py rebuild` picks a new pack up.
 - Page 2 is all or nothing: `page2` with 5 or 6 skills plus `page2Passives` with 9 more stock
   passives (none repeated from page 1), or neither. The skill tree only offers page 2 to a hero
   with page 2 skills (`pageTwoHasSkills` in skill_expansion_tree.c), so a placeholder hero (no
@@ -198,7 +220,56 @@ delivery, so savestates stay valid across spec tweaks only outside skill casts.
   all with optional `stun` (seconds), `knockback`, `status` (poison, burn, slow) with
   `statusSeconds` and `statusPower`, `impact`/`travel` (skill_fx.json keys), `sound`. `heal`
   (`amount` HP), `ward` (`amount` percent less damage taken, `seconds`), `empower` (`amount`
-  percent more melee damage, `seconds`). Per-level values are lists of 5.
+  percent more melee damage, `seconds`), `summon` (`count` allies for `seconds`, `amount` damage
+  a hit: stock ghost allies that follow the hero), `devour` (kill the nearest foe within `range`
+  at `threshold` percent HP or less, heal `amount`, `killCredit` kills toward the next rebirth
+  charge; foes over 400 max HP are never devoured), `tithe` (pay `amount` percent of max HP for one
+  rebirth charge). Per-level values are lists of 5.
+- `charge` (effect): a rider sprite charges along the caster's facing: `"anim": "Enemy/Clip"`,
+  `"color"`, `"speed"` (px per tick), `"radius"`, `seconds`, `amount` (damage to each foe it runs
+  over), `stun`. The rider is an fx actor moved by `tickCharger` (spec_kit.c), its state in the
+  actor's `as.combat` fields. Each stunnable foe is hit once (a stunned foe is skipped), others
+  every 8 ticks. Example: the Guard of Gondor's Charge of Dol Amroth (GondorSoldier/ExtraPose11,
+  `"OBJ:32"`).
+- heal, ward and empower take `"burst": {damage, radius, stun, knockback, impact, sound}` (a burst
+  around the caster too: Shield Wall's shove). Any skill takes `"rallySeconds"` (the caster's
+  summons stay longer: Horn of Gondor). empower takes `"status"`, `"statusSeconds"` and
+  `"statusPower"` (one number): every melee hit applies it while the empower lasts (Light the
+  Beacons burns). Passive effect `summonCount` adds allies per summon (4 at most).
+- Colors anywhere (fx layers, lookColor, charge color) can be `"OBJ:<ObjPalettes id>"`. Clips stored
+  in another enemy's bank often need another palette: render the frame in every palette and pick
+  (Gondor: knight 32, eagle 22).
+- `castSound`: an sfx id or `SFX_*` name, played on a successful cast. Enemy voices are ids in
+  `EnemySfxSets` (Uruk: attack 151, war cry 152, hit 153, death 154).
+- `fx` is one layer or a list of up to 3: `{"shape", "color", "layer": "front" | "behind", "at":
+  "self" | "target", "seconds"}` (seconds: a loop that long, default plays once). `target` is the
+  blast's foe, each summoned ally, or the devoured foe. Stack a core, a ground and a ring layer
+  (docs/wip-docs/fx-catalog.md, "Recipe"). A layer can play any enemy clip instead of a shape:
+  `{"anim": "GroundSkeleton/ExtraPose00", "facing": 4, "ticks": 4, "seconds": 2, "color": "SHADOW"}`
+  (seconds holds the last frame, ticks slows it). Make the look say what the text says: the
+  Uruk-hai's "pit-hands" are that clip (a figure clawing up from the ground) in SHADOW under the foe.
+- More layer and skill fields (spec_kit.c `playLayer`, `cueLayer`, Movers): a layer may be
+  `{"effect": "<skill_fx.json key>", "seconds": n}` (a sprite effect, held n seconds) and any layer
+  takes `"delay"` (seconds). Summons take `"spread"` (pixels, far allies walk in). charge and swoop
+  take `"trail"` (one layer) and `"trailTicks"`. `swoop`: a flyer (`anim`, `color`) dives from the
+  sky onto the nearest foe within `range` in `seconds`, plays `strike` and bursts like a blast
+  (`damage`, `radius`, `stun`, `impact`). Example: the Guard of Gondor's Eagles.
+- Summons take `"look": "<Enemy>"` and `"lookColor": "<fx color>"`: the allies keep the stock ghost
+  AI but wear that enemy's walk, stand, attack and death clips (spec_kit.c `wearLook`). Pick an
+  enemy whose Attack clip has a hit frame (`anim_studio.py clips`), since the hit comes from the
+  frames: the Uruk's own Attack has none (its blade is a layer). The Uruk-hai's whelps are
+  GoblinScout in SHADOW. `hackLib_fxUseFxColor` (fx_kit) draws any actor in an fx color.
+- Icons for a spec: slice the user's sheet (section 7, `--grid`), build into
+  `hacks/patches/heroes/<slug>_icons.c` with `--prefix <Hero>Icon`, and add `<Hero>IconColors` to
+  `IconColorTables[]` (skill_expansion_content.c). Uruk-hai: `new icons/badguy.png`, 7x4 frames at
+  x 10,240,464,675,892,1110,1323 y 110,320,524,734, scale 6.6. All 28 slices kept in
+  `local/urukhai_icons_all/` for page 2.
+- `rebirth` (spec key, hero-level): `{"charges", "start", "killsPerCharge", "heal", "seconds",
+  "burstDamage", "radius", "stun", "sound"}`. A killing blow with a charge left leaves 1 HP and
+  makes the hero untouchable for `seconds` (mud pool and smoke), then heals `heal` percent and
+  bursts (damage and stun). Kills earn charges back, every zone starts with at least `start`. The
+  charges show on the HUD meter between the HP and Spirit bars (`specKit_drawHud`). State lives in
+  the hero state block (`SpecState`), no BSS. Example: `hacks/content/heroes/urukhai.json`.
 - Save identities are `(hero id + 1) << 8 | (row + 1)`: never reorder a released hero's skills.
 - Errors name the file and skill. Add an effect type in both hero_kit.py and spec_kit.c.
 
@@ -222,7 +293,10 @@ readers) or note its bounds check. It misses readers that hold the hero ID in a 
 Stats screen portrait: heroes 8+ show their heroes.json portrait (hero_portrait.c, hooked at
 0x080275c8). BG3 there is 256-color, so the 4bpp dialog portrait is expanded to 8bpp in bank 6.
 
-Limits: 16 heroes in all until the save's 4-bit hero ID is widened. The Gauntlet's hero picker and
+Limits: 64 heroes (`hero_data.MAX_HEROES`, `SKILL_EXPANSION_KIT_SLOTS`, `hero_kit.KIT_SLOTS`). The
+stock slot saves 4 bits of the hero id; `skillExpansion_slotHeroId` takes the whole id from the
+slot's ID record (and co-op sends it in the peer record). Spec passive ids are per player (160 +
+player * 9 + slot), so they never run out. The Gauntlet's hero picker and
 its saved records cover the first 10 heroes only. Multi-piece bodies show only their main piece.
 A body's weapon is part of the sprite, so equipped gear does not show on it.
 
@@ -273,6 +347,9 @@ See hacking-recipes.md "HUD meter" and "Gameplay HUD layout". Frodo's Burden bar
 
 ## 8. Skill visuals (FX)
 
+Spec heroes: start from [spec-kit-cookbook.md](spec-kit-cookbook.md) (the loop, recipes by skill
+kind, color picking, custom sprite effects). The rest of this section is for hand-written kits.
+
 Read `fx-catalog.md` before giving a skill a visual. API: `hacks/lib/fx_kit.h` (`hackLib_fxBurst`,
 `hackLib_fxTimed`, `hackLib_fxAt`, `hackLib_fxEnemyAnim`, `hackLib_fxHold`). Preview shapes,
 palettes and enemy anims with `hacks/tools/fx_palette.py`. Effects can fail to spawn (NULL), so
@@ -281,6 +358,16 @@ the skill logic must never depend on them.
 ### Large single icons and mixed sheets (2026-10-24)
 - Sheets from the image generator do not have 4:3 frames. Scale by the ring: scale = ring width in pixels / 26, and use a frame origin of (ring center x - 16 * scale, ring center y - 12 * scale). `fit` only searches +-12 source pixels, so guess well. Preview before building.
 - A single big icon: `slice IMG OUT --grid "X:Y:SCALE" --names name`. Wraithbreath.png used `93:26:39.5`, Wraithsword.png `35:35:38.3`.
+- Measured grids (slot origins, row by row; `-` skips a slot):
+  - `aragorn icons.png` left block, rows 2..3: `--grid "49,276,501:292,520:7.1"`; right block top row
+    x 1088 (star), 1523 (three arrows) at y 70, scale 7.1.
+  - `eowyn.png` (oval frames): `--grid "47,351,660,1004,1321,1634:112,309,477,643:7.0"`. The scale
+    must fit the oval's height: at 7.6 the orange oval border leaked into the top and bottom of
+    every icon (looked "buggy" in game).
+  - `Gimli-Legolas-Gandalf.png`: scale 4.2, e.g. Gandalf tree 577,167, Gimli shield 750,322, Gimli
+    stones 1143,485.
+  The Guard of Gondor's set (`hacks/patches/heroes/guardofgondor_icons`, prefix GondorIcon) mixes all
+  three. Unused there and still free: aragorn star, crown, wolf, river, banner (clipped at the edge).
 - Sheets used for the Ringwraith (names are in the order of the sheet, row by row):
   - `Wraithimproved2.png`, 9x3: `--grid "15,224,433,642,850,1059,1268,1477,1685:123,340,562:6.5"`
   - `Wraithimproved3.png`, 8x3: `--grid "20,254,489,723,957,1192,1426,1660:110,345,575:7.33"`

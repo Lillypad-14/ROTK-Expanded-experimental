@@ -1,0 +1,66 @@
+{"enemy": "WitchKing", "styles": {"morgul": [{"width": 12, "color": "#1d1428", "edge": 0, "under": true}, {"width": 5, "color": "#7ee0a4", "edge": "#e8fff0"}], "morgul-faint": [{"width": 8, "color": "#1d1428", "edge": 0, "under": true}, {"width": 3, "color": "#5fc48a", "edge": "#c8ffd8"}], "morgul-fade": [{"width": 7, "color": "#1a2e24", "edge": 0, "under": true}, {"width": 3, "color": "#4aa874", "edge": "#b4f0c8"}], "morgul-flash": [{"size": 7, "color": "#e0ffe8"}]},
+  "anims": {
+    "thrust": {"speed": 1, "note": "Combo 1: the boss's own strike, frames in order: wind-up, lunge, hold on impact.", "frames": [
+      {"src": "Attack:0"},
+      {"src": "Attack:1"},
+      {"src": "Attack:2"},
+      {"src": "Attack:3"},
+      {"src": "Attack:3", "lunge": -1, "dy": -1, "facings": {"0": {"dy": null}}},
+      {"src": "Attack:4", "lunge": -1, "dy": -1, "facings": {"0": {"dy": null}}},
+      {"src": "Attack:4", "lunge": -2, "dy": -2, "facings": {"0": {"dy": null}}},
+      {"src": "Attack:5", "lunge": 2},
+      {"src": "Attack:6", "lunge": 4, "hit": "auto", "trail": {"steps": 2, "color": ["#24503a", "#16281f"]}, "draw": [{"smear": {"from": "Attack:4", "to": "tip"}, "style": "morgul"}, {"spark": "tip", "style": "morgul-flash"}]},
+      {"src": "Attack:6", "lunge": 4, "trail": {"steps": 1, "color": ["#16281f"]}, "draw": [{"smear": {"from": "Attack:4", "to": "tip"}, "style": "morgul-fade", "scale": 0.85}, {"spark": "tip", "style": "morgul-flash", "scale": 0.6}]},
+      {"src": "Attack:6", "lunge": 4, "trail": {"steps": 1, "color": ["#16281f"]}, "draw": [{"smear": {"from": "Attack:4", "to": "tip"}, "style": "morgul-faint", "scale": 0.72}]},
+      {"src": "Attack:7", "lunge": 4, "draw": [{"smear": {"from": "prev", "to": "tip"}, "style": "morgul-fade", "scale": 0.7}]},
+      {"src": "Attack:7", "lunge": 3, "draw": [{"smear": {"from": "prev", "to": "tip"}, "style": "morgul-faint", "scale": 0.59}]},
+      {"src": "Attack:7", "lunge": 2},
+      {"src": "Attack:7", "lunge": 2}
+    ]},
+    "rising": {"speed": 1, "note": "Combo 2. Side views: from low in front, the blade sweeps up and back. Up and down: his front/back strike, overhead (8), across (10, the hit), then settle (11, 12).", "frames": [
+      {"src": "Attack:7"},
+      {"src": "Attack:7", "lunge": -1, "dy": -1, "facings": {"0": {"dy": null}}},
+      {"tween": {"from": "Attack:7", "to": "Attack:8", "t": 0.5, "body": "Attack:8"}, "lunge": 2, "draw": [{"smear": {"from": "prev", "to": "tip"}, "style": "morgul-faint"}], "facings": {"0": {"tween": null, "lunge": -1, "draw": null, "src": "Attack:8"}, "4": {"tween": null, "lunge": -1, "draw": null, "src": "Attack:8"}}},
+      {"src": "Attack:8", "lunge": 3, "hit": true, "trail": {"steps": 2, "color": ["#24503a", "#16281f"]}, "draw": [{"smear": {"from": "prev", "to": "tip"}, "style": "morgul"}, {"spark": "tip", "style": "morgul-flash", "scale": 0.8}], "facings": {"0": {"src": "Attack:10", "hit": [-30, 30, -72, -30], "trail": null, "draw": [{"smear": {"from": "Attack:8", "to": "tip"}, "style": "morgul"}, {"spark": "tip", "style": "morgul-flash", "scale": 0.8}]}, "4": {"src": "Attack:10", "hit": [-30, 30, -24, 18], "trail": null, "draw": [{"smear": {"from": "Attack:8", "to": "tip"}, "style": "morgul"}, {"spark": "tip", "style": "morgul-flash", "scale": 0.8}]}}},
+      {"src": "Attack:8", "lunge": 3, "trail": {"steps": 1, "color": ["#16281f"]}, "draw": [{"smear": {"from": "prev", "to": "tip"}, "style": "morgul-fade", "scale": 0.85}, {"spark": "tip", "style": "morgul-flash", "scale": 0.48}], "facings": {"0": {"src": "Attack:10", "trail": null, "draw": [{"smear": {"from": "Attack:8", "to": "tip"}, "style": "morgul-fade", "scale": 0.85}, {"spark": "tip", "style": "morgul-flash", "scale": 0.48}]}, "4": {"src": "Attack:10", "trail": null, "draw": [{"smear": {"from": "Attack:8", "to": "tip"}, "style": "morgul-fade", "scale": 0.85}, {"spark": "tip", "style": "morgul-flash", "scale": 0.48}]}}},
+      {"src": "Attack:8", "lunge": 2, "trail": {"steps": 1, "color": ["#16281f"]}, "draw": [{"smear": {"from": "prev", "to": "tip"}, "style": "morgul-faint", "scale": 0.72}], "facings": {"0": {"src": "Attack:10", "trail": null, "draw": [{"smear": {"from": "Attack:8", "to": "tip"}, "style": "morgul-faint", "scale": 0.72}]}, "4": {"src": "Attack:10", "trail": null, "draw": [{"smear": {"from": "Attack:8", "to": "tip"}, "style": "morgul-faint", "scale": 0.72}]}}},
+      {"src": "Attack:9", "lunge": 2, "draw": [{"smear": {"from": "prev", "to": "tip"}, "style": "morgul-fade", "scale": 0.7}], "facings": {"0": {"src": "Attack:11"}, "4": {"src": "Attack:11"}}},
+      {"src": "Attack:9", "lunge": 1, "draw": [{"smear": {"from": "prev", "to": "tip"}, "style": "morgul-faint", "scale": 0.59}], "facings": {"0": {"src": "Attack:11"}, "4": {"src": "Attack:11"}}},
+      {"src": "Attack:10", "facings": {"0": {"src": "Attack:12"}, "4": {"src": "Attack:12"}}},
+      {"src": "Attack:10", "facings": {"0": {"src": "Attack:12"}, "4": {"src": "Attack:12"}}}
+    ]},
+    "cleave": {"speed": 1, "note": "Finisher: his strike again, heavier: a long raised wind-up, a big lunge, a long impact hold.", "frames": [
+      {"src": "Attack:3"},
+      {"src": "Attack:3", "lunge": -1},
+      {"src": "Attack:3", "lunge": -2, "dy": -1, "facings": {"0": {"dy": null}}},
+      {"src": "Attack:4", "lunge": -2, "dy": -1, "facings": {"0": {"dy": null}}},
+      {"src": "Attack:4", "lunge": -3, "dy": -2, "facings": {"0": {"dy": null, "lunge": -3}}},
+      {"src": "Attack:4", "lunge": -3, "dy": -3, "facings": {"0": {"dy": null, "lunge": -4}}},
+      {"src": "Attack:4", "lunge": -4, "dy": -3, "facings": {"0": {"dy": null, "lunge": -5}}},
+      {"src": "Attack:5", "lunge": 3},
+      {"src": "Attack:6", "lunge": 7, "hit": "auto", "trail": {"steps": 2, "color": ["#24503a", "#16281f"]}, "draw": [{"smear": {"from": "Attack:4", "to": "tip"}, "style": "morgul", "scale": 1.4}, {"spark": "tip", "style": "morgul-flash", "scale": 1.6}]},
+      {"src": "Attack:6", "lunge": 7, "trail": {"steps": 1, "color": ["#16281f"]}, "draw": [{"smear": {"from": "Attack:4", "to": "tip"}, "style": "morgul-fade", "scale": 1.19}, {"spark": "tip", "style": "morgul-flash", "scale": 0.96}]},
+      {"src": "Attack:6", "lunge": 7, "trail": {"steps": 1, "color": ["#16281f"]}, "draw": [{"smear": {"from": "Attack:4", "to": "tip"}, "style": "morgul-faint", "scale": 1.01}]},
+      {"src": "Attack:6", "lunge": 7, "trail": {"steps": 1, "color": ["#16281f"]}},
+      {"src": "Attack:6", "lunge": 7, "draw": [{"spark": "tip", "style": "morgul-flash"}]},
+      {"src": "Attack:6", "lunge": 6, "draw": [{"spark": "tip", "style": "morgul-flash", "scale": 0.6}]},
+      {"src": "Attack:7", "lunge": 6, "draw": [{"smear": {"from": "prev", "to": "tip"}, "style": "morgul-fade"}]},
+      {"src": "Attack:7", "lunge": 5, "draw": [{"smear": {"from": "prev", "to": "tip"}, "style": "morgul-faint", "scale": 0.85}]},
+      {"src": "Attack:7", "lunge": 5},
+      {"src": "Attack:7", "lunge": 4},
+      {"src": "Attack:7", "lunge": 3},
+      {"src": "Attack:14", "lunge": 2},
+      {"src": "Attack:15", "lunge": 1},
+      {"src": "Attack:16"}
+    ]},
+    "rig_thrust": {"speed": 1, "note": "Rigged version (sword drawn per tick), kept for the new art: swap its body frames for \"png:swings_<pose>\" (docs/wip-docs/new-hero-art.md). Combo 1, rigged: a slow raised wind-up that hovers, a brutal accelerating chop, a 2-tick freeze on impact, an easing follow-through. Hand and angle keys per facing come from the tracked hilts and blades of Attack:0/2/4/6/7.", "frames": [
+      {"rig": {"ticks": 14, "body": [[0, "Attack:0"], [2, "Attack:2"], [4, "Attack:4"], [6, "Attack:5"], [7, "Attack:6"], [10, "Attack:7"]], "lunge": [[0, 0], [5, -3], [7, 6, "in"], [8, 6], [13, 3, "out"]], "hit": [7], "smear": {"style": "morgul", "on": [6, 7]}, "flash": {"style": "morgul-flash", "scale": 1.2, "on": [7]}, "trail": {"steps": 2, "color": ["#24503a", "#16281f"], "on": [7, 8]}, "sword": "Attack:6", "hand": [[0, 8, -28], [2, 4, -39], [5, 8, -41, "out"], [7, 20, 6, "in"], [8, 20, 6], [13, 9, 8, "out"]], "angle": [[0, -87], [4, -130, "out"], [5, -136], [7, 12, "in"], [8, 14], [13, 30, "out"]], "facings": {"0": {"sword": "Attack:7", "hand": [[0, 15, -23], [2, -11, -38], [5, -12, -40, "out"], [7, 30, -25, "in"], [8, 31, -24], [13, 35, -19, "out"]], "angle": [[0, -61], [4, -100, "out"], [5, -106], [7, -45, "in"], [8, -43], [13, -30, "out"]]}, "1": {"sword": "Attack:7", "hand": [[0, 25, -10], [2, -1, -37], [5, 0, -38, "out"], [7, 30, -10, "in"], [8, 30, -9], [13, 27, -2, "out"]], "angle": [[0, -63], [4, -118, "out"], [5, -124], [7, -2, "in"], [8, 0], [13, 8, "out"]]}, "3": {"sword": "Attack:6", "hand": [[0, 21, -18], [2, 21, -18], [5, 13, -35, "out"], [7, 2, 12, "in"], [8, 2, 12], [13, -6, 6, "out"]], "angle": [[0, -77], [4, -95, "out"], [5, -100], [7, 58, "in"], [8, 60], [13, 80, "out"]]}, "4": {"sword": "Attack:6", "hand": [[0, -10, -35], [2, 11, -32], [5, 13, -36, "out"], [7, -22, -3, "in"], [8, -22, -2], [13, -20, 2, "out"]], "angle": [[0, -90], [4, -92, "out"], [5, -96], [7, -240, "in"], [8, -238], [13, -220, "out"]]}}}}
+    ]},
+    "rig_rising": {"speed": 1, "note": "Rigged version (sword drawn per tick), kept for the new art: swap its body frames for \"png:swings_<pose>\" (docs/wip-docs/new-hero-art.md). Combo 2, rigged: from the thrust's low follow-through, a small dip, a fast sweep up and back (hit mid-sweep, 1-tick freeze), easing into a high guard where the cleave starts.", "frames": [
+      {"rig": {"ticks": 11, "body": [[0, "Attack:7"], [3, "Attack:8"], [7, "Attack:9"], [9, "Attack:10"]], "lunge": [[0, 0], [2, -1], [5, 4, "in"], [6, 4], [10, 2, "out"]], "hit": [5], "smear": {"style": "morgul", "on": [4, 5], "scale": 0.9}, "flash": {"style": "morgul-flash", "on": [5]}, "trail": {"steps": 2, "color": ["#24503a", "#16281f"], "on": [5, 6]}, "sword": "Attack:6", "hand": [[0, 9, 8], [2, 9, 10, "out"], [5, -6, -24, "in"], [6, -6, -25], [10, -25, -37, "out"]], "angle": [[0, 30], [2, 37, "out"], [5, -30, "in"], [6, -34.0], [10, -80, "out"]], "facings": {"0": {"sword": "Attack:7", "hand": [[0, 35, -19], [2, 35, -17, "out"], [5, 18, -36, "in"], [6, 18, -37], [10, -9, -38, "out"]], "angle": [[0, -30], [2, -21, "out"], [5, -103, "in"], [6, -107.8], [10, -163, "out"]]}, "1": {"sword": "Attack:7", "hand": [[0, 27, -2], [2, 27, 0, "out"], [5, -3, -16, "in"], [6, -3, -17], [10, -7, -8, "out"]], "angle": [[0, 8], [2, 22, "out"], [5, -108, "in"], [6, -110.4], [10, -138, "out"]]}, "3": {"sword": "Attack:6", "hand": [[0, -6, 6], [2, -6, 8, "out"], [5, -22, -42, "in"], [6, -22, -43], [10, -21, -46, "out"]], "angle": [[0, 80], [2, 98, "out"], [5, -67, "in"], [6, -63.88], [10, -28, "out"]]}, "4": {"sword": "Attack:6", "hand": [[0, -20, 2], [2, -20, 4, "out"], [5, -16, -48, "in"], [6, -16, -49], [10, -4, -48, "out"]], "angle": [[0, 140], [2, 122, "out"], [5, 288, "in"], [6, 292.56], [10, 345, "out"]]}}}}
+    ]},
+    "rig_cleave": {"speed": 1, "note": "Rigged version (sword drawn per tick), kept for the new art: swap its body frames for \"png:swings_<pose>\" (docs/wip-docs/new-hero-art.md). Finisher, rigged: rises from the high guard and hovers (the longest wind-up), slams down hardest (3-tick freeze, biggest flash and lunge), heavy follow-through, back to guard.", "frames": [
+      {"rig": {"ticks": 20, "body": [[0, "Attack:10"], [3, "Attack:4"], [7, "Attack:5"], [8, "Attack:6"], [12, "Attack:7"], [16, "Attack:14"], [17, "Attack:15"], [18, "Attack:16"]], "lunge": [[0, 0], [5, -4], [8, 8, "in"], [10, 8], [15, 5, "out"], [19, 0, "inout"]], "hit": [8], "smear": {"style": "morgul", "on": [7, 8], "scale": 1.3}, "flash": {"style": "morgul-flash", "on": [8, 9], "scale": 1.6}, "trail": {"steps": 2, "color": ["#24503a", "#16281f"], "on": [8, 9, 10]}, "sword": "Attack:6", "hand": [[0, -25, -37], [5, -20, -42, "out"], [8, 22, 8, "in"], [10, 22, 9], [15, 16, 10, "out"], [19, 8, -28, "inout"]], "angle": [[0, -80], [5, -125, "out"], [6, -129.65], [8, 30, "in"], [10, 33.1], [15, 48.599999999999994, "out"], [19, -87, "inout"]], "facings": {"0": {"sword": "Attack:7", "hand": [[0, -9, -38], [5, -12, -40, "out"], [8, 30, -25, "in"], [10, 30, -24], [15, 24, -23, "out"], [19, 15, -23, "inout"]], "angle": [[0, -163], [5, -190, "out"], [6, -183.55], [8, -405, "in"], [10, -409.3], [15, -430.8, "out"], [19, -421, "inout"]]}, "1": {"sword": "Attack:7", "hand": [[0, -7, -8], [5, 0, -38, "out"], [8, 30, -10, "in"], [10, 30, -9], [15, 24, -8, "out"], [19, 25, -10, "inout"]], "angle": [[0, -138], [5, -150, "out"], [6, -154.44], [8, -2, "in"], [10, 0.96], [15, 15.759999999999998, "out"], [19, -63, "inout"]]}, "3": {"sword": "Attack:6", "hand": [[0, -21, -46], [5, 13, -35, "out"], [8, 2, 12, "in"], [10, 2, 13], [15, -4, 14, "out"], [19, 21, -18, "inout"]], "angle": [[0, -28], [5, -100, "out"], [6, -104.74], [8, 58, "in"], [10, 61.16], [15, 76.96000000000001, "out"], [19, -77, "inout"]]}, "4": {"sword": "Attack:6", "hand": [[0, -4, -48], [5, 13, -36, "out"], [8, -22, -3, "in"], [10, -22, -2], [15, -28, -1, "out"], [19, -10, -35, "inout"]], "angle": [[0, 345], [5, 264, "out"], [6, 268.32], [8, 120, "in"], [10, 117.12], [15, 102.72, "out"], [19, 90, "inout"]]}}}}
+    ]}
+  }
+}

@@ -362,6 +362,24 @@ Real art beats recolored stock shapes: Sam's plants were stock sparkles and "did
 - A burst ends as it ENTERS its last frame. skill_fx.py appends a hidden copy of the last frame so every drawn frame shows (an n-frame sheet lasts n * frameTicks). Hand-built SpriteAnimations still lose their last frame.
 - Looping a persistent prop (plant, pot): end the sheet on its first pose and respawn 2 ticks before it ends, so the overlap shows two identical frames (Sam: 5 frames x 4 ticks, respawn every 18). A gap makes it flash. When the prop dies, wait for the current loop to end before its death anim (Sam `SAM_PLANT_WILTING`), else both draw at once.
 
+## Per-hero sprite art (2026-11-04): the default for every enemy hero kit
+
+The user called the stock-shape kits "boring and identical": stacking SPARK, STAR_BLOOM, SMOKE_SMALL and
+SPARKLE_RING in 7 colors makes every skill look alike. Every skill now gets its own drawn sprite; stock
+shapes are only accents (a ring under a buff, a hit spark).
+- Kit: `hacks/tools/fx_draw.py` (Canvas: dot, ellipse, line, arc with taper, outline; Art: sheets, one
+  palette strip per hero, `preview()` montage). One script per hero, `hacks/tools/<slug>_fx_art.py`
+  (corsair, orccaptain, witchking, urukhai, warg, armyofthedead, mouthofsauron, denethor_spider).
+- One ObjPalettes-style palette id per hero (<= 15 colors): Gondor art 3, Corsair 4, Captain 5, Witch-king 6,
+  Uruk-hai 7, Warg 8, Army 9, Mouth 10, Denethor 11, Spider 12. Assets of one id share a palette strip.
+- Asset rules (skill_fx.py): width and height multiples of 8, at most 15 colors, effect `name` 1..20 chars.
+  Art meant above a head: a tall canvas with the art at the top and the anchor near the bottom (the Eye, the
+  crown, the "!"). Ground art (fog, runes, rings, the tower behind him): `"layer": "behind"`.
+- Loop: draw with `--preview OUT.png`, look at the montage, fix, register the assets and an effect per
+  sprite in skill_fx.json (keep one entry per line), point the kit's fx/trail at `{"effect": key}`, run
+  `skill_fx.py` (validates), rebuild, `hero_fast.py skills "<Hero>" --foes 12 --face left`.
+- Pale smoke must not match the floor grey: keep a light and a dark smoke tone.
+
 ## Sam map (page 2, PNG sprites)
 
 | Skill / event | Visual |

@@ -26,12 +26,12 @@ import struct
 import hero_clips
 import hero_registry
 
-MAX_HEROES = 16
+MAX_HEROES = 64
 SOUNDS = 0x0000
 SFX_ENTRIES = 0x1000
 SFX_SETS = 0x2000
 BODIES = 0x8000
-CLIPS = 0x14000
+CLIPS = 0x30000
 BANK_BYTES = hero_clips.PARTS * hero_clips.POSES * 4
 ANIMATION_BYTES = hero_clips.FACINGS * 16
 # Within a body slot: the three banks, then the hero select's idle and selected animations.
@@ -79,6 +79,33 @@ class Blob:
         return self.base + offset
 
 
+# Piece palettes (PC host, rotk-recompiled src/host_palettes.cpp): a frame set with "#rrggbb" colors
+# follows PIECE_PALETTE_MAGIC and its table's address. Table: u32 frame count, a u32 address per frame
+# (0: none), each pointing at u32 piece count and per piece u16 tile offset, u16 1 if it has its own
+# colors, then 16 BGR555 colors.
+PIECE_PALETTE_MAGIC = b"HPAL"
+
+
+def place_frames(blob: "Blob", facing) -> int:
+    """A facing's frame set in the clips area (after its piece palettes, if any). Returns its address."""
+    if not facing.palettes:
+        return blob.append(facing.frames)
+    from rotkit.spritegfx import parse_frame_set
+
+    frame_set = parse_frame_set(facing.frames, ROM_BASE)
+    entries = []
+    for frame, pieces in zip(frame_set.frames, facing.palettes):
+        if not any(pieces):
+            entries.append(0)
+            continue
+        entry = bytearray(struct.pack("<I", len(frame.oam)))
+        for obj, colors in zip(frame.oam, pieces):
+            entry += struct.pack("<HH", obj.tile_offset, colors is not None) + (colors or bytes(32))
+        entries.append(blob.append(bytes(entry)))
+    table = blob.append(struct.pack(f"<I{len(entries)}I", len(entries), *entries))
+    return blob.append(PIECE_PALETTE_MAGIC + struct.pack("<I", table) + facing.frames) + 8
+
+
 def animation_records(facings: list[tuple[int, int, int]]) -> bytes:
     """SpriteAnimation[5]: tiles, frames, palette (none) and frameDuration per facing."""
     return b"".join(struct.pack("<IIIB3x", tiles, frames, 0, duration) for tiles, frames, duration in facings)
@@ -118,12 +145,15 @@ def build(root: Path, heroes: list[dict], rom: bytes) -> tuple[bytes, dict]:
         slot = BODIES + hero["id"] * BODY_BYTES
 
         def records(clip: hero_clips.Clip) -> bytes:
-            """The clip's SpriteAnimation[5]: the stock ones, or one over frame sets placed now."""
+            """The clip's SpriteAnimation[5]: the stock ones, or one over frame sets placed now. Enemy
+            clips and players share the facing order (0 up, the back view, to 4 down, the front view),
+            so facing N goes to record N as it is."""
             if clip.stock:
                 return rom[sources.addresses[clip.label] - ROM_BASE:][:ANIMATION_BYTES]
             if id(clip) not in placed:
                 placed[id(clip)] = animation_records(
-                    [(f.tiles_address, blob.append(f.frames), f.duration) for f in clip.facings])
+                    [(blob.append(f.tiles_data) if f.tiles_data is not None else f.tiles_address,
+                      place_frames(blob, f), f.duration) for f in clip.facings])
             return placed[id(clip)]
 
         for number, (bank, offset) in enumerate(BANK_OFFSETS.items()):
