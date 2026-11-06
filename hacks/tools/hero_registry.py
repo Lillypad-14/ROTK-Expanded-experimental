@@ -174,7 +174,8 @@ def generate(root: Path, pc: bool = False) -> None:
             + f"{hero['palette']}, "
             f"{int(hero.get('detachHands', False))}, {json.dumps(hero.get('name')) if hero.get('name') else 'NULL'}, "
             f"{pointer('stats')}, "
-            f"{menu(hero, 'menuIdle', hero_data.MENU_IDLE)}, {menu(hero, 'menuSelected', hero_data.MENU_SELECTED)}"
+            f"{menu(hero, 'menuIdle', hero_data.MENU_IDLE)}, {menu(hero, 'menuSelected', hero_data.MENU_SELECTED)}, "
+            f"{json.dumps(hero['shortName']) if hero.get('shortName') else 'NULL'}"
             + "},"
         )
         # A spec kit has no modcode symbol: skillExpansion_getHeroKit finds it in its slot.

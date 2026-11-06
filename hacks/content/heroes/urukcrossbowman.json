@@ -1,7 +1,7 @@
 {
   "hero": "Uruk Crossbowman",
   "note": "Signature: the marksman, rewarded for holding his ground. Only hero with pierce, fan, cover, ignite, aim and hail. Sprites: urukcrossbowman_fx_art.py. Icons: badguy.png cells 5, 11, 14, 16, 22, 23.",
-  "primary": {"frame": 5, "damage": [9, 14, 19, 24, 30], "speed": 10, "radius": 8, "pierce": 1,
+  "primary": {"frame": 5, "arrow": true, "damage": [9, 14, 19, 24, 30], "speed": 10, "radius": 8, "pierce": 1,
               "travel": "urukcrossbowman_bolt", "impact": "urukcrossbowman_thunk", "sound": "missile"},
   "passives": [
     {"name": "Steady Hands", "icon": "AragornIconTrackersMark", "levels": [1, 4, 7, 10, 13],
@@ -23,8 +23,8 @@
      "stats": {"STAT_HP_PER_KILL": [2, 2, 2, 2, 2], "STAT_SPIRIT_PER_KILL": [1, 1, 1, 1, 1]},
      "text": "+2 health and +1 Spirit per kill per level."},
     {"name": "Cold Eye", "icon": "AragornIconOathOfTheDead", "levels": [7, 10, 13, 16, 19],
-     "stats": {"STAT_CRIT_CHANCE_PERCENT": [3, 3, 3, 3, 3]},
-     "text": "+3% critical chance per level."},
+     "stats": {"STAT_CRIT_CHANCE_PERCENT": [3, 3, 3, 3, 3], "STAT_ARROW_SPEED_PERCENT": [5, 5, 5, 5, 5]},
+     "text": "+3% critical chance and +5% bolt speed per level."},
     {"name": "Sun-Scorned", "icon": "AragornIconRestlessDead", "levels": [8, 11, 14, 17, 20],
      "stats": {"STAT_FEAR_RESIST_PERCENT": [8, 8, 8, 8, 8], "STAT_HP_REGEN": [1, 1, 1, 1, 1]},
      "text": "+8% fear resistance and +1 health regeneration per level."},

@@ -25,6 +25,11 @@ typedef struct GhostState
     u8 damage;
 } GhostState;
 
+// A ghost's melee reach in pixels.
+#define HACKLIB_GHOST_REACH(ghost) (((u8 *)(ghost))[0x92])
+// Pixels past its reach that a foe may drift before a ghost abandons the swing.
+#define HACKLIB_GHOST_SWING_SLACK 16
+
 static inline GhostState *ghostState(Actor *ghost)
 {
     return (GhostState *)&ghost->as;
@@ -54,6 +59,13 @@ static inline Actor *hackLib_nextOwnedGhost(Actor *owner, Actor *cursor)
     return NULL;
 }
 
+/**
+ * Keeps a ghost near its owner: it fights foes near the owner, follows the owner when it has none
+ * and is recalled to the owner's side when left far behind. A swing ends at once when its foe dies
+ * or leaves reach. Call before actor_npc_tickPassive.
+ */
+void hackLib_escortGhost(Actor *ghost, HackLibSummonTargetFilter isTarget);
+
 /** Opt-in persistent ghost behavior. Stock ticking owns lifetime and removal bookkeeping. */
 static inline void hackLib_tickPersistentGhost(Actor *ghost, HackLibSummonTargetFilter isTarget,
                                                FindNextEnemyFn nextEnemy)
@@ -82,10 +94,27 @@ static inline void hackLib_tickPersistentGhost(Actor *ghost, HackLibSummonTarget
             }
             state->target = best;
         }
-        if (ghost->actionState == GHOST_ACTION_DEATH ||
-            (ghost->actionState == GHOST_ACTION_ATTACK &&
-             (ghost->flags.p & ACTOR_FLAG_ANIMATION_END)))
+        // A swing also ends when its foe dies, stops being a target or leaves reach: the stock ghost
+        // finishes a swing standing still, and an ally wearing another enemy's looping attack clip
+        // never sees the animation end, so it would swing in place forever.
+        bool32 swinging = ghost->actionState == GHOST_ACTION_ATTACK;
+        Actor *target = state->target;
+        bool32 lost = target == NULL || !isTarget(target) || target->currentHp <= 0;
+
+        if (swinging && !lost)
         {
+            s32 dx = (target->coords.x - ghost->coords.x) >> FP16_16_SHIFT;
+            s32 dy = (target->coords.y - ghost->coords.y) >> FP16_16_SHIFT;
+
+            lost = ABS(dx) + ABS(dy) > HACKLIB_GHOST_REACH(ghost) + HACKLIB_GHOST_SWING_SLACK;
+        }
+        if (ghost->actionState == GHOST_ACTION_DEATH ||
+            (swinging && ((ghost->flags.p & ACTOR_FLAG_ANIMATION_END) || lost)))
+        {
+            if (lost)
+            {
+                state->target = NULL;
+            }
             ghost->actionState = state->target != NULL ? GHOST_ACTION_PURSUIT : GHOST_ACTION_IDLE;
             ghost->actionStateTimer = 0;
             ghost->flags.p &= ~ACTOR_FLAG_ANIMATION_END;

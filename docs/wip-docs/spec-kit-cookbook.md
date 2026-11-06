@@ -71,7 +71,11 @@ give them a `travel` and `impact` (skill_fx.json key) or they show the generic o
 A ranged hero's basic attack: keep his own shooting clip as the swing (no hitbox needed) and give the
 spec a `"primary": {"frame": n, "damage": [5], "speed", "travel", "impact", ...}` block: a bolt loosed
 on frame n of every swing (`tickPrimary`, detected by the player's animationBank being the hero's melee
-bank in the hero data region). Example: the Uruk Crossbowman (frame 5, his recoil). Test with
+bank in the hero data region). Example: the Uruk Crossbowman (frame 5, his recoil). Add `"arrow": true` to fire the game's own arrow (Legolas's, 32 directions)
+instead of the drawn bolt. Its hit is the stock one, the shooter's full attack (weapon damage, Strength,
+accuracy, crits, procs), so Strength/crit passives count; `damage` then only feeds the stand-in bolt. Enemy bodies have no bow-hand point, so tickPrimary starts it 12 px ahead and
+18 px up. A foe within ~30 px is hit on the arrow's first frame, so test shots into open floor. Swap any
+whoosh in the hero's first `sounds` slot for a shot (64 is Legolas's). Test with
 `hero_fast.py check "<Hero>" --face left`. Flight sprites drawn at foot level look low: put the art
 high on a tall canvas with the anchor below it (the Crossbowman's bolt: 8x32, anchor [4, 22]).
 Moria routes press A after the level starts (dialog skips), which also casts the selected skill: a

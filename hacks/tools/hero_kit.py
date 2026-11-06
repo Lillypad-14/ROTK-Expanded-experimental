@@ -459,9 +459,12 @@ def compile_hero(root: Path, hero: dict, names: dict) -> tuple[str, set[str]]:
                 "primary is {frame, damage, speed, travel, impact, ...}: a bolt loosed on that frame of every swing")
         frame = block["frame"]
         require(isinstance(frame, int) and 0 <= frame <= 30, where, "primary frame 0..30")
-        sub = dict({k: v for k, v in block.items() if k != "frame"}, effect="bolt")
+        arrow = block.get("arrow", False)
+        require(isinstance(arrow, bool), where, "primary arrow is true (the game's arrow) or false (a drawn bolt)")
+        sub = dict({k: v for k, v in block.items() if k not in ("frame", "arrow")}, effect="bolt")
         out.append(f"static const SkillDeliveryDef {symbol}PrimaryDelivery = {delivery(sub, where + ' primary', names)};")
-        out.append(f"static const SpecPrimary {symbol}Primary = {{.delivery = &{symbol}PrimaryDelivery, .frame = {frame}}};")
+        out.append(f"static const SpecPrimary {symbol}Primary = {{.delivery = &{symbol}PrimaryDelivery, "
+                   f".frame = {frame}, .arrow = {int(arrow)}}};")
         primary_ref = f"&{symbol}Primary"
     passive_refs, passive_ids = ["NULL"] * 9, []
     for k, passive in enumerate(passives):

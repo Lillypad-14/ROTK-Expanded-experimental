@@ -1,6 +1,7 @@
 // The skill engine of data-written kits (spec_kit.h). Every hero with a spec shares these
 // callbacks; its own tables say what each row does. hero_kit.py links those tables apart from the
 // modcode into the hero's kit slot (SKILL_EXPANSION_KIT_SLOT), so this code never names them.
+#include "actor/projectile.h"
 #include "patches/heroes/spec_kit.h"
 #include "actor/lootPile.h"
 #include "enemy.h"
@@ -528,13 +529,67 @@ static Actor *spawnLookAlly(Actor *owner, Vector2Fp16 *position, Actor *target, 
     return ally;
 }
 
+// Allies whose looping attack clip is tracked, with the frame each showed last tick.
+#define SWING_SLOTS 8
+static Actor *SwingAllies[SWING_SLOTS];
+static u8 SwingFrames[SWING_SLOTS];
+
+/**
+ * An enemy's attack clip loops, so the ghost never sees its swing end. A clip that wraps back to
+ * an earlier frame counts as one finished swing.
+ */
+static void endLoopedSwing(Actor *ally)
+{
+    u32 slot = SWING_SLOTS;
+    u8 frame = ally->currentAnimationFrame;
+
+    for (u32 i = 0; i < SWING_SLOTS; i++)
+    {
+        if (SwingAllies[i] == ally)
+        {
+            slot = i;
+        }
+    }
+    if (ally->actionState != GHOST_ACTION_ATTACK)
+    {
+        if (slot < SWING_SLOTS)
+        {
+            SwingAllies[slot] = NULL;
+        }
+        return;
+    }
+    if (slot == SWING_SLOTS)
+    {
+        for (u32 i = 0; i < SWING_SLOTS && slot == SWING_SLOTS; i++)
+        {
+            if (SwingAllies[i] == NULL)
+            {
+                slot = i;
+                SwingAllies[i] = ally;
+                SwingFrames[i] = frame;
+            }
+        }
+        return;
+    }
+    if (frame < SwingFrames[slot])
+    {
+        ally->flags.p |= ACTOR_FLAG_ANIMATION_END;
+    }
+    SwingFrames[slot] = frame;
+}
+
 static void tickLookAlly(Actor *ally, Actor *target, u16 damage)
 {
     const SpecSkill *row = lookRow(ally->parentActor);
 
     (void)target;
     (void)damage;
-    hackLib_tickPersistentGhost(ally, skillExpansion_isFoe, findNextEnemy);
+    if (row != NULL)
+    {
+        endLoopedSwing(ally);
+    }
+    hackLib_escortGhost(ally, skillExpansion_isFoe);
+    actor_npc_tickPassive(ally);
     if (row != NULL)
     {
         wearLook(ally, row->lookEnemy);
@@ -543,6 +598,13 @@ static void tickLookAlly(Actor *ally, Actor *target, u16 damage)
 
 static void despawnLookAlly(Actor *ally)
 {
+    for (u32 i = 0; i < SWING_SLOTS; i++)
+    {
+        if (SwingAllies[i] == ally)
+        {
+            SwingAllies[i] = NULL;
+        }
+    }
     ghostState(ally)->lifetime = 1;
 }
 
@@ -2680,6 +2742,10 @@ static SkillExpansionCastResult ignite(Actor *actor, u8 player, const SpecSkill 
 
 // Per player: the melee frame seen last tick plus 1, 0 when not swinging.
 static u8 PrimaryFrames[2];
+// Pixels ahead of the shooter that a primary arrow starts.
+#define PRIMARY_ARROW_AHEAD 12
+// Pixels above the shooter's feet that a primary arrow flies.
+#define PRIMARY_ARROW_RISE 18
 
 /** A missile primary: each swing looses its bolt as it reaches the spec's frame. */
 static void tickPrimary(u8 player, Actor *actor)
@@ -2699,8 +2765,30 @@ static void tickPrimary(u8 player, Actor *actor)
         u32 level = 1 + PLAYER(player).level / 5;
         u8 direction = actor->facing < 8 ? actor->facing * 4 : 0;
 
-        skillDelivery_launch(player, primary->delivery, &actor->coords, direction, (u8)(level > 5 ? 5 : level),
-                             HACKLIB_ABILITY_NONE, FALSE);
+        level = level > 5 ? 5 : level;
+        // The game's arrow keeps its own hit, which resolves as the shooter's full attack (weapon,
+        // Strength, accuracy and crits).
+        Actor *arrow = primary->arrow ? actor_projectile_create(actor, direction, TRUE) : NULL;
+
+        if (arrow != NULL)
+        {
+            // The game starts an arrow at the bow hand of the shooter's frame, which enemy bodies
+            // lack, so it leaves from just ahead of the shooter at crossbow height.
+            const Vector2Fp16 *step = &Direction32MoveVectors[direction];
+            Vector2Fp16 start = actor->coords;
+
+            start.x += step->x * PRIMARY_ARROW_AHEAD;
+            start.y += step->y * PRIMARY_ARROW_AHEAD - (PRIMARY_ARROW_RISE << FP16_16_SHIFT);
+            arrow->coords = arrow->renderCoords = start;
+            *(Vector2Fp16 *)((u8 *)&arrow->as + 0x20) = start;
+            arrow->oam.bgPriority = actor->oam.bgPriority;
+        }
+        else
+        {
+            // the drawn bolt, which also stands in when the game's projectile pool is full
+            skillDelivery_launch(player, primary->delivery, &actor->coords, direction, (u8)level, HACKLIB_ABILITY_NONE,
+                                 FALSE);
+        }
     }
     PrimaryFrames[player] = swinging ? (u8)(frame + 1) : 0;
 }

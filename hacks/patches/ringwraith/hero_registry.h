@@ -15,6 +15,8 @@ typedef struct HeroDefinition
     const HeroBaseStats *stats;
     const SpriteAnimation *menuIdle;
     const SpriteAnimation *menuSelected;
+    // Name for narrow places such as the save slot card, or NULL to use name.
+    const char *shortName;
 } HeroDefinition;
 
 extern const HeroBaseStats RingwraithBaseStats;

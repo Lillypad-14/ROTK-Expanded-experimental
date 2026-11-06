@@ -180,6 +180,16 @@ char *ringwraith_getHeroName(u32 heroId)
     return text_getString(TEXT_ID_HERO_NAME_BASE + ringwraith_stockHero(heroId));
 }
 
+char *ringwraith_getShortHeroName(u32 heroId)
+{
+    const HeroDefinition *definition = ringwraith_getHeroDefinition(heroId);
+    if (definition != NULL && definition->shortName != NULL)
+    {
+        return (char *)definition->shortName;
+    }
+    return ringwraith_getHeroName(heroId);
+}
+
 /**
  * Stock body with the hero names from ringwraith_getHeroName.
  *
@@ -212,7 +222,7 @@ void ringwraith_drawSlot(u8 slot, u8 selectedSlot)
     mission = save_getSlotMission(save);
     if (mission < SLOT_MISSION_EMPTY)
     {
-        tile = font_drawString(tile, x, y, ringwraith_getHeroName(slotHero(slot)), 1);
+        tile = font_drawString(tile, x, y, ringwraith_getShortHeroName(slotHero(slot)), 1);
         y += 8;
         str = text_getString(TEXT_ID_REGION_NAME_BASE + mission_getRegion(mission));
         tile = font_drawString(tile, x, y, str, 1);

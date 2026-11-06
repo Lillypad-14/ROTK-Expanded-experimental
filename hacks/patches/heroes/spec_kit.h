@@ -274,6 +274,8 @@ typedef struct SpecPrimary
 {
     const SkillDeliveryDef *delivery;
     u8 frame;
+    // TRUE fires the game's arrow, resolved as the shooter's attack. FALSE fires the drawn bolt.
+    u8 arrow;
 } SpecPrimary;
 
 // Where a hero's melee bank sits in the hero data region (hacks/tools/hero_data.py).
