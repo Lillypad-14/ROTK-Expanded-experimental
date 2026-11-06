@@ -69,7 +69,7 @@ static const char *const HeroGroupNames[HERO_GROUP_COUNT] = {
 #define CARD_Y(i) (GRID_Y + 1 + ((i) / CARD_COLUMNS) * CARD_H)
 // Menu sprites stand on this point of their card (their feet), in pixels from its top left.
 #define SPRITE_X 16
-#define SPRITE_Y 44
+#define SPRITE_Y 39
 // OAM texture step of an enemy-body hero's card sprite (8.8, 0x100 = full size): about 70%.
 #define ENEMY_BODY_SCALE 0x170
 // The stock heroes' menu sprites at their own size: they are built of many small pieces, and a scale
