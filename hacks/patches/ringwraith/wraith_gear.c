@@ -1061,6 +1061,7 @@ static u8 rollWraithItem(Item *itemOut, s16 extraTreasurePercent)
 u8 wraithGear_generateItem(Item *itemOut, u8 playerIndex, s16 extraTreasurePercent, u8 unitType)
 {
     u32 heroId;
+    u32 rollHero;
     s32 roll;
     u8 i;
     u8 category;
@@ -1070,9 +1071,12 @@ u8 wraithGear_generateItem(Item *itemOut, u8 playerIndex, s16 extraTreasurePerce
     {
         return rollWraithItem(itemOut, extraTreasurePercent);
     }
+    // This replacement indexes the stock eight-row table directly, so custom heroes read their
+    // stock hero's row (Saruman reads Gandalf's) instead of running off the end of the table.
+    rollHero = ringwraith_stockHero(heroId);
     roll = rng_rollRange(1, 100);
     i = 0;
-    while (i <= ITEM_TYPE_UNIQUE && roll > LootHeroItemTypeRolls[heroId].thresholds[i])
+    while (i <= ITEM_TYPE_UNIQUE && roll > LootHeroItemTypeRolls[rollHero].thresholds[i])
     {
         i++;
     }

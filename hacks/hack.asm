@@ -98,6 +98,9 @@
 .endif
 ; hookReplace/hookTrap/hookStub calls and in-place .org edits. The replacement bodies they name
 ; are C in the modcode, so these files write at game addresses only.
+.if HACK_bugfixes
+    .include "hacks/patches/bugfixes/bugfixes.asm"
+.endif
 .if HACK_fast_obj_tiles
     .include "hacks/patches/fast_obj_tiles/fast_obj_tiles.asm"
 .endif
