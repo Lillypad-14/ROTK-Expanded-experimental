@@ -381,10 +381,10 @@ void skillExpansion_loadSlot(u32 playerIndex)
 
 // A player's page 2 record holds what the stock co-op slot exchange leaves out: the new rows'
 // bought ranks, then their cycle flags, the new slots' bought ranks and the full quick-select rows,
-// which the stock slot stores in 3 bits each, then the character's kit (vanillaKit) and its whole
-// hero id (the stock slot keeps 4 bits).
+// which the stock slot stores in 3 bits each, then the character's kit (vanillaKit), its whole
+// hero id (the stock slot keeps 4 bits) and the bought rank of row 5 (the stock slot packs rows 0..4).
 #define PAGE2_RECORD_SIZE \
-    (2 * SKILL_EXPANSION_NEW_ACTIVE_COUNT + SKILL_EXPANSION_NEW_PASSIVE_COUNT + QUICK_SELECT_SLOT_COUNT + 2)
+    (2 * SKILL_EXPANSION_NEW_ACTIVE_COUNT + SKILL_EXPANSION_NEW_PASSIVE_COUNT + QUICK_SELECT_SLOT_COUNT + 3)
 
 // Multiplayer ID of the console whose global mod options a co-op session plays with.
 #define SESSION_OPTIONS_HOST 0
@@ -430,7 +430,7 @@ void skillExpansion_loadSlot(u32 playerIndex)
     ((PEER_RECORD_SIZE + PEER_RECORD_CHUNK_SIZE - 1) / PEER_RECORD_CHUNK_SIZE)
 #define PEER_RECORD_ALL_CHUNKS ((1 << PEER_RECORD_CHUNK_COUNT) - 1)
 
-_Static_assert(PEER_RECORD_CHUNK_COUNT <= 8, "peerRecordChunks has a bit per chunk");
+_Static_assert(PEER_RECORD_CHUNK_COUNT <= 16, "peerRecordChunks has a bit per chunk");
 
 // Frames the slot exchange waits for the peer's record before loading its slot without one.
 #define PEER_RECORD_TIMEOUT_FRAMES 120
@@ -442,8 +442,11 @@ static u8 peerQuickSelect[QUICK_SELECT_SLOT_COUNT];
 // Each player's whole hero id, as sent in its record.
 static u8 recordHeroIds[2];
 
+// Each player's bought rank of row 5, as sent in its record. Applied after the peer's slot loads.
+static u8 recordRow5Ranks[2];
+
 // Bit n set: chunk n of the peer's record has arrived.
-static u8 peerRecordChunks;
+static u16 peerRecordChunks;
 
 // Chunks of this console's record sent in the current slot exchange.
 static u8 sentRecordChunks;
@@ -521,7 +524,7 @@ static u8 *recordByte(u8 p, u32 index, u8 *quickSelect)
     {
         return &skillExpansion_players[p].vanillaKit;
     }
-    return &recordHeroIds[p & 1];
+    return index == 1 ? &recordHeroIds[p & 1] : &recordRow5Ranks[p & 1];
 }
 
 void skillExpansion_peerRecordReceive(u8 sender, const u8 *data)
@@ -556,6 +559,7 @@ static void sendRecordChunk(u32 chunk)
     memory_memset(data, 0, sizeof(data));
     data[0] = chunk;
     recordHeroIds[p & 1] = PLAYER(p).heroId;
+    recordRow5Ranks[p & 1] = *skillExpansion_activePurchased(p, ACTIVE_SKILL_HERBAL_HEALING);
     for (i = 0; i < PEER_RECORD_CHUNK_SIZE; i++)
     {
         u32 index = chunk * PEER_RECORD_CHUNK_SIZE + i;
@@ -649,6 +653,10 @@ void skillExpansion_loadPeerSlot(u32 playerIndex)
 
         *purchased = valid ? clampLevel(*purchased) : 0;
         *cycleEnabled = valid ? *cycleEnabled != 0 : 1;
+    }
+    if (valid)
+    {
+        *skillExpansion_activePurchased(p, ACTIVE_SKILL_HERBAL_HEALING) = clampLevel(recordRow5Ranks[p & 1]);
     }
     skillExpansion_players[p].vanillaKit = valid && skillExpansion_players[p].vanillaKit != 0;
     for (i = 0; i < QUICK_SELECT_SLOT_COUNT; i++)
