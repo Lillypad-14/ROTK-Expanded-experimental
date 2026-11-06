@@ -126,8 +126,8 @@ The inventory can be regenerated with `uv run python tools/documentation_invento
 
 ## Playing it
 
-1. Get `ROTK-Expanded-experimental-v0.9.bps` from the [v0.9 experimental release](https://github.com/Lillypad-14/ROTK-Expanded-experimental/releases/tag/v0.9-experimental).
-   v0.9 is the final GBA patch. Everything newer is PC only (below), because it lifts limits a GBA cannot.
+1. Get `ROTK-Expanded-experimental-v0.10.bps` from the [v0.10 experimental release](https://github.com/Lillypad-14/ROTK-Expanded-experimental/releases/tag/v0.10-experimental).
+   v0.10 is the latest GBA patch, a bug-fix release on top of v0.9. Everything newer is PC only (below), because it lifts limits a GBA cannot.
 2. You need your own legally dumped EU/US ROM (SHA-1 `ec3d126d37ea6e2ad7030d8a99cf87c6e46c03fd`).
 3. Apply the patch with [RomPatcher.js](https://www.marcrobledo.com/RomPatcher.js/) and play in mGBA or similar.
 
@@ -141,7 +141,7 @@ No ROM or game art is included in this repository.
 
 Same as upstream: see [docs/setup.md](docs/setup.md). The mod is now built for the PC port only: `make hack-pc`
 writes `build/rotk_pc.gba`, which [ROTK Recompiled](https://github.com/Lillypad-14/rotk-recompiled) turns into its
-Expanded edition. The GBA build (`make hack`, `make dist`) is frozen at v0.9 and no longer fits the GBA's memory.
+Expanded edition. The GBA build (`make hack`, `make dist`) is frozen at v0.10 (branch `gba-v0.10`) and no longer fits the GBA's memory.
 
 New heroes come from enemy sprites through the hero pipeline: `hacks/tools/new_hero.py` registers one, a JSON skill
 spec in `hacks/content/heroes/` describes its kit, and the fast tools (`hero_check.py`, `hero_preview.py`,

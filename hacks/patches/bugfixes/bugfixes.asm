@@ -46,3 +46,6 @@ hookReplace combat_fragileOnKill, bugfixes_fragileOnKill
 
 ; item_equipFromBackpack: a replaced item's stats come off for the slot it was in (known-bugs #9)
 hookReplace item_equipFromBackpack, bugfixes_equipFromBackpack
+
+; combat_getEnemyFamilyDamageBonus: Woodsman's bonus against its family (known-bugs #22)
+hookReplace combat_getEnemyFamilyDamageBonus, bugfixes_getEnemyFamilyDamageBonus

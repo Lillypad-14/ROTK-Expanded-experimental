@@ -1930,7 +1930,7 @@ static const char *const RingwraithActiveDescriptions[HERO_ACTIVE_SKILL_COUNT] =
     [ROW_FELL_BEAST] = "Fell Beast (Level @1) - Your steed dives across the screen, striking every "
                        "foe in its path for 14 +7/level and adding Dread. @2 Spirit.",
     [ROW_NO_LIVING_MAN] = "No Living Man (Level @1) - For 3s +0.75s/level you cannot fall. Kills "
-                          "heal 10% of your health and feed you Spirit. @2 Spirit.",
+                          "heal 12.5% of your health and feed you Spirit. @2 Spirit.",
     [ROW_BLACK_BREATH] = "Black Breath - For 6s your breath drains nearby foes and heals you. The "
                          "more Dread they feel, the more you drain. @2 Spirit.",
 };

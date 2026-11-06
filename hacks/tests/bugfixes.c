@@ -162,6 +162,13 @@ static s32 bonusWith(Item mainHand, Item offHand)
     return bugfixes_getFlatDamageBonus(0);
 }
 
+const EnemyTypeInfo EnemyTypeInfos[83] = {
+    [ENEMY_TYPE_GOBLIN] = {.family = ENEMY_FAMILY_ORCS},
+    [ENEMY_TYPE_SPIDER] = {.family = ENEMY_FAMILY_WARGS},
+    [ENEMY_TYPE_WARG] = {.family = ENEMY_FAMILY_WARGS},
+    [ENEMY_TYPE_MUMAKIL] = {.family = ENEMY_FAMILY_WARGS},
+};
+
 // known-bugs #2: unique weapons get their family's bonus, like normal ones
 static void testUniqueWeaponFamilyBonus(void)
 {
@@ -281,6 +288,21 @@ static void testEquipRemovalSlot(void)
     assert(PLAYER(0).inventory.array[INVENTORY_SLOT_BACKPACK_0].word == dagger.word);
 }
 
+// known-bugs #22: Woodsman adds to the spider, warg and mumakil family only
+static void testWoodsman(void)
+{
+    PLAYER_STAT(0, STAT_WOODSMAN_DAMAGE) = 7;
+    PLAYER_STAT(0, STAT_DAMAGE_TO_WARGS) = 2;
+    PLAYER_STAT(0, STAT_DAMAGE_TO_ORCS) = 3;
+    assert(bugfixes_getEnemyFamilyDamageBonus(0, ENEMY_TYPE_MUMAKIL) == 9);
+    assert(bugfixes_getEnemyFamilyDamageBonus(0, ENEMY_TYPE_SPIDER) == 9);
+    assert(bugfixes_getEnemyFamilyDamageBonus(0, ENEMY_TYPE_WARG) == 9);
+    assert(bugfixes_getEnemyFamilyDamageBonus(0, ENEMY_TYPE_GOBLIN) == 3);
+    PLAYER_STAT(0, STAT_WOODSMAN_DAMAGE) = 0;
+    PLAYER_STAT(0, STAT_DAMAGE_TO_WARGS) = 0;
+    PLAYER_STAT(0, STAT_DAMAGE_TO_ORCS) = 0;
+}
+
 int main(void)
 {
     testUniqueWeaponFamilyBonus();
@@ -288,6 +310,7 @@ int main(void)
     testCorruptionTiers();
     testFragile();
     testEquipRemovalSlot();
+    testWoodsman();
     puts("bugfixes tests passed");
     return 0;
 }

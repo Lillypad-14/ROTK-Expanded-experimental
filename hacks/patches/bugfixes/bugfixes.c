@@ -2,6 +2,7 @@
 // hookReplace in bugfixes.asm, ported from its src/c decompilation with the BUGFIX arm taken.
 
 #include "combat.h"
+#include "enemy.h"
 #include "game.h"
 #include "math.h"
 #include "rng.h"
@@ -365,4 +366,30 @@ bool bugfixes_equipFromBackpack(u8 backpackSlot, u8 playerIndex)
         sfx_play(ITEM_BASE_METADATA(item).equipSfx);
     }
     return TRUE;
+}
+
+/**
+ * combat_getEnemyFamilyDamageBonus with Woodsman (known-bugs #22): its stat was granted but never
+ * read. Its text promises spiders, wargs and mumakil, which are this family.
+ */
+u16 bugfixes_getEnemyFamilyDamageBonus(s32 playerIndex, u8 enemyType)
+{
+    switch (EnemyTypeInfos[enemyType].family)
+    {
+    case ENEMY_FAMILY_ANIMALS:
+        return PLAYER_STAT(playerIndex, STAT_DAMAGE_TO_ANIMALS);
+    case ENEMY_FAMILY_CREBAIN:
+        return PLAYER_STAT(playerIndex, STAT_DAMAGE_TO_CREBAIN);
+    case ENEMY_FAMILY_WARGS:
+        return PLAYER_STAT(playerIndex, STAT_DAMAGE_TO_WARGS) +
+               PLAYER_STAT(playerIndex, STAT_WOODSMAN_DAMAGE);
+    case ENEMY_FAMILY_ORCS:
+        return PLAYER_STAT(playerIndex, STAT_DAMAGE_TO_ORCS);
+    case ENEMY_FAMILY_URUKHAI:
+        return PLAYER_STAT(playerIndex, STAT_DAMAGE_TO_URUKHAI);
+    case ENEMY_FAMILY_NAZGUL:
+        return PLAYER_STAT(playerIndex, STAT_DAMAGE_TO_NAZGUL);
+    default:
+        return 0;
+    }
 }
