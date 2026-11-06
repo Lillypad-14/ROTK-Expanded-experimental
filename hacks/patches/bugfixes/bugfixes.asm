@@ -10,7 +10,17 @@ hookReplace combat_getFlatDamageBonus, bugfixes_getFlatDamageBonus
 ; player_updateEquipFlags: the main-hand staff flag for unique staves (known-bugs #3)
 hookReplace player_updateEquipFlags, bugfixes_updateEquipFlags
 
+; Dwarven Rage forces a real crit, as Warrior's Pool does (known-bugs #4). Both resolvers test
+; combatFlags against PLAYER_COMBAT_FLAG_WARRIORS_POOL (1 << 12, built as #0x80 << 5) before rolling
+; a crit; the mask becomes WARRIORS_POOL | DWARVEN_RAGE (0x1200, #0x12 << 8), same registers.
 .thumb
+.org combat_resolvePveAttack + 0x146
+    mov r0, #0x12
+    lsl r0, r0, #8
+.org combat_resolvePvpAttack + 0x222
+    mov r0, #0x12
+    lsl r0, r0, #8
+
 ; player_addCorruption: every tier up to the meter's, none above (known-bugs #5)
 hookReplace player_addCorruption, bugfixes_addCorruption
 
@@ -36,3 +46,6 @@ hookReplace combat_fragileOnKill, bugfixes_fragileOnKill
 
 ; item_equipFromBackpack: a replaced item's stats come off for the slot it was in (known-bugs #9)
 hookReplace item_equipFromBackpack, bugfixes_equipFromBackpack
+
+; combat_getEnemyFamilyDamageBonus: Woodsman's bonus against its family (known-bugs #22)
+hookReplace combat_getEnemyFamilyDamageBonus, bugfixes_getEnemyFamilyDamageBonus

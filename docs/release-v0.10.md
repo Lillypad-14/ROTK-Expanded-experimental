@@ -22,6 +22,11 @@ Character and item bugs:
 - One-level skills can no longer be raised past their maximum.
 - Corruption no longer skips tiers on a big hit, and tier 3 no longer gets stuck after a big drop.
 
+Skills:
+
+- Gimli's Dwarven Rage now deals real critical damage. It used to look and sound like a crit but deal normal damage, and it never crit other players.
+- Woodsman (Frodo, Sam, Legolas) now works. It adds damage against spiders, wargs and mumakil, including Shelob. It previously did nothing. Points already spent on it start working without a skill reset.
+
 Stats and skill levels already wrong on an existing character are not repaired by this patch.
 
 ## Ringwraith buffs
@@ -46,10 +51,10 @@ That makes a real unique about 1 in 1,152 item drops. Chests cannot drop them, a
 
 ## Validation and limits
 
-- `make check` passed: 558 original-game source regions and the reconstructed whole-ROM SHA-1 match the base ROM, and 297 core tests passed (three skipped). `make check-abilities` passed: 96 tool tests, the shared runtime and content regressions, and native tests of the weapon-family, staff, corruption, Fragile and two-hander fixes.
+- `make check` passed: 558 original-game source regions and the reconstructed whole-ROM SHA-1 match the base ROM, and 297 core tests passed (three skipped). `make check-abilities` passed: 96 tool tests, the shared runtime and content regressions, and native tests of the weapon-family, staff, corruption, Fragile, two-hander and Woodsman fixes.
 - The patched ROM's loot code was run in a CPU emulator. Over 300,000 item rolls each for Gandalf, Saruman and Frodo, the rates matched the table above, Saruman's item types matched Gandalf's, and all 51 real uniques dropped for Gandalf. Once-only uniques stopped dropping when marked as owned.
 - BPS application to the clean base was compared byte for byte with the production ROM.
 
-None of this has had a manual playthrough. Not tested in game or by a dedicated test: picking up, refusing and deleting carried uniques, unique bow arrow effects, the skill reset and one-level skill fixes, and the Ringwraith's balance with its buffs. Dwarven Rage is unchanged, because its fix changes balance. This is an experimental prerelease.
+None of this has had a manual playthrough. Not tested in game or by a dedicated test: picking up, refusing and deleting carried uniques, unique bow arrow effects, the skill reset and one-level skill fixes, and the Ringwraith's balance with its buffs. Dwarven Rage's real crits have not been balance tested, and Foraging's herb pickups still heal fixed amounts rather than the amounts in its text. This is an experimental prerelease.
 
 No ROM or BIOS is distributed.

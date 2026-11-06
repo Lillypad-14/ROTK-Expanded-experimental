@@ -13,7 +13,7 @@ Status: **fixed** (in the mod, both editions), **open**, or **already fixed** (b
 | 1 | Unique bows never show their arrow effects: the arrow effect pick has no unique branch (player_setHandFx has one), and equipped arrows replace the weapon's word | stock 0x08026E88 (arrow effects) | fixed |
 | 2 | Unique weapons skip weapon-family bonuses (Blademaster, Axemaster, Rangemaster) in both hands | `src/c/combat_damageCalc.c` | fixed |
 | 3 | Unique staves never set the main-hand staff flag | `src/c/item_statModifiers.c` | fixed |
-| 4 | Dwarven Rage looks like a crit but deals normal damage, and never crits players | `src/c/combat_resolve.c` | open: left out of the GBA release, the fix changes balance |
+| 4 | Dwarven Rage looks like a crit but deals normal damage, and never crits players | `src/c/combat_resolve.c` | fixed |
 | 5 | Corruption skips tiers on a big hit and can leave tier 3 stuck on a big drop | `src/c/player_addCorruption.c` | fixed |
 | 6 | Herb pickups heal fixed amounts instead of Foraging's curves | `src/c/actor/lootPile.c` | needs a decision: Foraging says 15 HP/level, pickups give 25 |
 | 7 | Fragile is only checked in a prefix's second stat slot, so with Fragile elsewhere (Obsidian, Crystal Crook of Jas Mynn) a kill roll deletes backpack slot 0 instead | `src/c/combat.c` | fixed |
@@ -30,6 +30,7 @@ Status: **fixed** (in the mod, both editions), **open**, or **already fixed** (b
 | 13 | Passive bonuses applied with a skill id where a tree slot is expected | `src/c/skill.c`, `src/c/skill_levels.c` | already fixed (skill_expansion replaces these) |
 | 14 | Passive loops read one entry past the count; active loops walk 7 rows instead of 6 | `src/c/skill_levels.c`, `src/c/skill.c` | already fixed (skill_expansion replaces these) |
 | 15 | A temporary level in slot 6 can leave an empty selection stuck until L | `src/c/skill.c` | already fixed (skill_expansion replaces these) |
+| 22 | Woodsman grants a damage stat nothing reads, so it never hits spiders, wargs or mumakil harder | `src/c/combat.c` | fixed |
 
 ## Text and UI
 
