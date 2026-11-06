@@ -986,7 +986,7 @@ These implement new behavior and hooks rather than byte-matched original-game C.
 
 | Component | C sources |
 | --- | --- |
-| `bugfixes` | Assembly/data only |
+| `bugfixes` | [hacks/patches/bugfixes/bugfixes.c](../hacks/patches/bugfixes/bugfixes.c) |
 | `chapter_select` | [hacks/patches/chapter_select/chapter_select.c](../hacks/patches/chapter_select/chapter_select.c) |
 | `debug_cheats` | [hacks/patches/debug_cheats/ability_bench.c](../hacks/patches/debug_cheats/ability_bench.c), [hacks/patches/debug_cheats/combat_lab_stats.c](../hacks/patches/debug_cheats/combat_lab_stats.c), [hacks/patches/debug_cheats/debug_cheats.c](../hacks/patches/debug_cheats/debug_cheats.c), [hacks/patches/debug_cheats/debug_lab.c](../hacks/patches/debug_cheats/debug_lab.c), [hacks/patches/debug_cheats/delivery_preview.c](../hacks/patches/debug_cheats/delivery_preview.c), [hacks/patches/debug_cheats/effect_preview.c](../hacks/patches/debug_cheats/effect_preview.c) |
 | `demo_pages` | [hacks/patches/demo_pages/demo_pages.c](../hacks/patches/demo_pages/demo_pages.c) |

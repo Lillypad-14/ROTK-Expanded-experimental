@@ -86,16 +86,16 @@
 #define MALICE_BASE_FRAMES 180
 #define MALICE_FRAMES_PER_LEVEL 45
 #define MALICE_FRAMES_PER_MALICE_LEVEL 60
-#define MALICE_HEAL_PERCENT 8
+#define MALICE_HEAL_PERCENT 10
 #define MALICE_HEAL_PERCENT_PER_LEVEL 3
 #define MALICE_KILL_SPIRIT 4
 
 // Black Breath
 #define BREATH_FRAMES 360
 #define BREATH_RADIUS 56
-#define BREATH_BASE_DAMAGE 3
+#define BREATH_BASE_DAMAGE 4
 #define BREATH_DREAD_PER_DAMAGE 20
-#define DRAIN_HEAL_PERCENT 60
+#define DRAIN_HEAL_PERCENT 70
 #define DRAIN_HEAL_PERCENT_PER_LEVEL 20
 
 // Passives
@@ -151,6 +151,9 @@
 #define DEATH_FROM_SHADOW_PENALTY_PERCENT 40
 #define DREAD_LORD_PERCENT_PER_LEVEL 4
 #define FEAST_HEAL_PERCENT_PER_LEVEL 2
+
+// Every heal of the kit is this much larger.
+#define SELF_HEAL_BONUS_PERCENT 25
 #define FEAST_SPIRIT_PER_LEVEL 2
 
 // Thralls of one Command of the Nine that burn in Nazgul fire, the rest flash.
@@ -196,7 +199,7 @@
 #define MASK_DAMAGE 8
 #define MASK_DREAD 50
 #define MASK_MAX_CHAIN 3
-#define KHAMUL_HEAL_PERCENT 3
+#define KHAMUL_HEAL_PERCENT 4
 #define SADDLE_BAND_MULTIPLIER 2
 
 // Page 1 rows are the kit's stock rows. Page 2 rows follow the SkillExpansionActiveDefs order.
@@ -358,7 +361,7 @@ static s32 percentOf(s32 value, s32 percent)
     return value * percent / 100;
 }
 
-static void heal(u8 playerIndex, s32 amount)
+static void healExact(u8 playerIndex, s32 amount)
 {
     s32 missing = PLAYER_STAT(playerIndex, STAT_MAX_HP) - PLAYER(playerIndex).currentHp;
 
@@ -373,6 +376,11 @@ static void heal(u8 playerIndex, s32 amount)
     states[playerIndex].allowGain = TRUE;
     player_addHp(playerIndex, amount, FALSE);
     states[playerIndex].allowGain = FALSE;
+}
+
+static void heal(u8 playerIndex, s32 amount)
+{
+    healExact(playerIndex, amount + percentOf(amount, SELF_HEAL_BONUS_PERCENT));
 }
 
 /** Heal from damage actually dealt, retaining fractional HP between hits. */
@@ -394,9 +402,10 @@ static void healDrain(u8 playerIndex, s32 damage, s32 percent)
     {
         scaled *= SACRIFICE_DRAIN_MULTIPLIER;
     }
+    scaled += percentOf(scaled, SELF_HEAL_BONUS_PERCENT);
     scaled += st->drainRemainder;
     st->drainRemainder = scaled % 100;
-    heal(playerIndex, scaled / 100);
+    healExact(playerIndex, scaled / 100);
 }
 
 static void grantSpirit(u8 playerIndex, s32 amount)
@@ -1921,7 +1930,7 @@ static const char *const RingwraithActiveDescriptions[HERO_ACTIVE_SKILL_COUNT] =
     [ROW_FELL_BEAST] = "Fell Beast (Level @1) - Your steed dives across the screen, striking every "
                        "foe in its path for 14 +7/level and adding Dread. @2 Spirit.",
     [ROW_NO_LIVING_MAN] = "No Living Man (Level @1) - For 3s +0.75s/level you cannot fall. Kills "
-                          "heal 8% of your health and feed you Spirit. @2 Spirit.",
+                          "heal 12.5% of your health and feed you Spirit. @2 Spirit.",
     [ROW_BLACK_BREATH] = "Black Breath - For 6s your breath drains nearby foes and heals you. The "
                          "more Dread they feel, the more you drain. @2 Spirit.",
 };

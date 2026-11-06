@@ -813,7 +813,7 @@ static const char *const UniqueDescriptions[WRAITH_UNIQUE_COUNT] = {
                                   "Spirit.",
     [WRAITH_UNIQUE_DOL_GULDUR_MASK] = "Terrified foes burst on death for 8 damage and +50 Dread.",
     [WRAITH_UNIQUE_VOICE_OF_SAURON] = "Your aura is half as wide but spreads double Dread.",
-    [WRAITH_UNIQUE_RING_OF_KHAMUL] = "Every kill heals 3% of your health.",
+    [WRAITH_UNIQUE_RING_OF_KHAMUL] = "Every kill heals 5% of your health.",
     [WRAITH_UNIQUE_FELL_BEAST_SADDLE] = "Fell Beast sweeps twice as wide and terrifies.",
 };
 

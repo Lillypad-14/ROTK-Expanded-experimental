@@ -1,7 +1,24 @@
-; Fixes for bugs in the original game: patches at game addresses.
+; Fixes for bugs in the original game (docs/known-bugs.md): hooks at game addresses.
 
-; Carried-passive uniques, made to work as unique weapons do: dropping until owned, a second copy
-; refused, and droppable again once the owned one is gone.
+; Arrow effects of unique bows: the fallback effect-word pick (8 bytes from the arrow index read)
+; jumps to bugfixes_arrowFx_hook, which resumes at 0x08026F0C.
+hookReplace 0x08026eb8, bugfixes_arrowFx_hook
+
+; combat_getFlatDamageBonus: weapon-family bonuses for unique weapons (known-bugs #2)
+hookReplace combat_getFlatDamageBonus, bugfixes_getFlatDamageBonus
+
+; player_updateEquipFlags: the main-hand staff flag for unique staves (known-bugs #3)
+hookReplace player_updateEquipFlags, bugfixes_updateEquipFlags
+
+.thumb
+; player_addCorruption: every tier up to the meter's, none above (known-bugs #5)
+hookReplace player_addCorruption, bugfixes_addCorruption
+
+; combat_fragileOnKill: Fragile in any stat slot, and no break without a fragile hand (known-bugs #7)
+hookReplace combat_fragileOnKill, bugfixes_fragileOnKill
+
+; Carried-passive uniques (known-bugs #8, #10), made to work as unique weapons do: dropping until
+; owned, a second copy refused, and droppable again once the owned one is gone.
 ; loot_rollBaseItem kept a passive only when its uniquePassivesCollected bit was set, so
 ; Galadriel's Phial, the Evenstar and the rest never dropped: the branch to the reroll flips.
 .org loot_rollBaseItem + 0x212
@@ -16,3 +33,6 @@
 ; index - 10 is the passive's bit already.
 .org item_deleteFromInventory + 0xa0
     sub r0, #0
+
+; item_equipFromBackpack: a replaced item's stats come off for the slot it was in (known-bugs #9)
+hookReplace item_equipFromBackpack, bugfixes_equipFromBackpack

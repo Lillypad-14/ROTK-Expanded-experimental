@@ -48,6 +48,9 @@
 .if HACK_versus
     .include "hacks/patches/versus/versus_hook.asm"
 .endif
+.if HACK_bugfixes
+    .include "hacks/patches/bugfixes/bugfixes_hook.asm"
+.endif
 .if . > MEM_HOOK_END+1
     .error "hook region overflow - raise the HOOK budget in hacks/layout.cfg"
 .endif
