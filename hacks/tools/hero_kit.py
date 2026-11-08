@@ -76,7 +76,8 @@ A passive is a stock name (HARDY) or the hero's own, for heroes 8..15: {"name", 
 "levels": [hero level per purchased level, 1 to 5 of them], "stats": {"STAT_MELEE_ARMOR": [5 per-level
 increments], ...} (at most 3), "effect": one of PASSIVE_EFFECTS, "amount": [5 per-level values]}.
 Effects change the spec engine: rebirthCharges (more charges), rebirthHeal (percent), chargeKills
-(fewer kills per charge), summonSeconds, devourThreshold (percent).
+(fewer kills per charge), summonSeconds, devourThreshold (percent), summonCount, bleedDamage (per
+stack), leapChain (more foes), weakenPercent, finisherPercent, frenzyStacks.
 
 A spec's "primary" block makes the melee swings shoot: {"frame": 5, "damage": [5 per level], "speed",
 "pierce", "travel", "impact", "stun", "status", ...} is a bolt loosed from the hero along his facing when
@@ -144,7 +145,8 @@ TIMED_EFFECTS = ("ward", "empower", "summon", "charge", "stampede", "bounty", "d
 INSTANT_EFFECTS = ("dismay", "leap", "finisher", "lash", "shove", "secondwind", "grapple", "broadside", "pierce", "fan")
 LAYERS = {"front": "FX_LAYER_FRONT", "behind": "FX_LAYER_BEHIND"}
 PASSIVE_EFFECTS = {"stats": 0, "rebirthCharges": 1, "rebirthHeal": 2, "chargeKills": 3, "summonSeconds": 4,
-                   "devourThreshold": 5, "summonCount": 6}
+                   "devourThreshold": 5, "summonCount": 6, "bleedDamage": 7, "leapChain": 8,
+                   "weakenPercent": 9, "finisherPercent": 10, "frenzyStacks": 11}
 PASSIVE_FIELDS = {"name", "icon", "text", "levels", "stats", "effect", "amount"}
 SPEC_PASSIVE_FIRST, SPEC_PASSIVE_FIRST_HERO = 160, 8
 # Kit slots at MEM_HERO_KITS (SKILL_EXPANSION_KIT_SLOTS in skill_expansion.h).

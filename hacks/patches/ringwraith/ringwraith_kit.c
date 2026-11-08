@@ -661,7 +661,7 @@ static void raiseThrall(DreadMark *mark)
     do
     {
         target = findNextEnemy(owner, target);
-    } while (target != NULL && (target == mark->actor || target->currentHp <= 0));
+    } while (target != NULL && (target == mark->actor || hackLib_actorCurrentHp(target) <= 0));
     thrall = spawnNpc(GHOST_NPC_KIND, &mark->actor->coords, owner, target,
                       THRALL_FRAMES + THRALL_FRAMES_PER_LEVEL * level +
                           GRAVE_PACT_FRAMES_PER_LEVEL *
@@ -721,7 +721,7 @@ static void updateMarks(void)
             mark->actor = NULL;
             continue;
         }
-        if (mark->actor->currentHp <= 0)
+        if (hackLib_actorCurrentHp(mark->actor) <= 0)
         {
             if (mark->shardFrames == 0 && will >= 0)
             {
@@ -919,7 +919,18 @@ static void limitStartSpirit(u8 playerIndex)
 }
 
 /** Follow the sword's animation-frame hitbox with a white glint. */
+static void tickBladeSparkBody(Actor *fx);
+
+/** tickBladeSparkBody, run for the player behind the effect. */
 static void tickBladeSpark(Actor *fx)
+{
+    u8 previous = hackLib_beginActingFor(fx);
+
+    tickBladeSparkBody(fx);
+    hackLib_endActing(previous);
+}
+
+static void tickBladeSparkBody(Actor *fx)
 {
     Actor *owner = fx->parentActor;
     const struct ActorTriggerBox *blade;
@@ -1568,7 +1579,18 @@ static void fellBeastStrike(Actor *playerActor, Actor *foe, s32 damage)
  * comboState[0] the direction (1 right) and comboState[1] the piece. Piece 0 strikes the foes the
  * beast passes over this tick, within its band, once each.
  */
+static void tickFellBeastBody(Actor *fx);
+
+/** tickFellBeastBody, run for the player behind the effect. */
 static void tickFellBeast(Actor *fx)
+{
+    u8 previous = hackLib_beginActingFor(fx);
+
+    tickFellBeastBody(fx);
+    hackLib_endActing(previous);
+}
+
+static void tickFellBeastBody(Actor *fx)
 {
     u8 p = fx->as.combat.playerIndex;
     Actor *owner = p < 2 ? PLAYER(p).ownerActor : NULL;

@@ -9,3 +9,6 @@
     ldr  r1, [pc, #0]
     bx   r1
     .word heroPortrait_statsHook|1
+
+; Mission warps grow to fit low hero bodies (hero_doors.c).
+hookReplace actor_missionWarp_tick, heroDoors_missionWarpTick

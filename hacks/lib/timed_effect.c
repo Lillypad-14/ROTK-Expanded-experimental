@@ -157,6 +157,7 @@ HackLibTimedEffect *hackLib_applyEffect(const HackLibEffectDef *definition, Acto
                                  hackLib_actorGeneration(owner),
                                  hackLib_actorGeneration(target)};
     target->tickCallback = tickEffects;
+    hackLib_probePlayer(HACKLIB_PROBE_EFFECT, target);
     if (definition->apply != NULL)
     {
         definition->apply(slot);

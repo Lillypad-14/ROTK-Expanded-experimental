@@ -301,6 +301,16 @@ typedef enum SpecPassiveEffect
     SPEC_PASSIVE_DEVOUR_THRESHOLD = 5,
     // Summons bring amount more allies.
     SPEC_PASSIVE_SUMMON_COUNT = 6,
+    // Bleed and venom stacks deal amount more damage each.
+    SPEC_PASSIVE_BLEED_DAMAGE = 7,
+    // Leaps chain to amount more foes.
+    SPEC_PASSIVE_LEAP_CHAIN = 8,
+    // Weaken takes amount percent more off foes' damage.
+    SPEC_PASSIVE_WEAKEN_PERCENT = 9,
+    // The finisher triples on foes below amount percent more health.
+    SPEC_PASSIVE_FINISHER_PERCENT = 10,
+    // Frenzy holds amount more stacks.
+    SPEC_PASSIVE_FRENZY_STACKS = 11,
 } SpecPassiveEffect;
 
 // A passive written in a spec: an elite passive (name, icon, stats) plus a spec engine effect.

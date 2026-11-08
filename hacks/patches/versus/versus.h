@@ -77,11 +77,26 @@ void versus_afterHpChange(u8 playerIndex);
 u8 versus_beginActing(u8 playerIndex);
 void versus_endActing(u8 previous);
 
-/** skillExpansion_isFoe for a player avatar: the acting player's opponent in a running duel. */
+/**
+ * The player an actor acts for: a player avatar's own index, or the player its parentActor chain
+ * leads to (projectiles, summons, effects). VERSUS_NO_PLAYER otherwise.
+ */
+u8 versus_playerOf(Actor *actor);
+
+/**
+ * skillExpansion_isFoe for a player avatar: the opponent, in a running duel, of the player behind
+ * the damage being resolved (the current damage source), else of the acting player.
+ */
 bool32 versus_isDuelFoe(Actor *actor);
 
-/** A skill's damage landing on a player avatar: a duel hit by the acting player, or nothing. */
-HackLibDamageResult versus_skillHitsPlayer(Actor *victim, u16 damage);
+/** versus_isDuelFoe for an attack by `source` (a player avatar or an actor it owns). */
+bool32 versus_isFoeOfSource(Actor *source, Actor *actor);
+
+/**
+ * A skill's damage landing on a player avatar: a duel hit by the player behind `source` (else the
+ * damage source's or acting player), or nothing.
+ */
+HackLibDamageResult versus_skillHitsPlayer(Actor *source, Actor *victim, u16 damage);
 
 /**
  * Co-op map select (the stock level select and the chapter pages), before their own tick: START

@@ -123,7 +123,12 @@ New heroes are PC-only. Start from an enemy body, then give the hero its own kit
    --description "Lord of the Nazgul. Terror incarnate." [--group "Servants of Sauron"]
    [--portrait WitchKing] [--stats courage,defense,health,accuracy,strength] [--dry-run]`.
    The portrait defaults to the enemy's own dialog portrait, else its kind's (Orc, OrcCaptain,
-   KingOfTheDead). `--remove NAME` undoes the last hero added (only the last: hero IDs are saved). It writes
+   KingOfTheDead). No stock face fits? Make one: `python hacks/tools/portrait_art.py SOURCE Name
+   [--crop L T R B] [--key red]` (any picture, RGBA keeps its alpha, `--key red` cuts a fire
+   backdrop) or paint one in `hacks/tools/portrait_paint.py` (Warg, Spider). Both write
+   `hacks/content/portraits/<Name>.png` (56x64, 16 colors on the stock teal/gold/checker backdrop,
+   slot 0 teal is transparent on the hero select); `"portrait": "<Name>"` then uses it, the
+   registry encodes every PNG there. `--remove NAME` undoes the last hero added (only the last: hero IDs are saved). It writes
    `hacks/patches/heroes/<slug>.c` (base stats only) and appends a `"pcOnly": true` entry to
    `hacks/content/heroes.json` with the enemy's palette (byte table 0x0806D27C by enemy type), its
    sounds (swing = whoosh 6/8 + enemy voice 2/8, hurt, death) and a `"body"`: every pose as data

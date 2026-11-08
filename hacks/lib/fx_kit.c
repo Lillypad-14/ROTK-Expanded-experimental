@@ -282,7 +282,18 @@ Actor *hackLib_fxBurst(Actor *on, u8 shape, HackLibFxColor color, u8 layer)
     return fx;
 }
 
+static void tickTimedShapeBody(Actor *fx);
+
+/** tickTimedShapeBody, run for the player behind the effect. */
 static void tickTimedShape(Actor *fx)
+{
+    u8 previous = hackLib_beginActingFor(fx);
+
+    tickTimedShapeBody(fx);
+    hackLib_endActing(previous);
+}
+
+static void tickTimedShapeBody(Actor *fx)
 {
     if (--fx->as.combat.venomDuration <= 0)
     {

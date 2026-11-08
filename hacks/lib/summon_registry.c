@@ -164,6 +164,8 @@ static void tickSummon(Actor *actor)
                 reapSummons();
                 return;
             }
+            // The source is set first, so a filter on the duel opponent knows whose summon this is.
+            previous = hackLib_swapDamageSource(&source);
             if (definition->filter != NULL)
             {
                 HackLibTargetQuery query = {.center = actor,
@@ -171,7 +173,6 @@ static void tickSummon(Actor *actor)
                                             .radius = definition->targetRadius};
                 target = hackLib_nearestTarget(&query);
             }
-            previous = hackLib_swapDamageSource(&source);
             tickDepth++;
             HackLibProfileSpan profile = hackLib_profileBegin(HACKLIB_PROFILE_SUMMONS);
             if (definition->tick != NULL)

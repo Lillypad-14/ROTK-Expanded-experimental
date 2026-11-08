@@ -82,6 +82,9 @@ void legacyFx_frameTick(void);
 Actor *legacyFx_spawn(Actor *playerActor, u32 animation);
 // An effect that plays `animation` on the caster once, then is gone.
 void legacyFx_spawnOnCaster(Actor *playerActor, u32 animation);
+// An actor the caster's effects hit: an enemy, or in a duel the opponent of the player behind
+// `source` (an effect or the caster, NULL for the current damage source).
+bool32 legacyFx_isFoeOf(Actor *source, Actor *other);
 bool32 legacyFx_isFoe(Actor *other);
 bool32 legacyFx_animationEnded(Actor *fx);
 // Mirror the effect's sprite for the western facings, as The Two Towers does: its art faces east.

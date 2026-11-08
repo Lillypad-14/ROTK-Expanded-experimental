@@ -1,6 +1,7 @@
 // Gandalf's Two Towers actives.
 
 #include "patches/legacy_skills/legacy_fx.h"
+#include "lib/actor_ref.h"
 #include "patches/legacy_skills/legacy_skills.h"
 
 #if PC_EDITION && SKILL_EXPANSION_LEGACY_ACTIVE_COUNT
@@ -85,7 +86,18 @@ static void castFireworks(Actor *playerActor)
 #define RAY_HOLDING 1
 #define RAY_FADING 2
 
+static void rayTickBody(Actor *fx);
+
+/** rayTickBody, run for the player behind the effect. */
 static void rayTick(Actor *fx)
+{
+    u8 previous = hackLib_beginActingFor(fx);
+
+    rayTickBody(fx);
+    hackLib_endActing(previous);
+}
+
+static void rayTickBody(Actor *fx)
 {
     LegacyFxState *state = LEGACY_FX(fx);
 
@@ -181,7 +193,18 @@ static bool32 shieldCanCast(u8 playerIndex)
     return PLAYER(playerIndex).shieldBubble == NULL;
 }
 
+static void shieldTickBody(Actor *fx);
+
+/** shieldTickBody, run for the player behind the effect. */
 static void shieldTick(Actor *fx)
+{
+    u8 previous = hackLib_beginActingFor(fx);
+
+    shieldTickBody(fx);
+    hackLib_endActing(previous);
+}
+
+static void shieldTickBody(Actor *fx)
 {
     Actor *playerActor = fx->parentActor;
     u8 playerIndex = playerActor->as.combat.playerIndex;
@@ -261,7 +284,18 @@ static void castShield(Actor *playerActor)
 #define THUNDERSTRIKE_LIFETIME 15
 #define THUNDERSTRIKE_BOLT 0x08052690u
 
+static void boltTickBody(Actor *fx);
+
+/** boltTickBody, run for the player behind the effect. */
 static void boltTick(Actor *fx)
+{
+    u8 previous = hackLib_beginActingFor(fx);
+
+    boltTickBody(fx);
+    hackLib_endActing(previous);
+}
+
+static void boltTickBody(Actor *fx)
 {
     Actor *foe = LEGACY_FX(fx)->target;
 
@@ -299,7 +333,7 @@ static void spawnBolt(Actor *storm, Actor *foe)
 
 static void stormPick(Actor *fx, Actor *other)
 {
-    if (!legacyFx_isFoe(other))
+    if (!legacyFx_isFoeOf(fx, other))
     {
         return;
     }
@@ -309,7 +343,18 @@ static void stormPick(Actor *fx, Actor *other)
     }
 }
 
+static void stormTickBody(Actor *fx);
+
+/** stormTickBody, run for the player behind the effect. */
 static void stormTick(Actor *fx)
+{
+    u8 previous = hackLib_beginActingFor(fx);
+
+    stormTickBody(fx);
+    hackLib_endActing(previous);
+}
+
+static void stormTickBody(Actor *fx)
 {
     LegacyFxState *state = LEGACY_FX(fx);
     u8 *pause = &state->phase;
@@ -469,14 +514,25 @@ static void eagleSwoop(Actor *fx)
 
 static void eaglePick(Actor *fx, Actor *other)
 {
-    if (legacyFx_isFoe(other) && (LEGACY_FX(fx)->phase & EAGLE_PHASE_MASK) == EAGLE_WAITING)
+    if (legacyFx_isFoeOf(fx, other) && (LEGACY_FX(fx)->phase & EAGLE_PHASE_MASK) == EAGLE_WAITING)
     {
         LEGACY_FX(fx)->target = other;
         fx->flags.p &= ~ACTOR_FLAG_COLLISION_CHECK;
     }
 }
 
+static void eagleTickBody(Actor *fx);
+
+/** eagleTickBody, run for the player behind the effect. */
 static void eagleTick(Actor *fx)
+{
+    u8 previous = hackLib_beginActingFor(fx);
+
+    eagleTickBody(fx);
+    hackLib_endActing(previous);
+}
+
+static void eagleTickBody(Actor *fx)
 {
     LegacyFxState *state = LEGACY_FX(fx);
     Actor *foe = state->target;

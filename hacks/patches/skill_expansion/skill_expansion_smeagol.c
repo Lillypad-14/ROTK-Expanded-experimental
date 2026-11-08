@@ -353,7 +353,7 @@ static Actor *throttledFoe(SmeagolState *st)
 {
     Actor *foe = st->throttled.actor;
 
-    if (foe == NULL || !hackLib_isActorRefValid(st->throttled) || foe->currentHp <= 0)
+    if (foe == NULL || !hackLib_isActorRefValid(st->throttled) || hackLib_actorCurrentHp(foe) <= 0)
     {
         return NULL;
     }

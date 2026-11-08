@@ -1,4 +1,5 @@
 #include "patches/legacy_skills/legacy_fx.h"
+#include "lib/actor_ref.h"
 #include "patches/legacy_skills/legacy_skills.h"
 
 #if PC_EDITION && SKILL_EXPANSION_LEGACY_ACTIVE_COUNT
@@ -16,6 +17,10 @@
 #include "rng.h"
 #include "sfx.h"
 #include "variables.h"
+#include "patches/skill_expansion/skill_expansion_elite.h"
+#if HACK_versus
+#include "patches/versus/versus.h"
+#endif
 
 _Static_assert(sizeof(LegacyFxState) <= sizeof(((Actor *)0)->as.combat.head), "LegacyFxState");
 
@@ -206,7 +211,18 @@ Actor *legacyFx_spawn(Actor *playerActor, u32 animation)
     return fx;
 }
 
+static void onCasterTickBody(Actor *fx);
+
+/** onCasterTickBody, run for the player behind the effect. */
 static void onCasterTick(Actor *fx)
+{
+    u8 previous = hackLib_beginActingFor(fx);
+
+    onCasterTickBody(fx);
+    hackLib_endActing(previous);
+}
+
+static void onCasterTickBody(Actor *fx)
 {
     fx->coords = fx->parentActor->coords;
     fx->actionStateTimer = legacyFx_animationEnded(fx) ? 0 : EFFECT_HOLD;
@@ -228,9 +244,20 @@ void legacyFx_spawnOnCaster(Actor *playerActor, u32 animation)
     }
 }
 
+bool32 legacyFx_isFoeOf(Actor *source, Actor *other)
+{
+#if HACK_versus
+    if (skillExpansion_isPlayerAvatar(other))
+    {
+        return versus_isFoeOfSource(source, other);
+    }
+#endif
+    return (other->flags.p & LEGACY_FOE_HITTABLE_FLAGS) != 0;
+}
+
 bool32 legacyFx_isFoe(Actor *other)
 {
-    return (other->flags.p & LEGACY_FOE_HITTABLE_FLAGS) != 0;
+    return legacyFx_isFoeOf(NULL, other);
 }
 
 bool32 legacyFx_animationEnded(Actor *fx)
@@ -296,7 +323,18 @@ void legacyFx_playSound(u16 sound)
     }
 }
 
+static void sparkleTickBody(Actor *fx);
+
+/** sparkleTickBody, run for the player behind the effect. */
 static void sparkleTick(Actor *fx)
+{
+    u8 previous = hackLib_beginActingFor(fx);
+
+    sparkleTickBody(fx);
+    hackLib_endActing(previous);
+}
+
+static void sparkleTickBody(Actor *fx)
 {
     fx->actionStateTimer = legacyFx_animationEnded(fx) ? 0 : EFFECT_HOLD;
     actor_unknown08045584(fx);
@@ -342,7 +380,7 @@ static void dropTrailSparkle(Actor *fx, u32 animation, s32 spread)
 
 static void projectileBlastHit(Actor *fx, Actor *other)
 {
-    if (legacyFx_isFoe(other))
+    if (legacyFx_isFoeOf(fx, other))
     {
         combat_applyPveRangedHit(fx->parentActor, other, LEGACY_FX(fx)->amount);
     }
@@ -353,7 +391,7 @@ static void projectileHit(Actor *fx, Actor *other)
     LegacyFxState *state = LEGACY_FX(fx);
     const LegacyProjectileDef *def = state->def;
 
-    if (!legacyFx_isFoe(other) || state->phase != PROJECTILE_FLYING)
+    if (!legacyFx_isFoeOf(fx, other) || state->phase != PROJECTILE_FLYING)
     {
         return;
     }
@@ -376,7 +414,18 @@ static void projectileHit(Actor *fx, Actor *other)
     legacyFx_setSprite(fx, def->impact);
 }
 
+static void projectileTickBody(Actor *fx);
+
+/** projectileTickBody, run for the player behind the effect. */
 static void projectileTick(Actor *fx)
+{
+    u8 previous = hackLib_beginActingFor(fx);
+
+    projectileTickBody(fx);
+    hackLib_endActing(previous);
+}
+
+static void projectileTickBody(Actor *fx)
 {
     LegacyFxState *state = LEGACY_FX(fx);
     const LegacyProjectileDef *def = state->def;
@@ -452,7 +501,18 @@ void legacyFx_castProjectileAt(Actor *playerActor, const LegacyProjectileDef *de
     }
 }
 
+static void thrownTickBody(Actor *fx);
+
+/** thrownTickBody, run for the player behind the effect. */
 static void thrownTick(Actor *fx)
+{
+    u8 previous = hackLib_beginActingFor(fx);
+
+    thrownTickBody(fx);
+    hackLib_endActing(previous);
+}
+
+static void thrownTickBody(Actor *fx)
 {
     const LegacyThrownDef *def = LEGACY_FX(fx)->def;
 
@@ -477,7 +537,7 @@ static void thrownHit(Actor *fx, Actor *other)
     Actor *caster = fx->parentActor;
     u8 playerIndex = caster->as.combat.playerIndex;
 
-    if (!legacyFx_isFoe(other) || other->actionState == ACTOR_STATE_HURT)
+    if (!legacyFx_isFoeOf(fx, other) || other->actionState == ACTOR_STATE_HURT)
     {
         return;
     }
@@ -577,7 +637,18 @@ Actor *legacyFx_castThrown(Actor *playerActor, const LegacyThrownDef *def)
 // its onFrame has run
 #define BURST_SENT (1 << 1)
 
+static void burstTickBody(Actor *fx);
+
+/** burstTickBody, run for the player behind the effect. */
 static void burstTick(Actor *fx)
+{
+    u8 previous = hackLib_beginActingFor(fx);
+
+    burstTickBody(fx);
+    hackLib_endActing(previous);
+}
+
+static void burstTickBody(Actor *fx)
 {
     const LegacyBurstDef *def = LEGACY_FX(fx)->def;
 
@@ -610,7 +681,7 @@ static void burstHit(Actor *fx, Actor *other)
     const LegacyBurstDef *def = state->def;
     s32 damage;
 
-    if (!legacyFx_isFoe(other))
+    if (!legacyFx_isFoeOf(fx, other))
     {
         return;
     }
@@ -700,7 +771,18 @@ static void buffEnd(Actor *fx)
     legacyFx_end(fx);
 }
 
+static void buffTickBody(Actor *fx);
+
+/** buffTickBody, run for the player behind the effect. */
 static void buffTick(Actor *fx)
+{
+    u8 previous = hackLib_beginActingFor(fx);
+
+    buffTickBody(fx);
+    hackLib_endActing(previous);
+}
+
+static void buffTickBody(Actor *fx)
 {
     LegacyFxState *state = LEGACY_FX(fx);
     const LegacyBuffDef *def = state->def;

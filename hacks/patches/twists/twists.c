@@ -39,6 +39,9 @@
 // g_Fate: low nibble is the level's omen, the next bits mark a banner still to show per player.
 #define TWISTS_FATE_OMEN_MASK 0x0f
 #define TWISTS_FATE_ANNOUNCE(playerIndex) (0x10 << (playerIndex))
+// The omen is rolled on player 0's next tick. A co-op console loads its partner's loadout frames
+// after the partner does, so rolling there would split the consoles' gameplay random streams.
+#define TWISTS_FATE_ROLL_PENDING 0x40
 
 enum TwistsOmen
 {
@@ -147,7 +150,7 @@ void twists_missionBegin(u8 playerIndex)
     memory_memset(&runtimes[playerIndex], 0, sizeof(TwistsRuntime));
     if (playerIndex == 0)
     {
-        g_Fate = g_Twists.omens ? rng_rollRange(OMEN_BLOOD_MOON, OMEN_COUNT - 1) : OMEN_NONE;
+        g_Fate = (g_Fate & ~TWISTS_FATE_OMEN_MASK) | TWISTS_FATE_ROLL_PENDING;
     }
     g_Fate |= TWISTS_FATE_ANNOUNCE(playerIndex);
 }
@@ -221,7 +224,16 @@ void twists_playerTick(u8 playerIndex)
     Player *player = &PLAYER(playerIndex);
     s32 hpRegen = HpRegenPercents[g_Twists.hpRegen] + (currentOmen() == OMEN_HEARTH ? 2 : 0);
 
-    if (g_Fate & TWISTS_FATE_ANNOUNCE(playerIndex))
+    if (playerIndex == 0 && (g_Fate & TWISTS_FATE_ROLL_PENDING))
+    {
+        g_Fate &= ~TWISTS_FATE_ROLL_PENDING;
+        if (g_Twists.omens)
+        {
+            g_Fate |= rng_rollRange(OMEN_BLOOD_MOON, OMEN_COUNT - 1);
+        }
+    }
+    if ((g_Fate & (TWISTS_FATE_ANNOUNCE(playerIndex) | TWISTS_FATE_ROLL_PENDING)) ==
+        TWISTS_FATE_ANNOUNCE(playerIndex))
     {
         g_Fate &= ~TWISTS_FATE_ANNOUNCE(playerIndex);
         if (currentOmen() != OMEN_NONE)

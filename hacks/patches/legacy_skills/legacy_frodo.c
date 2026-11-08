@@ -1,6 +1,7 @@
 // Frodo's Two Towers actives.
 
 #include "patches/legacy_skills/legacy_fx.h"
+#include "lib/actor_ref.h"
 #include "patches/legacy_skills/legacy_skills.h"
 
 #if PC_EDITION && SKILL_EXPANSION_LEGACY_ACTIVE_COUNT
@@ -54,7 +55,18 @@ static void castKnifeThrow(Actor *playerActor)
 #define DASH_HITS 1
 #define DASH_STOPPED 2
 
+static void dashTickBody(Actor *fx);
+
+/** dashTickBody, run for the player behind the effect. */
 static void dashTick(Actor *fx)
+{
+    u8 previous = hackLib_beginActingFor(fx);
+
+    dashTickBody(fx);
+    hackLib_endActing(previous);
+}
+
+static void dashTickBody(Actor *fx)
 {
     Actor *caster = fx->parentActor;
 
@@ -87,7 +99,7 @@ static void dashHit(Actor *fx, Actor *other)
     Actor *caster = fx->parentActor;
     u8 playerIndex = caster->as.combat.playerIndex;
 
-    if (!legacyFx_isFoe(other) || LEGACY_FX(fx)->phase != 0)
+    if (!legacyFx_isFoeOf(fx, other) || LEGACY_FX(fx)->phase != 0)
     {
         return;
     }
@@ -271,7 +283,7 @@ static bool32 snareCanCast(u8 playerIndex)
 
 static void snareTouch(Actor *fx, Actor *other)
 {
-    if (legacyFx_isFoe(other) && LEGACY_FX(fx)->phase == SNARE_ARMING)
+    if (legacyFx_isFoeOf(fx, other) && LEGACY_FX(fx)->phase == SNARE_ARMING)
     {
         LEGACY_FX(fx)->phase = SNARE_SPRUNG;
         fx->flags.p |= ACTOR_FLAG_ANIMATION_PLAYING;
@@ -279,7 +291,18 @@ static void snareTouch(Actor *fx, Actor *other)
     }
 }
 
+static void snareTickBody(Actor *fx);
+
+/** snareTickBody, run for the player behind the effect. */
 static void snareTick(Actor *fx)
+{
+    u8 previous = hackLib_beginActingFor(fx);
+
+    snareTickBody(fx);
+    hackLib_endActing(previous);
+}
+
+static void snareTickBody(Actor *fx)
 {
     LegacyFxState *state = LEGACY_FX(fx);
     u8 level = state->count;

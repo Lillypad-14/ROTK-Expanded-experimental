@@ -1364,7 +1364,7 @@ static SkillExpansionCastResult shadowfax(Actor *playerActor, u8 level, u8 row)
                                           SHADOWFAX_BASE_DAMAGE + SHADOWFAX_DAMAGE_PER_LEVEL * level,
                                           HACKLIB_DAMAGE_ABILITY, row)
                     .hit &&
-                foe->currentHp > 0)
+                hackLib_actorCurrentHp(foe) > 0)
             {
                 pushFoe(foe, nearX, nearY, SHADOWFAX_PUSH);
             }

@@ -2,6 +2,7 @@
 // callbacks; its own tables say what each row does. hero_kit.py links those tables apart from the
 // modcode into the hero's kit slot (SKILL_EXPANSION_KIT_SLOT), so this code never names them.
 #include "actor/projectile.h"
+#include "lib/actor_ref.h"
 #include "patches/heroes/spec_kit.h"
 #include "actor/lootPile.h"
 #include "enemy.h"
@@ -81,6 +82,8 @@ const SkillExpansionCastPolicy SpecKitUltimatePolicy = POLICY(180);
 #define BACKSTEP_FRAMES 10
 // The most bleed or venom stacks on one foe.
 #define STACK_MAX 9
+// The most a weaken (with passives) takes off a foe's damage, in percent.
+#define WEAKEN_MAX_PERCENT 90
 // SpriteFlags bit: drawn see-through (the stock stealth look).
 #define SPRITE_FLAG_STEALTH 0x20
 // A swoop starts this many pixels beside and above its strike point.
@@ -420,7 +423,8 @@ static bool32 devourable(Actor *foe, u32 threshold)
 {
     u32 maxHp;
 
-    if (!skillExpansion_isFoe(foe) || foe->currentHp <= 0)
+    // Devour removes the foe outright, which a player can't take.
+    if (!skillExpansion_isFoe(foe) || hackLib_actorCurrentHp(foe) <= 0 || skillExpansion_isPlayerAvatar(foe))
     {
         return FALSE;
     }
@@ -749,7 +753,18 @@ static void dropTrail(SpecMover *m, Actor *fx)
  * the frames left, storedDamage the hit, playerIndex the caster, comboState the step in pixels per
  * tick (x, y as s8), the reach and the stun in ticks / 2.
  */
+static void tickChargerBody(Actor *fx);
+
+/** tickChargerBody, run for the player behind the effect. */
 static void tickCharger(Actor *fx)
+{
+    u8 previous = hackLib_beginActingFor(fx);
+
+    tickChargerBody(fx);
+    hackLib_endActing(previous);
+}
+
+static void tickChargerBody(Actor *fx)
 {
     ActorCombatState *c = &fx->as.combat;
     Actor *owner = c->playerIndex < 2 ? PLAYER(c->playerIndex).ownerActor : NULL;
@@ -870,7 +885,18 @@ static SkillExpansionCastResult stampede(Actor *actor, u8 player, const SpecSkil
 }
 
 /** A struck flyer plays its strike animation once, then despawns. */
+static void tickStruckBody(Actor *fx);
+
+/** tickStruckBody, run for the player behind the effect. */
 static void tickStruck(Actor *fx)
+{
+    u8 previous = hackLib_beginActingFor(fx);
+
+    tickStruckBody(fx);
+    hackLib_endActing(previous);
+}
+
+static void tickStruckBody(Actor *fx)
 {
     fx_tickAttachment(fx);
 }
@@ -901,7 +927,18 @@ static void strike(SpecMover *m, Actor *fx)
 }
 
 /** A flyer diving onto its strike point (SPEC_EFFECT_SWOOP), its state in its mover slot. */
+static void tickSwooperBody(Actor *fx);
+
+/** tickSwooperBody, run for the player behind the effect. */
 static void tickSwooper(Actor *fx)
+{
+    u8 previous = hackLib_beginActingFor(fx);
+
+    tickSwooperBody(fx);
+    hackLib_endActing(previous);
+}
+
+static void tickSwooperBody(Actor *fx)
 {
     SpecMover *m = findMover(fx);
     Vector2Fp16 at = fx->coords;
@@ -1076,7 +1113,7 @@ static s32 touch(Actor *owner, Actor *foe, const SpecSkill *skill, u32 level)
     {
         skillExpansion_applyPveRangedHit(owner, foe, (u16)damage);
     }
-    if (skill->status != SKILL_STATUS_NONE && foe->currentHp > 0)
+    if (skill->status != SKILL_STATUS_NONE && hackLib_actorCurrentHp(foe) > 0)
     {
         skillStatus_apply(skill->status, owner, foe, skill->statusFrames, skill->statusPower, HACKLIB_ABILITY_NONE);
     }
@@ -1102,10 +1139,10 @@ static void tickZone(SpecLasting *l, Actor *owner)
     }
     while ((foe = hackLib_nextTargetAt(&center, NULL, skill->chargeRadius, foe)) != NULL)
     {
-        if (skillExpansion_isFoe(foe) && foe->currentHp > 0)
+        if (skillExpansion_isFoe(foe) && hackLib_actorCurrentHp(foe) > 0)
         {
             dealt += touch(owner, foe, skill, l->level);
-            if (hit++ < LOOK_FOES && foe->currentHp > 0)
+            if (hit++ < LOOK_FOES && hackLib_actorCurrentHp(foe) > 0)
             {
                 playFx(skill, owner, foe, NULL, SPEC_PLAY_TARGET);
             }
@@ -1175,7 +1212,7 @@ static Actor *nearestOtherFoe(Actor *foe, u16 radius)
         s32 dy = (other->coords.y - foe->coords.y) >> 16;
         s32 distance = dx * dx + dy * dy;
 
-        if (skillExpansion_isFoe(other) && other->currentHp > 0 && (best == NULL || distance < bestDistance))
+        if (skillExpansion_isFoe(other) && hackLib_actorCurrentHp(other) > 0 && (best == NULL || distance < bestDistance))
         {
             best = other;
             bestDistance = distance;
@@ -1315,7 +1352,7 @@ static void tickTrap(SpecLasting *l, Actor *owner)
     {
         SpecLasting *held;
 
-        if (!skillExpansion_isFoe(foe) || foe->currentHp <= 0)
+        if (!skillExpansion_isFoe(foe) || hackLib_actorCurrentHp(foe) <= 0)
         {
             continue;
         }
@@ -1346,7 +1383,9 @@ static void tickHunt(SpecLasting *l, Actor *foe, Actor *owner)
     {
         if (l->age % STACK_TICKS == 0 && l->stacks != 0)
         {
-            skillExpansion_applyPveRangedHit(owner, foe, (u16)(skill->amount[l->level - 1] * l->stacks));
+            s32 perStack = skill->amount[l->level - 1] + passiveBonus(l->player, SPEC_PASSIVE_BLEED_DAMAGE);
+
+            skillExpansion_applyPveRangedHit(owner, foe, (u16)(perStack * l->stacks));
             if (skill->chargeColor != 0)
             {
                 hackLib_fxBurst(foe, FX_SHAPE_SPARK, (HackLibFxColor)skill->chargeColor, FX_LAYER_FRONT);
@@ -1402,10 +1441,11 @@ static u32 weakenPercent(Actor *foe)
     {
         const SpecLasting *l = &Lastings[i];
 
-        if (l->kind == LASTING_WEAKEN && hackLib_isActorRefValid(l->foe) && l->foe.actor == foe &&
-            l->skill->percent > percent)
+        u32 weaken = l->kind == LASTING_WEAKEN ? l->skill->percent + passiveBonus(l->player, SPEC_PASSIVE_WEAKEN_PERCENT) : 0;
+
+        if (l->kind == LASTING_WEAKEN && hackLib_isActorRefValid(l->foe) && l->foe.actor == foe && weaken > percent)
         {
-            percent = l->skill->percent;
+            percent = weaken > WEAKEN_MAX_PERCENT ? WEAKEN_MAX_PERCENT : weaken;
         }
     }
     return percent;
@@ -1418,10 +1458,10 @@ static void blastAt(Actor *owner, const SpecSkill *skill, u32 level, const Vecto
 
     while ((foe = hackLib_nextTargetAt(at, NULL, skill->chargeRadius, foe)) != NULL)
     {
-        if (skillExpansion_isFoe(foe) && foe->currentHp > 0)
+        if (skillExpansion_isFoe(foe) && hackLib_actorCurrentHp(foe) > 0)
         {
             touch(owner, foe, skill, level);
-            if (foe->currentHp > 0)
+            if (hackLib_actorCurrentHp(foe) > 0)
             {
                 hackLib_applyStun(foe, skill->stunFrames);
             }
@@ -1447,10 +1487,10 @@ static void tickHail(SpecLasting *l, Actor *owner)
     at.y += ((s32)percentRoll() * 2 - 100) * r * 6 / 1000 << 16;
     while ((foe = hackLib_nextTargetAt(&at, NULL, HAIL_HIT_RADIUS, foe)) != NULL)
     {
-        if (skillExpansion_isFoe(foe) && foe->currentHp > 0)
+        if (skillExpansion_isFoe(foe) && hackLib_actorCurrentHp(foe) > 0)
         {
             touch(owner, foe, skill, l->level);
-            if (foe->currentHp > 0)
+            if (hackLib_actorCurrentHp(foe) > 0)
             {
                 hackLib_applyStun(foe, skill->stunFrames);
             }
@@ -1468,7 +1508,7 @@ static void igniteSpread(SpecLasting *l, Actor *owner)
 
     while ((foe = hackLib_nextTargetAt(&l->at, NULL, skill->chargeRadius, foe)) != NULL)
     {
-        if (!skillExpansion_isFoe(foe) || foe->currentHp <= 0)
+        if (!skillExpansion_isFoe(foe) || hackLib_actorCurrentHp(foe) <= 0)
         {
             continue;
         }
@@ -1540,7 +1580,7 @@ static void tickLastings(u8 player, Actor *owner)
         foe = !placedKind(l->kind) && hackLib_isActorRefValid(l->foe) ? l->foe.actor : NULL;
         if (l->left == 0 || --l->left == 0)
         {
-            if (l->kind == LASTING_STRIKE && foe != NULL && foe->currentHp > 0)
+            if (l->kind == LASTING_STRIKE && foe != NULL && hackLib_actorCurrentHp(foe) > 0)
             {
                 strikeFoe(l, foe, owner);
             }
@@ -1583,13 +1623,13 @@ static void tickLastings(u8 player, Actor *owner)
             tickHail(l, owner);
             continue;
         }
-        if (l->kind == LASTING_IGNITE && (foe == NULL || foe->currentHp <= 0))
+        if (l->kind == LASTING_IGNITE && (foe == NULL || hackLib_actorCurrentHp(foe) <= 0))
         {
             igniteSpread(l, owner);
             endLasting(l, NULL);
             continue;
         }
-        if (foe == NULL || foe->currentHp <= 0)
+        if (foe == NULL || hackLib_actorCurrentHp(foe) <= 0)
         {
             endLasting(l, NULL);
             continue;
@@ -1641,12 +1681,12 @@ static SkillExpansionCastResult afflict(Actor *actor, u8 player, const SpecSkill
 
     while ((foe = hackLib_nextTargetAt(&actor->coords, NULL, skill->chargeRadius, foe)) != NULL)
     {
-        if (!skillExpansion_isFoe(foe) || foe->currentHp <= 0)
+        if (!skillExpansion_isFoe(foe) || hackLib_actorCurrentHp(foe) <= 0)
         {
             continue;
         }
         touch(actor, foe, skill, level);
-        if (foe->currentHp <= 0 || (kind == LASTING_FEAR && !hackLib_applyStun(foe, skill->frames) &&
+        if (hackLib_actorCurrentHp(foe) <= 0 || (kind == LASTING_FEAR && !hackLib_applyStun(foe, skill->frames) &&
                                     foe->actionState != ACTOR_STATE_STUNNED))
         {
             continue;
@@ -1711,7 +1751,7 @@ static SkillExpansionCastResult dismay(Actor *actor, u8 player, const SpecSkill 
 
     while ((foe = hackLib_nextTargetAt(&actor->coords, NULL, skill->chargeRadius, foe)) != NULL)
     {
-        if (!skillExpansion_isFoe(foe) || foe->currentHp <= 0)
+        if (!skillExpansion_isFoe(foe) || hackLib_actorCurrentHp(foe) <= 0)
         {
             continue;
         }
@@ -1740,7 +1780,7 @@ static SkillExpansionCastResult barrage(Actor *actor, u8 player, const SpecSkill
 
     while (marked < most && (foe = hackLib_nextTargetAt(&actor->coords, NULL, skill->targetRange, foe)) != NULL)
     {
-        if (!skillExpansion_isFoe(foe) || foe->currentHp <= 0 ||
+        if (!skillExpansion_isFoe(foe) || hackLib_actorCurrentHp(foe) <= 0 ||
             addLasting(LASTING_STRIKE, skill, player, level, &foe->coords, foe, FALSE) == NULL)
         {
             continue;
@@ -1793,7 +1833,7 @@ static void tickDash(u8 player, SpecState *st, Actor *actor)
     }
     while ((foe = hackLib_nextTargetAt(&actor->coords, NULL, skill->chargeRadius, foe)) != NULL)
     {
-        if (!skillExpansion_isFoe(foe) || foe->currentHp <= 0 || foe->actionState == ACTOR_STATE_STUNNED ||
+        if (!skillExpansion_isFoe(foe) || hackLib_actorCurrentHp(foe) <= 0 || foe->actionState == ACTOR_STATE_STUNNED ||
             (!actor_isStunnable(foe) && st->dashFrames % CHARGE_REPEAT_TICKS != 0))
         {
             continue;
@@ -1840,7 +1880,10 @@ static const SpecFrenzy *specFrenzy(u8 playerIndex)
 
 static u32 frenzyCap(u8 player, const SpecFrenzy *frenzy)
 {
-    return Hunts[player].cap != 0 ? Hunts[player].cap : frenzy->maxStacks;
+    u32 cap = (Hunts[player].cap != 0 ? Hunts[player].cap : frenzy->maxStacks) +
+              passiveBonus(player, SPEC_PASSIVE_FRENZY_STACKS);
+
+    return cap > 0xff ? 0xff : cap;
 }
 
 /** Start a leap from actor to foe. */
@@ -1870,7 +1913,7 @@ static void tickLeap(u8 player, Actor *actor)
     s32 dx;
     s32 dy;
 
-    if (skill == NULL || h->leapLevel == 0 || foe == NULL || foe->currentHp <= 0)
+    if (skill == NULL || h->leapLevel == 0 || foe == NULL || hackLib_actorCurrentHp(foe) <= 0)
     {
         h->leapFrames = 0;
         return;
@@ -1913,7 +1956,7 @@ static void addStack(u8 player, Actor *owner, Actor *victim)
     const SpecSkill *skill = h->onHitRow < 13 && rows != NULL ? rows[h->onHitRow] : NULL;
     SpecLasting *l = NULL;
 
-    if (skill == NULL || h->onHitLevel == 0 || victim == NULL || victim->currentHp <= 0)
+    if (skill == NULL || h->onHitLevel == 0 || victim == NULL || hackLib_actorCurrentHp(victim) <= 0)
     {
         return;
     }
@@ -1958,7 +2001,7 @@ static SkillExpansionCastResult leap(Actor *actor, u8 player, const SpecSkill *s
     }
     h->leapRow = row;
     h->leapLevel = (u8)level;
-    h->chainLeft = skill->count;
+    h->chainLeft = (u8)(skill->count + passiveBonus(player, SPEC_PASSIVE_LEAP_CHAIN));
     leapAt(h, skill, actor, foe);
     playFx(skill, actor, NULL, NULL, SPEC_PLAY_SELF);
     return SKILL_CAST_SUCCESS;
@@ -1977,12 +2020,12 @@ static SkillExpansionCastResult finisher(Actor *actor, const SpecSkill *skill, u
         s32 most;
         s32 percent;
 
-        if (!skillExpansion_isFoe(foe) || foe->currentHp <= 0)
+        if (!skillExpansion_isFoe(foe) || hackLib_actorCurrentHp(foe) <= 0)
         {
             continue;
         }
-        most = combat_getEnemyMaxHp(foe->unitType);
-        percent = most > 0 ? foe->currentHp * 100 / most : 100;
+        most = hackLib_actorMaxHp(foe);
+        percent = most > 0 ? hackLib_actorCurrentHp(foe) * 100 / most : 100;
         if (percent < bestPercent)
         {
             best = foe;
@@ -1993,7 +2036,7 @@ static SkillExpansionCastResult finisher(Actor *actor, const SpecSkill *skill, u
     {
         return SKILL_CAST_INVALID_TARGET;
     }
-    if (bestPercent < skill->percent)
+    if (bestPercent < skill->percent + passiveBonus(actor->as.combat.playerIndex, SPEC_PASSIVE_FINISHER_PERCENT))
     {
         damage *= 3;
     }
@@ -2110,7 +2153,7 @@ static void tickPhase(u8 player, SpecState *st, Actor *actor)
     }
     while ((foe = hackLib_nextTargetAt(&actor->coords, NULL, skill->chargeRadius, foe)) != NULL)
     {
-        if (skillExpansion_isFoe(foe) && foe->currentHp > 0)
+        if (skillExpansion_isFoe(foe) && hackLib_actorCurrentHp(foe) > 0)
         {
             touch(actor, foe, skill, st->phaseLevel);
             if (layerUsed(&skill->trail))
@@ -2217,7 +2260,7 @@ static SkillExpansionCastResult lash(Actor *actor, u8 player, const SpecSkill *s
         s32 ahead;
         s32 aside;
 
-        if (!skillExpansion_isFoe(foe) || foe->currentHp <= 0)
+        if (!skillExpansion_isFoe(foe) || hackLib_actorCurrentHp(foe) <= 0)
         {
             continue;
         }
@@ -2259,7 +2302,7 @@ static SkillExpansionCastResult shove(Actor *actor, u8 player, const SpecSkill *
         s32 aside;
         SpecLasting *l;
 
-        if (!skillExpansion_isFoe(foe) || foe->currentHp <= 0)
+        if (!skillExpansion_isFoe(foe) || hackLib_actorCurrentHp(foe) <= 0)
         {
             continue;
         }
@@ -2269,7 +2312,7 @@ static SkillExpansionCastResult shove(Actor *actor, u8 player, const SpecSkill *
             continue;
         }
         touch(actor, foe, skill, level);
-        if (foe->currentHp > 0 && actor_isStunnable(foe) && hackLib_applyStun(foe, SHOVE_FRAMES + skill->stunFrames) &&
+        if (hackLib_actorCurrentHp(foe) > 0 && actor_isStunnable(foe) && hackLib_applyStun(foe, SHOVE_FRAMES + skill->stunFrames) &&
             (l = addLasting(LASTING_SHOVE, skill, player, level, &foe->coords, foe, FALSE)) != NULL)
         {
             l->left = SHOVE_FRAMES;
@@ -2297,7 +2340,7 @@ static SkillExpansionCastResult taunt(Actor *actor, SpecState *st, const SpecSki
 
     while ((foe = hackLib_nextTargetAt(&actor->coords, NULL, skill->chargeRadius, foe)) != NULL)
     {
-        if (!skillExpansion_isFoe(foe) || foe->currentHp <= 0)
+        if (!skillExpansion_isFoe(foe) || hackLib_actorCurrentHp(foe) <= 0)
         {
             continue;
         }
@@ -2333,7 +2376,7 @@ static SkillExpansionCastResult secondWind(Actor *actor, u8 player, const SpecSk
     while (count < SECOND_WIND_FOES &&
            (foe = hackLib_nextTargetAt(&actor->coords, NULL, skill->chargeRadius, foe)) != NULL)
     {
-        if (skillExpansion_isFoe(foe) && foe->currentHp > 0)
+        if (skillExpansion_isFoe(foe) && hackLib_actorCurrentHp(foe) > 0)
         {
             count++;
         }
@@ -2399,7 +2442,7 @@ static void tickCleave(u8 player, Actor *actor)
     }
     while ((foe = hackLib_nextTargetAt(&actor->coords, victim, skill->chargeRadius, foe)) != NULL)
     {
-        if (!skillExpansion_isFoe(foe) || foe->currentHp <= 0)
+        if (!skillExpansion_isFoe(foe) || hackLib_actorCurrentHp(foe) <= 0)
         {
             continue;
         }
@@ -2438,7 +2481,7 @@ static void dreadPulse(Actor *actor, const SpecSkill *skill)
     }
     while ((foe = hackLib_nextTargetAt(&actor->coords, NULL, skill->chargeRadius, foe)) != NULL)
     {
-        if (!skillExpansion_isFoe(foe) || foe->currentHp <= 0 || !hackLib_applyStun(foe, skill->stunFrames))
+        if (!skillExpansion_isFoe(foe) || hackLib_actorCurrentHp(foe) <= 0 || !hackLib_applyStun(foe, skill->stunFrames))
         {
             continue;
         }
@@ -2483,7 +2526,7 @@ static void tickSelf(u8 player, Actor *actor)
         Actor *foe = hackLib_isActorRefValid(c->reflectFoe) ? c->reflectFoe.actor : NULL;
 
         skill = timedSkill(player, &c->reflect);
-        if (foe != NULL && foe->currentHp > 0)
+        if (foe != NULL && hackLib_actorCurrentHp(foe) > 0)
         {
             skillExpansion_applyPveRangedHit(actor, foe, c->reflectDamage);
             if (skill != NULL && layerUsed(&skill->trail))
@@ -2683,7 +2726,7 @@ static void boltLine(Actor *actor, const SpecSkill *skill, u32 level, Vector2Fp1
         s32 ahead;
         s32 aside;
 
-        if (!skillExpansion_isFoe(foe) || foe->currentHp <= 0)
+        if (!skillExpansion_isFoe(foe) || hackLib_actorCurrentHp(foe) <= 0)
         {
             continue;
         }
@@ -2693,7 +2736,7 @@ static void boltLine(Actor *actor, const SpecSkill *skill, u32 level, Vector2Fp1
             continue;
         }
         touch(actor, foe, skill, level);
-        if (foe->currentHp > 0)
+        if (hackLib_actorCurrentHp(foe) > 0)
         {
             hackLib_applyStun(foe, skill->stunFrames);
         }
@@ -2727,7 +2770,7 @@ static SkillExpansionCastResult ignite(Actor *actor, u8 player, const SpecSkill 
     launchFlight(actor, player, skill, level, dir, length);
     touch(actor, foe, skill, level);
     playFx(skill, actor, foe, NULL, SPEC_PLAY_ALL);
-    if (foe->currentHp > 0)
+    if (hackLib_actorCurrentHp(foe) > 0)
     {
         addLasting(LASTING_IGNITE, skill, player, level, &foe->coords, foe, FALSE);
     }

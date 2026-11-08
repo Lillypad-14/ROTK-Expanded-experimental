@@ -1,12 +1,18 @@
 #include "patches/test_arena/test_arena.h"
 #include "actor/enemySpawner.h"
+#include "actor/chest.h"
+#include "actor/lootPile.h"
 #include "game.h"
+#include "hero_count.h"
 #include "gba_io.h"
+#include "input.h"
 #include "lib/mission_scripts.h"
 #include "lib/movement.h"
 #include "lib/profile.h"
 #include "lib/summon_registry.h"
 #include "lib/timed_effect.h"
+#include "item.h"
+#include "loot.h"
 #include "memory.h"
 #include "mission.h"
 #include "patches/debug_cheats/debug_cheats.h"
@@ -687,6 +693,188 @@ static void benchTick(void)
     }
 }
 
+// Piles the loot report drops beside the player, the despawn timer a chest gives them, and the
+// ticks after which it counts the piles still alive.
+#define LOOT_PILES 6
+#define LOOT_CHEST_DESPAWN_FRAMES 1800
+#define LOOT_PILE_CHECK_TICKS 300
+
+// The Isengard campsite's first chest (spawn group 1, slot 15), opened by the loot report.
+#define LOOT_CHEST_GROUP 1
+#define LOOT_CHEST_SLOT 15
+#define LOOT_CHEST_DROPS 3
+
+static Actor *lootChest;
+static u32 pilesBeforeChest;
+
+/** The loot piles alive on the main list. */
+static u32 countPiles(void)
+{
+    u32 piles = 0;
+
+    for (Actor *actor = g_ActorListMain.head; actor != NULL; actor = actor->next)
+    {
+        piles += actor->type == ACTOR_TYPE_LOOT_PILE;
+    }
+    return piles;
+}
+
+/** A real chest beside the player, its drops forced to LOOT_CHEST_DROPS. */
+static void spawnLootChest(void)
+{
+    Actor *player = PLAYER(0).ownerActor;
+
+    lootChest = actor_chest_createFromMission(LOOT_CHEST_GROUP, LOOT_CHEST_SLOT);
+    if (lootChest != NULL)
+    {
+        lootChest->coords = player->coords;
+        lootChest->coords.x += 20 << 16;
+        lootChest->renderCoords = lootChest->coords;
+        lootChest->as.chest.guaranteedDrops = 1;
+        lootChest->as.chest.maxDrops = LOOT_CHEST_DROPS;
+    }
+    pilesBeforeChest = countPiles();
+}
+
+/** Press R on the chest through its own contact handler until it opens. */
+static void openLootChest(void)
+{
+    if (lootChest == NULL || lootChest->as.chest.opened)
+    {
+        return;
+    }
+    u16 pressed = PLAYER_KEYS_PRESSED(0);
+
+    PLAYER_KEYS_PRESSED(0) = pressed | R_BUTTON;
+    actor_chest_trigger(lootChest, PLAYER(0).ownerActor);
+    PLAYER_KEYS_PRESSED(0) = pressed;
+}
+
+// Drop sources of the loot report: a chest, then an ordinary enemy (the first enemy type).
+static const u8 LootSources[] = {LOOT_UNIT_TYPE_CONTAINER, 0};
+
+/**
+ * The loot report: for every hero and source, lootRolls drops through loot_generateDrop as the
+ * arena player, counted as ARENA_LOOT hero source none gems health badItems, then one count per
+ * item type (knife .. unique). badItems: an item drop whose item is empty or out of range.
+ */
+static void lootReport(void)
+{
+    u8 hero = PLAYER(0).heroId;
+
+    for (u32 h = 0; h < HACK_HERO_COUNT; h++)
+    {
+        PLAYER(0).heroId = (HeroId)h;
+        for (u32 s = 0; s < ARRAY_COUNT(LootSources); s++)
+        {
+            u32 none = 0, gems = 0, health = 0, bad = 0;
+            u32 types[ITEM_TYPE_UNIQUE + 1] = {0};
+            char line[DEBUG_STRING_SIZE];
+            char *output = appendText(line, "ARENA_LOOT");
+
+            for (u32 n = 0; n < testArena_config.lootRolls; n++)
+            {
+                Item item;
+                u8 kind = loot_generateDrop(&item, 0, 0, LootSources[s]);
+
+                if (kind == 0)
+                {
+                    none++;
+                }
+                else if (kind < LOOT_TYPE_FRUIT)
+                {
+                    gems++;
+                }
+                else if (kind < LOOT_TYPE_ITEM_MIN)
+                {
+                    health++;
+                }
+                else if (item.d.itemType > ITEM_TYPE_UNIQUE)
+                {
+                    bad++;
+                }
+                else
+                {
+                    types[item.d.itemType]++;
+                }
+            }
+            output = appendNumber(output, h);
+            output = appendNumber(output, LootSources[s]);
+            output = appendNumber(output, none);
+            output = appendNumber(output, gems);
+            output = appendNumber(output, health);
+            output = appendNumber(output, bad);
+            for (u32 t = 0; t <= ITEM_TYPE_UNIQUE; t++)
+            {
+                output = appendNumber(output, types[t]);
+            }
+            debugPrint(line);
+        }
+    }
+    PLAYER(0).heroId = (HeroId)hero;
+    // Drops as a chest makes them, beside the player: ARENA_PILE index lootType created.
+    for (u32 n = 0; n < LOOT_PILES; n++)
+    {
+        Item item;
+        u8 kind;
+        // Pile 0 is a gem stack and pile 1 a health drop (enemy rolls), the rest chest items.
+        do
+        {
+            kind = loot_generateDrop(&item, 0, 0, n < 2 ? 0 : LOOT_UNIT_TYPE_CONTAINER);
+        } while ((n == 0 && kind >= LOOT_TYPE_FRUIT) || (n == 1 && (kind < LOOT_TYPE_FRUIT || kind >= LOOT_TYPE_ITEM_MIN)));
+        Vector2Fp16 at = PLAYER(0).ownerActor->coords;
+        char line[DEBUG_STRING_SIZE];
+        char *output = appendText(line, "ARENA_PILE");
+
+        at.x += ((s32)n * 20 + 30) << 16;
+        output = appendNumber(output, n);
+        output = appendNumber(output, kind);
+        output = appendNumber(output, actor_lootPile_create(at, kind, item, LOOT_CHEST_DESPAWN_FRAMES) != NULL);
+        output = appendNumber(output, (s32)g_EngineState->vblankCounter);
+        debugPrint(line);
+    }
+}
+
+/** ARENA_PILES: the loot piles alive on the main list, once, LOOT_PILE_CHECK_TICKS after spawning. */
+static void lootPileCheck(void)
+{
+    u32 piles = 0;
+    char line[DEBUG_STRING_SIZE];
+
+    Actor *first = NULL;
+
+    for (Actor *actor = g_ActorListMain.head; actor != NULL; actor = actor->next)
+    {
+        if (actor->type == ACTOR_TYPE_LOOT_PILE)
+        {
+            piles++;
+            first = first == NULL ? actor : first;
+        }
+    }
+    char *output = appendNumber(appendNumber(appendText(line, "ARENA_PILES"), piles),
+                                (s32)g_EngineState->vblankCounter);
+    if (first != NULL)
+    {
+        // The first pile and the player: pixel coords, then the pile's flags and unit type.
+        output = appendNumber(output, first->coords.x >> 16);
+        output = appendNumber(output, first->coords.y >> 16);
+        output = appendNumber(output, PLAYER(0).ownerActor->coords.x >> 16);
+        output = appendNumber(output, PLAYER(0).ownerActor->coords.y >> 16);
+        output = appendNumber(output, (s32)(first->flags.p >> 16));
+        output = appendNumber(output, (s32)(first->flags.p & 0xffff));
+        output = appendNumber(output, first->unitType);
+    }
+    debugPrint(line);
+    // The chest: created, opened, its state, and the piles it dropped.
+    output = appendText(line, "ARENA_CHEST");
+    output = appendNumber(output, lootChest != NULL);
+    output = appendNumber(output, lootChest != NULL && lootChest->as.chest.opened);
+    output = appendNumber(output, lootChest != NULL ? lootChest->behaviorState : -1);
+    output = appendNumber(output, (s32)countPiles() - (s32)pilesBeforeChest);
+    debugPrint(line);
+    debugPrint("ARENA_DONE 0");
+}
+
 __attribute__((noinline)) void testArena_checkpoint(void)
 {
     asm volatile("nop");
@@ -732,7 +920,26 @@ void testArena_tick(u8 p)
     }
     g_TestArena->lastTickVblank = vblank;
     bool acknowledged = FALSE;
-    if (g_TestArena->ready == 1 && testArena_config.benchTicks != 0)
+    if (g_TestArena->ready == 1 && testArena_config.lootRolls != 0)
+    {
+        static u32 reportTick;
+
+        if (reportTick == 0)
+        {
+            reportTick = g_TestArena->ticks;
+            lootReport();
+            spawnLootChest();
+        }
+        else if (g_TestArena->ticks < reportTick + LOOT_PILE_CHECK_TICKS)
+        {
+            openLootChest();
+        }
+        else if (g_TestArena->ticks == reportTick + LOOT_PILE_CHECK_TICKS)
+        {
+            lootPileCheck();
+        }
+    }
+    else if (g_TestArena->ready == 1 && testArena_config.benchTicks != 0)
     {
         benchTick();
     }

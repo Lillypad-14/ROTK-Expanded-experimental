@@ -329,8 +329,7 @@ static bool isNazgul(const Actor *foe)
 /** A foe with more max HP than Eowyn. */
 static bool isBigger(u8 playerIndex, const Actor *foe)
 {
-    return foe->unitType < ENEMY_TYPE_COUNT &&
-           combat_getEnemyMaxHp(foe->unitType) > maxHp(playerIndex);
+    return hackLib_actorMaxHp(foe) > maxHp(playerIndex);
 }
 
 static Actor *nearestFoe(Actor *center, s32 radius)
@@ -1002,7 +1001,7 @@ static void spendGallop(u8 playerIndex, EowynState *st, Actor *actor, Actor *vic
     {
         return;
     }
-    if (steps >= GALLOP_KNOCKBACK_STEPS && victim->currentHp > 0)
+    if (steps >= GALLOP_KNOCKBACK_STEPS && hackLib_actorCurrentHp(victim) > 0)
     {
         knockBack(actor, victim, GALLOP_KNOCKBACK);
     }

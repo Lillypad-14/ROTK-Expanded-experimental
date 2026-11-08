@@ -112,7 +112,7 @@ static void arrowTick(Actor *fx)
 
 static void arrowHit(Actor *fx, Actor *other)
 {
-    if (legacyFx_isFoe(other))
+    if (legacyFx_isFoeOf(fx, other))
     {
         hitFoe(fx, other, LEGACY_FX(fx)->count);
         legacyFx_end(fx);
@@ -148,7 +148,7 @@ static void shootArrow(Actor *body, LegacyAlly *ally)
 // a melee hit box (the body's or the weapon's) touching something on the attack's hit frame
 static void allyHit(Actor *fx, Actor *other)
 {
-    if (legacyFx_isFoe(other))
+    if (legacyFx_isFoeOf(fx, other))
     {
         hitFoe(fx, other, allyOf(fx)->level);
     }

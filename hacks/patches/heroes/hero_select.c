@@ -27,6 +27,8 @@
 #include "patches/skill_expansion/skill_expansion.h"
 #endif
 
+#include "hero_custom_portraits.inc"
+
 const HeroMenuInfo HeroMenuInfos[HACK_HERO_COUNT] = {
 #include "hero_menu.inc"
 };

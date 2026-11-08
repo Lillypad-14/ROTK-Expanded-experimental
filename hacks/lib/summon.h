@@ -2,6 +2,7 @@
 
 #include "actor.h"
 #include "actor/npc.h"
+#include "lib/actor_ref.h"
 #include "variables.h"
 
 #define GHOST_NPC_KIND NPC_KIND_SIEGE_B
@@ -99,7 +100,7 @@ static inline void hackLib_tickPersistentGhost(Actor *ghost, HackLibSummonTarget
         // never sees the animation end, so it would swing in place forever.
         bool32 swinging = ghost->actionState == GHOST_ACTION_ATTACK;
         Actor *target = state->target;
-        bool32 lost = target == NULL || !isTarget(target) || target->currentHp <= 0;
+        bool32 lost = target == NULL || !isTarget(target) || hackLib_actorCurrentHp(target) <= 0;
 
         if (swinging && !lost)
         {

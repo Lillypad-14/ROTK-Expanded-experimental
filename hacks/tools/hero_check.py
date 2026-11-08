@@ -154,6 +154,8 @@ def main() -> None:
     sources = hero_clips.Sources(ROOT, rom)
     variables = ROOT / "build/include/variables.h"
     portraits = set(re.findall(r"DialogPortrait(\w+?)BgAsset", variables.read_text())) if variables.exists() else None
+    if portraits is not None:
+        portraits |= {png.stem for png in (ROOT / "hacks/content/portraits").glob("*.png")}
     names = hero_kit.catalog(ROOT)
     failed = False
     try:

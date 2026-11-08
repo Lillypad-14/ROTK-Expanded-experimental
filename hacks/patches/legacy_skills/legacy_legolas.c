@@ -97,7 +97,7 @@ static void knockTick(Actor *fx)
 
 static void knockHit(Actor *fx, Actor *other)
 {
-    if (legacyFx_isFoe(other) && rng_rollRange(0, 100) <= LEGACY_FX(fx)->amount)
+    if (legacyFx_isFoeOf(fx, other) && rng_rollRange(0, 100) <= LEGACY_FX(fx)->amount)
     {
         actor_applyKnockback(other, fx, SUPPRESS_KNOCK_TICKS);
     }
@@ -284,7 +284,7 @@ static void callTick(Actor *fx)
 
 static void callPick(Actor *fx, Actor *other)
 {
-    if (legacyFx_isFoe(other) && LEGACY_FX(fx)->count != 0)
+    if (legacyFx_isFoeOf(fx, other) && LEGACY_FX(fx)->count != 0)
     {
         LEGACY_FX(fx)->count--;
         sendHawk(fx, other);
@@ -354,7 +354,7 @@ static u8 overdrawAim(Actor *archer)
 
     for (other = g_ActorListMain.head; other != NULL; other = other->next)
     {
-        if ((other->flags.p & ACTOR_FLAG_ON_SCREEN) && legacyFx_isFoe(other) && inFront(archer, other) &&
+        if ((other->flags.p & ACTOR_FLAG_ON_SCREEN) && legacyFx_isFoeOf(archer, other) && inFront(archer, other) &&
             other->actionState != ACTOR_STATE_UNKNOWN_11 && other->actionState != ACTOR_STATE_UNKNOWN_15)
         {
             Vector2Fp16 toward = {other->coords.x - archer->coords.x, other->coords.y - archer->coords.y};

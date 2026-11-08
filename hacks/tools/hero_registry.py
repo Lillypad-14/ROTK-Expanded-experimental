@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import re
 import struct
+import sys
 
 import hero_data
 import hero_kit
@@ -95,6 +96,27 @@ def stock_stats(root: Path) -> list[list[int]]:
     return stats
 
 
+def write_portraits(root: Path, output: Path) -> set[str]:
+    """Dialog portraits from hacks/content/portraits/<Name>.png (portrait_art.py makes them), as
+    DialogPortrait<Name>BgAsset arrays. Returns their names."""
+    sys.path.insert(0, str(root / "tools"))
+    from rotkit import bgasset
+    from rotkit.carve.bg_assets import CATEGORIES, DIALOG
+    from rotkit.png import read_indexed
+
+    category = CATEGORIES[DIALOG]
+    names, text = set(), []
+    for png in sorted((root / "hacks/content/portraits").glob("*.png")):
+        if not png.stem.isalpha():
+            raise ValueError(f"{png.name}: portrait names are letters only")
+        data = bgasset.serialize(bgasset.rebuild(read_indexed(str(png)), category.template(), category.tiles_wide))
+        body = ",".join(str(b) for b in data)
+        text.append(f"static const u8 DialogPortrait{png.stem}BgAsset[] __attribute__((aligned(4))) = {{{body}}};\n")
+        names.add(png.stem)
+    (output / "hero_custom_portraits.inc").write_text("".join(text))
+    return names
+
+
 def write_menu(root: Path, output: Path, heroes: list[dict]) -> None:
     """The hero select's data: group, description, portrait and starting stats per hero."""
     groups = list(dict.fromkeys(hero.get("group", "Heroes") for hero in heroes))
@@ -102,6 +124,9 @@ def write_menu(root: Path, output: Path, heroes: list[dict]) -> None:
     rows = []
     variables = root / "build/include/variables.h"
     known = set(re.findall(r"DialogPortrait(\w+?)BgAsset", variables.read_text())) if variables.exists() else None
+    custom = write_portraits(root, output)
+    if known is not None:
+        known |= custom
     for hero in heroes:
         portrait = hero.get("portrait", STOCK_NAMES[hero["stockHero"]])
         if not re.fullmatch(r"[A-Za-z]+", portrait) or (known is not None and portrait not in known):

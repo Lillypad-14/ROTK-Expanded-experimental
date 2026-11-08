@@ -55,6 +55,8 @@ typedef struct TestArenaConfig
     // First active row of the automatic sweep. The legacy rows start at
     // SKILL_EXPANSION_FIRST_LEGACY_ACTIVE_ROW.
     u32 sweepFirstRow;
+    // Loot drops rolled per hero and source for the loot report (ARENA_LOOT), or 0 for none.
+    u32 lootRolls;
 } TestArenaConfig;
 
 typedef struct TestArenaControl

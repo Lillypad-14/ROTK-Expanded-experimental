@@ -1,4 +1,5 @@
 #include "lib/summon.h"
+#include "lib/actor_ref.h"
 #include "lib/fx_kit.h"
 #include "lib/movement.h"
 
@@ -45,7 +46,7 @@ static Actor *nearestFoe(Actor *ghost, Actor *owner, HackLibSummonTargetFilter i
     {
         s32 distance = pixelDistance(ghost, foe);
 
-        if (isTarget(foe) && foe->currentHp > 0 && pixelDistance(owner, foe) <= AGGRO_RANGE &&
+        if (isTarget(foe) && hackLib_actorCurrentHp(foe) > 0 && pixelDistance(owner, foe) <= AGGRO_RANGE &&
             (best == NULL || distance < bestDistance))
         {
             best = foe;
@@ -86,7 +87,7 @@ void hackLib_escortGhost(Actor *ghost, HackLibSummonTargetFilter isTarget)
     bool32 swinging = ghost->actionState == GHOST_ACTION_ATTACK;
     bool32 following = state->target == owner;
     bool32 lost = state->target == NULL || following || !isTarget(state->target) ||
-                  state->target->currentHp <= 0 || pixelDistance(owner, state->target) > LEASH_RANGE;
+                  hackLib_actorCurrentHp(state->target) <= 0 || pixelDistance(owner, state->target) > LEASH_RANGE;
     s32 ownerDistance = pixelDistance(ghost, owner);
 
     if (lost)

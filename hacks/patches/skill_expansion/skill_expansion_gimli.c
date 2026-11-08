@@ -1,4 +1,5 @@
 #include "patches/skill_expansion/skill_expansion_gimli.h"
+#include "lib/actor_ref.h"
 #include "enemy.h"
 #include "fx.h"
 #include "game.h"
@@ -811,10 +812,10 @@ SkillExpansionCastResult skillExpansion_gimliCleaveTheWeak(Actor *playerActor)
     {
         return SKILL_CAST_INVALID_TARGET;
     }
-    maxHp = foe->unitType < ENEMY_TYPE_COUNT ? combat_getEnemyMaxHp(foe->unitType) : 0;
+    maxHp = hackLib_actorMaxHp(foe);
     execute =
-        maxHp > 0 && foe->currentHp <= PLAYER_STAT(p, STAT_MAX_HP) &&
-        foe->currentHp * 100 <= maxHp * (CLEAVE_BASE_PERCENT + CLEAVE_PERCENT_PER_LEVEL * level);
+        maxHp > 0 && hackLib_actorCurrentHp(foe) <= PLAYER_STAT(p, STAT_MAX_HP) &&
+        hackLib_actorCurrentHp(foe) * 100 <= maxHp * (CLEAVE_BASE_PERCENT + CLEAVE_PERCENT_PER_LEVEL * level);
     result = skillExpansion_dealDamage(
         playerActor, foe,
         execute ? CLEAVE_EXECUTE_DAMAGE : CLEAVE_BASE_DAMAGE + CLEAVE_DAMAGE_PER_LEVEL * level,

@@ -19,6 +19,18 @@
 /** A player's avatar actor. */
 bool32 skillExpansion_isPlayerAvatar(Actor *actor);
 
+/**
+ * A landed hit of one player on the other (a duel or friendly-fire blow, or a skill): the attacker's
+ * on-hit effects and the victim's incoming-hit effects, as for a hit on an enemy.
+ */
+void skillExpansion_playerHitPlayer(Actor *attacker, Actor *victim, HackLibDamageResult result, bool melee);
+
+/**
+ * A player-vs-player blow's stock damage scaled by the hero bonuses skillExpansion_computePveDamage
+ * just gave the same attacker and victim (the stock PvP resolve calls it first).
+ */
+s32 skillExpansion_scalePvpMelee(Actor *attacker, Actor *victim, s32 damage);
+
 /** A living, hittable enemy for skill AoE effects. */
 bool32 skillExpansion_isFoe(Actor *actor);
 

@@ -1,5 +1,6 @@
 // Versus: player-vs-player for co-op. See versus.h.
 #include "patches/versus/versus.h"
+#include "combat.h"
 #include "font.h"
 #include "game.h"
 #include "gfx.h"
@@ -9,6 +10,11 @@
 #include "lib/pc_host.h"
 #include "memory.h"
 #include "patches/mod_save/save_sram.h"
+#include "lib/actor_ref.h"
+#include "lib/combat_source.h"
+#include "lib/summon.h"
+#include "math.h"
+#include "patches/skill_expansion/skill_expansion_elite.h"
 #include "patches/skill_expansion/skill_expansion_runtime.h"
 #include "player.h"
 #include "save.h"
@@ -26,6 +32,11 @@
 #define VERSUS_OVER_TICKS 180
 // No single skill hit takes more than this share of a player's max HP, so no skill one-shots.
 #define VERSUS_SKILL_HIT_MAX_PERCENT 40
+// Parent links followed from a projectile, summon or effect to the player behind it.
+#define VERSUS_OWNER_DEPTH 4
+// A stunned player stays stunned at most 1.5 s, then can't be stunned again for 1.5 s.
+#define VERSUS_STUN_MAX_TICKS 45
+#define VERSUS_STUN_IMMUNE_TICKS 45
 
 static const u8 KoTargets[VERSUS_KO_TARGET_COUNT] = {3, 5, 7, 10};
 static const u16 DamagePercents[VERSUS_DAMAGE_COUNT] = {100, 150, 200, 300};
@@ -50,6 +61,8 @@ typedef struct VersusDuel
     u8 downFrames[2];
     u8 shieldFrames[2];
     u8 acting; // VERSUS_NO_PLAYER or the player whose tick is running (fills the u16's padding)
+    u8 stunTicks[2];  // ticks left of a player's current stun, 0 when not stunned
+    u8 stunImmune[2]; // ticks left in which a new stun on the player is shaken off at once
     u16 overFrames;
     u16 spawnX[2];
     u16 spawnY[2];
@@ -115,12 +128,20 @@ bool versus_originalPvpAttack(Actor *attacker, Actor *victim);
 bool versus_resolvePvpAttack(Actor *attacker, Actor *victim)
 {
     bool hit;
+    u8 target = victim->as.combat.playerIndex & 1;
+    s32 hpBefore = PLAYER(target).currentHp;
 
     u8 previousAttacker = Duel.pvpAttacker;
 
     Duel.pvpAttacker = attacker->as.combat.playerIndex & 1;
     Duel.pvpHits++;
     hit = versus_originalPvpAttack(attacker, victim);
+    if (hit)
+    {
+        hackLib_probePlayer(HACKLIB_PROBE_HIT, victim);
+        skillExpansion_playerHitPlayer(attacker, victim,
+                                       hackLib_damageResult(hpBefore, PLAYER(target).currentHp, TRUE), TRUE);
+    }
     Duel.pvpHits--;
     Duel.pvpAttacker = previousAttacker;
     return hit;
@@ -278,11 +299,62 @@ static void respawn(u8 playerIndex)
     Duel.shieldFrames[playerIndex] = VERSUS_SHIELD_TICKS;
 }
 
+static void endStun(Actor *actor)
+{
+    actor->actionState = ACTOR_STATE_IDLE;
+    actor->actionStateTimer = 0;
+    actor->field_0x64[0] &= ~2;
+}
+
+/**
+ * A skill's stun on a player (ACTOR_STATE_STUNNED, which the stock game only gives enemies, whose
+ * tick ends it). The player tick never ends it, so it is timed here, capped, and followed by a short
+ * immunity.
+ */
+static void tickPlayerStun(u8 playerIndex, Actor *actor)
+{
+    if (actor->actionState != ACTOR_STATE_STUNNED)
+    {
+        Duel.stunTicks[playerIndex] = 0;
+        if (Duel.stunImmune[playerIndex] != 0)
+        {
+            Duel.stunImmune[playerIndex]--;
+        }
+        return;
+    }
+    if (Duel.stunTicks[playerIndex] == 0)
+    {
+        if (Duel.stunImmune[playerIndex] != 0)
+        {
+            endStun(actor);
+            return;
+        }
+        Duel.stunTicks[playerIndex] =
+            actor->actionStateTimer <= 0
+                ? 1
+                : (actor->actionStateTimer < VERSUS_STUN_MAX_TICKS ? actor->actionStateTimer
+                                                                   : VERSUS_STUN_MAX_TICKS);
+    }
+    PLAYER_KEYS_CURRENT(playerIndex) = 0;
+    PLAYER_KEYS_PRESSED(playerIndex) = 0;
+    PLAYER_KEYS_RELEASED(playerIndex) = 0;
+    if (--Duel.stunTicks[playerIndex] == 0)
+    {
+        endStun(actor);
+        Duel.stunImmune[playerIndex] = VERSUS_STUN_IMMUNE_TICKS;
+    }
+}
+
 void versus_playerTick(u8 playerIndex)
 {
     Actor *actor = PLAYER(playerIndex).ownerActor;
 
-    if (playerIndex >= 2 || actor == NULL || !duelRunning())
+    if (playerIndex >= 2 || actor == NULL)
+    {
+        return;
+    }
+    tickPlayerStun(playerIndex, actor);
+    if (!duelRunning())
     {
         return;
     }
@@ -394,38 +466,82 @@ void versus_endActing(u8 previous)
     Duel.acting = previous;
 }
 
-bool32 versus_isDuelFoe(Actor *actor)
+u8 versus_playerOf(Actor *actor)
+{
+    u32 depth;
+
+    for (depth = 0; actor != NULL && depth < VERSUS_OWNER_DEPTH; depth++)
+    {
+        if (skillExpansion_isPlayerAvatar(actor))
+        {
+            return actor->as.combat.playerIndex;
+        }
+        actor = actor->parentActor;
+    }
+    return VERSUS_NO_PLAYER;
+}
+
+/** The player behind the damage being resolved, else the player whose tick is running. */
+static u8 attackingPlayer(void)
+{
+    const HackLibDamageSource *source = hackLib_currentDamageSource();
+    u8 player = source != NULL ? versus_playerOf(source->origin) : VERSUS_NO_PLAYER;
+
+    return player < 2 ? player : Duel.acting;
+}
+
+static bool32 isFoeOf(u8 attacker, Actor *actor)
 {
     u8 target;
 
-    if (actor == NULL || Duel.acting >= 2 || !duelRunning() || Duel.phase != VERSUS_PHASE_FIGHT)
+    if (actor == NULL || attacker >= 2 || !duelRunning() || Duel.phase != VERSUS_PHASE_FIGHT)
     {
         return FALSE;
     }
     target = actor->as.combat.playerIndex;
-    return target < 2 && target != Duel.acting && actor == PLAYER(target).ownerActor &&
+    return target < 2 && target != attacker && actor == PLAYER(target).ownerActor &&
            PLAYER(target).currentHp > 0 && Duel.downFrames[target] == 0 &&
            Duel.shieldFrames[target] == 0 && !(actor->flags.p & ACTOR_FLAG_INVULNERABLE);
 }
 
-HackLibDamageResult versus_skillHitsPlayer(Actor *victim, u16 damage)
+bool32 versus_isDuelFoe(Actor *actor)
+{
+    return isFoeOf(attackingPlayer(), actor);
+}
+
+bool32 versus_isFoeOfSource(Actor *source, Actor *actor)
+{
+    u8 attacker = versus_playerOf(source);
+
+    return isFoeOf(attacker < 2 ? attacker : attackingPlayer(), actor);
+}
+
+HackLibDamageResult versus_skillHitsPlayer(Actor *source, Actor *victim, u16 damage)
 {
     u8 target = victim->as.combat.playerIndex;
+    u8 attacker = versus_playerOf(source);
     s32 hpBefore;
     s32 cap;
     u8 previousAttacker = Duel.pvpAttacker;
 
-    if (!versus_isDuelFoe(victim) || damage == 0)
+    if (attacker >= 2)
+    {
+        attacker = attackingPlayer();
+    }
+    if (!isFoeOf(attacker, victim) || damage == 0)
     {
         return (HackLibDamageResult){0};
     }
     hpBefore = PLAYER(target).currentHp;
     cap = PLAYER_STAT(target, STAT_MAX_HP) * VERSUS_SKILL_HIT_MAX_PERCENT / 100;
     // Marked as a hit between players, so the duel scales it like a melee hit.
-    Duel.pvpAttacker = Duel.acting;
+    Duel.pvpAttacker = attacker;
     Duel.pvpHits++;
     player_subtractHp(target, damage < cap ? damage : (cap > 0 ? cap : 1), TRUE);
+    hackLib_probePlayer(HACKLIB_PROBE_HIT, victim);
     Duel.pvpHits--;
+    skillExpansion_playerHitPlayer(PLAYER(attacker).ownerActor, victim,
+                                   hackLib_damageResult(hpBefore, PLAYER(target).currentHp, TRUE), FALSE);
     Duel.pvpAttacker = previousAttacker;
     return hackLib_damageResult(hpBefore, PLAYER(target).currentHp, TRUE);
 }
@@ -519,3 +635,104 @@ const struct ModOptionEntry VersusOptions[VERSUS_OPTION_COUNT] = {
      set_friendlyFire, "Co-op: when your hits land\non your partner."},
 };
 #endif
+
+// The actors a player's stock area skills can hit (actor_iterateInRadius's flag test).
+#define VERSUS_ITERATE_FLAGS_MASK (ACTOR_FLAG_10 | ACTOR_FLAG_18 | ACTOR_FLAG_28)
+
+/**
+ * actor_iterateInRadius, which also yields the duel opponent of the player behind the damage being
+ * resolved (else behind center), so stock area skills reach the other player.
+ *
+ * REPLACES (whole function): actor_iterateInRadius.
+ */
+Actor *versus_iterateInRadius(Actor *center, Actor *cursor, s32 radius)
+{
+    u8 attacker = VERSUS_NO_PLAYER;
+    Actor *actor;
+
+    if (duelRunning() && Duel.phase == VERSUS_PHASE_FIGHT)
+    {
+        attacker = attackingPlayer();
+        if (attacker >= 2)
+        {
+            attacker = versus_playerOf(center);
+        }
+    }
+    for (actor = cursor == NULL ? g_ActorListMain.head : cursor->next; actor != NULL;
+         actor = actor->next)
+    {
+        if ((actor->flags.p & ACTOR_FLAG_ON_SCREEN) && actor->actionState != ACTOR_STATE_UNKNOWN_11 &&
+            actor->actionState != ACTOR_STATE_UNKNOWN_15 &&
+            actor->actionState != ACTOR_STATE_UNKNOWN_04 &&
+            math_vector2_distance(*(Vector2Int *)&center->renderCoords,
+                                  *(Vector2Int *)&actor->renderCoords) <= (u32)radius &&
+            ((actor->flags.p & VERSUS_ITERATE_FLAGS_MASK) || isFoeOf(attacker, actor)))
+        {
+            return actor;
+        }
+    }
+    return NULL;
+}
+
+// The enemy walk's view around the player's camera, in pixels.
+#define VERSUS_VIEW_MARGIN 40
+#define VERSUS_VIEW_WIDTH 240
+#define VERSUS_VIEW_HEIGHT 160
+
+/**
+ * The stock enemy walk (0x080013a8): the next actor after cursor, on the main list, in view of
+ * playerActor's camera (or always in view), that a player's attack can hit. In a duel it also yields
+ * the player's opponent, so stock skills and their cast checks reach the other player.
+ *
+ * REPLACES (whole function): the stock enemy walk at 0x080013a8 (findNextEnemyStock).
+ */
+Actor *versus_findNextEnemy(Actor *playerActor, Actor *cursor)
+{
+    u8 attacker = duelRunning() && Duel.phase == VERSUS_PHASE_FIGHT ? versus_playerOf(playerActor)
+                                                                    : VERSUS_NO_PLAYER;
+    Actor *actor;
+
+    for (actor = cursor == NULL ? g_ActorListMain.head : cursor->next; actor != NULL;
+         actor = actor->next)
+    {
+        bool32 inView = actor->field_0xfe == 1;
+
+        if (!inView)
+        {
+            Vector2Int camera;
+            Vector2Int position;
+
+            gfx_getCameraPosition(&camera, playerActor->as.combat.playerIndex);
+            math_vector2_fromFp16(&actor->coords, &position);
+            inView = position.x >= camera.x - VERSUS_VIEW_MARGIN && position.y >= camera.y - VERSUS_VIEW_MARGIN &&
+                     position.x <= camera.x + VERSUS_VIEW_WIDTH + VERSUS_VIEW_MARGIN &&
+                     position.y <= camera.y + VERSUS_VIEW_HEIGHT + VERSUS_VIEW_MARGIN;
+        }
+        if (inView && ((actor->flags.p & VERSUS_ITERATE_FLAGS_MASK) || isFoeOf(attacker, actor)) &&
+            actor->actionState != ACTOR_STATE_UNKNOWN_11 && actor->actionState != ACTOR_STATE_UNKNOWN_15 &&
+            actor->actionState != ACTOR_STATE_UNKNOWN_04)
+        {
+            return actor;
+        }
+    }
+    return NULL;
+}
+
+u8 hackLib_beginActingFor(Actor *actor)
+{
+    return versus_beginActing(versus_playerOf(actor));
+}
+
+void hackLib_endActing(u8 previous)
+{
+    versus_endActing(previous);
+}
+
+/**
+ * combat_computePvpDamage with the attacking hero's melee bonuses (passives, kits, twists), which
+ * the stock PvP blow leaves out. Called from combat_resolvePvpAttack's damage call.
+ */
+s32 versus_computePvpDamage(Actor *attacker, Actor *victim, bool crit)
+{
+    return skillExpansion_scalePvpMelee(attacker, victim, combat_computePvpDamage(attacker, victim, crit));
+}

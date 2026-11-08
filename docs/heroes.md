@@ -443,7 +443,9 @@ Status: **headless checks pass; manual pass pending.**
 | --- |
 | Pounce, Howl, Rend, Go for the Throat, Feeding Frenzy, Hunt Down |
 
-Passives: Thick Pelt, Long Stride, Sharp Fangs, Blood Scent, Hunter's Patience, Pack Lore, Savage, Howling Wild, Alpha.
+Passives: Thick Pelt, Long Stride (+6% speed per level), Sharp Fangs, Blood Scent (Rend bleeds harder),
+Hunter's Patience (Pounce and Hunt Down chain to more foes), Pack Lore, Savage (Go for the Throat triples on
+healthier foes), Howling Wild (Howl weakens more), Alpha (Feeding Frenzy holds more stacks).
 
 Kit: [`warg.json`](../hacks/content/heroes/warg.json). Skill sprites: [`warg_fx_art.py`](../hacks/tools/warg_fx_art.py).
 

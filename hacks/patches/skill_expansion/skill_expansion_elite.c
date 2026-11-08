@@ -637,7 +637,7 @@ static Actor *raiseGhost(u8 playerIndex, Actor *playerActor, Actor *exclude)
     do
     {
         target = findNextEnemy(playerActor, target);
-    } while (target != NULL && (target == exclude || target->currentHp <= 0));
+    } while (target != NULL && (target == exclude || hackLib_actorCurrentHp(target) <= 0));
     if (target == NULL)
     {
         return NULL;
@@ -824,7 +824,7 @@ static void flameBurst(Actor *attacker, Actor *center, s32 damage)
 /** A blazing blow burns the foe it lands on and the foes around it. */
 static void flameStrike(Actor *attacker, Actor *victim, s32 damage)
 {
-    if (victim->currentHp > 0)
+    if (hackLib_actorCurrentHp(victim) > 0)
     {
         skillExpansion_dealElementalDamage(attacker, victim, damage, HACKLIB_DAMAGE_SECONDARY,
                                            HACKLIB_ABILITY_NONE, HACKLIB_ELEMENT_FIRE);
@@ -965,7 +965,7 @@ static void eliteTick(u8 playerIndex, Actor *playerActor)
         Actor *mark = st->markTarget.actor;
 
         if (--st->markFrames == 0 || !hackLib_isActorRefValid(st->markTarget) ||
-            mark->currentHp <= 0 || !skillExpansion_isFoe(mark))
+            hackLib_actorCurrentHp(mark) <= 0 || !skillExpansion_isFoe(mark))
         {
             st->markFrames = 0;
             st->markTarget = (HackLibActorRef){0};
@@ -1063,6 +1063,20 @@ typedef struct MeleeResolution
 
 static MeleeResolution *currentMeleeResolution;
 
+// The last melee damage through skillExpansion_computePveDamage: stock damage and with the bonuses.
+typedef struct LastMelee
+{
+    Actor *attacker;
+    Actor *victim;
+    s32 stock;
+    s32 final;
+} LastMelee;
+
+static LastMelee lastMelee;
+
+// The most a player-vs-player blow's bonuses may multiply it.
+#define PVP_MELEE_MAX_SCALE 4
+
 /** Melee bonuses around combat_computePveDamage, retaining its native crit result. */
 s32 skillExpansion_computePveDamage(Actor *attacker, Actor *victim, bool crit)
 {
@@ -1078,6 +1092,7 @@ s32 skillExpansion_computePveDamage(Actor *attacker, Actor *victim, bool crit)
         currentMeleeResolution->elementsKnown = TRUE;
     }
     s32 damage = skillExpansion_original_combat_computePveDamage(attacker, victim, crit);
+    s32 stock = damage;
     u8 p;
 
     if (!skillExpansion_isPlayerAvatar(attacker))
@@ -1115,7 +1130,25 @@ s32 skillExpansion_computePveDamage(Actor *attacker, Actor *victim, bool crit)
 #if HACK_debug_cheats
     damage = debugCheats_meleeDamage(victim, damage);
 #endif
+    lastMelee = (LastMelee){attacker, victim, stock, damage};
     return (u16)damage;
+}
+
+s32 skillExpansion_scalePvpMelee(Actor *attacker, Actor *victim, s32 damage)
+{
+    s32 scaled;
+
+    if (lastMelee.attacker != attacker || lastMelee.victim != victim || lastMelee.stock <= 0)
+    {
+        return damage;
+    }
+    scaled = damage * lastMelee.final / lastMelee.stock;
+    lastMelee.attacker = NULL;
+    if (scaled > damage * PVP_MELEE_MAX_SCALE)
+    {
+        scaled = damage * PVP_MELEE_MAX_SCALE;
+    }
+    return scaled > 0 ? scaled : (damage > 0 ? 1 : 0);
 }
 
 typedef struct CombatEventContext
@@ -1167,6 +1200,21 @@ static void dispatchCombatEvent(u8 playerIndex, const HackLibCombatEvent *event)
     hackLib_dispatchCombatEvent(event, &handlers, &context);
 }
 
+static void dispatchIncomingCombatEvent(u8 playerIndex, const HackLibCombatEvent *event);
+
+void skillExpansion_playerHitPlayer(Actor *attacker, Actor *victim, HackLibDamageResult result, bool melee)
+{
+    HackLibCombatEvent event;
+
+    if (!skillExpansion_isPlayerAvatar(attacker) || !skillExpansion_isPlayerAvatar(victim) || !result.hit)
+    {
+        return;
+    }
+    event = hackLib_captureCombatEvent(attacker, victim, result, melee);
+    dispatchCombatEvent(attacker->as.combat.playerIndex, &event);
+    dispatchIncomingCombatEvent(victim->as.combat.playerIndex, &event);
+}
+
 static void incomingCombatResolved(const HackLibCombatEvent *event, void *context)
 {
     CombatEventContext *dispatch = context;
@@ -1196,6 +1244,14 @@ static bool resolveMeleeHit(Actor *attacker, Actor *victim)
     bool hit;
     u8 p;
 
+#if HACK_versus
+    // A skill's melee strike on the other player resolves as a player-vs-player blow in a duel.
+    if (skillExpansion_isPlayerAvatar(victim) && versus_playerOf(attacker) < 2)
+    {
+        return skillExpansion_isPlayerAvatar(attacker) && versus_isFoeOfSource(attacker, victim) &&
+               versus_resolvePvpAttack(attacker, victim);
+    }
+#endif
     if (!skillExpansion_isPlayerAvatar(attacker))
     {
         return skillExpansion_original_combat_resolvePveAttack(attacker, victim);
@@ -1257,7 +1313,7 @@ static bool resolveMeleeHit(Actor *attacker, Actor *victim)
         return hit;
     }
 
-    if (st->meter >= METER_MAX && st->flameFrames == 0 && victim->currentHp > 0)
+    if (st->meter >= METER_MAX && st->flameFrames == 0 && hackLib_actorCurrentHp(victim) > 0)
     {
         skillExpansion_dealElementalDamage(attacker, victim, CHARGED_FIRE_DAMAGE,
                                            HACKLIB_DAMAGE_SECONDARY, HACKLIB_ABILITY_NONE,
@@ -1337,7 +1393,7 @@ static HackLibDamageResult dealDamage(Actor *attacker, Actor *victim, u16 damage
     {
         // Only a duel opponent: the stock ranged path would treat a player as an enemy actor.
         hackLib_swapDamageSource(&source);
-        result = versus_skillHitsPlayer(victim, damage);
+        result = versus_skillHitsPlayer(attacker, victim, damage);
         hackLib_swapDamageSource(parent);
         return result;
     }
@@ -1379,7 +1435,7 @@ void skillExpansion_ghostTrigger(Actor *ghost, Actor *victim)
         u8 p = owner->as.combat.playerIndex;
 
         stokeFlame(p, owner, METER_GHOST_HIT);
-        if (victim->currentHp <= 0 && hpBefore > 0)
+        if (hackLib_actorCurrentHp(victim) <= 0 && hpBefore > 0)
         {
             chainKill(p, owner, victim);
         }
@@ -1393,6 +1449,13 @@ static HackLibDamageResult resolveRangedHit(Actor *attacker, Actor *victim, u16 
     bool hit;
     u8 p;
 
+#if HACK_versus
+    // A player's skill or projectile on the other player: a duel hit or nothing.
+    if (skillExpansion_isPlayerAvatar(victim) && versus_playerOf(attacker) < 2)
+    {
+        return versus_skillHitsPlayer(attacker, victim, baseDamage);
+    }
+#endif
     if (!skillExpansion_isPlayerAvatar(attacker))
     {
         hit = skillExpansion_original_combat_applyPveRangedHit(attacker, victim, baseDamage);

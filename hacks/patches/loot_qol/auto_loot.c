@@ -81,8 +81,11 @@ void autoLoot_onDropUpdate(Actor *drop)
     // actor_lootPile_tick runs right after this hook and rewrites the flag
     drop->as.lootPile.standingFlags[looter] = 1;
 
-    // simulate the R button press and run the handler
-    PLAYER_KEYS_PRESSED(looter) |= R_BUTTON;
+    // simulate the R button press and run the handler, then restore the player's own R so a real
+    // press this frame still opens a chest or picks up an item
+    u16 pressed = PLAYER_KEYS_PRESSED(looter);
+
+    PLAYER_KEYS_PRESSED(looter) = pressed | R_BUTTON;
     actor_lootPile_trigger(drop, playerActor);
-    PLAYER_KEYS_PRESSED(looter) &= ~R_BUTTON;
+    PLAYER_KEYS_PRESSED(looter) = pressed;
 }

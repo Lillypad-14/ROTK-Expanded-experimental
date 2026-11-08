@@ -350,7 +350,18 @@ static Actor *slowFx(Actor *on, u8 shape, HackLibFxColor color, u8 layer)
 static const u8 WardSlots[] = {FX_COLOR_NAZGUL, FX_COLOR_EMBER, FX_COLOR_NIGHT, FX_COLOR_WHITE};
 #define WARD_COLOR_FRAMES 20
 
+static void tickWardBody(Actor *fx);
+
+/** tickWardBody, run for the player behind the effect. */
 static void tickWard(Actor *fx)
+{
+    u8 previous = hackLib_beginActingFor(fx);
+
+    tickWardBody(fx);
+    hackLib_endActing(previous);
+}
+
+static void tickWardBody(Actor *fx)
 {
     s16 left = fx->as.combat.venomDuration;
 
@@ -499,7 +510,7 @@ static bool32 refIs(HackLibActorRef reference, u16 frames, Actor *actor)
 
 static Actor *refActor(HackLibActorRef reference, u16 frames)
 {
-    if (frames == 0 || !hackLib_isActorRefValid(reference) || reference.actor->currentHp <= 0)
+    if (frames == 0 || !hackLib_isActorRefValid(reference) || hackLib_actorCurrentHp(reference.actor) <= 0)
     {
         return NULL;
     }
@@ -693,7 +704,7 @@ static SkillExpansionCastResult castRow(Actor *actor, u8 player, u8 row, u32 lev
         HackLibDamageResult result = skillExpansion_dealDamage(
             actor, target, scale(10 + 5 * level, power), HACKLIB_DAMAGE_ABILITY, row);
         if (result.hit && !result.killed && hackLib_isActorRefValid(victim) &&
-            target->currentHp > 0)
+            hackLib_actorCurrentHp(target) > 0)
         {
             applyBurn(actor, target, 120 + 30 * level, scale(1 + level, power), row);
         }
@@ -724,7 +735,7 @@ static SkillExpansionCastResult castRow(Actor *actor, u8 player, u8 row, u32 lev
         HackLibDamageResult result = skillExpansion_dealDamage(
             actor, target, scale(6 + 3 * level, power), HACKLIB_DAMAGE_ABILITY, row);
         if (result.hit && !result.killed && hackLib_isActorRefValid(victim) &&
-            target->currentHp > 0)
+            hackLib_actorCurrentHp(target) > 0)
         {
             st->bound = victim;
             st->boundFrames = stunFrames(player, 120 + 30 * level);
@@ -964,7 +975,7 @@ static void leapWildfire(u8 playerIndex, Actor *actor)
     st->wildfirePending = FALSE;
     while ((target = hackLib_nextTargetAt(&at, actor, WILDFIRE_RADIUS, target)) != NULL)
     {
-        if (!skillExpansion_isFoe(target) || target->currentHp <= 0)
+        if (!skillExpansion_isFoe(target) || hackLib_actorCurrentHp(target) <= 0)
         {
             continue;
         }
@@ -1067,7 +1078,7 @@ static bool32 autoHeal(u8 playerIndex)
 
 static bool32 isStunned(Actor *actor)
 {
-    return actor != NULL && actor->currentHp > 0 && actor->actionState == ACTOR_STATE_STUNNED;
+    return actor != NULL && hackLib_actorCurrentHp(actor) > 0 && actor->actionState == ACTOR_STATE_STUNNED;
 }
 
 static s32 meleeDamage(u8 playerIndex, Actor *victim, s32 damage)
