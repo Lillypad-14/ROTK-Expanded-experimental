@@ -283,6 +283,8 @@ typedef struct SkillExpansionHeroKit
     void (*reset)(u8 playerIndex);
     void (*cleanup)(u8 playerIndex, Actor *actor);
     void (*tick)(u8 playerIndex, Actor *actor);
+    // Optional replacement behavior for the Auto Healing gameplay option.
+    bool32 (*autoHeal)(u8 playerIndex);
     void (*refundSpirit)(u8 playerIndex, s32 amount);
     s32 (*meleeDamage)(u8 playerIndex, Actor *victim, s32 damage);
     s32 (*rangedDamage)(u8 playerIndex, Actor *victim, s32 damage);
